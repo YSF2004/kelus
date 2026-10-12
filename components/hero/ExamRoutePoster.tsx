@@ -10,7 +10,7 @@ const OPTIONS = [
   { text: "Buyers like the product less.", right: false },
 ] as const;
 
-/** One legible revision moment you can play: answer the question and watch the route react. */
+/** An illustrative source-to-route journey; the real upload begins at /today. */
 export function ExamRoutePoster() {
   const sheetRef = useRef<HTMLDivElement>(null);
   const inView = useInView(sheetRef, { once: true, amount: 0.3 });
@@ -25,7 +25,7 @@ export function ExamRoutePoster() {
     <figure
       className={styles.script}
       role="group"
-      aria-label="Sample Microeconomics study sheet: answer one question and see how your route changes."
+      aria-label="Sample Microeconomics journey: a PDF becomes a recall question, and your answer changes the route."
     >
       <motion.div
         ref={sheetRef}
@@ -35,12 +35,31 @@ export function ExamRoutePoster() {
         transition={{ duration: reduceMotion ? 0 : 0.4, ease: [0.22, 1, 0.36, 1] }}
       >
         <div className={styles.sheetTopline}>
-          <span>Microeconomics</span>
-          <span>Sample study sheet</span>
+          <span>PDF or notes <span aria-hidden="true">→</span> Recall <span aria-hidden="true">→</span> Study plan</span>
+          <span>Illustrative example</span>
+        </div>
+
+        <div className={styles.source}>
+          <div className={styles.sourceHeading}>
+            <span className={styles.sourceLabel}>Start with a PDF or notes</span>
+            <span className={styles.sourceStep}>Your material</span>
+          </div>
+          <motion.div
+            className={styles.sourceFile}
+            initial={false}
+            animate={{ opacity: settled ? 1 : 0.82, y: settled ? 0 : -8 }}
+            transition={{ duration: reduceMotion ? 0 : 0.32, ease: [0.22, 1, 0.36, 1] }}
+          >
+            <span className={styles.fileIcon} aria-hidden="true">
+              <svg viewBox="0 0 32 38" fill="none"><path d="M5 1.5h14l8 8V36.5H5z"/><path d="M19 1.5v8h8M10 18h12M10 23h12M10 28h8"/></svg>
+            </span>
+            <span className={styles.fileText}><strong>Microeconomics lecture.pdf</strong><small>Sample material · Lecture 06</small></span>
+            <span className={styles.sourceArrow} aria-hidden="true">↓</span>
+          </motion.div>
         </div>
 
         <div className={styles.note}>
-          <span className={styles.noteLabel}>From the lesson</span>
+          <span className={styles.noteLabel}>Kelus finds a topic in your notes</span>
           <p>Close substitutes make demand <span className={styles.highlight}>more responsive<motion.span
             className={styles.highlightStroke}
             data-cue="source"
@@ -58,7 +77,7 @@ export function ExamRoutePoster() {
             animate={{ scaleY: settled ? 1 : 0 }}
             transition={{ duration: reduceMotion ? 0 : 0.38, delay: reduceMotion ? 0 : 0.18, ease: [0.22, 1, 0.36, 1] }}
           />
-          <span className={styles.recallLabel}>Try to recall</span>
+          <span className={styles.recallLabel}>Then asks you to recall it</span>
           <p>Why does having another option make demand more elastic?</p>
           <div className={styles.options} role="group" aria-label="Choose one">
             {OPTIONS.map((option, index) => {
@@ -74,7 +93,7 @@ export function ExamRoutePoster() {
 
         <div className={styles.nextStep}>
           <div className={styles.routeResult} aria-live="polite">
-            <span className={styles.nextLabel}>{answered ? (gotIt ? "After a confident answer" : "After a shaky answer") : "Your route"}</span>
+            <span className={styles.nextLabel}>{answered ? (gotIt ? "After a strong answer · Study plan" : "After a shaky answer · Study plan") : "Study plan"}</span>
             <strong>
               {!answered ? "Pick an answer to see how it changes." : gotIt ? "Elasticity can wait. Kelus asks again later." : "Elasticity moves to the top of the route."}
               {answered ? <motion.span key={String(gotIt)} className={styles.routeArrow} data-cue="route" initial={reduceMotion ? false : { opacity: 0, x: -6 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: reduceMotion ? 0 : 0.3, ease: [0.22, 1, 0.36, 1] }}>{gotIt ? "✓" : "↗"}</motion.span> : null}

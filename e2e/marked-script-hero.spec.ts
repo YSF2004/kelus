@@ -10,7 +10,9 @@ test("revision-sheet hero preserves copy, links, and narrow-screen layout", asyn
     await expect(hero.locator("h1")).toHaveText("Revise your lessons. Walk into the exam ready.");
     await expect(hero.getByRole("link", { name: "Set up" })).toHaveAttribute("href", /^\/today\/?$/);
     await expect(hero.getByRole("link", { name: "Try sample (~1 min)" })).toHaveCount(0);
-    await expect(hero.getByRole("group", { name: /Sample Microeconomics study sheet/ })).toBeVisible();
+    await expect(hero.getByRole("group", { name: /Sample Microeconomics journey/ })).toBeVisible();
+    await expect(hero.locator("figure")).toContainText("Start with a PDF or notes");
+    await expect(hero.locator("figure")).toContainText("Microeconomics lecture.pdf");
     await expect(hero.locator("figure")).toContainText("Pick an answer");
     const sheet = await hero.locator("figure").boundingBox();
     expect(sheet).not.toBeNull();
@@ -46,7 +48,7 @@ test("hero is readable immediately and does not hold navigation for an animation
   await page.goto("/");
   const hero = page.locator('[data-hero="marked-script"]');
   await expect(hero.locator("figure")).toContainText("Close substitutes make demand");
-  await expect(hero.locator("figure")).toContainText("Try to recall");
+  await expect(hero.locator("figure")).toContainText("Then asks you to recall it");
   await expect(hero.locator("[data-ink]")).toHaveCount(0);
   await expect(hero.locator("[data-cue]")).toHaveCount(2);
   await expect(hero.getByRole("link", { name: "Set up" })).toHaveCSS("border-radius", "999px");

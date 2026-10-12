@@ -3,7 +3,7 @@ import { ExamRoutePoster } from "./ExamRoutePoster";
 import styles from "./MarkedScriptHero.module.css";
 
 /**
- * Revision-sheet hero: one headline, one lede, one primary path.
+ * Source-to-route hero: one headline, one lede, one primary path.
  * Brand lives in the site header — not repeated in the hero.
  * The illustrated revision story follows below the fold.
  */
@@ -17,7 +17,7 @@ export function KelusHero() {
         </h1>
 
         <p className={styles.lede}>
-          Recall from your notes. Check the answer. Your answer changes what you study next.
+          Drop a PDF or paste your notes. Try a question from them. Your answer changes what you study next.
         </p>
 
         <div className={styles.actions}>
