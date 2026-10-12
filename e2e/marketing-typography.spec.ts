@@ -1,13 +1,12 @@
 import { test, expect } from "@playwright/test";
 
-test("homepage study sheet can show both route outcomes", async ({ page }) => {
+test("homepage uses editorial type around the real product recording", async ({ page }) => {
   await page.goto("/");
-  await page.getByRole("button", { name: "Sellers are allowed to charge more." }).click();
-  await expect(page.getByText("Elasticity moves to the top of the route.")).toBeVisible();
-  await page.getByRole("button", { name: "Try another answer" }).click();
-  await expect(page.getByRole("button", { name: "Buyers can switch to another option when the price rises." })).toBeEnabled();
-  await page.getByRole("button", { name: "Buyers can switch to another option when the price rises." }).click();
-  await expect(page.getByText("Elasticity can wait. Kelus asks again later.")).toBeVisible();
+  const hero = page.locator('[data-hero="product-video"]');
+  await expect(hero.locator("h1")).toHaveCSS("font-family", /Fraunces/i);
+  await expect(hero.locator("p")).toHaveCSS("font-family", /Inter/i);
+  await expect(hero.locator("figcaption")).toHaveCSS("font-family", /Inter/i);
+  await expect(hero.locator("video:visible")).toHaveAttribute("controls", "");
 });
 
 test("How it works uses the shared Kelus canvas on desktop and mobile", async ({ page }) => {
