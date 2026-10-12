@@ -1,15 +1,13 @@
 import Link from "next/link";
-import { ExamRoutePoster } from "./ExamRoutePoster";
-import styles from "./MarkedScriptHero.module.css";
+import { HeroProductVideo } from "./HeroProductVideo";
+import styles from "./ProductVideoHero.module.css";
 
 /**
- * Source-to-route hero: one headline, one lede, one primary path.
- * Brand lives in the site header — not repeated in the hero.
- * The illustrated revision story follows below the fold.
+ * A recording of the real first-use journey, from upload to revised study plan.
  */
 export function KelusHero() {
   return (
-    <section className={`${styles.hero} is-poster`} aria-labelledby="home-hero-title" data-hero="marked-script">
+    <section className={`${styles.hero} is-poster`} aria-labelledby="home-hero-title" data-hero="product-video">
       <div className={styles.copy}>
         <h1 id="home-hero-title" className={styles.headline}>
           Revise your lessons.{" "}
@@ -28,7 +26,7 @@ export function KelusHero() {
       </div>
 
       <div className={styles.visual}>
-        <ExamRoutePoster />
+        <HeroProductVideo />
       </div>
     </section>
   );

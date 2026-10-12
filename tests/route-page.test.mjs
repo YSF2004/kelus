@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import test from "node:test";
 
-test("homepage presents marked-script hero followed by the illustrated revision story", () => {
+test("homepage presents the real product video followed by the illustrated revision story", () => {
   const page = readFileSync("app/page.tsx", "utf8");
   const hero = readFileSync("components/hero/KelusHero.tsx", "utf8");
   const story = readFileSync("components/home/HomeAfterHero.tsx", "utf8");
@@ -15,7 +15,13 @@ test("homepage presents marked-script hero followed by the illustrated revision 
   assert.doesNotMatch(hero, /today\?sample=1/);
   assert.match(hero, /Set up/);
   assert.doesNotMatch(hero, /Set up with your own course material/);
-  assert.match(hero, /ExamRoutePoster/);
+  assert.match(hero, /HeroProductVideo/);
+  const video = readFileSync("components/hero/HeroProductVideo.tsx", "utf8");
+  assert.match(video, /kelus-product-walkthrough\.webm/);
+  assert.match(video, /kelus-product-walkthrough-mobile\.webm/);
+  assert.match(video, /kelus-product-walkthrough\.mp4/);
+  assert.match(video, /kelus-product-walkthrough-mobile\.mp4/);
+  assert.match(video, /Recorded in Kelus with a demo lecture PDF/);
   assert.doesNotMatch(hero, /LEARNING_EXAMPLES/);
   assert.doesNotMatch(hero, /home-brand/);
   assert.doesNotMatch(hero, /hero-window-controls/);
