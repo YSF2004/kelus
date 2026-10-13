@@ -1,4 +1,5 @@
 import type { LearningActivity, RetrievalOutcome } from "./types";
+import { family, judgeWord, pageGroups, readAnswer } from "./explain-words";
 
 const STOPWORDS = new Set([
   "a", "an", "and", "are", "as", "at", "be", "by", "for", "from", "has", "have", "in", "into", "is", "it", "its", "of", "on", "or", "that", "the", "their", "then", "this", "to", "was", "which", "while", "with",
@@ -128,28 +129,29 @@ export function looksLikeWords(text: string) {
 /** Words that carry no idea on their own, on top of the stopwords: they never count as a key word to remember. */
 const FILLER = new Set(["also", "because", "been", "being", "both", "each", "every", "more", "most", "only", "other", "some", "such", "than", "there", "these", "they", "those", "very", "what", "when", "where", "will", "would", "about", "after", "before", "between", "during", "over", "under", "your", "make", "makes", "made", "does", "done", "much", "many", "same", "into", "onto", "upon", "across", "through", "within", "without", "toward", "towards", "along"]);
 
-export type ExplainPart = { text: string; key: boolean; hit: boolean };
-export type ExplainMatch = { parts: ExplainPart[]; keys: number; hits: number; missed: string[]; suggest: "nailed" | "partly" | "missed" };
+export type ExplainPart = { text: string; key: boolean; hit: boolean; /** The student's word that says the opposite of this one. */ flip?: string };
+export type ExplainMatch = { parts: ExplainPart[]; keys: number; hits: number; missed: string[]; /** Opposites: what the page says, and what the student wrote instead. */ flipped: Array<{ page: string; said: string }>; suggest: "nailed" | "partly" | "missed" };
 
 /**
- * Lines a student's own explanation up against the page sentence: which of the page's key words they used (in any
- * form: "turgid"/"turgidity" is not matched, "gains"/"gain" is) and which they left out, grouped into phrases.
- * It only suggests a self-grade; the student still decides, because a good paraphrase can use other words.
+ * Lines a student's own explanation up against the page sentence: which of the page's key words they used and which
+ * they left out, grouped into phrases. A word counts in any form of its family ("moves" for "movement", "turgidity"
+ * for "turgid"), or as an everyday word for the same idea ("rises" for "increases"). Saying the opposite ("loses"
+ * where the page says "gains") is never a match, and is named. It only suggests a self-grade.
  */
 export function explainMatch(answer: string, reference: string, topic = ""): ExplainMatch {
-  const saidStems = evidenceTokens(answer).filter((token) => token.length >= 4);
-  // "moves" covers "movement": a shared start of four letters or more counts as the same word.
-  const covered = (word: string) => { const stemmed = normalizeToken(word); return saidStems.some((token) => token === stemmed || (token.length >= 4 && stemmed.startsWith(token)) || (stemmed.length >= 4 && token.startsWith(stemmed))); };
+  const said = readAnswer(answer);
+  const ownGroups = pageGroups(reference);
   // The topic's own name is on the screen; leaving it out of an explanation is not a gap.
   const named = new Set(topic.toLocaleLowerCase().split(/[^\p{L}\p{N}-]+/u).filter(Boolean));
   const parts: ExplainPart[] = [];
   for (const piece of reference.split(/(\s+)/)) {
     const word = piece.toLocaleLowerCase().replace(/[^\p{L}\p{N}-]+/gu, "");
     const key = word.length >= 4 && !STOPWORDS.has(word) && !FILLER.has(word) && !named.has(word) && !/^\d+$/.test(word);
-    parts.push({ text: piece, key, hit: key && covered(word) });
+    const verdict = key ? judgeWord(word, said, ownGroups) : { hit: false };
+    parts.push({ text: piece, key, hit: verdict.hit, ...(verdict.flip ? { flip: verdict.flip } : {}) });
   }
   const seen = new Set<string>();
-  const unique = parts.filter((part) => part.key && !seen.has(normalizeToken(part.text.toLocaleLowerCase().replace(/[^\p{L}\p{N}-]+/gu, ""))) && seen.add(normalizeToken(part.text.toLocaleLowerCase().replace(/[^\p{L}\p{N}-]+/gu, ""))));
+  const unique = parts.filter((part) => part.key && !seen.has(family(part.text)) && seen.add(family(part.text)));
   const keys = unique.length;
   const hits = unique.filter((part) => part.hit).length;
   // Neighbouring missed key words read as one idea: "partially permeable membrane", not three separate words.
@@ -158,11 +160,13 @@ export function explainMatch(answer: string, reference: string, topic = ""): Exp
   const flush = () => { if (run.length) missed.push(run.join(" ")); run = []; };
   for (const part of parts) {
     if (/^\s+$/.test(part.text)) continue;
-    if (part.key && !part.hit) run.push(part.text.replace(/[^\p{L}\p{N}-]+/gu, ""));
+    if (part.key && !part.hit && !part.flip) run.push(part.text.replace(/[^\p{L}\p{N}-]+/gu, ""));
     else flush();
   }
   flush();
   const share = keys ? hits / keys : 0;
-  const suggest = !answer.trim() || share < 0.35 ? "missed" : share < 0.75 ? "partly" : "nailed";
-  return { parts, keys, hits, missed: [...new Set(missed.map((phrase) => phrase.toLocaleLowerCase()))], suggest };
+  const flipped = [...new Map(parts.filter((part) => part.flip).map((part) => [part.flip!, { page: part.text.replace(/[^\p{L}\p{N}-]+/gu, "").toLocaleLowerCase(), said: part.flip! }])).values()];
+  // An opposite is a wrong idea, not a gap: it never suggests a full mark.
+  const suggest = !answer.trim() || share < 0.35 ? "missed" : share < 0.75 || flipped.length ? "partly" : "nailed";
+  return { parts, keys, hits, missed: [...new Set(missed.map((phrase) => phrase.toLocaleLowerCase()))], flipped, suggest };
 }

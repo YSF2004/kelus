@@ -230,14 +230,15 @@ export function QuickRun({ run, onRevealSource, onFinish, onChecksDone }: {
                   <span>The page says</span>
                   <p>
                     {useful
-                      ? useful.parts.map((part, index) => (part.key ? <mark key={index} className={part.hit ? styles.hit : styles.miss} style={{ animationDelay: `${120 + index * 18}ms` }}>{part.text}</mark> : part.text))
+                      ? useful.parts.map((part, index) => (part.key ? <mark key={index} className={part.hit ? styles.hit : part.flip ? styles.flip : styles.miss} title={part.flip ? `You wrote “${part.flip}”` : undefined} style={{ animationDelay: `${120 + index * 18}ms` }}>{part.text}</mark> : part.text))
                       : run.explainAnswer}
                   </p>
                 </div>
                 {useful ? (
                   <p className={styles.coverage} role="status">
                     You used <strong>{useful.hits} of {useful.keys}</strong> key words.
-                    {useful.missed.length ? <> Left out: <b>{useful.missed.slice(0, 3).join(", ")}</b>.</> : " Nothing important left out."}
+                    {useful.missed.length ? <> Left out: <b>{useful.missed.slice(0, 3).join(", ")}</b>.</> : useful.flipped.length ? null : " Nothing important left out."}
+                    {useful.flipped.length ? <> Check the direction: you wrote <b>{useful.flipped[0].said}</b> where your notes say <b>{useful.flipped[0].page}</b>.</> : null}
                   </p>
                 ) : null}
                 <fieldset className={styles.grades}>

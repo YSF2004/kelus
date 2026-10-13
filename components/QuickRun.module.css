@@ -434,6 +434,7 @@
 /* The page sentence with the student's words lit up: green underline for key words they used,
    a warm highlighter for the ones they left out. Marks fade in one after another, like a teacher reading along. */
 .hit,
+.flip,
 .miss {
   border-radius: 3px;
   color: inherit;
@@ -445,6 +446,14 @@
   text-decoration: underline;
   text-decoration-color: var(--color-kelus);
   text-decoration-thickness: 2px;
+  text-underline-offset: 3px;
+}
+
+.flip {
+  background: none;
+  text-decoration: underline wavy;
+  text-decoration-color: var(--k-danger, #b42318);
+  text-decoration-thickness: 1.5px;
   text-underline-offset: 3px;
 }
 
@@ -460,7 +469,7 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .hit, .miss { animation: none; }
+  .hit, .flip, .miss { animation: none; }
 }
 
 .coverage {
