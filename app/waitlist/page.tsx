@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { SiteFooter } from "@/components/SiteFooter";
 import { WaitlistForm } from "@/components/WaitlistForm";
-import { WaitlistExport } from "@/components/WaitlistExport";
 
 export const metadata: Metadata = {
   title: "Waitlist — Kelus",
@@ -14,14 +13,12 @@ export default function WaitlistPage() {
   return (
     <main id="main" className="legal-page waitlist-page">
       <section className="legal-panel">
-        <p className="kicker">Stay close</p>
-        <h1>Use Kelus now. Get a note when it gets better for your course.</h1>
+        <p className="kicker">Waitlist</p>
+        <h1>Hear when Kelus Plus opens.</h1>
         <p className="legal-lede">
-          Revision sessions work today on this device. Sign in free anytime to sync across browsers. Join the list only if
-          you want a quiet update when Kelus Plus checkout or more courses land — not a marketing drip.
+          Kelus works today, free, on this device. Leave your email if you want one note when Kelus Plus opens.
         </p>
         <WaitlistForm source="waitlist_page" />
-        <WaitlistExport />
         <p className="legal-inline-links">
           Prefer to try now? <Link href="/today">Start revising</Link>
           {" · "}

@@ -14,7 +14,7 @@ export default function PrivacyPage() {
       <article className="legal-panel">
         <p className="kicker">Legal</p>
         <h1>Privacy</h1>
-        <p className="legal-updated">Last updated: October 7, 2026</p>
+        <p className="legal-updated">Last updated: October 13, 2026</p>
         <p className="legal-lede">
           Kelus is a local-first revision and exam practice tool. Without an account, your course PDFs and study progress stay on this
           device. If you sign in, Kelus can sync that work to your private account so you can continue on another
@@ -24,17 +24,17 @@ export default function PrivacyPage() {
         <h2>What stays on your device by default</h2>
         <ul>
           <li>
-            <strong>Course materials</strong> — PDFs you upload are read in the browser to propose concepts. Concept
-            extraction and the standard questions are made on this device. Without sign-in, PDF files stay in this browser’s storage.
+            <strong>Course materials</strong> — PDFs and notes you add are read in the browser to find their topics.
+            Topics and the standard questions are made on this device. Without sign-in, PDF files stay in this browser’s storage.
             The one exception is the optional AI question writing described below, which is off until you turn it on.
           </li>
           <li>
-            <strong>Study state</strong> — exam setup, confirmed concepts, diagnosis answers, and session history are
+            <strong>Study state</strong> — your exam date, your topics, your answers, and your study sessions are
             stored in browser storage on this device.
           </li>
           <li>
-            <strong>Saved links</strong> — video and web URLs you add are bookmarks on the source shelf. Kelus does not
-            fetch or analyze those pages for concepts.
+            <strong>Saved links</strong> — video and web links you add are kept as bookmarks in Materials. Kelus does not
+            fetch or read those pages.
           </li>
         </ul>
 
@@ -45,7 +45,7 @@ export default function PrivacyPage() {
         </p>
         <ul>
           <li>
-            <strong>Learning state</strong> — your course, exam date, confirmed concepts, diagnosis, and session history
+            <strong>Learning state</strong> — your course, exam date, topics, answers, and study sessions
             to your private account.
           </li>
           <li>
@@ -65,8 +65,8 @@ export default function PrivacyPage() {
 
         <h2>Waitlist</h2>
         <p>
-          If you join the waitlist, we store the email (and optional note) you submit so we can contact you about Exam
-          Pass launch and product updates. You can ask to be removed anytime at{" "}
+          If you join the waitlist, we store the email (and optional note) you submit so we can tell you when Kelus Plus
+          opens. It reaches us through the same inbox as Questions. You can ask to be removed anytime at{" "}
           <a href="mailto:hello@kelus.me">hello@kelus.me</a>.
         </p>
 

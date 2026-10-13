@@ -42,6 +42,6 @@ test("comfort friction: source-first setup, skip recall, faster PDF, calendar, m
   assert.match(complete, /downloadTomorrowStudyIcs/);
   assert.match(form, /mailto:/);
   assert.match(form, /Email hello@kelus\.me/);
-  assert.match(form, /Send in browser/);
-  assert.match(questions, /QuestionsInboxStatus/);
+  assert.match(form, /Send question/);
+  assert.match(questions, /QuestionsForm/);
 });

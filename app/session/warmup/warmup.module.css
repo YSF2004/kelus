@@ -197,4 +197,4 @@
 .close { display: inline-flex; align-items: center; min-height: 40px; padding: 0 10px; border-radius: 8px; color: var(--k-text-2); font-size: 0.875rem; font-weight: 500; text-decoration: none; }
 .close:hover { background: var(--k-selected); color: var(--k-ink); }
 .sub { margin: -6px 0 18px; color: var(--k-text-2); font-size: 0.9375rem; }
-.page :is(h1, h2) { font-family: var(--font-marketing-inter), ui-sans-serif, system-ui, sans-serif !important; letter-spacing: -0.02em; }
+.page :is(h1, h2) { font-family: var(--font-inter), ui-sans-serif, system-ui, sans-serif !important; letter-spacing: -0.02em; }

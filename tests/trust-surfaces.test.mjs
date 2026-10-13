@@ -27,7 +27,8 @@ test("privacy, terms, and waitlist pages ship with local-first trust copy", asyn
   assert.match(terms, /not grades|not a guarantee|exam outcomes|Guidance/i);
   assert.match(terms, /sync learning state and course PDFs/i);
   assert.match(waitlist, /WaitlistForm/);
-  assert.match(waitlist, /Sign in free anytime to sync/i);
+  assert.match(waitlist, /free, on this device/i);
+  assert.doesNotMatch(waitlist, /WaitlistExport/, "no developer download on a public page");
   assert.match(footer, /\/privacy/);
   assert.match(footer, /\/waitlist/);
   assert.match(sitemap, /\/privacy\//);
@@ -118,8 +119,11 @@ test("waitlist capture stays honest without a remote endpoint", async () => {
   assert.match(waitlist, /localStorage/);
   assert.match(waitlist, /NEXT_PUBLIC_WAITLIST_ENDPOINT/);
   assert.match(waitlist, /submitWaitlistSignup/);
-  assert.match(waitlist, /delivery: "local"/);
-  assert.match(form, /Remote waitlist delivery isn’t configured|on-device until remote delivery/i);
+  // Without a list service a signup goes to the Questions inbox, and is never claimed as delivered when it was not.
+  assert.match(waitlist, /submitClientQuestion/);
+  assert.match(waitlist, /"remote" : "local"/);
+  assert.match(form, /didn’t reach us just now/);
+  assert.doesNotMatch(form, /configured in this build|remote delivery is configured/i, "build details stay out of the page");
 });
 
 test("client questions page captures name email and question for inbox delivery", async () => {

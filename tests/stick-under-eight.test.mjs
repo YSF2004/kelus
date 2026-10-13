@@ -89,7 +89,7 @@ test("stick-under-eight surfaces: return copy, inbox proof, OCR helpers", async 
   assert.match(surface, /is-booklet-page|One block when the route is ready|days to exam/);
   assert.doesNotMatch(surface, /today-readiness-hint|kelus-space-start|minutes today/);
   assert.doesNotMatch(surface, /<MasteryEvidence/);
-  assert.match(questions, /QuestionsInboxStatus/);
+  assert.match(questions, /QuestionsForm/);
   assert.match(form, /needs_activation/);
   assert.match(form, /mailto:|questionsInboxEmail/);
   assert.match(materials, /pageNeedsOcr/);

@@ -18,11 +18,27 @@ export function isDocumentTitle(value: string) {
 }
 
 /** The document's own title, from the first lines of the first page: it names the course instead of becoming a topic. */
-export function documentTitle(pages: ExtractedMaterialPage[]) {
+export function documentTitle(pages: ExtractedMaterialPage[], options: { fromLayout?: boolean } = {}) {
   const first = [...pages].filter((page) => page.pageNumber > 0).sort((a, b) => a.pageNumber - b.pageNumber)[0];
   const line = first?.text.split(/\n+/).slice(0, 6).map((entry) => entry.trim()).find((entry) => entry.length >= 4 && entry.length <= 90 && isDocumentTitle(entry));
   if (line) return line.replace(/\s+/g, " ");
-  return layoutTitle(first);
+  // Only a PDF's first page is a title page; notes are sections, each opening on its own topic heading.
+  return options.fromLayout === false ? null : layoutTitle(first);
+}
+
+/**
+ * The size of the page's running text: the size most of its letters are set in. Counting lines instead lets a
+ * sparse page of headings call a heading "body", and then the title no longer looks bigger than the text.
+ */
+function bodyFontSize(blocks: NonNullable<ExtractedMaterialPage["blocks"]>) {
+  const sorted = [...blocks].filter((block) => block.fontSize > 0).sort((a, b) => a.fontSize - b.fontSize);
+  const total = sorted.reduce((sum, block) => sum + block.text.length, 0);
+  let seen = 0;
+  for (const block of sorted) {
+    seen += block.text.length;
+    if (seen >= total / 2) return block.fontSize;
+  }
+  return sorted.at(-1)?.fontSize ?? 12;
 }
 
 /**
@@ -32,8 +48,7 @@ export function documentTitle(pages: ExtractedMaterialPage[]) {
 function layoutTitle(page: ExtractedMaterialPage | undefined) {
   const blocks = page?.blocks ?? [];
   if (blocks.length < 3) return null;
-  const sizes = blocks.map((block) => block.fontSize).sort((a, b) => a - b);
-  const body = sizes[Math.floor(sizes.length / 2)];
+  const body = bodyFontSize(blocks);
   const [top, ...rest] = blocks;
   const text = cleanCandidate(top.text);
   if (text.length < 3 || text.length > 90 || top.fontSize < body * 1.35) return null;
@@ -478,7 +493,7 @@ export function proposeConceptsFromPages(input: {
   const limit = input.limit ?? MAX_PROPOSED_TOPICS;
   const matcher = input.mode === "relaxed" ? looksLikeConceptRelaxed : looksLikeConcept;
   // Only a title set apart by its size is skipped: "Week 1: Supply and Demand" is a heading with a real topic in it.
-  const title = layoutTitle([...input.pages].filter((page) => page.pageNumber > 0).sort((a, b) => a.pageNumber - b.pageNumber)[0]);
+  const title = input.locatorLabel === "Section" ? null : layoutTitle([...input.pages].filter((page) => page.pageNumber > 0).sort((a, b) => a.pageNumber - b.pageNumber)[0]);
   const titleKey = title ? title.toLocaleLowerCase() : null;
 
   for (const page of input.pages) {

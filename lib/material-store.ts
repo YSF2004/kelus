@@ -234,6 +234,17 @@ export function updateMaterialProcessingStatus(id: string, processingStatus: Cou
   return updated;
 }
 
+/** Gives a source the title its own pages carry ("Lecture 4: Elasticity"), in place of the file's name. */
+export function renameMaterial(id: string, title: string) {
+  const items = readMetadata();
+  const item = items.find((material) => material.id === id);
+  const next = title.trim();
+  if (!item || !next || item.title === next) return item ?? null;
+  const updated = { ...item, title: next, updatedAt: new Date().toISOString() };
+  persist(items.map((material) => material.id === id ? updated : material));
+  return updated;
+}
+
 export function clearMaterials() {
   if (typeof window === "undefined") return;
   cache = [];

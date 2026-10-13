@@ -46,3 +46,17 @@ test("a French revision sheet is read as text: accented headings, sentence case,
   assert.deepEqual(names.slice(0, 3), ["Définition", "Où a-t-elle lieu ?", "Facteurs limitants"]);
   assert.ok(!names.includes("Facteur Effet"));
 });
+
+test("a sparse page of headings still knows its title: body size is counted by letters, not lines", () => {
+  const line = (text, fontSize, y) => ({ text, fontSize, x: 72, y, width: text.length * fontSize * 0.5, height: fontSize });
+  const blocks = [
+    line("Cell Biology - Lecture Notes", 21, 720),
+    line("Cell Membranes", 18, 665), line("Cell membranes regulate transport between the cell and its environment.", 11, 635),
+    line("Osmosis", 18, 580), line("Osmosis depends on cell membranes and moves water across a selectively permeable membrane.", 11, 550),
+    line("Diffusion", 18, 495), line("Diffusion moves particles down a concentration gradient without using cellular energy.", 11, 465),
+  ];
+  const pages = [{ pageNumber: 1, text: blocks.map((block) => block.text).join("\n\n"), blocks }];
+  assert.equal(documentTitle(pages), "Cell Biology - Lecture Notes");
+  const names = proposeConceptsFromPages({ materialId: "m", sourceLabel: "s", pages }).filter(isSourceBackedProposal).map((item) => item.name);
+  assert.deepEqual(names, ["Cell Membranes", "Osmosis", "Diffusion"]);
+});

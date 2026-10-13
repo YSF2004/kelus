@@ -1,7 +1,7 @@
 import { CommandPalette } from "@/components/CommandPalette";
 import type { Metadata, Viewport } from "next";
 import { Suspense } from "react";
-import { Fraunces, Inter, IBM_Plex_Sans, Literata } from "next/font/google";
+import { Fraunces, Inter, Literata } from "next/font/google";
 import "./globals.css";
 import "./revision-studio.css";
 import "./home-folio.css";
@@ -37,15 +37,8 @@ import { NudgeKeeper } from "@/components/NudgeKeeper";
 import { AppRuntime } from "@/components/AppRuntime";
 import { UpdateWatcher } from "@/components/UpdateWatcher";
 
-/* Marked-script system: Literata (reading / display) + IBM Plex Sans (UI).
-   Keep --font-inter / --font-source-serif variable names for existing CSS. */
-const plex = IBM_Plex_Sans({
-  subsets: ["latin"],
-  variable: "--font-inter",
-  weight: ["400", "500", "600", "700"],
-  display: "swap",
-});
-
+/* One text face everywhere: Inter (UI, body, product titles). Fraunces only for marketing headings. Literata stays
+   for the few older reading styles that still name --font-source-serif. */
 const literata = Literata({
   subsets: ["latin"],
   variable: "--font-source-serif",
@@ -55,8 +48,8 @@ const literata = Literata({
 
 // Opt-in marketing families. No global replacement or app-route preload.
 const marketingSerif = Fraunces({ subsets: ["latin"], axes: ["opsz"], variable: "--font-fraunces", display: "swap", preload: false });
-// Inter is the product's one typeface (titles, text, buttons), so it loads up front; the homepage opts in as before.
-const marketingSans = Inter({ subsets: ["latin"], variable: "--font-marketing-inter", display: "swap", axes: ["opsz"] });
+// Inter is the one typeface for text, so it loads up front. Both old variable names point at it.
+const inter = Inter({ subsets: ["latin"], variable: "--font-inter", display: "swap", axes: ["opsz"] });
 
 // The status bar takes the page's paper colour, so an installed Kelus has no browser-coloured strip on top; the
 // layout reaches into the notch area and pads itself with the safe-area insets instead.
@@ -93,8 +86,8 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`${plex.variable} ${literata.variable} ${marketingSerif.variable} ${marketingSans.variable}`} data-scroll-behavior="smooth">
-      <body className={`${plex.variable} ${literata.variable} is-booklet-system`}>
+    <html lang="en" className={`${inter.variable} ${literata.variable} ${marketingSerif.variable}`} data-scroll-behavior="smooth">
+      <body className={`${inter.variable} ${literata.variable} is-booklet-system`}>
         <GoogleAnalytics />
         <a className="skip" href="#main">Skip to content</a>
         <AuthProvider>

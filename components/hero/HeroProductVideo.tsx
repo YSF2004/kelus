@@ -104,8 +104,8 @@ export function HeroProductVideo() {
             onPause={() => { if (visibleVideo() === desktop.current && !desktop.current?.ended) setPlayback("paused"); }}
             onEnded={() => { if (visibleVideo() === desktop.current) setPlayback("ended"); }}
           >
-            <source src="/hero/kelus-product-walkthrough.mp4" type="video/mp4" />
             <source src="/hero/kelus-product-walkthrough.webm" type="video/webm" />
+            <source src="/hero/kelus-product-walkthrough.mp4" type="video/mp4" />
             <track src="/hero/kelus-product-walkthrough.vtt" kind="captions" srcLang="en" label="Walkthrough steps" />
             Your browser does not support video playback.
           </video>
@@ -126,8 +126,8 @@ export function HeroProductVideo() {
             onPause={() => { if (visibleVideo() === mobile.current && !mobile.current?.ended) setPlayback("paused"); }}
             onEnded={() => { if (visibleVideo() === mobile.current) setPlayback("ended"); }}
           >
-            <source src="/hero/kelus-product-walkthrough-mobile.mp4" type="video/mp4" />
             <source src="/hero/kelus-product-walkthrough-mobile.webm" type="video/webm" />
+            <source src="/hero/kelus-product-walkthrough-mobile.mp4" type="video/mp4" />
             <track src="/hero/kelus-product-walkthrough.vtt" kind="captions" srcLang="en" label="Walkthrough steps" />
             Your browser does not support video playback.
           </video>

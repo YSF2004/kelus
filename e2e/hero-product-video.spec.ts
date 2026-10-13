@@ -11,7 +11,7 @@ test("the homepage shows a recording of the real product at desktop and phone si
     await expect(hero.getByRole("link", { name: "Set up" })).toHaveAttribute("href", /^\/today\/?$/);
     await expect(hero.locator("figcaption")).toHaveCount(0);
     await expect(hero.locator("video:visible")).toHaveAttribute("poster", /kelus-product-poster/);
-    await expect(hero.locator("video:visible source").first()).toHaveAttribute("src", /kelus-product-walkthrough.*\.mp4/);
+    await expect(hero.locator("video:visible source").first()).toHaveAttribute("src", /kelus-product-walkthrough.*\.webm/);
     await expect(hero.getByRole("button", { name: /^(Play|Pause|Replay) product walkthrough$/ })).toBeVisible();
     await expect(hero.locator("button svg")).toHaveCount(0);
     expect(await hero.evaluate((element) => {

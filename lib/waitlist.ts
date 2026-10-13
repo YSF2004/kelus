@@ -7,8 +7,9 @@ export type WaitlistEntry = {
   createdAt: string;
 };
 
+/** Signups always have somewhere to go: the list service when one is set, else the Questions inbox. */
 export function waitlistEndpointConfigured() {
-  return Boolean(process.env.NEXT_PUBLIC_WAITLIST_ENDPOINT?.trim());
+  return true;
 }
 
 function readEntries(): WaitlistEntry[] {
@@ -64,13 +65,16 @@ export async function submitWaitlistSignup(input: {
 
   const endpoint = process.env.NEXT_PUBLIC_WAITLIST_ENDPOINT?.trim();
   if (!endpoint) {
-    // Persist locally so the founder can recover intent from a shared device/demo,
-    // but never claim the email was delivered to Kelus.
-    return {
-      ok: true,
-      duplicate,
-      delivery: "local",
-    };
+    // No list service: the signup goes to the same inbox as Questions (hello@kelus.me), so it reaches a person instead
+    // of sitting in this browser. It is still kept here, and never claimed as delivered when it was not.
+    const { submitClientQuestion } = await import("./questions");
+    const sent = await submitClientQuestion({
+      name: "Waitlist signup",
+      email,
+      question: `Please add me to the Kelus waitlist.${entry.note ? ` Studying: ${entry.note}` : ""}`,
+      source: `waitlist:${entry.source}`,
+    });
+    return { ok: true, duplicate, delivery: sent.ok && sent.delivery === "remote" ? "remote" : "local" };
   }
 
   try {

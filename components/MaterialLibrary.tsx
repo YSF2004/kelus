@@ -39,6 +39,7 @@ import {
   removeMaterial,
   subscribeMaterials,
   updateMaterialProcessingStatus,
+  renameMaterial,
 } from "@/lib/material-store";
 import { readMaterialPdf, removeRemoteMaterial, uploadMaterialPdf } from "@/lib/material-sync";
 import {
@@ -229,7 +230,7 @@ function MaterialRow({
           ) : null
         ) : (
           <button type="button" onClick={() => void downloadPdf()} disabled={busy}>
-            {busy ? "Preparing…" : quiet ? (item.kind === "text" ? "File" : "PDF") : "Download"}
+            {busy ? "Preparing…" : "Download"}
           </button>
         )}
         {confirmRemove ? (
@@ -448,8 +449,11 @@ export function MaterialLibrary({ embedded = false, incomingFile = null, onIncom
         // transport"), else the file's. Never a file that held no topics, and never on later notes.
         const firstTopics = !state.snapshot.concepts.some((concept) => concept.courseId === course.id);
         confirmProposals(proposals, pages);
-        const name = documentTitle(pages) ?? (/^pasted notes$/i.test(material.title) ? null : material.title);
+        const name = documentTitle(pages, { fromLayout: !isNotes }) ?? (/^pasted notes$/i.test(material.title) ? null : material.title);
         if (firstTopics && name) renameCourse(course.id, name);
+        // The source is named the way its pages name themselves, so the sidebar and the course say the same thing.
+        const ownTitle = documentTitle(pages, { fromLayout: !isNotes });
+        if (ownTitle) renameMaterial(material.id, ownTitle);
       }
       setSelectedIds(new Set(proposals.map((proposal) => proposal.id)));
       setDraftNames(Object.fromEntries(proposals.map((proposal) => [proposal.id, proposal.name])));
