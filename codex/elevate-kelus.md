@@ -52,7 +52,7 @@ Acceptance:
 - Branch: `cursor/booklet-craft-444f` from latest `main`.
 - Keep CSS load order: … `notion-*` (or renamed) sheets, then `exam-booklet.css` last among visual layers.
 - After edits: `npm test`, `npx tsc --noEmit`, local Playwright checks on `/`, `/today/?sample=1`, `/map`, `/materials` (fresh context).
-- Commit with a clear message, push, open PR to `main`, wait for CI, then ship (FF-merge + Restore kelus.me).
+- Commit with a clear message, push, open PR to `main`, wait for CI, then ship (FF-merge + Deploy kelus.me).
 
 ## Done when
 You can defend a **≥9.8** live grade because:

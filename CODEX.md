@@ -15,7 +15,7 @@ Current grade after craft polish: **~9.5/10**. Goal of the elevation pass: clear
 ## Branch / ship
 - Work on `cursor/<name>-444f` off `main`.
 - Commit, push, open PR via the repo’s normal PR flow, then FF-merge to `main` when CI is green.
-- Live restore runs on push to `main` (`Restore kelus.me`).
+- The live deploy runs on push to `main` (`Deploy kelus.me`, `.github/workflows/deploy.yml`): it publishes to Cloudflare and fails unless kelus.me then serves that commit.
 
 ## Verify
 - `npm test` must stay green.

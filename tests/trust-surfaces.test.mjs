@@ -39,7 +39,7 @@ test("analytics only loads when a measurement id is configured", async () => {
   const [analytics, ga, workflow, today, surface, materials, session, complete] = await Promise.all([
     source("lib/analytics.ts"),
     source("components/GoogleAnalytics.tsx"),
-    source(".github/workflows/restore-kelus-dns.yml"),
+    source(".github/workflows/deploy.yml"),
     source("app/today/page.tsx"),
     source("components/RevisionSurface.tsx"),
     source("components/MaterialLibrary.tsx"),
@@ -99,7 +99,7 @@ test("waitlist capture stays honest without a remote endpoint", async () => {
 });
 
 test("client questions page captures name email and question for inbox delivery", async () => {
-  const [page, form, lib, footer, sitemap, privacy, envExample, pagesWorkflow, restoreWorkflow, analytics] = await Promise.all([
+  const [page, form, lib, footer, sitemap, privacy, envExample, deployWorkflow, analytics] = await Promise.all([
     source("app/questions/page.tsx"),
     source("components/QuestionsForm.tsx"),
     source("lib/questions.ts"),
@@ -107,8 +107,7 @@ test("client questions page captures name email and question for inbox delivery"
     source("app/sitemap.ts"),
     source("app/privacy/page.tsx"),
     source(".env.example"),
-    source(".github/workflows/pages.yml"),
-    source(".github/workflows/restore-kelus-dns.yml"),
+    source(".github/workflows/deploy.yml"),
     source("lib/analytics.ts"),
   ]);
   assert.match(page, /QuestionsForm/);
@@ -124,8 +123,7 @@ test("client questions page captures name email and question for inbox delivery"
   assert.match(sitemap, /\/questions\//);
   assert.match(privacy, /Questions inbox/i);
   assert.match(envExample, /NEXT_PUBLIC_QUESTIONS_ENDPOINT/);
-  assert.match(pagesWorkflow, /NEXT_PUBLIC_QUESTIONS_ENDPOINT/);
-  assert.match(restoreWorkflow, /NEXT_PUBLIC_QUESTIONS_ENDPOINT/);
+  assert.match(deployWorkflow, /NEXT_PUBLIC_QUESTIONS_ENDPOINT/);
   assert.match(analytics, /question_submitted/);
 });
 
