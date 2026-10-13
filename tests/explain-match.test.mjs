@@ -24,3 +24,38 @@ test("key-mashing is not taken as an explanation", () => {
   assert.equal(looksLikeWords("asdfgh"), false);
   assert.equal(looksLikeWords("Water moves in"), true);
 });
+
+const cell = "In a hypotonic solution a plant cell gains water and becomes turgid because the cell wall pushes back.";
+
+test("a word counts in any form of its family, and a near-spelling of another word does not", async () => {
+  const { family, sameFamily } = await import("../domain/explain-words.ts");
+  for (const [a, b] of [["movement", "moving"], ["turgid", "turgidity"], ["dilute", "dilution"], ["concentrated", "concentration"], ["permeable", "permeability"], ["studies", "study"]]) {
+    assert.ok(sameFamily(family(a), family(b)), `${a} ~ ${b}`);
+  }
+  for (const [a, b] of [["plant", "planet"], ["membrane", "member"], ["cell", "cellulose"]]) {
+    assert.ok(!sameFamily(family(a), family(b)), `${a} !~ ${b}`);
+  }
+  const match = explainMatch("The plant cell takes in water and becomes turgidity, the wall pushes back.", cell);
+  assert.ok(!match.missed.some((phrase) => /gains|turgid/.test(phrase)), match.missed.join(" / "));
+});
+
+test("an everyday word for the same idea counts: rises for increases, takes in for gains", () => {
+  const page2 = "When the price increases, the quantity demanded decreases.";
+  const match = explainMatch("If the price rises, people demand a smaller quantity, it drops.", page2);
+  assert.ok(!match.missed.includes("increases"), match.missed.join(" / "));
+  assert.ok(!match.missed.includes("decreases"), match.missed.join(" / "));
+  assert.deepEqual(match.flipped, []);
+});
+
+test("the opposite is never a match, is named, and stops a full mark", () => {
+  const match = explainMatch("In a hypotonic solution the plant cell loses water, becomes turgid and the cell wall pushes back.", cell);
+  assert.deepEqual(match.flipped, [{ page: "gains", said: "loses" }]);
+  assert.equal(match.parts.find((part) => part.text === "gains")?.hit, false);
+  assert.ok(!match.missed.includes("gains"), "an opposite is named once, as an opposite, not also as left out");
+  assert.equal(match.suggest, "partly");
+});
+
+test("a page that says both directions cannot be contradicted by one of them", () => {
+  const both = "A plant cell gains water in a hypotonic solution and loses water in a hypertonic solution.";
+  assert.deepEqual(explainMatch("The cell gains water in a hypotonic solution.", both).flipped, []);
+});
