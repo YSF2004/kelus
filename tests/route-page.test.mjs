@@ -56,11 +56,13 @@ test("route explainer lives on its own page", () => {
   const story = readFileSync("components/HowItWorks.tsx", "utf8");
   const examples = readFileSync("data/learning-examples.ts", "utf8");
   assert.match(page, /HowItWorks/);
-  assert.match(story, /Add a syllabus, lecture PDF, notes, or a past exam/);
-  assert.match(story, /Kelus proposes topics; you confirm/);
-  assert.match(story, /A short check gives Kelus a starting estimate/);
-  assert.match(story, /Inside a session, retrieve an answer, apply the idea, and check your reasoning/);
-  assert.match(story, /Your answer changes the route/);
+  // The page describes the product as it is: topics found (not confirmed), three checks then your words, a plan
+  // that moves from your own results. Its pictures are the product's own screens, not illustrations of them.
+  assert.match(story, /Kelus finds the topics and links each one back to its page/);
+  assert.match(story, /three quick checks written from your own lines, then one explanation in your own words/);
+  assert.match(story, /The next session starts from what actually happened/);
+  assert.doesNotMatch(story, /you confirm|starting estimate|apply the idea/);
+  assert.doesNotMatch(story, /StudyScene|Illustration/);
   assert.match(story, /<h1 id="how-title"/);
   assert.doesNotMatch(story, /BlurText/);
   assert.match(story, /SourceVisual/);

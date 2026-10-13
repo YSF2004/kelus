@@ -1,0 +1,63 @@
+/* Small, true pieces of the product, set on a quiet panel: what a student sees at each step. */
+.sheet {
+  display: grid;
+  gap: 12px;
+  width: min(100% - 48px, 400px);
+  padding: 22px 22px 20px;
+  border: 1px solid #e6e5e1;
+  border-radius: 12px;
+  background: #fff;
+  box-shadow: 0 1px 2px rgba(18, 22, 15, 0.04), 0 12px 28px -18px rgba(18, 22, 15, 0.18);
+  color: #191a18;
+  font-family: var(--font-marketing-sans), Inter, sans-serif;
+  text-align: left;
+}
+
+.sheet p { margin: 0; }
+
+.kicker { color: #9a9e96; font-size: 0.75rem; font-weight: 500; }
+.title { font-size: 1.125rem; font-weight: 600; letter-spacing: -0.01em; }
+.why { color: #6b6f68; font-size: 0.875rem; line-height: 1.5; }
+
+.rows { display: grid; margin: 0; padding: 0; list-style: none; }
+.rows li {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 0;
+  border-top: 1px solid #ececea;
+  font-size: 0.875rem;
+}
+.rows strong { font-weight: 600; }
+.rows span { color: #9a9e96; font-size: 0.8125rem; white-space: nowrap; }
+
+.question { font-size: 0.9375rem; font-weight: 600; line-height: 1.4; }
+.choice {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 10px 12px;
+  border: 1px solid #e6e5e1;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  line-height: 1.4;
+}
+.choice i {
+  display: inline-grid;
+  flex: 0 0 auto;
+  place-items: center;
+  width: 20px;
+  height: 20px;
+  border-radius: 5px;
+  color: #fff;
+  font-size: 0.75rem;
+  font-style: normal;
+}
+.wrong { border-color: #f1cfc9; background: #fdf4f2; color: #6b6f68; }
+.wrong i { background: #b42318; }
+.right { border-color: #1f6b45; background: #f3f8f5; color: #1f6b45; font-weight: 600; }
+.right i { background: #1f6b45; }
+.source { color: #6b6f68; font-size: 0.8125rem; line-height: 1.5; }
+
+.principle { background: #f3f3f1 !important; }

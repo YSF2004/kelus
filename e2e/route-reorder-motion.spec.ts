@@ -1,20 +1,17 @@
 import { expect, test } from "@playwright/test";
 
-test("How it works shows one source-backed route change without replay", async ({ page }) => {
+test("How it works shows the plan saying why, from the student's own last answer", async ({ page }) => {
   await page.goto("/route/");
-  const promoted = page.locator('[data-route-row="promoted"]');
-  const previous = page.locator('[data-route-row="previous"]');
-  await promoted.scrollIntoViewIfNeeded();
-  await expect(promoted).toHaveAttribute("style", /translateY\(-69px\)/);
-  await expect(previous).toHaveAttribute("style", /translateY\(69px\)/);
-
+  const route = page.locator("figure").nth(2);
+  await route.scrollIntoViewIfNeeded();
+  await expect(route).toContainText("Price elasticity of demand");
+  await expect(route).toContainText("Last time, 3 days ago, it needed another attempt.");
   await expect(page.getByRole("button", { name: "Replay how the study route changes" })).toHaveCount(0);
-  await expect(page.getByText("Elasticity moves ahead of Supply & Demand for another attempt.")).toBeVisible();
 });
 
-test("reduced motion presents the finished route without a replay control", async ({ page }) => {
+test("reduced motion presents every step finished", async ({ page }) => {
   await page.emulateMedia({ reducedMotion: "reduce" });
   await page.goto("/route/");
-  await expect(page.locator('[data-route-row="promoted"]')).toHaveAttribute("style", /translateY\(-69px\)/);
+  for (const row of await page.locator("figure li").all()) await expect(row).toHaveCSS("opacity", "1");
   await expect(page.getByRole("button", { name: "Replay how the study route changes" })).toHaveCount(0);
 });
