@@ -96,3 +96,37 @@
   text-wrap: pretty;
 }
 .summary b { font-weight: 600; font-variant-numeric: tabular-nums; }
+
+.course {
+  margin: 0;
+  color: var(--q-text-3, #9a9e96);
+  font-size: var(--text-body-sm);
+  font-weight: 500;
+}
+
+.after {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 4px 14px;
+  align-items: baseline;
+  padding: 2px 0 4px;
+}
+
+.after > span {
+  color: var(--q-text-3, #9a9e96);
+  font-size: var(--text-body-sm);
+}
+
+.after ul {
+  display: grid;
+  gap: 4px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  color: var(--q-ink, #191a18);
+  line-height: 1.45;
+}
+
+.more {
+  color: var(--q-text-2, #6b6f68);
+}

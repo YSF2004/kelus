@@ -1,9 +1,16 @@
 "use client";
 
+import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import styles from "./ReadingNotes.module.css";
 
-/** The only thing on screen while Kelus reads a file: what it is doing, or why it could not, and one way out. */
+const ease = [0.22, 1, 0.36, 1] as const;
+
+/**
+ * The only thing on screen while Kelus reads a file: the K writing itself, like a pen going over the page, and the
+ * real step underneath. When it could not read the file, why, and one way out.
+ */
 export function ReadingNotes({ message, error, onStartOver }: { message: string; error?: string | null; onStartOver?: () => void }) {
+  const reduce = useReducedMotion() === true;
   if (error) {
     return (
       <section className={styles.box} aria-labelledby="reading-title">
@@ -14,11 +21,35 @@ export function ReadingNotes({ message, error, onStartOver }: { message: string;
       </section>
     );
   }
+  // One stroke, then the other, then a breath, and again: slow enough to feel calm, never a spinner.
+  const draw = (delay: number) => (reduce
+    ? { initial: false as const, animate: { pathLength: 1, opacity: 1 } }
+    : {
+        initial: { pathLength: 0, opacity: 0 },
+        animate: { pathLength: [0, 1, 1, 0], opacity: [0, 1, 1, 0] },
+        transition: { duration: 2.8, times: [0, 0.32, 0.82, 1], delay, ease, repeat: Infinity, repeatDelay: 0.25 },
+      });
   return (
-    <section className={styles.box} role="status" aria-live="polite" aria-labelledby="reading-title">
-      <span className={styles.pulse} aria-hidden="true" />
-      <h1 id="reading-title">Reading your notes…</h1>
-      <p>{message}</p>
+    <section className={styles.reading} role="status" aria-live="polite" aria-labelledby="reading-title">
+      <svg className={styles.mark} viewBox="0 0 100 100" fill="none" aria-hidden="true">
+        <g stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="9">
+          <motion.path d="M29 20v60" {...draw(0)} />
+          <motion.path d="M74 22C66 37 56 46 43 51c14 5 25 15 33 28" {...draw(0.38)} />
+        </g>
+      </svg>
+      <h1 id="reading-title" className={styles.step}>
+        <AnimatePresence mode="popLayout" initial={false}>
+          <motion.span
+            key={message}
+            initial={reduce ? { opacity: 0 } : { opacity: 0, y: 6, filter: "blur(2px)" }}
+            animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+            exit={reduce ? { opacity: 0 } : { opacity: 0, y: -6, filter: "blur(2px)" }}
+            transition={{ duration: 0.32, ease }}
+          >
+            {message}
+          </motion.span>
+        </AnimatePresence>
+      </h1>
     </section>
   );
 }

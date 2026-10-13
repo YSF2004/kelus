@@ -167,6 +167,9 @@ export function RevisionSurface({ topicId }: { /** A topic's own page, opened in
     questions: ankiCards(concepts, snapshot.learningActivities).length,
     minutes: plannedRoute.allocations.reduce((sum, item) => sum + item.minutes, 0),
     firstName: concepts.find((concept) => concept.id === firstTopic?.conceptId)?.name ?? "your first topic",
+    // In plan order, so the first one named is the one you start with.
+    names: [...plannedRoute.allocations.map((item) => concepts.find((concept) => concept.id === item.conceptId)?.name), ...concepts.map((concept) => concept.name)]
+      .filter((name, index, all): name is string => Boolean(name) && all.indexOf(name) === index),
   };
   const examDatePending = Boolean(exam.datePlaceholder);
   const isSampleCourse = course.id === "course-microeconomics" && exam.id === "exam-microeconomics-final";
