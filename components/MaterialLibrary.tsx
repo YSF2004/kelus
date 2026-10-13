@@ -12,6 +12,7 @@ import { useLearner } from "@/components/LearnerProvider";
 import { PAYWALL_DISMISS_KEY, SoftUpgradePrompt } from "@/components/SoftUpgradePrompt";
 import { trackEvent } from "@/lib/analytics";
 import type { CourseMaterial, ExtractedMaterialPage, MaterialRole, ProposedConcept } from "@/domain/types";
+import { holdAtLeast } from "@/lib/reading-mark";
 import { ReadingNotes } from "@/components/ReadingNotes";
 import { MATERIAL_ROLES, materialRoleLabel } from "@/domain/materials";
 
@@ -317,6 +318,7 @@ export function MaterialLibrary({ embedded = false, incomingFile = null, onIncom
   }
 
   async function analyzePdf(material: CourseMaterial, file?: File) {
+    const startedAt = performance.now();
     dispatch({ type: "CLEAR_FEEDBACK" });
     dispatch({ type: "WORK_STARTED", step: "extracting", message: defaultStepMessage("extracting") });
     updateMaterialProcessingStatus(material.id, "processing");
@@ -439,6 +441,9 @@ export function MaterialLibrary({ embedded = false, incomingFile = null, onIncom
       trackEvent({ name: "concept_review_started", concept_count: proposals.length });
       // Quiet mode: no checklist first. Every topic found is confirmed, and can be removed later from Topics.
       if (quiet && proposals.length) {
+        // A text PDF reads in a blink; the K gets the moment it needs to write itself once (only the remainder is
+        // waited, so a slow file is never held up).
+        await holdAtLeast(startedAt, 1300);
         // The first notes that hold topics name the course: the document's own title ("BIO 101 · Week 4: Cells and
         // transport"), else the file's. Never a file that held no topics, and never on later notes.
         const firstTopics = !state.snapshot.concepts.some((concept) => concept.courseId === course.id);
