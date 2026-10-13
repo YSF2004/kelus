@@ -11,6 +11,7 @@ import { MarkStamp } from "@/components/MarkStamp";
 import { WaitlistForm } from "@/components/WaitlistForm";
 import { SoftUpgradePrompt } from "@/components/SoftUpgradePrompt";
 import { downloadTomorrowStudyIcs } from "@/lib/study-reminder";
+import { SAMPLE_COURSE_IDS, sessionContext } from "@/lib/pilot";
 import { trackEvent } from "@/lib/analytics";
 import { useDocumentTitle } from "@/lib/use-title";
 import { KelusLogoMark } from "@/components/KelusLogoMark";
@@ -58,6 +59,7 @@ function CompleteBody() {
   const coveredIds = new Set(state.snapshot.events.filter((event) => event.sessionId === session?.id && event.kind === "retrieval").map((event) => event.conceptId));
   const nextStopId = nextRoute?.allocations.find((allocation) => allocation.conceptId !== "mixed-retrieval" && !coveredIds.has(allocation.conceptId))?.conceptId;
   const nextStopName = nextStopId ? name(nextStopId) : null;
+  const sessionNumber = sessionContext({ sessions: state.snapshot.sessions, sessionId: session?.id, nowIso: state.nowIso }).session_number;
   const minutes = session?.plannedMinutes || exam?.availableMinutes || 45;
 
   useDocumentTitle(summary ? `Done · ${course?.name ?? "Your block"} — Kelus` : null);
@@ -74,8 +76,10 @@ function CompleteBody() {
       name: "session_completed",
       concept_count: session.plannedConceptIds.length,
       planned_minutes: session.plannedMinutes,
+      ...sessionContext({ sessions: state.snapshot.sessions, sessionId: session.id, nowIso: state.nowIso }),
+      sample: SAMPLE_COURSE_IDS.has(session.courseId),
     });
-  }, [session, summary]);
+  }, [session, summary, state.snapshot.sessions, state.nowIso]);
 
   function addCalendar() {
     trackEvent({ name: "next_route_opened", source: "calendar" });
@@ -203,8 +207,8 @@ function CompleteBody() {
           {usefulness === null ? (
             <p role="group" aria-label="Rate study usefulness">
               Was this useful?{" "}
-              <button type="button" onClick={() => { setUsefulness(true); trackEvent({ name: "session_usefulness_rated", helpful: true }); }}>Yes</button>{" · "}
-              <button type="button" onClick={() => { setUsefulness(false); trackEvent({ name: "session_usefulness_rated", helpful: false }); }}>Not yet</button>
+              <button type="button" onClick={() => { setUsefulness(true); trackEvent({ name: "session_usefulness_rated", helpful: true, session_number: sessionNumber }); }}>Yes</button>{" · "}
+              <button type="button" onClick={() => { setUsefulness(false); trackEvent({ name: "session_usefulness_rated", helpful: false, session_number: sessionNumber }); }}>Not yet</button>
             </p>
           ) : <p role="status">{usefulness ? "Thanks. Good to know." : "Thanks. That helps make it better."}</p>}
           {completedSessions === 1 ? (

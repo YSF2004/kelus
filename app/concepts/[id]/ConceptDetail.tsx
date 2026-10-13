@@ -5,6 +5,7 @@ import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { AppShell } from "@/components/AppShell";
 import { InlineName } from "@/components/InlineName";
 import { useLearner } from "@/components/LearnerProvider";
+import { SAMPLE_COURSE_IDS, sessionContext } from "@/lib/pilot";
 import { ConceptTitleTransition, DirectionalPage } from "@/components/PageTransition";
 import { trackEvent } from "@/lib/analytics";
 import styles from "./ConceptDetail.module.css";
@@ -87,7 +88,7 @@ export function ConceptDetail({ conceptId, embedded = false }: { conceptId?: str
     const open = state.snapshot.sessions.find((item) => item.courseId === course.id && item.status === "in_progress");
     if (open) abandon(open.id);
     const sessionId = start(course.id, exam.id, concept.id);
-    trackEvent({ name: "session_started" });
+    trackEvent({ name: "session_started", session_number: sessionContext({ sessions: state.snapshot.sessions, nowIso: state.nowIso }).session_number, sample: SAMPLE_COURSE_IDS.has(course.id) });
     router.push(`/session?id=${sessionId}`);
   }
 

@@ -16,6 +16,7 @@ import { ExamDateCard } from "@/components/ExamDateCard";
 import { estimatedReadiness } from "@/domain/readiness";
 import { dependentNames, describeRouteChoice } from "@/lib/today-reason";
 import { trackEvent } from "@/lib/analytics";
+import { firstTimeToday, returnVisit } from "@/lib/pilot";
 import { HabitStrip } from "@/components/HabitStrip";
 import q from "./TodayQuiet.module.css";
 
@@ -85,7 +86,10 @@ export function TodayRoute({
       returning: hasPriorEvidence,
       has_next_route: route.allocations.length > 1,
     });
-  }, [hasPriorEvidence, isSampleCourse, route.allocations.length]);
+    // A pilot's 7-day return: coming back on a later day than a finished block, counted once a day.
+    const back = returnVisit({ sessions, nowIso });
+    if (back && firstTimeToday(nowIso)) trackEvent({ name: "learner_returned", ...back });
+  }, [hasPriorEvidence, isSampleCourse, route.allocations.length, sessions, nowIso]);
 
   // Enter on Today starts (or continues) the next topic, as the button's ↵ says.
   useEffect(() => {

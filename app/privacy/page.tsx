@@ -74,6 +74,9 @@ export default function PrivacyPage() {
         <p>
           When analytics are configured for kelus.me, Kelus uses Google Analytics 4 with ads signals off and IP
           anonymization on. It helps us understand which pages are used — not to build an advertising profile.
+          It also counts study blocks (which number this is, and how many days since your first) and whether you came back,
+          so we can tell whether Kelus helps. If you opened Kelus from a pilot link, the group name in that link is sent too.
+          Never your notes, your answers or your name.
         </p>
 
         <h2 id="ai-questions">Optional: AI-written questions</h2>
