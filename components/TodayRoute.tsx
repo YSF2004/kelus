@@ -4,7 +4,7 @@ import { topicLevel } from "@/lib/format";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import Link from "next/link";
-import type { Concept, LearningActivity, LearningEvent, RoutePlan, StudySession } from "@/domain/types";
+import type { Concept, ConceptRelationship, LearningActivity, LearningEvent, RoutePlan, StudySession } from "@/domain/types";
 import { habitSummary, studyPath } from "@/domain/habit";
 import { NudgeCard } from "@/components/NudgeCard";
 import { InstallCard } from "@/components/InstallCard";
@@ -14,7 +14,7 @@ import { useReturnVisit, WelcomeBack } from "@/components/WelcomeBack";
 import { ReminderCard } from "@/components/ReminderCard";
 import { ExamDateCard } from "@/components/ExamDateCard";
 import { estimatedReadiness } from "@/domain/readiness";
-import { describeRouteChoice } from "@/lib/today-reason";
+import { dependentNames, describeRouteChoice } from "@/lib/today-reason";
 import { trackEvent } from "@/lib/analytics";
 import { HabitStrip } from "@/components/HabitStrip";
 import q from "./TodayQuiet.module.css";
@@ -41,6 +41,7 @@ export function TodayRoute({
   examDatePending = false,
   onSetExamDate,
   focus,
+  relationships = [],
 }: {
   route: RoutePlan;
   concepts: Concept[];
@@ -57,6 +58,7 @@ export function TodayRoute({
   examDatePending?: boolean;
   onSetExamDate?: (date: string, targetPercent?: number) => void;
   focus?: RoutePlan["allocations"][number];
+  relationships?: ConceptRelationship[];
 }) {
   const reduceMotion = useReducedMotion();
   // The topic this card is about: the open block's current topic when there is one, else the route's first.
@@ -118,7 +120,13 @@ export function TodayRoute({
   const firstConcept = concepts.find((item) => item.id === first.conceptId);
   const firstActivity = activities.find((item) => item.conceptId === first.conceptId);
   const firstName = firstConcept?.name ?? "A mix of earlier topics";
-  const decision = describeRouteChoice(first, firstConcept, { examDateKnown: !examDatePending });
+  // The reason quotes the student's own last answer and names the topics that build on this one.
+  const decision = describeRouteChoice(first, firstConcept, {
+    examDateKnown: !examDatePending,
+    events: isSampleCourse ? [] : events,
+    nowIso,
+    dependents: firstConcept ? dependentNames(firstConcept.id, relationships, concepts) : [],
+  });
   const nextStops = route.allocations.filter((allocation) => allocation.conceptId !== first.conceptId).slice(0, 3).map((allocation) => {
     const concept = concepts.find((item) => item.id === allocation.conceptId);
     return { ...allocation, name: concept?.name ?? "A mix of earlier topics", mastery: concept?.mastery ?? 0, tried: (concept?.retrievalAttempts ?? 0) > 0 };
