@@ -4,6 +4,7 @@ import Link from "next/link";
 import { motion, useReducedMotion } from "motion/react";
 import { progressHeadline, progressSummary, type TopicChange } from "@/domain/progress";
 import type { Concept, LearningEvent } from "@/domain/types";
+import { PackArt } from "@/components/PackArt";
 import styles from "./ProgressView.module.css";
 
 const pct = (value: number) => Math.round(Math.max(0, Math.min(1, value)) * 100);
@@ -73,6 +74,8 @@ export function ProgressView({ concepts, events, nowIso, daysToExam, targetPerce
   return (
     <div className={styles.page}>
       <motion.section className={styles.lead} initial={reduce ? false : { opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: reduce ? 0 : 0.3, ease: [0.22, 1, 0.36, 1] }} aria-labelledby="progress-headline">
+        {/* Not enough answers yet: the pack's clock says "give it time" before the words do. */}
+        {!summary.enough ? <PackArt name="time-flies" className={styles.earlyArt} size={110} /> : null}
         <h2 id="progress-headline">{progressHeadline(summary)}</h2>
         <p className={styles.caveat}>{fresh ? "Nothing is estimated until you answer. When it is, it comes from your own answers, not a prediction of your grade." : "Estimated from your own answers. It is not a prediction of your grade."}</p>
         {fresh ? null : summary.enough ? (

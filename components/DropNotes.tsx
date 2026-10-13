@@ -53,9 +53,8 @@ export function DropNotes({ onFile, first = false, courseName }: { onFile: (file
       <div className="destination-form">
         <section className="setup-stage-content empty-course" aria-labelledby="start-title">
           <p className="kicker">{courseName ?? "Start here"}</p>
-          {/* The same student as on the homepage, so the first screen after it is clearly the same place. */}
-          {/* eslint-disable-next-line @next/next/no-img-element -- a static export; the file is already sized */}
-          <img src="/hero/student.webp" alt="" width={210} height={185} className="empty-course-art" decoding="async" />
+          {/* From the Kelus illustration pack (public/art/notion-pack): a student climbing with a pencil. */}
+          <PackArt name="growing" className="empty-course-art" size={170} />
           <h1 id="start-title" className="destination-page-title">{first ? "Start with your notes." : "Add your notes."}</h1>
           <p className="destination-support">
             {first
