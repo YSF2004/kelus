@@ -65,6 +65,20 @@ function restoreCapital(line: string) {
   return words.length >= 6 && glue >= 2 ? line.charAt(0).toLocaleUpperCase() + line.slice(1) : line;
 }
 
+/** Words a sentence does not end on: a line that stops on one runs on into the next. */
+const RUNS_ON = /(?:,|\b(?:and|or|but|of|to|the|a|an|in|on|at|by|for|with|from|between|into|than|that|which|as|is|are|was|were|its|their|et|ou|de|des|du|la|le|les|un|une|en|dans|par|pour|sur|avec|y|el|los|las))$/i;
+
+/**
+ * Whether a line is the wrapped rest of the one before: it starts in lowercase, or the line before stops on a word a
+ * sentence cannot end on ("…in Africa and" / "Asia."). Separate slide bullets stay separate. (PDF pages are already
+ * rejoined by line width when they are read.)
+ */
+function wrapsInto(previous: string, line: string) {
+  if (/[.!?:;]["”)]?$/.test(previous)) return false;
+  if (/^\p{Ll}/u.test(line)) return true;
+  return RUNS_ON.test(previous);
+}
+
 export function units(text: string) {
   const out: string[] = [];
   // A PDF wraps long lines. A line that starts in lowercase continues the one before it.
@@ -72,7 +86,7 @@ export function units(text: string) {
   for (const raw of text.split(/\n+/)) {
     const line = raw.trim();
     if (!line) continue;
-    if (lines.length && /^[a-z]/.test(line) && !BULLET.test(line) && !/[.!?:]["”)]?$/.test(lines[lines.length - 1])) lines[lines.length - 1] += ` ${line}`;
+    if (lines.length && !BULLET.test(line) && wrapsInto(lines[lines.length - 1], line)) lines[lines.length - 1] += ` ${line}`;
     else lines.push(restoreCapital(line));
   }
   for (const line of lines) {

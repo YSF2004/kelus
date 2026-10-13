@@ -19,20 +19,37 @@ export function isDocumentTitle(value: string) {
 
 /** The document's own title, from the first lines of the first page: it names the course instead of becoming a topic. */
 export function documentTitle(pages: ExtractedMaterialPage[]) {
-  const first = [...pages].sort((a, b) => a.pageNumber - b.pageNumber)[0];
+  const first = [...pages].filter((page) => page.pageNumber > 0).sort((a, b) => a.pageNumber - b.pageNumber)[0];
   const line = first?.text.split(/\n+/).slice(0, 6).map((entry) => entry.trim()).find((entry) => entry.length >= 4 && entry.length <= 90 && isDocumentTitle(entry));
-  return line ? line.replace(/\s+/g, " ") : null;
+  if (line) return line.replace(/\s+/g, " ");
+  return layoutTitle(first);
+}
+
+/**
+ * A PDF's own title: the first line of the first page, set clearly larger than everything else on it, above at least
+ * one smaller heading. "7 Cell Transport" over "7.1 Diffusion" is the chapter, not a topic in it.
+ */
+function layoutTitle(page: ExtractedMaterialPage | undefined) {
+  const blocks = page?.blocks ?? [];
+  if (blocks.length < 3) return null;
+  const sizes = blocks.map((block) => block.fontSize).sort((a, b) => a - b);
+  const body = sizes[Math.floor(sizes.length / 2)];
+  const [top, ...rest] = blocks;
+  const text = cleanCandidate(top.text);
+  if (text.length < 3 || text.length > 90 || top.fontSize < body * 1.35) return null;
+  if (rest.some((block) => block.fontSize >= top.fontSize * 0.95)) return null;
+  return rest.some((block) => block.fontSize >= body * 1.16) ? text : null;
 }
 
 /** Course-logistics text near a heading means the "topic" is a title page, not something to study. */
-const ADMINISTRATIVE_EXCERPT = /\b(?:office hours?|instructor\s*:|attendance|grading\s*:)|e-?mail\s*:|\S+@\S+\.\S+/i;
+const ADMINISTRATIVE_EXCERPT = /\b(?:office hours?|instructor\s*:|attendance|grading\s*:)|e-?mail\s*:|\S+@\S+\.\S+|\b(?:nous soussign[ée]s?|je soussign[ée]e?|certifions|certifie que|fait pour servir et valoir|pour valoir ce que de droit)\b/i;
 /** Headings that structure a document but are not something to study on their own. */
 const GENERIC_HEADING =
-  /^(?:examples?|summary|overview|introduction|intro|conclusions?|notes?|references?|resources?|further reading|homework|exercises?|practice|questions?|review|recap|key points|takeaways|table of contents|contents|agenda|to-?do|links?|bibliography|appendix|glossary|extra|misc(?:ellaneous)?)$/i;
+  /^(?:examples?|summary|overview|introduction|intro|conclusions?|notes?|references?|resources?|further reading|homework|exercises?|practice|questions?|review|recap|key points|takeaways|table of contents|contents|agenda|to-?do|links?|bibliography|appendix|glossary|extra|misc(?:ellaneous)?|(?:learning )?objectives|learning outcomes|outcomes|aims|goals|key terms|objectifs|plan|sommaire|r[ée]sum[ée]|conclusion|exercices?|exemples?|bibliographie|annexes?|mots[- ]cl[ée]s)$/i;
 /** A course deck can hold dozens of topics; more than this is shown as a cap, not silently dropped. */
 export const MAX_PROPOSED_TOPICS = 40;
 const HEADING_PREFIX = /^(?:week|module|topic|chapter|unit|lecture|section)\s*\d*[.:\-–—]?\s*/i;
-const NUMBER_PREFIX = /^\s*(?:\d+(?:\.\d+)*|[ivx]+)[.)\-:]\s*/i;
+const NUMBER_PREFIX = /^\s*(?:\d+(?:\.\d+)+\.?\s+|(?:\d+(?:\.\d+)*|[ivx]+)[.)\-:]\s*|\d{1,2}\s+(?=\p{Lu}))/iu;
 const EXAM_SIGNAL =
   /\b(?:exam|midterm|final|tests?|tested|assessment|learning objectives?|will be asked|must know|high-?yield|core concept|key concept|important|critical|essential|fundamental)\b/i;
 const DEFINITION_SIGNAL =
@@ -64,7 +81,7 @@ function looksLikeConcept(value: string) {
   if (/\b(?:due|points?|percent|room|pm|am)\b/i.test(value)) return false;
   const words = value.split(/\s+/);
   if (words.length > 9) return false;
-  const titleWords = words.filter((word) => /^[A-Z][A-Za-z/&-]*$/.test(word)).length;
+  const titleWords = words.filter((word) => /^\p{Lu}[\p{L}/&-]*$/u.test(word)).length;
   return HEADING_PREFIX.test(value) || NUMBER_PREFIX.test(value) || titleWords >= Math.max(1, Math.ceil(words.length * 0.55));
 }
 
@@ -99,18 +116,19 @@ function stablePart(value: string) {
   return (hash >>> 0).toString(36);
 }
 
-function excerptFor(lines: string[], index: number, fallback: string) {
+function excerptFor(lines: string[], index: number, fallback: string, isHeading: (line: string, at: number) => boolean = (line) => looksLikeConcept(line)) {
   const nearby: string[] = [];
-  for (const raw of lines.slice(index + 1, index + 16)) {
+  for (const [offset, raw] of lines.slice(index + 1, index + 16).entries()) {
     const line = raw.trim();
+    const heading = isHeading(line, index + 1 + offset);
     if (!line) {
       if (nearby.length) break;
       continue;
     }
     // A PDF wraps a sentence across lines; a short tail like "no energy." still belongs to it.
     const continues = nearby.length > 0 && (!/[.!?:;”")]$/.test(nearby[nearby.length - 1]) || /^[a-z(]/.test(line));
-    if (looksLikeConcept(line) && nearby.length && !continues) break;
-    if ((line.length > 18 && !looksLikeConcept(line)) || continues) nearby.push(line);
+    if (heading && nearby.length && !continues) break;
+    if ((line.length > 18 && !heading) || continues) nearby.push(line);
     if (nearby.join(" ").length >= 520 && /[.!?]["”)]?$/.test(line)) break;
   }
   return wholeSentences(nearby.length ? nearby.join("\n") : fallback, 760);
@@ -459,20 +477,42 @@ export function proposeConceptsFromPages(input: {
   const seen = new Set<string>();
   const limit = input.limit ?? MAX_PROPOSED_TOPICS;
   const matcher = input.mode === "relaxed" ? looksLikeConceptRelaxed : looksLikeConcept;
+  // Only a title set apart by its size is skipped: "Week 1: Supply and Demand" is a heading with a real topic in it.
+  const title = layoutTitle([...input.pages].filter((page) => page.pageNumber > 0).sort((a, b) => a.pageNumber - b.pageNumber)[0]);
+  const titleKey = title ? title.toLocaleLowerCase() : null;
 
   for (const page of input.pages) {
-    const lines = (input.mode === "relaxed" ? splitSparseLines(page.text) : page.text.split(/\n+/).map((line) => line.trim()).filter(Boolean));
+    // A PDF page knows its paragraphs and font sizes: a heading stands alone or is set larger. A wrapped body line
+    // full of names ("Triple Alliance joined Germany, Austria-Hungary") is never a heading, however capitalised.
+    const layout = input.mode !== "relaxed" && Boolean(page.blocks?.length);
+    const lines: string[] = [];
+    const standalone: boolean[] = [];
+    if (input.mode === "relaxed") lines.push(...splitSparseLines(page.text));
+    else for (const paragraph of page.text.split(/\n{2,}/)) {
+      const inner = paragraph.split(/\n/).map((line) => line.trim()).filter(Boolean);
+      for (const line of inner) { lines.push(line); standalone.push(inner.length === 1); }
+    }
     const bodySizes = page.blocks?.map((block) => block.fontSize).filter((size) => size > 0).sort((a, b) => a - b) ?? [];
     const bodySize = bodySizes.length ? bodySizes[Math.floor(bodySizes.length / 2)] : 0;
     const layoutHeadings = new Set(page.blocks?.filter((block) => bodySize > 0 && block.fontSize >= bodySize * 1.16 && block.text.length <= 96).map((block) => cleanCandidate(block.text).toLocaleLowerCase()) ?? []);
+    const sizeOf = new Map(page.blocks?.map((block) => [cleanCandidate(block.text).toLocaleLowerCase(), block.fontSize]) ?? []);
+    const isHeading = (line: string, at: number) => {
+      const key = cleanCandidate(line).toLocaleLowerCase();
+      if (layoutHeadings.has(key)) return true;
+      if (!layout) return matcher(line);
+      // Same-size headings (bold in a Word export) still count, but only alone in their paragraph and not smaller
+      // than body text: a table's header row is not a topic.
+      return Boolean(standalone[at]) && matcher(line) && (sizeOf.get(key) ?? bodySize) >= bodySize * 0.98;
+    };
     lines.forEach((line, index) => {
       const layoutHeading = layoutHeadings.has(cleanCandidate(line).toLocaleLowerCase());
-      if (proposals.length >= limit || (!matcher(line) && !layoutHeading)) return;
+      if (proposals.length >= limit || !isHeading(line, index)) return;
       const locator = page.pageNumber === 0 ? "Document outline" : `${input.locatorLabel ?? "Page"} ${page.pageNumber}`;
-      const sourceExcerpt = excerptFor(lines, index, line);
+      const sourceExcerpt = excerptFor(lines, index, line, layout ? isHeading : undefined);
       const heading = cleanCandidate(line);
       const name = topicNameFrom(heading, sourceExcerpt, locator);
       const key = name.toLocaleLowerCase();
+      if (key === titleKey) return;
       if ((!matcher(heading) && !layoutHeading) || seen.has(key) || ADMINISTRATIVE.test(name) || GENERIC_HEADING.test(name.trim()) || isDocumentTitle(name)) return;
       seen.add(key);
       proposals.push({
@@ -542,7 +582,9 @@ export function proposeConceptsFromMetadata(input: {
 }
 
 /** Small words every readable English passage uses. Scan noise ("omaliance tet Sralysing fuel co") has almost none. */
-const FUNCTION_WORDS = new Set(["a", "an", "the", "of", "to", "in", "on", "at", "by", "for", "with", "from", "and", "or", "but", "is", "are", "was", "were", "be", "been", "has", "have", "had", "it", "its", "this", "that", "these", "those", "as", "into", "not", "no", "can", "will", "when", "which", "who", "than", "then", "so", "if", "their", "they", "there", "each", "all", "more", "most", "one", "two", "many", "some", "per", "between", "does", "do"]);
+const FUNCTION_WORDS = new Set(["a", "an", "the", "of", "to", "in", "on", "at", "by", "for", "with", "from", "and", "or", "but", "is", "are", "was", "were", "be", "been", "has", "have", "had", "it", "its", "this", "that", "these", "those", "as", "into", "not", "no", "can", "will", "when", "which", "who", "than", "then", "so", "if", "their", "they", "there", "each", "all", "more", "most", "one", "two", "many", "some", "per", "between", "does", "do",
+  // French and Spanish: notes in either language read as text, not noise.
+  "le", "la", "les", "un", "une", "des", "du", "de", "et", "est", "sont", "en", "dans", "par", "pour", "sur", "avec", "au", "aux", "qui", "que", "ce", "cette", "se", "il", "elle", "ils", "elles", "plus", "ou", "el", "los", "las", "y", "es", "con", "por", "para", "del", "una", "lo"]);
 
 /**
  * Readable text, not scan noise: at least one small connecting word per dozen words, and most words look like words
@@ -553,7 +595,7 @@ export function looksReadable(text: string) {
   const words = text.toLocaleLowerCase().split(/[^\p{L}'-]+/u).filter((word) => word.length > 1 || word === "a");
   if (words.length < 5) return false;
   const glue = words.filter((word) => FUNCTION_WORDS.has(word)).length;
-  const wordLike = words.filter((word) => /[aeiouy]/.test(word) && !/(.)\1\1/.test(word)).length;
+  const wordLike = words.filter((word) => /[aeiouyàâäéèêëîïôöùûüœæáíóú]/.test(word) && !/(.)\1\1/.test(word)).length;
   return glue >= Math.max(1, Math.floor(words.length / 12)) && wordLike / words.length >= 0.8;
 }
 
