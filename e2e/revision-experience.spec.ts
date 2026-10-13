@@ -29,7 +29,7 @@ test("hero and revision steps work on a narrow screen", async ({ page }) => {
   await expect(page.getByRole("heading", { level: 1 })).toContainText("Revise your lessons");
 
   await expect(page.locator(".booklet-board")).toHaveCount(0);
-  await expect(page.getByRole("heading", { name: "Your notes become the next move." })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "One line from your notes, followed all the way." })).toBeVisible();
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
 });
 

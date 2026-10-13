@@ -62,5 +62,5 @@ test("reduced motion keeps the recording paused until the student chooses play",
 test("the revision story still follows the video without a duplicate sample", async ({ page }) => {
   await page.goto("/");
   await expect(page.locator("#try, .booklet-board")).toHaveCount(0);
-  await expect(page.locator("main > section").nth(1).getByRole("heading", { name: "Your notes become the next move." })).toBeVisible();
+  await expect(page.locator("main > section").nth(1).getByRole("heading", { name: "One line from your notes, followed all the way." })).toBeVisible();
 });
