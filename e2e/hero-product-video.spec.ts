@@ -12,7 +12,13 @@ test("the homepage shows a recording of the real product at desktop and phone si
     await expect(hero.locator("figcaption")).toHaveCount(0);
     await expect(hero.locator("video:visible")).toHaveAttribute("poster", /kelus-product-poster/);
     await expect(hero.locator("video:visible source").first()).toHaveAttribute("src", /kelus-product-walkthrough.*\.mp4/);
-    await expect(hero.getByRole("button", { name: /^(Play|Pause) video$/ })).toBeVisible();
+    await expect(hero.getByRole("button", { name: /^(Play|Pause|Replay) product walkthrough$/ })).toBeVisible();
+    await expect(hero.locator("button svg")).toHaveCount(0);
+    expect(await hero.evaluate((element) => {
+      const frame = element.querySelector("figure > div")?.getBoundingClientRect();
+      const visible = [...element.querySelectorAll("video")].find((item) => getComputedStyle(item).display !== "none");
+      return Boolean(frame && visible && visible.getBoundingClientRect().top < frame.top - 5);
+    })).toBe(true);
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
   }
   expect(errors).toEqual([]);
@@ -26,10 +32,11 @@ test("the recording autoplays without a control bar or caption, and can be pause
   await expect(video.locator("track")).toHaveAttribute("kind", "captions");
   await expect(page.locator('[data-hero="product-video"] figcaption')).toHaveCount(0);
   await expect.poll(() => video.evaluate((element: HTMLVideoElement) => element.readyState)).toBeGreaterThan(0);
-  await expect.poll(() => video.evaluate((element: HTMLVideoElement) => element.currentTime)).toBeGreaterThan(0);
-  await page.getByRole("button", { name: "Pause video" }).click();
+  await expect.poll(() => video.evaluate((element: HTMLVideoElement) => element.currentTime)).toBeGreaterThan(4);
+  await expect.poll(() => video.evaluate((element) => getComputedStyle(element).opacity)).toBe("1");
+  await page.getByRole("button", { name: "Pause product walkthrough" }).click();
   await expect.poll(() => video.evaluate((element: HTMLVideoElement) => element.paused)).toBe(true);
-  await page.getByRole("button", { name: "Play video" }).click();
+  await page.getByRole("button", { name: "Play product walkthrough" }).click();
   await expect.poll(() => video.evaluate((element: HTMLVideoElement) => element.paused)).toBe(false);
   await page.locator('[data-hero="product-video"]').getByRole("link", { name: "Set up" }).click();
   await expect(page.getByRole("heading", { name: "Start with your notes." })).toBeVisible();
@@ -42,8 +49,14 @@ test("reduced motion keeps the recording paused until the student chooses play",
   await expect(video).toBeVisible();
   await expect.poll(() => video.evaluate((element: HTMLVideoElement) => element.paused)).toBe(true);
   await expect(video).toHaveAttribute("poster", /kelus-product-poster/);
-  await page.getByRole("button", { name: "Play video" }).click();
+  await expect.poll(() => video.evaluate((element: HTMLVideoElement) => element.currentTime)).toBeGreaterThanOrEqual(4);
+  await expect(video).toHaveCSS("opacity", "0");
+  await expect(page.locator('[data-hero="product-video"] figure > div')).toHaveCSS("background-image", /kelus-product-poster/);
+  await page.getByRole("button", { name: "Play product walkthrough" }).click();
   await expect.poll(() => video.evaluate((element: HTMLVideoElement) => element.paused)).toBe(false);
+  await page.getByRole("button", { name: "Pause product walkthrough" }).focus();
+  await page.keyboard.press("Space");
+  await expect.poll(() => video.evaluate((element: HTMLVideoElement) => element.paused)).toBe(true);
 });
 
 test("the revision story still follows the video without a duplicate sample", async ({ page }) => {
