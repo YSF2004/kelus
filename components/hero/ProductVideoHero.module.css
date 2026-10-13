@@ -64,6 +64,7 @@
 .visual { width: min(1080px, 100%); margin: 40px auto 0; }
 .videoFigure { margin: 0; }
 .videoFrame {
+  position: relative;
   overflow: hidden;
   border: 1px solid var(--hero-line);
   border-radius: 8px;
@@ -72,11 +73,26 @@
 }
 .desktopVideo, .mobileVideo { display: block; width: 100%; height: auto; background: var(--color-pure-white); }
 .mobileVideo { display: none; }
-.videoCaption {
-  margin-top: 12px;
-  color: var(--hero-muted);
-  font: 400 13px/1.45 var(--font-marketing-sans), Arial, sans-serif;
+.playbackButton {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: 1px solid var(--hero-line);
+  border-radius: 50%;
+  background: var(--color-pure-white);
+  color: var(--hero-ink);
+  cursor: pointer;
+  transition: transform 150ms var(--ease-standard);
 }
+.playbackButton svg { width: 20px; height: 20px; }
+.playbackButton:hover { transform: scale(1.06); }
+.playbackButton:active { transform: scale(.97); transition-duration: 80ms; }
+.playbackButton:focus-visible { outline: 3px solid var(--hero-green); outline-offset: 3px; }
 
 @media (max-width: 640px) {
   .hero { padding: 46px 16px 48px; }
@@ -88,6 +104,7 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .primary, .primaryArrow { transition: none; }
+  .primary, .primaryArrow, .playbackButton { transition: none; }
   .primary:hover, .primary:hover .primaryArrow, .primary:active { transform: none; }
+  .playbackButton:hover, .playbackButton:active { transform: none; }
 }

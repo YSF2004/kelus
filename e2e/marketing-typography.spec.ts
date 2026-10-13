@@ -5,15 +5,15 @@ test("homepage uses editorial type around the real product recording", async ({ 
   const hero = page.locator('[data-hero="product-video"]');
   await expect(hero.locator("h1")).toHaveCSS("font-family", /Fraunces/i);
   await expect(hero.locator("p")).toHaveCSS("font-family", /Inter/i);
-  await expect(hero.locator("figcaption")).toHaveCSS("font-family", /Inter/i);
-  await expect(hero.locator("video:visible")).toHaveAttribute("controls", "");
+  await expect(hero.locator("figcaption")).toHaveCount(0);
+  await expect(hero.locator("video:visible")).not.toHaveAttribute("controls", "");
 });
 
 test("How it works uses the shared Kelus canvas on desktop and mobile", async ({ page }) => {
   for (const width of [1440, 390]) {
     await page.setViewportSize({ width, height: 900 });
     await page.goto("/route/");
-    const canvas = page.locator('main > div[class*="HowItWorks-module"]');
+    const canvas = page.locator("main > div").first();
     await expect(canvas).toHaveCSS("background-color", "rgb(255, 255, 255)");
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
   }

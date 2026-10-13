@@ -21,7 +21,8 @@ test("homepage presents the real product video followed by the illustrated revis
   assert.match(video, /kelus-product-walkthrough-mobile\.webm/);
   assert.match(video, /kelus-product-walkthrough\.mp4/);
   assert.match(video, /kelus-product-walkthrough-mobile\.mp4/);
-  assert.match(video, /Recorded in Kelus with a demo lecture PDF/);
+  assert.doesNotMatch(video, /Recorded in Kelus with a demo lecture PDF/);
+  assert.doesNotMatch(video, /\bcontrols\b/);
   assert.doesNotMatch(hero, /LEARNING_EXAMPLES/);
   assert.doesNotMatch(hero, /home-brand/);
   assert.doesNotMatch(hero, /hero-window-controls/);

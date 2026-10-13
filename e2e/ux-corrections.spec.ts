@@ -20,7 +20,7 @@ test("homepage explains the revision loop without the duplicate sample board", a
   await expect(page.getByText("Interactive sample", { exact: true })).toHaveCount(0);
   await expect(page.locator(".booklet-board")).toHaveCount(0);
   await expect(page.locator('[data-hero="product-video"] video:visible')).toBeVisible();
-  await expect(page.locator('[data-hero="product-video"]')).toContainText("Recorded in Kelus with a demo lecture PDF");
+  await expect(page.locator('[data-hero="product-video"] figcaption')).toHaveCount(0);
   await expect(page.getByRole("heading", { name: "Your notes become the next move." })).toBeVisible();
 });
 
