@@ -65,46 +65,39 @@
 .videoFigure { margin: 0; }
 .videoFrame {
   position: relative;
+  aspect-ratio: 1280 / 748;
   overflow: hidden;
   border: 1px solid var(--hero-line);
   border-radius: 8px;
-  background: var(--color-pure-white);
+  background: var(--color-pure-white) url("/hero/kelus-product-poster.png") center bottom / cover no-repeat;
   box-shadow: 0 18px 40px -32px rgba(18, 22, 15, .36);
 }
-.desktopVideo, .mobileVideo { display: block; width: 100%; height: auto; background: var(--color-pure-white); }
-.mobileVideo { display: none; }
-.playbackButton {
-  position: absolute;
-  top: 12px;
-  right: 12px;
-  display: grid;
-  place-items: center;
-  width: 44px;
-  height: 44px;
+.videoInteraction {
+  display: block;
+  width: 100%;
   padding: 0;
-  border: 1px solid var(--hero-line);
-  border-radius: 50%;
-  background: var(--color-pure-white);
-  color: var(--hero-ink);
+  border: 0;
+  background: transparent;
   cursor: pointer;
-  transition: transform 150ms var(--ease-standard);
 }
-.playbackButton svg { width: 20px; height: 20px; }
-.playbackButton:hover { transform: scale(1.06); }
-.playbackButton:active { transform: scale(.97); transition-duration: 80ms; }
-.playbackButton:focus-visible { outline: 3px solid var(--hero-green); outline-offset: 3px; }
+.videoInteraction:focus-visible { outline: 3px solid var(--hero-green); outline-offset: -5px; }
+.desktopVideo, .mobileVideo { display: block; width: 100%; height: auto; opacity: 0; }
+.decodedFrame { opacity: 1; }
+.desktopVideo { transform: translateY(-6.5%); }
+.mobileVideo { display: none; }
 
 @media (max-width: 640px) {
   .hero { padding: 46px 16px 48px; }
   .hero .headline { max-width: 13ch; font-size: clamp(40px, 10.5vw, 56px); }
   .hero .lede { max-width: 31ch; margin-top: 18px; }
   .visual { width: min(390px, 100%); margin-top: 32px; }
+  .videoFrame { aspect-ratio: 390 / 790; }
   .desktopVideo { display: none; }
-  .mobileVideo { display: block; }
+  .mobileVideo { display: block; transform: translateY(-6.4%); }
+  .videoFrame { background-image: url("/hero/kelus-product-poster-mobile.png"); }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .primary, .primaryArrow, .playbackButton { transition: none; }
+  .primary, .primaryArrow { transition: none; }
   .primary:hover, .primary:hover .primaryArrow, .primary:active { transform: none; }
-  .playbackButton:hover, .playbackButton:active { transform: none; }
 }
