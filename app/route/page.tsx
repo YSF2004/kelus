@@ -4,9 +4,16 @@ import { LateralPage } from "@/components/PageTransition";
 import { SiteFooter } from "@/components/SiteFooter";
 
 export const metadata: Metadata = {
-  title: "How to revise with Kelus — Course notes to exam practice",
-  description: "Add your course material, check what you recall, practise your lessons, and revisit weaker topics. See how Kelus adapts your exam revision to your answers.",
+  title: "How to Revise from Your Notes | Kelus",
+  description: "Add a lecture PDF, syllabus, or notes. Kelus helps you recall the material, check your answers, and decide which topic to practise next.",
   alternates: { canonical: "/route" },
+  openGraph: {
+    title: "How to Revise from Your Notes | Kelus",
+    description: "From your own course notes to recall practice and a route that responds to your answers.",
+    url: "/route/",
+    siteName: "Kelus",
+    images: [{ url: "/og/kelus-social.png", width: 1200, height: 630, alt: "Course notes become recall practice and a revision route in Kelus." }],
+  },
 };
 
 export default function RoutePage() {

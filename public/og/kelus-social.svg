@@ -1,0 +1,39 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630" role="img" aria-labelledby="title desc">
+  <title id="title">Kelus — revise from your own notes</title>
+  <desc id="desc">A course note becomes a recall question, then a route showing the next topic to review.</desc>
+  <rect width="1200" height="630" fill="#fbfaf7"/>
+  <path d="M0 0h1200v630H0z" fill="none" stroke="#d5d9d0" stroke-width="2"/>
+  <g fill="none" stroke="#12160f" stroke-linecap="round" stroke-linejoin="round" stroke-width="8">
+    <path d="M72 52v56"/>
+    <path d="M112 54C104 67 95 74 84 79c12 4 22 13 29 27"/>
+  </g>
+  <text x="138" y="95" font-family="Arial, Helvetica, sans-serif" font-size="38" font-weight="600" letter-spacing="-2" fill="#12160f">kelus</text>
+  <path d="M64 132h1072" stroke="#d5d9d0" stroke-width="1.5"/>
+  <text x="72" y="224" font-family="Georgia, 'Times New Roman', serif" font-size="66" letter-spacing="-2.5" fill="#12160f">Revise your lessons.</text>
+  <text x="72" y="299" font-family="Georgia, 'Times New Roman', serif" font-size="66" letter-spacing="-2.5" fill="#12160f">Know what to review next.</text>
+  <text x="75" y="360" font-family="Arial, Helvetica, sans-serif" font-size="23" fill="#4a5246">Your notes → recall practice → a route that responds.</text>
+  <g transform="translate(72 420)">
+    <rect width="296" height="132" rx="13" fill="#ffffff" stroke="#d5d9d0" stroke-width="1.5"/>
+    <text x="22" y="35" font-family="Arial, Helvetica, sans-serif" font-size="15" font-weight="700" letter-spacing="1.1" fill="#4a5246">YOUR NOTES</text>
+    <path d="M22 61h205M22 79h248M22 97h153" stroke="#bfc6bc" stroke-width="2" stroke-linecap="round"/>
+    <path d="M21 114h108" stroke="#a5521f" stroke-width="4" stroke-linecap="round"/>
+  </g>
+  <path d="M386 486h57m-13-13 13 13-13 13" fill="none" stroke="#4a5246" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+  <g transform="translate(462 420)">
+    <rect width="296" height="132" rx="13" fill="#ffffff" stroke="#d5d9d0" stroke-width="1.5"/>
+    <text x="22" y="35" font-family="Arial, Helvetica, sans-serif" font-size="15" font-weight="700" letter-spacing="1.1" fill="#4a5246">RECALL</text>
+    <text x="22" y="75" font-family="Georgia, 'Times New Roman', serif" font-size="25" fill="#12160f">Try it from memory.</text>
+    <path d="M22 100h247" stroke="#d5d9d0" stroke-width="2"/>
+  </g>
+  <path d="M776 486h57m-13-13 13 13-13 13" fill="none" stroke="#4a5246" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+  <g transform="translate(852 420)">
+    <rect width="276" height="132" rx="13" fill="#ffffff" stroke="#d5d9d0" stroke-width="1.5"/>
+    <text x="22" y="35" font-family="Arial, Helvetica, sans-serif" font-size="15" font-weight="700" letter-spacing="1.1" fill="#4a5246">TODAY'S ROUTE</text>
+    <circle cx="30" cy="70" r="7" fill="#1f6b45"/>
+    <text x="49" y="77" font-family="Arial, Helvetica, sans-serif" font-size="23" font-weight="600" fill="#12160f">Start here</text>
+    <path d="M30 83v24" stroke="#1f6b45" stroke-width="2"/>
+    <circle cx="30" cy="111" r="5" fill="#ffffff" stroke="#8ba99a" stroke-width="2"/>
+    <path d="M49 111h128" stroke="#d5d9d0" stroke-width="2"/>
+  </g>
+  <text x="73" y="599" font-family="Arial, Helvetica, sans-serif" font-size="17" fill="#4a5246">kelus.me</text>
+</svg>

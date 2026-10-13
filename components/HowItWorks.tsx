@@ -109,6 +109,14 @@ export function HowItWorks() {
           <p>Kelus uses your course material, exam date, and practice answers to choose what to revisit. Readiness is an estimate from that evidence, not a promise about your exam result.</p>
         </div>
       </motion.section>
+      <section className={styles.questions} aria-labelledby="how-questions-title">
+        <h2 id="how-questions-title">Before you begin</h2>
+        <dl>
+          <div><dt>What can I add?</dt><dd>A lecture PDF, syllabus, notes, or pasted text. Kelus proposes topics from your material; you confirm them before you study.</dd></div>
+          <div><dt>Do I need an account?</dt><dd>No. You can start revising for free on this device. Sign-in is optional when sync is available.</dd></div>
+          <div><dt>Will Kelus predict my exam grade?</dt><dd>No. It uses your practice answers to suggest what to review next. Readiness is an estimate, not an exam prediction.</dd></div>
+        </dl>
+      </section>
       <motion.footer ref={finalRef} className={styles.final} initial={reduceMotion ? false : { opacity: 0, y: 14 }} animate={finalVisible ? { opacity: 1, y: 0 } : undefined} transition={{ duration: 0.55, ease: kelusEase }}>
         <p>Ready to revise your own lessons?</p>
         <Link className={styles.primaryAction} href="/today">Set up my course<span className={styles.primaryArrow} aria-hidden="true">→</span></Link>

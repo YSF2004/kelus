@@ -9,9 +9,16 @@ import { LateralPage } from "@/components/PageTransition";
 import { PricingPlanMotion } from "@/components/PricingPlanMotion";
 
 export const metadata: Metadata = {
-  title: "Pricing — Kelus",
-  description: "Start revising free. Kelus Plus is $4.99 per month when subscription checkout opens.",
+  title: "Kelus Pricing | Free Exam Revision & Planned Plus",
+  description: "Start revising your own course for free, with no account required. Kelus Plus is planned at $4.99 per month; availability is shown on this page.",
   alternates: { canonical: "/pricing" },
+  openGraph: {
+    title: "Kelus Pricing | Free Exam Revision & Planned Plus",
+    description: "Start revising your own course for free. See what is included and whether Kelus Plus is available.",
+    url: "/pricing/",
+    siteName: "Kelus",
+    images: [{ url: "/og/kelus-social.png", width: 1200, height: 630, alt: "Kelus helps you revise from your course notes." }],
+  },
 };
 
 export default function PricingPage() {
