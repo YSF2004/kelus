@@ -32,7 +32,7 @@ test("Supabase sessions persist and auth supports password, signup and Google", 
 });
 
 test("production injects only public Supabase credentials into the static build", async () => {
-  const workflow = await source(".github/workflows/restore-kelus-dns.yml");
+  const workflow = await source(".github/workflows/deploy.yml");
   assert.match(workflow, /NEXT_PUBLIC_SUPABASE_URL/);
   assert.match(workflow, /NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY/);
   assert.doesNotMatch(workflow, /SERVICE_ROLE/);

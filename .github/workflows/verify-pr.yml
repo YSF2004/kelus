@@ -21,5 +21,8 @@ jobs:
       - run: npm run typecheck
       - run: npm test
       - run: npx playwright install chromium
-      - run: npm run test:e2e
-      - run: npm run build
+      # The dev server and the build fetch Google Fonts; retry once so a network blip is not a red PR.
+      - name: Browser tests
+        run: npm run test:e2e || { echo "::warning::Browser tests failed once; retrying"; npm run test:e2e; }
+      - name: Build
+        run: npm run build || { echo "::warning::Build failed once; retrying"; npm run build; }
