@@ -12,6 +12,7 @@ import { WaitlistForm } from "@/components/WaitlistForm";
 import { SoftUpgradePrompt } from "@/components/SoftUpgradePrompt";
 import { downloadTomorrowStudyIcs } from "@/lib/study-reminder";
 import { SAMPLE_COURSE_IDS, sessionContext } from "@/lib/pilot";
+import { ClassInvite } from "@/components/ClassInvite";
 import { trackEvent } from "@/lib/analytics";
 import { useDocumentTitle } from "@/lib/use-title";
 import { KelusLogoMark } from "@/components/KelusLogoMark";
@@ -211,6 +212,7 @@ function CompleteBody() {
               <button type="button" onClick={() => { setUsefulness(false); trackEvent({ name: "session_usefulness_rated", helpful: false, session_number: sessionNumber }); }}>Not yet</button>
             </p>
           ) : <p role="status">{usefulness ? "Thanks. Good to know." : "Thanks. That helps make it better."}</p>}
+          {session && !SAMPLE_COURSE_IDS.has(session.courseId) ? <ClassInvite sessionNumber={sessionNumber} /> : null}
           {completedSessions === 1 ? (
             <details>
               <summary>Want Kelus through to exam day?</summary>
