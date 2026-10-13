@@ -84,3 +84,24 @@ export function captureCohort(search: string) {
     return null;
   }
 }
+
+/**
+ * The class this browser belongs to: its pilot group if it came from one, otherwise a random code made once
+ * ("class-k3x9qa"). It names no course and no person; it only lets one class's invites be counted together.
+ */
+export function classCode() {
+  const existing = captureCohort("");
+  if (existing) return existing;
+  const code = `class-${Math.random().toString(36).slice(2, 8).padEnd(6, "0")}`;
+  try {
+    localStorage.setItem(COHORT_KEY, code);
+  } catch {
+    /* Private mode: the link still works, it just is not remembered. */
+  }
+  return code;
+}
+
+/** The link a student sends their class: kelus.me itself, tagged with the class code. Never their notes. */
+export function inviteLink(code: string, origin = "https://kelus.me") {
+  return `${origin}/?pilot=${encodeURIComponent(code)}&via=invite`;
+}

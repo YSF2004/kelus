@@ -24,6 +24,7 @@ In GA4 → Admin → Custom definitions, add:
 | Return day       | Event | `day`                |
 | Helpful          | Event | `helpful`            |
 | Sample           | Event | `sample`             |
+| Invite method    | Event | `method`             |
 
 Data only shows from the day a definition is added, so add these before the pilot starts.
 
@@ -41,9 +42,22 @@ Filter every report to `Pilot cohort = <your group>` and `Sample ≠ true`.
 A free-form exploration in GA4 (Explore → Funnel exploration) gives the first three as one funnel:
 `session_started (n=1)` → `session_completed (n=1)` → `learner_returned (day ≤ 7)` → `session_completed (n ≥ 2)`.
 
+## Class invites
+
+After a block, a student can tap **Send them Kelus**. On a phone it opens the share sheet (WhatsApp, Discord,
+Messages); on a computer it copies the link. The link is `kelus.me/?pilot=<code>&via=invite`: the student's pilot group
+if they came from one, otherwise a random class code made once on their device (`class-k3x9qa`). Classmates who open
+it join the same group, so a class that spreads Kelus by itself shows up as one cohort. Nothing from the notes is
+shared; each classmate adds their own copy of the slides.
+
+| Question                     | How it is counted                                              |
+| ---------------------------- | -------------------------------------------------------------- |
+| Do students pass Kelus on?   | Users with `invite_shared` (by `method`), over users with a finished block |
+| Do invites bring classmates? | `invite_opened`, by `Pilot cohort`; then their first `session_completed` |
+
 ## What is and is not sent
 
-- Sent: event names above, the session number, day counts, the yes/no usefulness answer, and the pilot group name.
+- Sent: event names above, the session number, day counts, the yes/no usefulness answer, how an invite was sent, and the pilot group name or class code.
 - Never sent: notes, answers, topic names, names or emails.
 - The built-in sample course is marked `sample: true` and never sends a return.
 

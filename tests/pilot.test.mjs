@@ -26,3 +26,16 @@ test("a pilot group name from a link is plain and short, or ignored", () => {
   assert.equal(cleanCohort("x".repeat(33)), null);
   assert.equal(cleanCohort(null), null);
 });
+
+test("a class invite is kelus.me with a class code, never the notes, and the code names nobody", async () => {
+  const { classCode, inviteLink } = await import("../lib/pilot.ts");
+  const store = new Map();
+  globalThis.localStorage = { getItem: (key) => store.get(key) ?? null, setItem: (key, value) => store.set(key, String(value)) };
+  const code = classCode();
+  assert.match(code, /^class-[a-z0-9]{6}$/);
+  assert.equal(classCode(), code, "the same class keeps its code");
+  assert.equal(inviteLink(code), `https://kelus.me/?pilot=${code}&via=invite`);
+  store.set("kelus-pilot-cohort", "lycee-2b");
+  assert.equal(classCode(), "lycee-2b", "a pilot group is passed on as it is");
+  delete globalThis.localStorage;
+});

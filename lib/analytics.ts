@@ -20,6 +20,8 @@ export type KelusAnalyticsEvent =
   | { name: "session_completed"; concept_count: number; planned_minutes: number; session_number?: number; days_since_first?: number; sample?: boolean }
   | { name: "session_usefulness_rated"; helpful: boolean; session_number?: number }
   | { name: "learner_returned"; day: number; days_since_last: number; session_count: number }
+  | { name: "invite_shared"; method: "share" | "copy"; session_number?: number }
+  | { name: "invite_opened" }
   | { name: "next_route_opened"; source: "completion" | "calendar" }
   | { name: "reminder_downloaded" }
   | { name: "nudges_enabled" }
