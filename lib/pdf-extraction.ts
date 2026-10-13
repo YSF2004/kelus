@@ -89,13 +89,27 @@ export function buildLayoutPage(pageNumber: number, rawItems: PdfTextItem[]): Ex
     }
   }
   const bodySize = median(lines.map((line) => line.fontSize));
+  // How wide a full line of body text is, per column (lines that start at the same left edge).
+  const fullWidth = (line: { x: number; fontSize: number }) => Math.max(0, ...lines
+    .filter((other) => Math.abs(other.x - line.x) < 4 && Math.abs(other.fontSize - line.fontSize) < 0.5)
+    .map((other) => other.width));
   let text = "";
   lines.forEach((line, index) => {
     const previous = lines[index - 1];
     if (previous) {
       const gap = Math.abs(previous.y - line.y);
       const paragraphBreak = gap > bodySize * 1.65 || line.fontSize >= bodySize * 1.18 || previous.fontSize >= bodySize * 1.18;
-      text += paragraphBreak ? "\n\n" : "\n";
+      // Justified text splits words at the line end ("de-" / "fend"): the word is joined back. "Austria-" / "Hungary" keeps its dash.
+      if (!paragraphBreak && /\p{Ll}-$/u.test(text) && /^\p{Ll}/u.test(line.text)) {
+        text = text.slice(0, -1);
+        text += line.text;
+        return;
+      }
+      // A line that ran to the column's edge without ending a sentence wrapped: the next line is the same sentence.
+      // A short slide bullet stops well before the edge, so it keeps its own line.
+      const wrapped = !paragraphBreak && previous.width >= fullWidth(previous) * 0.85 && fullWidth(previous) > bodySize * 15
+        && !/[.!?:;]["”)]?$/.test(previous.text) && Math.abs(line.x - previous.x) < 4;
+      text += paragraphBreak ? "\n\n" : wrapped ? " " : "\n";
     }
     text += line.text;
   });
