@@ -28,7 +28,9 @@ test("a page too thin for checks still gets the same run: just the explanation, 
   assert.ok(run);
   assert.ok(run.checks.length <= 1);
   assert.equal(run.explainPrompt, activity.retrieve.prompt);
-  assert.equal(quickOutcome({ right: 0, total: 0, self: "nailed" }), "success", "with no checks the explanation decides");
+  assert.equal(quickOutcome({ right: 0, total: 0, self: "nailed" }), "partial", "a rating alone is not evidence");
+  assert.equal(quickOutcome({ right: 0, total: 0, self: "nailed", coverage: { hits: 4, keys: 4 } }), "success", "with no checks the explanation decides");
+  assert.equal(quickOutcome({ right: 0, total: 0, self: "nailed", coverage: { hits: 0, keys: 4 } }), "failure", "saying you nailed it does not make an empty explanation a pass");
   assert.equal(quickSummary({ right: 0, total: 0, self: "partly" }), "You rated your explanation: partly there.");
 });
 
@@ -40,14 +42,17 @@ test("scan noise is not readable text, but slide bullets and notation are", asyn
   assert.equal(looksReadable("It ignores constant factors, so 3n + 10 is O(n) and O(n log n) is slower."), true);
 });
 
-test("the outcome needs both kinds of evidence", () => {
+test("the result comes from what was shown; the self-rating can lower it, never raise it", () => {
   assert.equal(quickOutcome({ right: 3, total: 3, self: "nailed" }), "success");
-  assert.equal(quickOutcome({ right: 0, total: 3, self: "nailed" }), "partial", "a strong rating cannot rescue wrong checks");
+  assert.equal(quickOutcome({ right: 0, total: 3, self: "nailed" }), "failure", "a strong rating cannot rescue wrong checks");
+  assert.equal(quickOutcome({ right: 1, total: 3, self: "nailed" }), "failure");
   assert.equal(quickOutcome({ right: 3, total: 3, self: "missed" }), "partial", "a miss caps the result");
   assert.equal(quickOutcome({ right: 0, total: 3, self: "missed" }), "failure");
-  assert.equal(quickOutcome({ right: 1, total: 3, self: "partly" }), "partial");
+  assert.equal(quickOutcome({ right: 1, total: 3, self: "partly" }), "failure");
   assert.equal(quickOutcome({ right: 2, total: 3, self: "partly" }), "partial");
   assert.equal(quickOutcome({ right: 0, total: 0, self: "missed" }), "failure");
+  assert.equal(quickOutcome({ right: 3, total: 3, self: "partly" }), quickOutcome({ right: 3, total: 3, self: "nailed" }), "partly and nailed weigh the same");
+  assert.equal(quickOutcome({ right: 2, total: 3, self: "nailed", coverage: { hits: 1, keys: 5 } }), "partial", "an explanation missing most key ideas pulls it down");
 });
 
 test("the summary says exactly what the outcome is based on", () => {
@@ -56,7 +61,7 @@ test("the summary says exactly what the outcome is based on", () => {
 
 test("not sure is named in the summary, and never counts as right", () => {
   assert.equal(quickSummary({ right: 1, total: 3, unsure: 2, self: "partly" }), "1 of 3 quick checks right (2 marked not sure). You rated your explanation: partly there.");
-  assert.equal(quickOutcome({ right: 1, total: 3, self: "nailed" }), "partial");
+  assert.equal(quickOutcome({ right: 1, total: 3, self: "nailed" }), "failure");
 });
 
 test("a later round brings different questions, all still quoting the page", () => {

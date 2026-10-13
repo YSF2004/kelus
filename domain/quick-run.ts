@@ -125,19 +125,27 @@ export function whereAnswerBelongs(item: PracticeItem, given: string, sentences:
 }
 
 /**
- * One outcome for the topic, from two kinds of evidence: how many quick checks were right, and how the
- * learner rated their own explanation. A strong rating cannot rescue wrong checks, and a miss caps the result.
+ * One outcome for the topic, from what the learner showed: the quick checks they got right and the key ideas
+ * from the notes their explanation used. Their own rating is a confidence, not evidence: it can lower the
+ * result ("I missed it") but never raise it, so "Nailed it" on wrong checks is still another attempt.
  */
-export function quickOutcome(input: { right: number; total: number; self: SelfGrade }): RetrievalOutcome {
-  // With no checks, the explanation is the only evidence, so it decides alone.
-  if (input.total === 0) return input.self === "nailed" ? "success" : input.self === "partly" ? "partial" : "failure";
-  const share = input.total > 0 ? input.right / input.total : 0;
-  const self = input.self === "nailed" ? 1 : input.self === "partly" ? 0.5 : 0;
-  const score = share * 0.5 + self * 0.5;
-  if (input.self === "missed" && share < 0.5) return "failure";
-  if (score >= 0.75 && input.self !== "missed") return "success";
-  if (score < 0.35) return "failure";
-  return "partial";
+export function quickEvidence(input: { right: number; total: number; coverage?: { hits: number; keys: number } | null }) {
+  const parts: Array<[number, number]> = [];
+  if (input.total > 0) parts.push([input.right / input.total, 0.6]);
+  if (input.coverage && input.coverage.keys >= 3) parts.push([input.coverage.hits / input.coverage.keys, 0.4]);
+  if (!parts.length) return null;
+  const weight = parts.reduce((sum, [, w]) => sum + w, 0);
+  return parts.reduce((sum, [value, w]) => sum + value * w, 0) / weight;
+}
+
+export function quickOutcome(input: { right: number; total: number; self: SelfGrade; coverage?: { hits: number; keys: number } | null }): RetrievalOutcome {
+  const evidence = quickEvidence(input);
+  // Nothing measurable (no checks, an explanation too short to compare): a self-rating alone is never a pass.
+  if (evidence === null) return input.self === "missed" ? "failure" : "partial";
+  if (input.self === "missed") return evidence >= 0.67 ? "partial" : "failure";
+  if (evidence >= 0.75) return "success";
+  if (evidence >= 0.4) return "partial";
+  return "failure";
 }
 
 export function quickSummary(input: { right: number; total: number; self: SelfGrade; unsure?: number }) {

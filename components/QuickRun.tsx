@@ -9,7 +9,7 @@ import { whereAnswerBelongs, type QuickRun as Run, type SelfGrade } from "@/doma
 import styles from "./QuickRun.module.css";
 
 /** `missed` holds the page lines behind the checks that were wrong or not sure, so the result can point back to them. */
-export type QuickRunResult = { right: number; total: number; unsure: number; self: SelfGrade; explained: string; elapsedMs: number; missed: string[] };
+export type QuickRunResult = { right: number; total: number; unsure: number; self: SelfGrade; explained: string; elapsedMs: number; missed: string[]; /** Key ideas from the notes the explanation used, when there were enough to compare. */ coverage?: { hits: number; keys: number } | null };
 
 const noSubscribe = () => () => {};
 const modKeyNow = () => (/Mac|iPhone|iPad/.test(navigator.platform) ? "⌘" : "Ctrl ");
@@ -100,7 +100,7 @@ export function QuickRun({ run, onRevealSource, onFinish, onChecksDone }: {
   }
 
   function finish(self: SelfGrade, at: number) {
-    onFinish({ right, total, unsure, self, explained, elapsedMs: Math.max(0, Math.round(at - started.current)), missed });
+    onFinish({ right, total, unsure, self, explained, elapsedMs: Math.max(0, Math.round(at - started.current)), missed, coverage: useful ? { hits: useful.hits, keys: useful.keys } : null });
   }
 
   // In the explanation: ⌘↵ (Ctrl+Enter) compares; once compared, 1, 2 and 3 pick how close it was.

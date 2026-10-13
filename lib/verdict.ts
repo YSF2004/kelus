@@ -1,7 +1,7 @@
 import type { RetrievalOutcome } from "@/domain/types";
 import type { SelfGrade } from "@/domain/quick-run";
 
-export type QuickStats = { right: number; total: number; unsure: number; self: SelfGrade };
+export type QuickStats = { right: number; total: number; unsure: number; self: SelfGrade; coverage?: { hits: number; keys: number } | null };
 
 const LINE: Record<RetrievalOutcome, string> = {
   success: "You knew it and you could say it.",
@@ -10,14 +10,19 @@ const LINE: Record<RetrievalOutcome, string> = {
 };
 
 /**
- * Why this verdict, in one sentence: the checks and your own rating each count for half, so a "Partly" with no
- * check right is still another attempt. Saying so stops the verdict from seeming to contradict "You said".
+ * Why this verdict, in one sentence, from what was shown: the checks right and the key ideas the explanation used.
+ * The self-rating is mentioned only when it lowered the result, because it never raises it.
  */
 export function verdictReason(outcome: RetrievalOutcome, stats: QuickStats | null) {
-  if (!stats || stats.total === 0) return LINE[outcome];
-  const checks = `${stats.right} of ${stats.total} check${stats.total === 1 ? "" : "s"} right`;
-  const said = stats.self === "nailed" ? "you nailed the explanation" : stats.self === "partly" ? "your explanation was partly there" : "you missed the explanation";
-  if (outcome === "success") return `${checks} and ${said}. It comes back in a few days to keep it.`;
-  if (outcome === "partial") return `${checks} and ${said}. It comes back soon to firm up.`;
-  return `${checks}${stats.self === "missed" ? ` and ${said}` : `, so even though ${said}`}, it comes back tomorrow.`;
+  if (!stats) return LINE[outcome];
+  const shown: string[] = [];
+  if (stats.total > 0) shown.push(`${stats.right} of ${stats.total} check${stats.total === 1 ? "" : "s"} right`);
+  if (stats.coverage && stats.coverage.keys >= 3) shown.push(`${stats.coverage.hits} of ${stats.coverage.keys} key ideas in your explanation`);
+  const evidence = shown.length ? shown.join(" and ") : "not enough in your answer to measure yet";
+  const lowered = stats.self === "missed" ? ", and you said you missed it" : "";
+  if (outcome === "success") return `${capital(evidence)}. It comes back in a few days to keep it.`;
+  if (outcome === "partial") return `${capital(evidence)}${lowered}. It comes back soon to firm up.`;
+  return `${capital(evidence)}${lowered}, so it comes back tomorrow.`;
 }
+
+function capital(text: string) { return text.charAt(0).toUpperCase() + text.slice(1); }
