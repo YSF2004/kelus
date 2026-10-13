@@ -85,10 +85,10 @@ export const INITIAL_INGEST_STATE: IngestState = {
 };
 
 const DEFAULT_STEP_MESSAGE: Record<WorkingStep, string> = {
-  saving: "Saving your PDF…",
-  extracting: "Reading PDF text…",
-  ocr: "Reading scanned pages…",
-  building: "Building concepts…",
+  saving: "Opening your notes…",
+  extracting: "Reading your pages…",
+  ocr: "These pages are scanned, so this takes a moment…",
+  building: "Finding the topics in your notes…",
 };
 
 export function defaultStepMessage(step: WorkingStep) {

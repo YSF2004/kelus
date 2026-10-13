@@ -400,7 +400,7 @@ export function MaterialLibrary({ embedded = false, incomingFile = null, onIncom
         dispatch({
           type: "WORK_STEP",
           step: "building",
-          message: usedOcr ? "Building concepts from scanned text…" : defaultStepMessage("building"),
+          message: defaultStepMessage("building"),
         });
         proposals = proposeConceptsFromPages({ materialId: material.id, sourceLabel: material.title, pages, locatorLabel }).filter(isSourceBackedProposal);
         if (proposals.length < 3) {

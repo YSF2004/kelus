@@ -11,7 +11,7 @@ export async function gotoStart(page: Page) {
 /** The one-step start: drop a file, and the first question opens by itself. */
 /** After notes are read, Kelus shows what it built; one tap starts the first topic. */
 export async function startBuiltPlan(page: Page) {
-  const start = page.getByRole("button", { name: /^Start with / });
+  const start = page.getByRole("button", { name: /^Start$/ });
   await start.or(page.getByLabel(/^Check 1 of \d$/)).first().waitFor({ timeout: 30_000 });
   if (await start.count()) await start.click();
 }

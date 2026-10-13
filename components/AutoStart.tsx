@@ -16,11 +16,11 @@ function clearFlag() {
   try { window.sessionStorage.removeItem(FLAG); } catch { /* Harmless. */ }
 }
 
-export type BuiltPlan = { course: string; topics: number; questions: number; minutes: number; firstName: string };
+export type BuiltPlan = { course: string; topics: number; questions: number; minutes: number; firstName: string; /** Topic names, the first one first. */ names?: string[] };
 
 /**
- * Right after new notes are read: what Kelus made from them, in numbers, before the first question. It is the moment
- * the learner sees the work done for them; one tap starts the first topic, or they can look at the plan first.
+ * Right after new notes are read, before the first question: the student's own topics named back to them, where to
+ * begin, and one tap to start. No counts; the plan is one tap away for anyone who wants it.
  */
 export function AutoStart({ ready, plan, showPlan, onStart }: { ready: boolean; plan: BuiltPlan; /** First notes, nothing answered yet: show what was built. Otherwise (a warm-up's Continue) go straight on. */ showPlan: boolean; onStart: () => void }) {
   const reduce = useReducedMotion() === true;
@@ -41,12 +41,12 @@ export function AutoStart({ ready, plan, showPlan, onStart }: { ready: boolean; 
 
   // Time from what there is to do: about 40 seconds a question and a minute and a half to explain each topic.
   const minutes = Math.max(2, Math.ceil(plan.questions * 0.7 + plan.topics * 1.5));
-  const rows = [
-    { big: String(plan.topics), label: plan.topics === 1 ? "topic found in your notes" : "topics found in your notes" },
-    { big: String(plan.questions), label: plan.questions === 1 ? "question written from your own lines" : "questions written from your own lines" },
-    { big: `${minutes < 10 ? minutes : Math.round(minutes / 5) * 5} min`, label: "to go through all of it once" },
-  ];
-  const rise = (delay: number) => (reduce ? {} : { initial: { opacity: 0, y: 10 }, animate: { opacity: 1, y: 0 }, transition: { duration: 0.22, delay, ease: [0.22, 1, 0.36, 1] as const } });
+  const time = minutes < 10 ? `${minutes} minutes` : `${Math.round(minutes / 5) * 5} minutes`;
+  const others = (plan.names ?? []).filter((name) => name !== plan.firstName);
+  const shown = others.slice(0, 4);
+  const more = others.length - shown.length;
+  const ease = [0.22, 1, 0.36, 1] as const;
+  const rise = (delay: number) => (reduce ? {} : { initial: { opacity: 0, y: 8 }, animate: { opacity: 1, y: 0 }, transition: { duration: 0.4, delay, ease } });
 
   function start() { clearFlag(); onStart(); }
   function later() { clearFlag(); setOpen(false); }
@@ -58,14 +58,24 @@ export function AutoStart({ ready, plan, showPlan, onStart }: { ready: boolean; 
         <span className="study-brand"><KelusLogoMark /><span>kelus</span></span>
         <button type="button" className={styles.barLater} onClick={later}>Not now</button>
       </header>
+      {/* Not a report of what was counted: the student's own topics, named back to them, and where to begin. */}
       <section className={styles.card} aria-labelledby="built-title">
-        <motion.h1 {...rise(0.03)} id="built-title">{plan.course} is ready to study.</motion.h1>
-        <motion.p {...rise(0.06)} className={styles.summary}>
-          Kelus found <b>{rows[0].big} {plan.topics === 1 ? "topic" : "topics"}</b> in your notes and wrote <b>{rows[1].big} {plan.questions === 1 ? "question" : "questions"}</b> from your own lines. Going through all of it once takes about <b>{rows[2].big}</b>.
-        </motion.p>
-        <motion.p {...rise(0.09)} className={styles.how}>Each question comes from a line in your notes. What you miss comes back tomorrow, until you know it.</motion.p>
-        <motion.div {...rise(0.12)} className={styles.actions}>
-          <button type="button" className="k-btn" onClick={start}>Start with {plan.firstName} <span aria-hidden="true">→</span></button>
+        <motion.p {...rise(0)} className={styles.course}>{plan.course}</motion.p>
+        <motion.h1 {...rise(0.06)} id="built-title">Let’s start with {plan.firstName}.</motion.h1>
+        {shown.length ? (
+          <motion.div {...rise(0.14)} className={styles.after}>
+            <span>Then</span>
+            <ul aria-label="The other topics in your notes">
+              {shown.map((name, index) => (
+                <motion.li key={name} initial={reduce ? false : { opacity: 0, x: -4 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.36, delay: 0.2 + index * 0.06, ease }}>{name}</motion.li>
+              ))}
+              {more > 0 ? <motion.li className={styles.more} initial={reduce ? false : { opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.36, delay: 0.2 + shown.length * 0.06 }}>and {more} more</motion.li> : null}
+            </ul>
+          </motion.div>
+        ) : null}
+        <motion.p {...rise(0.3)} className={styles.how}>Every question quotes a line from your notes, and what you miss comes back tomorrow. About {time} for all of it.</motion.p>
+        <motion.div {...rise(0.36)} className={styles.actions}>
+          <button type="button" className="k-btn" onClick={start}>Start <span aria-hidden="true">→</span></button>
           <button type="button" className={styles.later} onClick={later}>See the plan first</button>
         </motion.div>
       </section>
