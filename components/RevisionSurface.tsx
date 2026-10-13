@@ -381,6 +381,7 @@ export function RevisionSurface({ topicId }: { /** A topic's own page, opened in
                     onStart={openSession ? resume : begin}
                     startLabel={openSession ? "Continue" : undefined}
                     focus={resumeAllocation}
+                    relationships={snapshot.relationships}
                   />
                 </div>
               </div>

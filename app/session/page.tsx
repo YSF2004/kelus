@@ -17,6 +17,7 @@ import { KelusLogoMark } from "@/components/KelusLogoMark";
 import { LoopSteps } from "@/components/LoopSteps";
 import { MarkStamp } from "@/components/MarkStamp";
 import { QuickResult, type QuickStats } from "@/components/QuickResult";
+import { planLine } from "@/lib/verdict";
 import { habitSummary } from "@/domain/habit";
 import { MinuteShift, RouteShift } from "@/components/RouteShift";
 import { PracticeDrill } from "@/components/PracticeDrill";
@@ -371,6 +372,9 @@ function SessionBody() {
       after: allocation.minutes,
     }));
   const routeChanged = routeOrderChanged || minuteChanges.length > 0;
+  // The topic your answer pulled forward, named, so "the plan changed" is something you can see.
+  const movedUpId = routeOrderChanged ? nextRemaining.find((id) => previousRemaining.includes(id) && nextRemaining.indexOf(id) < previousRemaining.indexOf(id)) : undefined;
+  const movedUpName = state.snapshot.concepts.find((item) => item.id === movedUpId)?.name;
   const nextConceptName = state.snapshot.concepts.find((item) => item.id === session.plannedConceptIds[index + 1])?.name;
   const goalToday = habitSummary({ events: state.snapshot.events, concepts: state.snapshot.concepts.filter((item) => item.courseId === concept?.courseId) });
   const checkCount = state.snapshot.events.filter((event) => event.conceptId === concept.id && event.kind === "retrieval").length;
@@ -631,7 +635,7 @@ function SessionBody() {
                 locator={activity.sourceReferences[0]?.locator ?? "your notes"}
                 goalDone={goalToday.topicsToday}
                 goal={goalToday.goal}
-                routeLine={nextConceptName ? `${routeOrderChanged ? "Your plan moved around this answer. " : ""}Next: ${nextConceptName}.` : "That was the last topic for now."}
+                routeLine={planLine({ next: nextConceptName, movedUp: movedUpName, orderChanged: routeOrderChanged })}
                 nextName={nextConceptName}
                 onRetry={retryCurrentConcept}
                 onContinue={advance}
