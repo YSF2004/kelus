@@ -78,6 +78,30 @@ test("public metadata indexes only public pages and app state cannot inherit the
   }
 });
 
+test("search and share metadata describes the real revision flow", async () => {
+  const [layout, home, route, pricing, how, image] = await Promise.all([
+    source("app/layout.tsx"),
+    source("app/page.tsx"),
+    source("app/route/page.tsx"),
+    source("app/pricing/page.tsx"),
+    source("components/HowItWorks.tsx"),
+    readFile(new URL("public/og/kelus-social.png", root)),
+  ]);
+  for (const page of [home, route, pricing]) {
+    assert.match(page, /og\/kelus-social\.png/);
+    assert.match(page, /alternates:\s*\{ canonical:/);
+  }
+  assert.match(layout, /summary_large_image/);
+  assert.match(home, /WebSite/);
+  assert.match(home, /WebApplication/);
+  assert.match(home, /price: "0"/);
+  assert.doesNotMatch(home, /aggregateRating|reviewCount/);
+  assert.match(route, /lecture PDF, syllabus, or notes/);
+  assert.match(how, /Will Kelus predict my exam grade\?/);
+  assert.match(pricing, /planned at \$4\.99 per month/);
+  assert.equal(image.subarray(1, 4).toString(), "PNG");
+});
+
 test("normalized material migration safely separates the legacy UUID schema", async () => {
   const migration = await source("database/005_normalized_course_materials.sql");
   assert.match(migration, /material_id_type = 'uuid'/);
