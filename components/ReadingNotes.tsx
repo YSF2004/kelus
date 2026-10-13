@@ -1,6 +1,8 @@
 "use client";
 
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
+import { useEffect, useRef } from "react";
+import { rememberReadingMark } from "@/lib/reading-mark";
 import styles from "./ReadingNotes.module.css";
 
 const ease = [0.22, 1, 0.36, 1] as const;
@@ -11,6 +13,13 @@ const ease = [0.22, 1, 0.36, 1] as const;
  */
 export function ReadingNotes({ message, error, onStartOver }: { message: string; error?: string | null; onStartOver?: () => void }) {
   const reduce = useReducedMotion() === true;
+  const mark = useRef<SVGSVGElement>(null);
+  // Its place is noted while it shows and once more as it goes, so the next screen can carry the same K on.
+  useEffect(() => {
+    const element = mark.current;
+    rememberReadingMark(element);
+    return () => rememberReadingMark(element);
+  });
   if (error) {
     return (
       <section className={styles.box} aria-labelledby="reading-title">
@@ -31,7 +40,7 @@ export function ReadingNotes({ message, error, onStartOver }: { message: string;
       });
   return (
     <section className={styles.reading} role="status" aria-live="polite" aria-labelledby="reading-title">
-      <svg className={styles.mark} viewBox="0 0 100 100" fill="none" aria-hidden="true">
+      <svg ref={mark} className={styles.mark} viewBox="0 0 100 100" fill="none" aria-hidden="true">
         <g stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="9">
           <motion.path d="M29 20v60" {...draw(0)} />
           <motion.path d="M74 22C66 37 56 46 43 51c14 5 25 15 33 28" {...draw(0.38)} />
