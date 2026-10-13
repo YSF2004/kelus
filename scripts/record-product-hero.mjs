@@ -1,5 +1,5 @@
 /** Record the actual first-use flow against a locally served production build.
- * Run: node scripts/record-product-hero.mjs
+ * Run: node scripts/record-product-hero.mjs [--mobile]   (KELUS_URL defaults to http://127.0.0.1:3100)
  * The lecture PDF is generated only for this recording; no product state is mocked.
  */
 import { chromium } from "playwright";
@@ -46,7 +46,8 @@ const context = await browser.newContext({
   viewport: mobile ? { width: 390, height: 844 } : { width: 1280, height: 800 },
   deviceScaleFactor: 1,
   recordVideo: { dir: "/private/tmp/kelus-product-capture", size: mobile ? { width: 390, height: 844 } : { width: 1280, height: 800 } },
-  reducedMotion: "reduce",
+  // Real motion: the K writing itself and carrying into the ready screen is part of what the video shows.
+  reducedMotion: "no-preference",
 });
 const page = await context.newPage();
 const show = async (label, ms = 1800) => {
@@ -55,7 +56,7 @@ const show = async (label, ms = 1800) => {
 };
 
 try {
-  await page.goto("http://127.0.0.1:3100/today", { waitUntil: "networkidle" });
+  await page.goto(`${process.env.KELUS_URL ?? "http://127.0.0.1:3100"}/today`, { waitUntil: "networkidle" });
   await page.getByRole("heading", { name: "Start with your notes." }).waitFor();
   await show("Start: upload your PDF", 2200);
   await page.locator('input[type="file"]').setInputFiles({
@@ -63,7 +64,7 @@ try {
     mimeType: "application/pdf",
     buffer: lecturePdf(),
   });
-  const start = page.getByRole("button", { name: /^Start with / });
+  const start = page.getByRole("button", { name: /^Start$/ });
   await start.waitFor({ timeout: 30000 });
   await show("Kelus builds a course from the PDF", 3500);
   await start.click();

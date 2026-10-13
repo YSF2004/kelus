@@ -147,7 +147,7 @@ export function SignInDialog() {
                 : "Sync your course PDFs and revision progress across devices."}
             </p>
 
-            {!auth.configured ? <p className="auth-message is-error" role="alert">Authentication is not configured in this build.</p> : null}
+            {!auth.configured ? <p className="auth-message is-error" role="alert">Sign-in isn’t available right now. Everything still works on this device.</p> : null}
 
             <form onSubmit={submit}>
               {mode === "signup" ? (

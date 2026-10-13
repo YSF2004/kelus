@@ -133,7 +133,7 @@ export function QuestionsForm({ source = "questions" }: { source?: string }) {
             setQuestion(event.target.value);
             clearFeedback();
           }}
-          placeholder="Ask about today’s route, materials, Kelus Plus, or anything unclear…"
+          placeholder="Your study plan, your notes, Kelus Plus, or anything unclear…"
           disabled={status === "saving"}
           maxLength={2000}
         />
@@ -151,7 +151,7 @@ export function QuestionsForm({ source = "questions" }: { source?: string }) {
           type="submit"
           disabled={status === "saving" || !name.trim() || !email.trim() || !question.trim()}
         >
-          {status === "saving" ? "Sending…" : "Send in browser"}
+          {status === "saving" ? "Sending…" : "Send question"}
           <span aria-hidden="true">→</span>
         </button>
       </div>
@@ -166,8 +166,7 @@ export function QuestionsForm({ source = "questions" }: { source?: string }) {
         role={status === "error" ? "alert" : status === "saved" || status === "local" || status === "needs_activation" ? "status" : undefined}
         aria-live="polite"
       >
-        {message ||
-          "Email hello@kelus.me is the guaranteed path. Send in browser also keeps a local backup."}
+        {message || "We reply by email, usually within a day."}
       </p>
     </form>
   );

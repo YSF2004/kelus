@@ -2,14 +2,13 @@
 
 import { useState, type FormEvent } from "react";
 import { trackEvent } from "@/lib/analytics";
-import { isValidWaitlistEmail, submitWaitlistSignup, waitlistEndpointConfigured } from "@/lib/waitlist";
+import { isValidWaitlistEmail, submitWaitlistSignup } from "@/lib/waitlist";
 
 export function WaitlistForm({ source = "waitlist", compact = false }: { source?: string; compact?: boolean }) {
   const [email, setEmail] = useState("");
   const [note, setNote] = useState("");
   const [status, setStatus] = useState<"idle" | "saving" | "saved" | "duplicate" | "local" | "error">("idle");
   const [message, setMessage] = useState("");
-  const remoteReady = waitlistEndpointConfigured();
 
   async function onSubmit(event: FormEvent) {
     event.preventDefault();
@@ -30,26 +29,15 @@ export function WaitlistForm({ source = "waitlist", compact = false }: { source?
 
     trackEvent({ name: "waitlist_joined", source });
     if (result.delivery === "local") {
+      // It did not reach us this time; it is kept here, and the student has a sure way to reach a person.
       setStatus("local");
-      if (remoteReady) {
-        setMessage(
-          result.duplicate
-            ? "Saved on this device already. Remote delivery failed just now — your email is still kept locally."
-            : "Saved on this device. Remote delivery failed just now — your email is kept locally so it isn’t lost.",
-        );
-      } else {
-        setMessage(
-          result.duplicate
-            ? "Saved on this device already. Remote waitlist delivery isn’t configured in this build."
-            : "Saved on this device. Remote waitlist delivery isn’t configured yet — email hello@kelus.me if you want a human reply.",
-        );
-      }
+      setMessage("Saved here, but it didn’t reach us just now. Email hello@kelus.me and we’ll add you by hand.");
     } else {
       setStatus(result.duplicate ? "duplicate" : "saved");
       setMessage(
         result.duplicate
           ? "You’re already on the list with this email."
-          : "You’re on the list. We’ll only email when there’s something worth reading.",
+          : "You’re on the list. We’ll email you when Kelus Plus opens, and that’s all.",
       );
     }
     if (!result.duplicate) {
@@ -113,9 +101,7 @@ export function WaitlistForm({ source = "waitlist", compact = false }: { source?
         role={status === "error" ? "alert" : status === "saved" || status === "duplicate" || status === "local" ? "status" : undefined}
         aria-live="polite"
       >
-        {message || (remoteReady
-          ? "No spam. One quiet list for early access and product notes."
-          : "Leave an email to be counted. This build saves it on-device until remote delivery is configured.")}
+        {message || "One email when Kelus Plus opens. No newsletter."}
       </p>
     </form>
   );

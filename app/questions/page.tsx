@@ -2,8 +2,6 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { SiteFooter } from "@/components/SiteFooter";
 import { QuestionsForm } from "@/components/QuestionsForm";
-import { QuestionsExport } from "@/components/QuestionsExport";
-import { QuestionsInboxStatus } from "@/components/QuestionsInboxStatus";
 
 export const metadata: Metadata = {
   title: "Ask a question — Kelus",
@@ -18,15 +16,11 @@ export default function QuestionsPage() {
         <p className="kicker">Questions</p>
         <h1>Ask us anything about Kelus.</h1>
         <p className="legal-lede">
-          Stuck on Materials, Map, Today, or Kelus Plus? Send a question here. It goes to{" "}
-          <a href="mailto:hello@kelus.me">hello@kelus.me</a> and we reply by email — not a public forum.
+          Stuck on your study plan, your notes or Kelus Plus? Ask here and a person replies by email. You can also write to{" "}
+          <a href="mailto:hello@kelus.me">hello@kelus.me</a>.
         </p>
-        <QuestionsInboxStatus />
         <QuestionsForm source="questions_page" />
-        <QuestionsExport />
         <p className="legal-inline-links">
-          Prefer email? <a href="mailto:hello@kelus.me">hello@kelus.me</a>
-          {" · "}
           <Link href="/today">Start revising</Link>
           {" · "}
           <Link href="/privacy">Privacy</Link>
