@@ -27,6 +27,7 @@ import { ConceptDetail } from "@/app/concepts/[id]/ConceptDetail";
 import { useDocumentTitle } from "@/lib/use-title";
 import { KelusLogoMark } from "@/components/KelusLogoMark";
 import { useLearner } from "@/components/LearnerProvider";
+import { sessionContext } from "@/lib/pilot";
 import { daysUntilExam } from "@/domain/scheduler";
 import { freshOpenSession, restAware, resumeConceptId } from "@/lib/today-focus";
 import { generateRoute } from "@/domain/routing-engine";
@@ -200,7 +201,7 @@ export function RevisionSurface({ topicId }: { /** A topic's own page, opened in
   function begin() {
     if (anyOpenSession && !openSession) abandon(anyOpenSession.id);
     const sessionId = start(courseId, examId);
-    trackEvent({ name: "session_started" });
+    trackEvent({ name: "session_started", session_number: sessionContext({ sessions: snapshot.sessions, nowIso }).session_number, sample: isSampleCourse });
     try {
       sessionStorage.setItem("kelus-session-before", JSON.stringify(concepts));
     } catch {
