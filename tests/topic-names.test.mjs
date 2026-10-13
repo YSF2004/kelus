@@ -94,8 +94,10 @@ test("a real sentence that a scan lowercased gets its capital back and can be as
   assert.ok(prompts.every((prompt) => !/fight operation/i.test(prompt)));
 });
 
-test("the result says why: checks and your own rating each count, so a Partly with no check right is another attempt", async () => {
+test("the result says why from what was shown, and a Partly with no check right is another attempt", async () => {
   const { verdictReason } = await import("../lib/verdict.ts");
-  assert.equal(verdictReason("failure", { right: 0, total: 2, unsure: 1, self: "partly" }), "0 of 2 checks right, so even though your explanation was partly there, it comes back tomorrow.");
-  assert.match(verdictReason("success", { right: 3, total: 3, unsure: 0, self: "nailed" }), /^3 of 3 checks right and you nailed/);
+  assert.equal(verdictReason("failure", { right: 0, total: 2, unsure: 1, self: "partly" }), "0 of 2 checks right, so it comes back tomorrow.");
+  assert.match(verdictReason("success", { right: 3, total: 3, unsure: 0, self: "nailed" }), /^3 of 3 checks right\. It comes back in a few days/);
+  assert.equal(verdictReason("partial", { right: 3, total: 3, unsure: 0, self: "missed" }), "3 of 3 checks right, and you said you missed it. It comes back soon to firm up.");
+  assert.equal(verdictReason("success", { right: 2, total: 2, unsure: 0, self: "nailed", coverage: { hits: 4, keys: 5 } }), "2 of 2 checks right and 4 of 5 key ideas in your explanation. It comes back in a few days to keep it.");
 });

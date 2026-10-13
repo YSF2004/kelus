@@ -283,7 +283,7 @@ function SessionBody() {
   function finishQuick(result: QuickRunResult) {
     const outcome = quickOutcome(result);
     const summary = quickSummary(result);
-    setQuickStats({ right: result.right, total: result.total, unsure: result.unsure, self: result.self });
+    setQuickStats({ right: result.right, total: result.total, unsure: result.unsure, self: result.self, coverage: result.coverage ?? null });
     setQuickMissed(result.missed);
     // What was missed comes back at the start of the next visit, as a warm-up.
     if (concept) addMissedLines(result.missed.map((quote) => ({ conceptId: concept.id, name: concept.name, quote, at: state.nowIso })));
