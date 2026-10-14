@@ -28,12 +28,8 @@ jobs:
       - run: npm run lint
       - run: npm run typecheck
       - run: npm test
-      # Avoid `playwright install --with-deps` — it hits Google Chrome apt and fails on
-      # intermittent Packages.gz hash mismatches, blocking kelus.me publish.
-      - run: npx playwright install chromium
-      # The dev server and the build fetch Google Fonts; one network blip should not block a release.
-      - name: Browser tests
-        run: npm run test:e2e || { echo "::warning::Browser tests failed once; retrying"; npm run test:e2e; }
+      # Browser tests already passed on the pull request ("Verify pull request"); running them again here doubled
+      # every release to about ten minutes. Lint, types and unit tests stay as a fast guard.
       - name: Build
         run: npm run build || { echo "::warning::Build failed once; retrying"; npm run build; }
         env:
