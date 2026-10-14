@@ -14,7 +14,7 @@ test("the four steps and the student illustration fit on mobile", async ({ page 
 
   const studying = page.locator("section").filter({ has: page.getByRole("heading", { name: "The studying happens here." }) });
   await studying.scrollIntoViewIfNeeded();
-  await expect(studying.getByRole("img", { name: "A student revising at a desk" })).toBeVisible();
+  await expect(studying.getByRole("img", { name: "A student working through a problem" })).toBeVisible();
   await studying.screenshot({ path: testInfo.outputPath("student-study-mobile.png"), animations: "disabled" });
   expect(await page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth)).toBe(false);
 });
@@ -29,7 +29,7 @@ test("home follows one line: notes → question → your words checked → the p
   await expect(steps.nth(1)).toContainText("concentrated");
   await expect(steps.nth(2)).toContainText("Check the direction");
   await expect(steps.nth(3).getByRole("list", { name: "Your plan after this answer" }).locator("li").first()).toContainText("Osmosis");
-  await expect(page.getByRole("img", { name: "A student revising at a desk" })).toBeVisible();
+  await expect(page.getByRole("img", { name: "A student working through a problem" })).toBeVisible();
 });
 
 test("reduced motion shows every step finished at once", async ({ page }) => {
@@ -38,7 +38,7 @@ test("reduced motion shows every step finished at once", async ({ page }) => {
   const steps = page.locator("[data-revision-step]");
   await expect(steps).toHaveCount(4);
   for (const step of await steps.all()) await expect(step).toHaveCSS("opacity", "1");
-  await expect(page.getByRole("img", { name: "A student revising at a desk" })).toBeVisible();
+  await expect(page.getByRole("img", { name: "A student working through a problem" })).toBeVisible();
 });
 
 test("How it works has four steps, led by their headings, with no number-and-icon labels", async ({ page }, testInfo) => {

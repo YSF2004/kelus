@@ -14,15 +14,21 @@ const ART = {
   "time-flies": { src: "/art/notion-pack/art-time-flies.svg", width: 195, height: 150 },
   target: { src: "/art/notion-pack/art-target.svg", width: 186, height: 150 },
   "on-the-laptop": { src: "/art/notion-pack/art-on-the-laptop.svg", width: 420, height: 250 },
+  lighthouse: { src: "/art/notion-pack/art-lighthouse.svg", width: 240, height: 154 },
+  "no-answer": { src: "/art/notion-pack/art-no-answer.svg", width: 447, height: 305 },
+  "taking-note": { src: "/art/notion-pack/art-taking-note.svg", width: 149, height: 156 },
+  reviewing: { src: "/art/notion-pack/art-reviewing.svg", width: 579, height: 305 },
+  thinking: { src: "/art/notion-pack/art-thinking.svg", width: 347, height: 255 },
 } as const;
 
 export type PackArtName = keyof typeof ART;
 
-export function PackArt({ name, className, size }: { name: PackArtName; className?: string; size?: number }) {
+/** `label` makes a drawing meaningful to screen readers where it carries the section; otherwise it is decorative. */
+export function PackArt({ name, className, size, label }: { name: PackArtName; className?: string; size?: number; label?: string }) {
   const art = ART[name];
   const scale = size ? size / art.width : 1;
   return (
     // eslint-disable-next-line @next/next/no-img-element -- static export, small decorative SVGs
-    <img src={art.src} alt="" aria-hidden="true" className={className} width={Math.round(art.width * scale)} height={Math.round(art.height * scale)} draggable={false} />
+    <img src={art.src} alt={label ?? ""} aria-hidden={label ? undefined : true} className={className} width={Math.round(art.width * scale)} height={Math.round(art.height * scale)} draggable={false} />
   );
 }

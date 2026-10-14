@@ -3,6 +3,7 @@
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { useEffect, useRef } from "react";
 import { rememberReadingMark } from "@/lib/reading-mark";
+import { PackArt } from "@/components/PackArt";
 import styles from "./ReadingNotes.module.css";
 
 const ease = [0.22, 1, 0.36, 1] as const;
@@ -23,6 +24,8 @@ export function ReadingNotes({ message, error, onStartOver }: { message: string;
   if (error) {
     return (
       <section className={styles.box} aria-labelledby="reading-title">
+        {/* From the Kelus illustration pack: a shrug, not an error icon. */}
+        <PackArt name="no-answer" size={220} className={styles.shrug} />
         <h1 id="reading-title">Kelus couldn’t find topics in this file.</h1>
         <p>{error}</p>
         <p className={styles.hint}>Notes with a heading above each topic work best. A PDF needs selectable text, or a clear scan.</p>
