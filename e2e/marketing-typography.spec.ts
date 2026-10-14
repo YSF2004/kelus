@@ -22,9 +22,9 @@ test("How it works uses the shared Kelus canvas on desktop and mobile", async ({
 test("How it works tells one course story and actions stay green", async ({ page }) => {
   await page.goto("/route/");
   await expect(page.getByRole("group", { name: "Choose an example course" })).toHaveCount(0);
-  await expect(page.locator('figure').first()).toContainText("Microeconomics");
-  await expect(page.locator('figure').nth(1)).toContainText("Why does demand become more elastic");
-  await expect(page.locator('figure').nth(2)).toContainText("Elasticity");
+  await expect(page.locator('figure').first()).toContainText("Lecture 4: Elasticity");
+  await expect(page.locator('figure').nth(1)).toContainText("what happens if PED is less than 1");
+  await expect(page.locator('figure').nth(2)).toContainText("Price elasticity of demand");
   const setupActions = page.getByRole("link", { name: "Set up my course" });
   await expect(setupActions).toHaveCount(2);
   await expect(setupActions.first()).toHaveCSS("background-color", "rgb(31, 107, 69)");

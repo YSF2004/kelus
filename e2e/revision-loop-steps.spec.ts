@@ -3,7 +3,7 @@ import { test, expect } from "@playwright/test";
 test("How it works owns the detailed source, recall, and route walkthrough", async ({ page }) => {
   await page.goto("/route/");
   const story = page.getByRole("region", { name: "The Kelus revision loop" });
-  await expect(story.locator("li")).toHaveCount(3);
+  await expect(story.locator("ol > li")).toHaveCount(3);
   await expect(story.locator("h2")).toHaveText([
     "Start with what you were taught.",
     "Show what you can recall.",
@@ -12,7 +12,7 @@ test("How it works owns the detailed source, recall, and route walkthrough", asy
 
   for (const width of [1440, 390]) {
     await page.setViewportSize({ width, height: 900 });
-    for (const step of await story.locator("li").all()) {
+    for (const step of await story.locator("ol > li").all()) {
       await step.scrollIntoViewIfNeeded();
       await expect(step).toBeVisible();
     }

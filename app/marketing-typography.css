@@ -20,6 +20,9 @@ body:has([data-marketing="editorial"]) .site-header :where(*) {
   #revision-return-title,
   #home-close-title,
   #how-title,
+  #how-principle-title,
+  #how-questions-title,
+  [data-tone] h2,
   .how-principle h2,
   .pricing-offer h2
 ),

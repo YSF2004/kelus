@@ -53,7 +53,8 @@ export function DropNotes({ onFile, first = false, courseName }: { onFile: (file
       <div className="destination-form">
         <section className="setup-stage-content empty-course" aria-labelledby="start-title">
           <p className="kicker">{courseName ?? "Start here"}</p>
-          <PackArt name="on-the-laptop" className="empty-course-art" size={190} />
+          {/* From the Kelus illustration pack (public/art/notion-pack): a student climbing with a pencil. */}
+          <PackArt name="growing" className="empty-course-art" size={170} />
           <h1 id="start-title" className="destination-page-title">{first ? "Start with your notes." : "Add your notes."}</h1>
           <p className="destination-support">
             {first
