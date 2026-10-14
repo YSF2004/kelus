@@ -62,6 +62,27 @@ function median(values: number[]) {
   return sorted.length % 2 ? sorted[middle] : (sorted[middle - 1] + sorted[middle]) / 2;
 }
 
+/** Bullet glyphs from slide fonts (LaTeX beamer, PowerPoint symbol fonts) that arrive as stray characters. */
+const BULLET_GLYPHS = /^[\s˝´•‣▪◦▸►·∙●○■□✓✔➢➤]+/u;
+
+/**
+ * Words that lose their "fi" or "fl" when a PDF draws the ligature as one glyph pdf.js cannot map ("frm", "Defnition",
+ * "fndings"). Only exact non-words are repaired, so real text is never changed.
+ */
+const LIGATURE_FIXES: Array<[RegExp, string]> = [
+  [/\b([Ff])rm(s?)\b/g, "$1irm$2"], [/\b([Ff])rst\b/g, "$1irst"], [/\b([Ff])nd(s|ing|ings)?\b/g, "$1ind$2"],
+  [/\b([Ff])nal(ly)?\b/g, "$1inal$2"], [/\b([Ff])eld(s?)\b/g, "$1ield$2"], [/\b([Ff])xed\b/g, "$1ixed"],
+  [/\b([Ff])nanc/g, "$1inanc"], [/\b([Dd])efn/g, "$1efin"], [/\b([Rr])efn/g, "$1efin"], [/([Pp])roft(s?)\b/g, "$1rofit$2"],
+  [/([Bb])eneft(s?)\b/g, "$1enefit$2"], [/([Ss])pecifc/g, "$1pecific"], [/([Ss])ignifcan/g, "$1ignifican"],
+  [/([Ee])fcien/g, "$1fficien"], [/\b([Cc])onfict/g, "$1onflict"], [/\b([Ii])nfuen/g, "$1nfluen"], [/\b([Rr])efect/g, "$1eflect"],
+  [/\b([Ff])ow(s|ing)?\b/g, "$1low$2"], [/([Ff])exib/g, "$1lexib"], [/([Cc])oefcient/g, "$1oefficient"],
+  [/([Ss])ufcien/g, "$1ufficien"], [/\b([Oo])fce/g, "$1ffice"], [/\b([Dd])ifcult/g, "$1ifficult"], [/\b([Aa])fect/g, "$1ffect"], [/\b([Ee])fect/g, "$1ffect"], [/\b([Ee])fort/g, "$1ffort"], [/\b([Tt])radeof(s?)\b/g, "$1radeoff$2"], [/\b([Oo])fer/g, "$1ffer"], [/\b([Dd])ifer/g, "$1iffer"],
+];
+
+function repairLigatures(text: string) {
+  return LIGATURE_FIXES.reduce((value, [pattern, fix]) => value.replace(pattern, fix), text);
+}
+
 export function buildLayoutPage(pageNumber: number, rawItems: PdfTextItem[]): ExtractedMaterialPage {
   const items = rawItems.flatMap((item) => {
     const text = item.str?.replace(/\s+/g, " ").trim();
@@ -69,7 +90,12 @@ export function buildLayoutPage(pageNumber: number, rawItems: PdfTextItem[]): Ex
     const transform = item.transform ?? [];
     const measuredSize = item.height ?? Math.hypot(transform[0] ?? 0, transform[1] ?? 0);
     const fontSize = Math.max(1, measuredSize || 12);
-    return [{ text, x: transform[4] ?? 0, y: transform[5] ?? 0, width: item.width ?? 0, height: item.height ?? fontSize, fontSize, hasEOL: Boolean(item.hasEOL) }];
+    return [{ text: repairLigatures(text.replace(BULLET_GLYPHS, "").trim()), x: transform[4] ?? 0, y: transform[5] ?? 0, width: item.width ?? 0, height: item.height ?? fontSize, fontSize, hasEOL: Boolean(item.hasEOL) }];
+  }).filter((item, index, all) => {
+    if (!item.text) return false;
+    // Fake bold: the same run drawn twice a hair apart ("Acidity/BasicityAcidity/Basicity"). Keep the first.
+    const before = all[index - 1];
+    return !(before && before.text === item.text && Math.abs(before.x - item.x) < 2 && Math.abs(before.y - item.y) < 2);
   });
   const lines: Array<ExtractedTextBlock & { hasEOL: boolean }> = [];
   for (const item of items) {
