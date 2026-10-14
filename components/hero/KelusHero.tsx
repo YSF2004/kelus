@@ -1,6 +1,5 @@
 import Link from "next/link";
 import { BrandIcon } from "@/components/BrandIcon";
-import { PackArt } from "@/components/PackArt";
 import { HeroProductVideo } from "./HeroProductVideo";
 import styles from "./ProductVideoHero.module.css";
 
@@ -36,8 +35,6 @@ export function KelusHero() {
           </div>
           <HeroProductVideo />
         </div>
-        {/* From the Kelus illustration pack: a student carrying a pencil up the steps, beside the window. */}
-        <PackArt name="growing" className={styles.climber} size={150} />
       </div>
 
       {/* One sentence, with only the marks students already know. No chips, no filler icons. */}
