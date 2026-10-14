@@ -1,4 +1,6 @@
 import Link from "next/link";
+import { BrandIcon } from "@/components/BrandIcon";
+import { PackArt } from "@/components/PackArt";
 import { HeroProductVideo } from "./HeroProductVideo";
 import styles from "./ProductVideoHero.module.css";
 
@@ -26,8 +28,27 @@ export function KelusHero() {
       </div>
 
       <div className={styles.visual}>
-        <HeroProductVideo />
+        {/* The recording sits in a browser window, so it reads at once as the product, at its own address. */}
+        <div className={styles.window}>
+          <div className={styles.chrome} aria-hidden="true">
+            <span className={styles.dots}><i /><i /><i /></span>
+            <span className={styles.address}>kelus.me/today</span>
+          </div>
+          <HeroProductVideo />
+        </div>
+        {/* From the Kelus illustration pack: a student carrying a pencil up the steps, beside the window. */}
+        <PackArt name="growing" className={styles.climber} size={150} />
       </div>
+
+      <p className={styles.worksWith}>
+        <span>Works with</span>
+        <span className={styles.chip}>PDFs and slides</span>
+        <span className={styles.chip}><BrandIcon brand="notion" size={14} />Notion</span>
+        <span className={styles.chip}><BrandIcon brand="obsidian" size={14} />Obsidian</span>
+        <span className={styles.chip}><BrandIcon brand="markdown" size={15} />Markdown</span>
+        <span className={styles.chip}>Pasted notes</span>
+        <span className={styles.chip}><BrandIcon brand="anki" size={14} />Cards to Anki</span>
+      </p>
     </section>
   );
 }

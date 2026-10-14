@@ -61,7 +61,81 @@
 .primary:active { transform: scale(.97); transition-duration: 80ms; }
 .primary:focus-visible { outline: 3px solid var(--hero-green); outline-offset: 4px; }
 
-.visual { width: min(1080px, 100%); margin: 40px auto 0; }
+.visual { position: relative; width: min(1080px, 100%); margin: 40px auto 0; }
+
+/* A browser window around the recording: one quiet bar, the real address. */
+.window {
+  overflow: hidden;
+  border: 1px solid var(--hero-line);
+  border-radius: 12px;
+  background: var(--color-pure-white);
+  box-shadow: 0 1px 2px rgba(18, 22, 15, 0.05), 0 28px 60px -40px rgba(18, 22, 15, 0.42);
+}
+.window .videoFrame { border: 0; border-radius: 0; box-shadow: none; }
+.chrome {
+  position: relative;
+  display: flex;
+  align-items: center;
+  height: 38px;
+  padding: 0 14px;
+  border-bottom: 1px solid var(--hero-line);
+  background: #fafaf9;
+}
+.dots { display: inline-flex; gap: 7px; }
+.dots i { width: 10px; height: 10px; border-radius: 50%; background: #e2e1dc; }
+.address {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  min-width: 220px;
+  padding: 4px 14px;
+  border-radius: 7px;
+  background: #f0efeb;
+  color: var(--hero-muted);
+  font: 500 12px var(--font-marketing-sans), Arial, sans-serif;
+  letter-spacing: 0;
+}
+
+/* The climber steps up the left edge of the window; only where there is room beside it. */
+.climber {
+  position: absolute;
+  left: -118px;
+  bottom: -6px;
+  width: 150px;
+  height: auto;
+  pointer-events: none;
+  animation: climbIn 700ms 300ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+@keyframes climbIn {
+  from { opacity: 0; transform: translateY(14px); }
+  to { opacity: 1; transform: none; }
+}
+@media (max-width: 1360px) { .climber { display: none; } }
+
+/* What a student can bring, by name and by the marks they know. */
+.worksWith {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 8px 10px;
+  max-width: 900px;
+  margin: 26px auto 0;
+  color: var(--hero-muted);
+  font: 500 13px var(--font-marketing-sans), Arial, sans-serif;
+}
+.worksWith > span:first-child { margin-right: 4px; }
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  min-height: 30px;
+  padding: 0 12px;
+  border: 1px solid var(--hero-line);
+  border-radius: 999px;
+  background: var(--color-pure-white);
+  color: var(--hero-ink);
+}
 .videoFigure { margin: 0; }
 .videoFrame {
   position: relative;
@@ -88,6 +162,9 @@
 
 @media (max-width: 640px) {
   .hero { padding: 46px 16px 48px; }
+  .chrome { height: 32px; }
+  .address { min-width: 150px; font-size: 11px; }
+  .worksWith > span:first-child { flex-basis: 100%; text-align: center; }
   .hero .headline { max-width: 13ch; font-size: clamp(40px, 10.5vw, 56px); }
   .hero .lede { max-width: 31ch; margin-top: 18px; }
   .visual { width: min(390px, 100%); margin-top: 32px; }
@@ -98,6 +175,7 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .climber { animation: none; }
   .primary, .primaryArrow { transition: none; }
   .primary:hover, .primary:hover .primaryArrow, .primary:active { transform: none; }
 }
