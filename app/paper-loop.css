@@ -339,7 +339,6 @@ body.is-booklet-system .is-notebook .booklet-flow-route li.is-recommended {
   background: rgba(31, 107, 69, 0.08);
   border-radius: 4px;
   border-bottom-color: transparent;
-  box-shadow: inset 3px 0 0 #1f6b45;
   padding-inline: 10px;
   margin-inline: -4px;
 }

@@ -124,3 +124,9 @@
 .lineTrack i.met { background: var(--q-green, #1f6b45); }
 .sep { width: 3px; height: 3px; border-radius: 50%; background: var(--q-text-3, #70746c); }
 .lineNote { color: var(--q-text-3, #70746c); }
+/* On a phone the bar and today's count sit on one line, the streak and the note under it; no dot left at a line end. */
+@media (max-width: 640px) {
+  .line { gap: 4px 10px; }
+  .line .sep { display: none; }
+  .lineNote { flex-basis: 100%; }
+}

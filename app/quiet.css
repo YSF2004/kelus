@@ -409,3 +409,6 @@ html body .pricing-page.is-monthly-pricing .pricing-price {
   font-family: var(--font-source-serif), Georgia, serif !important;
   font-variant-numeric: lining-nums;
 }
+
+/* Legal and help pages read at a book measure. */
+html body .legal-panel :is(p, li, dd) { max-width: 36em; }

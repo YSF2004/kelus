@@ -27,7 +27,7 @@
 }
 
 .caveat, .thin { margin: 0; font-size: var(--text-body-sm); line-height: 1.5; color: var(--color-slate); }
-.thin { padding: 12px 14px; border-radius: 10px; background: var(--color-mist); }
+.thin { padding: 0; color: var(--q-text-2, #6b6f68); }
 
 .chart { display: block; width: 100%; height: auto; margin-top: 4px; }
 .area { fill: var(--color-periwinkle-wash); }
@@ -92,7 +92,7 @@
 .pace strong { color: var(--color-midnight-ink); }
 
 @media (max-width: 640px) {
-  .page { width: min(100% - 32px, 45rem); gap: 22px; }
+  .page { width: min(100% - 32px, 45rem); margin-left: 16px; gap: 22px; }
   .lead { padding: 20px; }
   .group li { grid-template-columns: minmax(0, 1fr) auto; }
   .group li .bar { display: none; }
