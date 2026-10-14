@@ -424,25 +424,25 @@ html body.is-session-complete main#main.study-shell.is-complete-page {
   box-shadow: none;
 }
 
-/* ── One typeface in the product: Inter ───────────────────────────────────────────────────────────────
-   Titles, questions, text and buttons all set in Inter, as in Notion. Weights are four: 400 text, 500 labels,
-   600 headings and buttons, 700 big titles; big titles are set tight. The homepage keeps its own fonts. */
+/* ── The product: Atkinson Hyperlegible Next for text, Literata for page titles ─────────────────────────
+   Questions, answers, lists and buttons are the text face, for legibility. A page's own title is the heading face,
+   the same voice as the homepage. Weights: 400 text, 500 labels, 600 buttons and names. */
 :is(body.is-course-studio, body.is-session-booklet, body.is-session-complete, body:has(.start-page)) {
-  --font-source-serif: var(--font-inter);
   --font-booklet: var(--font-inter), ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
   --font-editorial: var(--font-booklet);
   --font-display: var(--font-booklet);
   --font-sans: var(--font-booklet);
   font-family: var(--font-booklet);
-  font-feature-settings: "cv11", "ss01";
 }
 :is(body.is-course-studio, body.is-session-booklet, body.is-session-complete, body:has(.start-page)) :is(h1, h2, h3) {
   font-optical-sizing: auto;
   font-variation-settings: normal !important;
 }
 :is(body.is-course-studio, body.is-session-booklet, body.is-session-complete, body:has(.start-page)) h1 {
-  font-weight: 700 !important;
-  letter-spacing: -0.03em !important;
+  font-family: var(--font-source-serif), Georgia, serif !important;
+  font-optical-sizing: auto;
+  font-weight: 500 !important;
+  letter-spacing: -0.02em !important;
 }
 :is(body.is-course-studio, body.is-session-booklet, body.is-session-complete, body:has(.start-page)) :is(h2, h3) {
   font-weight: 600 !important;

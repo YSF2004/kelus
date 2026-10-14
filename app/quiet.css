@@ -225,7 +225,7 @@ html body.is-course-studio details.material-add-page { border-style: solid !impo
 html body.is-course-studio details.material-add-page > summary { min-height: 44px !important; color: var(--q-ink) !important; font-size: 0.875rem !important; font-weight: 500 !important; }
 
 /* ── Public pages: one voice ─────────────────────────────────────────────────────────────────────────
-   Every public page opens the way the homepage does: one Fraunces heading at the homepage's weight, Inter for the
+   Every public page opens the way the homepage does: one Literata heading at the homepage's weight, Atkinson Next for the
    rest. Pricing is two quiet sheets, not a green card and a purple card; the one green is the button. */
 html body :is(.legal-panel > h1, .pricing-page.is-monthly-pricing h1) {
   font-family: var(--font-marketing-heading) !important;
@@ -392,3 +392,20 @@ html { caret-color: #1f6b45; scrollbar-color: #d4d3ce transparent; accent-color:
 }
 :where(a) { text-underline-offset: 0.18em; text-decoration-thickness: 1px; }
 html body :is(.legal-page, .pricing-page, [data-marketing="editorial"]) ::placeholder { color: #70746c; opacity: 1; }
+
+/* ── Literata + Atkinson Hyperlegible Next ───────────────────────────────────────────────────────────
+   Literata is wider than the old display face: headings get room and lighter tracking. Atkinson's zero is slashed
+   for legibility, right in running text; big figures (prices, results, percentages) are set in Literata instead. */
+html body [data-hero="product-video"] h1 { max-width: 20ch !important; letter-spacing: -0.025em !important; }
+html body [data-marketing="editorial"] :is(h1, h2),
+html body :is(.legal-panel, .pricing-page) :is(h1, h2) { letter-spacing: -0.02em !important; }
+html body .pricing-page.is-monthly-pricing .pricing-price {
+  font-family: var(--font-source-serif), Georgia, serif !important;
+  font-weight: 600 !important;
+  letter-spacing: -0.02em !important;
+  font-variant-numeric: lining-nums;
+}
+:is(body.is-session-booklet, body.is-session-complete, body.is-course-studio) :is([class*="QuickResult"] [class*="fact"] strong, [class*="ExamPulse"][class*="fact"] strong) {
+  font-family: var(--font-source-serif), Georgia, serif !important;
+  font-variant-numeric: lining-nums;
+}

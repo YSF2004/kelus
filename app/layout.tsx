@@ -1,7 +1,7 @@
 import { CommandPalette } from "@/components/CommandPalette";
 import type { Metadata, Viewport } from "next";
 import { Suspense } from "react";
-import { Fraunces, Inter, Literata } from "next/font/google";
+import { Atkinson_Hyperlegible_Next, Literata } from "next/font/google";
 import "./globals.css";
 import "./revision-studio.css";
 import "./home-folio.css";
@@ -37,19 +37,17 @@ import { NudgeKeeper } from "@/components/NudgeKeeper";
 import { AppRuntime } from "@/components/AppRuntime";
 import { UpdateWatcher } from "@/components/UpdateWatcher";
 
-/* One text face everywhere: Inter (UI, body, product titles). Fraunces only for marketing headings. Literata stays
-   for the few older reading styles that still name --font-source-serif. */
+/* Two faces, everywhere: Literata for headings (a book serif made for long reading) and Atkinson Hyperlegible Next
+   for text (made by the Braille Institute so I, l and 1 never blur). The CSS variable names are older than the faces:
+   --font-inter is the text face, --font-source-serif the heading face. */
 const literata = Literata({
-  subsets: ["latin"],
+  subsets: ["latin", "latin-ext"],
   variable: "--font-source-serif",
   axes: ["opsz"],
   display: "swap",
 });
 
-// Opt-in marketing families. No global replacement or app-route preload.
-const marketingSerif = Fraunces({ subsets: ["latin"], axes: ["opsz"], variable: "--font-fraunces", display: "swap", preload: false });
-// Inter is the one typeface for text, so it loads up front. Both old variable names point at it.
-const inter = Inter({ subsets: ["latin"], variable: "--font-inter", display: "swap", axes: ["opsz"] });
+const atkinson = Atkinson_Hyperlegible_Next({ subsets: ["latin", "latin-ext"], variable: "--font-inter", display: "swap" });
 
 // The status bar takes the page's paper colour, so an installed Kelus has no browser-coloured strip on top; the
 // layout reaches into the notch area and pads itself with the safe-area insets instead.
@@ -86,8 +84,8 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`${inter.variable} ${literata.variable} ${marketingSerif.variable}`} data-scroll-behavior="smooth">
-      <body className={`${inter.variable} ${literata.variable} is-booklet-system`}>
+    <html lang="en" className={`${atkinson.variable} ${literata.variable}`} data-scroll-behavior="smooth">
+      <body className={`${atkinson.variable} ${literata.variable} is-booklet-system`}>
         <GoogleAnalytics />
         <a className="skip" href="#main">Skip to content</a>
         <AuthProvider>
