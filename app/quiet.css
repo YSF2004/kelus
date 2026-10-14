@@ -412,3 +412,4 @@ html body .pricing-page.is-monthly-pricing .pricing-price {
 
 /* Legal and help pages read at a book measure. */
 html body .legal-panel :is(p, li, dd) { max-width: 36em; }
+html body.is-course-studio .material-shelf-count { margin-left: 6px; color: var(--q-text-2); font-size: 0.8125rem; font-weight: 400; letter-spacing: 0; }

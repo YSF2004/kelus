@@ -228,7 +228,7 @@ test("a real PDF becomes a first question, then Today, topics and a full session
   await start.click();
 
   await expect(page).toHaveURL(/\/session/);
-  await expect(page.locator(".study-topic-kicker")).toContainText(/topic 1 of \d+/i);
+  await expect(page.locator(".study-topic-kicker span")).toHaveAttribute("aria-label", /^Topic 1 of \d+$/);
   // One topic is a short run: instant checks, then one explanation in your own words.
   await expect(page.getByRole("list", { name: /^Step 1 of \d$/ })).toBeVisible();
   await expect(page.getByRole("button", { name: "Close", exact: true })).toBeVisible();

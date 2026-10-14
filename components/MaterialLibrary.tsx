@@ -562,7 +562,7 @@ export function MaterialLibrary({ embedded = false, incomingFile = null, onIncom
       <FirstRunGate
         kicker="Course material"
         title="Add a course PDF first."
-        body="Choose a syllabus, lecture, or notes PDF to give Kelus the topics you want to revise. Then set your exam and confirm the proposed topics."
+        body="Add a lecture PDF, slides or notes, and Kelus finds the topics and writes your first question from them."
         preview="materials"
       />
     );
@@ -647,7 +647,7 @@ export function MaterialLibrary({ embedded = false, incomingFile = null, onIncom
       <>
       {embedded ? null : (
       <header className={`materials-head${readySummary ? " is-complete" : ""}`}>
-        <div><p className="kicker">{course.name}</p><h1>Course material</h1></div>
+        <div><h1>{course.name}: materials</h1></div>
         <p>
           {readySummary
             ? "Your topics are on the map. Continue below, or add another source from the shelf when you need it."
@@ -734,7 +734,6 @@ export function MaterialLibrary({ embedded = false, incomingFile = null, onIncom
       {!embedded ? (
       <section className="material-ingest" aria-labelledby="add-material-title" hidden={!showIngestForm(phase)}>
         <div className="material-ingest-title">
-          <p className="kicker">Add material</p>
           <h2 id="add-material-title">Bring the course into one place.</h2>
         </div>
         <div className="material-role-field">
@@ -819,7 +818,6 @@ export function MaterialLibrary({ embedded = false, incomingFile = null, onIncom
             exit={{ opacity: 0 }}
             transition={{ duration: reduceMotion ? kelusDuration.micro : kelusDuration.normal, ease: kelusEase }}
           >
-            <p className="kicker">You’re ready</p>
             <h2 id="material-ready-title" tabIndex={-1} ref={focusPhaseHeading}>
               {readySummary.conceptCount} confirmed concept{readySummary.conceptCount === 1 ? "" : "s"} from your file.
             </h2>
@@ -845,7 +843,7 @@ export function MaterialLibrary({ embedded = false, incomingFile = null, onIncom
             transition={{ duration: reduceMotion ? kelusDuration.micro : kelusDuration.normal, ease: kelusEase }}
           >
             <header>
-              <div><p className="kicker">Review your topics</p><h2 id="concept-confirmation-title" tabIndex={-1} ref={focusPhaseHeading}>Kelus found {analysis.proposals.length} proposed concepts.</h2>{analysis.coverage ? <ReadCoverage coverage={analysis.coverage} found={analysis.proposals.length} /> : null}</div>
+              <div><h2 id="concept-confirmation-title" tabIndex={-1} ref={focusPhaseHeading}>Kelus found {analysis.proposals.length} proposed concepts.</h2>{analysis.coverage ? <ReadCoverage coverage={analysis.coverage} found={analysis.proposals.length} /> : null}</div>
               <p>
                 Keep only the concepts this exam actually covers. Each one retains the page where Kelus found it.
                 {state.diagnosisCompleted
@@ -914,10 +912,9 @@ export function MaterialLibrary({ embedded = false, incomingFile = null, onIncom
       <section className={`material-shelf${embedded ? " is-binder" : ""}`} aria-labelledby="source-shelf-title">
         <header>
           <div>
-            <p className="kicker">{embedded ? "Your notes" : "Source shelf"}</p>
             <h2 id="source-shelf-title">
               {courseMaterials.length
-                ? `${courseMaterials.length} ${embedded ? (courseMaterials.length === 1 ? "source" : "sources") : "saved"}`
+                ? embedded ? <>Your notes <span className="material-shelf-count">{courseMaterials.length} {courseMaterials.length === 1 ? "source" : "sources"}</span></> : `${courseMaterials.length} saved`
                 : concepts.length
                   ? "Sample model ready"
                   : embedded
@@ -952,7 +949,6 @@ export function MaterialLibrary({ embedded = false, incomingFile = null, onIncom
         <p className="material-binder-note">Everything stays on this device unless you sign in to sync.</p>
       ) : (
         <aside className="material-honesty">
-          <p className="kicker">Private and reviewable</p>
           <p>{auth.user ? "Signed-in materials are stored in your private Kelus account and cached on this device. " : "Materials stay on this device until you sign in. "}Kelus uses only the concepts you confirm, and every learning activity keeps its source page visible.</p>
         </aside>
       )}

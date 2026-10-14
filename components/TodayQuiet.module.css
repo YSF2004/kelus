@@ -99,3 +99,6 @@
   .title { font-size: 1.625rem !important; }
   .then li { grid-template-columns: minmax(0, 1fr) auto auto; gap: 12px; }
 }
+
+/* "After that": a real (small) heading for the list, not a grey label. */
+.thenTitle { margin: 0 0 8px; color: var(--q-ink, #191a18); font-family: var(--font-source-serif), Georgia, serif; font-size: 1.125rem; font-weight: 500; letter-spacing: -0.01em; }

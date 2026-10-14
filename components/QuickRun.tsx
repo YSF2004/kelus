@@ -1,5 +1,6 @@
 "use client";
 
+import type { ReactNode } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { checkPracticeAnswer } from "@/domain/practice-check";
@@ -24,12 +25,14 @@ const GRADES: Array<{ value: SelfGrade; label: string; hint: string }> = [
  * One topic as a short run: instant checks that quote the page, then one explanation in your own words.
  * It is the whole loop for a topic: no separate read, use and mark screens.
  */
-export function QuickRun({ run, onRevealSource, onFinish, onChecksDone }: {
+export function QuickRun({ run, onRevealSource, onFinish, onChecksDone, context }: {
   run: Run;
   onRevealSource: () => void;
   onFinish: (result: QuickRunResult) => void;
   /** A warm-up is checks only: given this, the last Next ends the run instead of opening the explanation. */
   onChecksDone?: (result: { right: number; total: number; missed: string[] }) => void;
+  /** Which topic this is, set beside the progress bar as its caption rather than as a label above the question. */
+  context?: ReactNode;
 }) {
   const reduce = useReducedMotion() === true;
   const modKey = useSyncExternalStore(noSubscribe, modKeyNow, () => "⌘");
@@ -143,6 +146,7 @@ export function QuickRun({ run, onRevealSource, onFinish, onChecksDone }: {
             <li key={index} className={index < step ? styles.done : index === step ? styles.now : undefined} aria-current={index === step ? "step" : undefined} />
           ))}
         </ol>
+        {context}
         {streak >= 2 ? <p className={styles.streak} role="status">{streak} right in a row</p> : <span />}
       </header>
 

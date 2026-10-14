@@ -340,8 +340,10 @@ html body.is-course-studio .studio-search kbd {
    underneath moves. The topic is named above the question, small, where the eye already is. */
 .study-topic-kicker {
   display: flex;
+  flex: none;
   align-items: baseline;
   gap: 10px;
+  white-space: nowrap;
   margin: 0 0 14px;
   color: var(--color-slate);
   font-size: 0.875rem;
