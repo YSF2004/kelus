@@ -5,7 +5,7 @@
 :root {
   --q-ink: #191a18;
   --q-text-2: #6b6f68;
-  --q-text-3: #9a9e96;
+  --q-text-3: #70746c;
   --q-line: #ececea;
   --q-line-strong: #dededb;
   --q-hover: #f3f3f1;
@@ -367,5 +367,28 @@ html body .pricing-page .pricing-notify h2 {
 }
 @media (max-width: 720px) { html body .pricing-page .pricing-notify { grid-template-columns: minmax(0, 1fr); } }
 /* Plus is planned: its items get an open circle, not a tick, so nothing reads as already available. */
-html body .pricing-page.is-monthly-pricing .pricing-offer.is-pass li:not(:first-child)::before { content: "○"; color: var(--q-text-3); font-size: 0.75em; }
+/* Plan list marks are drawn, not typed: a tick for what Free has today, an open ring for what Plus plans. */
+html body .pricing-page.is-monthly-pricing .pricing-offer li::before {
+  content: "" !important;
+  top: 0.3em;
+  width: 14px; height: 14px;
+  background: currentColor;
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M3.2 8.6 6.4 11.6 12.8 4.6' fill='none' stroke='black' stroke-width='1.75' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center / contain no-repeat;
+  mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Cpath d='M3.2 8.6 6.4 11.6 12.8 4.6' fill='none' stroke='black' stroke-width='1.75' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") center / contain no-repeat;
+}
+html body .pricing-page.is-monthly-pricing .pricing-offer.is-pass li:not(:first-child)::before {
+  color: var(--q-text-3);
+  -webkit-mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Ccircle cx='8' cy='8' r='4.6' fill='none' stroke='black' stroke-width='1.5'/%3E%3C/svg%3E");
+  mask-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Ccircle cx='8' cy='8' r='4.6' fill='none' stroke='black' stroke-width='1.5'/%3E%3C/svg%3E");
+}
 html body .pricing-page.is-monthly-pricing .pricing-offer.is-pass .founding-cta { padding-bottom: 4px; }
+
+/* ── Browser surfaces carry the design too: selection, caret, focus, scrollbars ─────────────────────── */
+::selection { background: rgba(31, 107, 69, 0.18); color: inherit; }
+html { caret-color: #1f6b45; scrollbar-color: #d4d3ce transparent; accent-color: #1f6b45; }
+:where(a, button, input, select, textarea, summary, [tabindex]):focus-visible {
+  outline: 2px solid #1f6b45;
+  outline-offset: 2px;
+}
+:where(a) { text-underline-offset: 0.18em; text-decoration-thickness: 1px; }
+html body :is(.legal-page, .pricing-page, [data-marketing="editorial"]) ::placeholder { color: #70746c; opacity: 1; }

@@ -99,8 +99,8 @@
 /* The climber steps up the left edge of the window; only where there is room beside it. */
 .climber {
   position: absolute;
-  left: -118px;
-  bottom: -6px;
+  left: -152px;
+  bottom: 0;
   width: 150px;
   height: auto;
   pointer-events: none;
@@ -112,42 +112,35 @@
 }
 /* Without room beside the window, the climber stands on its top-right corner instead, smaller. */
 @media (max-width: 1360px) {
-  .climber { left: auto; right: 18px; bottom: auto; top: -74px; width: 92px; }
+  .climber { left: auto; right: 22px; bottom: auto; top: -86px; width: 92px; }
   .visual { margin-top: 72px; }
 }
 @media (max-width: 640px) {
-  .climber { right: 10px; top: -60px; width: 76px; }
+  .climber { right: 14px; top: -71px; width: 76px; }
   .visual { margin-top: 64px !important; }
 }
 
-/* What a student can bring, by name and by the marks they know. */
+/* What a student can bring: one sentence, the known marks inline. */
 .worksWith {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: center;
-  gap: 8px 10px;
-  max-width: 900px;
+  max-width: 62ch;
   margin: 26px auto 0;
   color: var(--hero-muted);
-  font: 500 13px var(--font-marketing-sans), Arial, sans-serif;
+  font: 400 14px/1.7 var(--font-marketing-sans), Arial, sans-serif;
+  text-wrap: balance;
 }
-.worksWith > span:first-child { margin-right: 4px; }
-.chip {
+.brand {
   display: inline-flex;
   align-items: center;
-  gap: 7px;
-  min-height: 30px;
-  padding: 0 12px;
-  border: 1px solid var(--hero-line);
-  border-radius: 999px;
-  background: var(--color-pure-white);
+  gap: 5px;
   color: var(--hero-ink);
+  font-weight: 500;
+  white-space: nowrap;
+  vertical-align: -2px;
 }
 .videoFigure { margin: 0; }
 .videoFrame {
   position: relative;
-  aspect-ratio: 1280 / 748;
+  aspect-ratio: 1024 / 581;
   overflow: hidden;
   border: 1px solid var(--hero-line);
   border-radius: 8px;
@@ -165,20 +158,19 @@
 .videoInteraction:focus-visible { outline: 3px solid var(--hero-green); outline-offset: -5px; }
 .desktopVideo, .mobileVideo { display: block; width: 100%; height: auto; opacity: 0; }
 .decodedFrame { opacity: 1; }
-.desktopVideo { transform: translateY(-6.5%); }
+.desktopVideo { transform: translateY(-9.2%); }
 .mobileVideo { display: none; }
 
 @media (max-width: 640px) {
   .hero { padding: 46px 16px 48px; }
   .chrome { height: 32px; }
   .address { min-width: 150px; font-size: 11px; }
-  .worksWith > span:first-child { flex-basis: 100%; text-align: center; }
   .hero .headline { max-width: 13ch; font-size: clamp(40px, 10.5vw, 56px); }
   .hero .lede { max-width: 31ch; margin-top: 18px; }
   .visual { width: min(390px, 100%); margin-top: 32px; }
-  .videoFrame { aspect-ratio: 390 / 790; }
+  .videoFrame { aspect-ratio: 390 / 785; }
   .desktopVideo { display: none; }
-  .mobileVideo { display: block; transform: translateY(-6.4%); }
+  .mobileVideo { display: block; transform: translateY(-7%); }
   .videoFrame { background-image: url("/hero/kelus-product-poster-mobile.png"); }
 }
 

@@ -12,7 +12,6 @@ export default function TermsPage() {
   return (
     <main id="main" className="legal-page">
       <article className="legal-panel">
-        <p className="kicker">Legal</p>
         <h1>Terms of use</h1>
         <p className="legal-updated">Last updated: September 7, 2026</p>
         <p className="legal-lede">By using kelus.me, you agree to these terms.</p>

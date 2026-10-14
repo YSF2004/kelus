@@ -122,5 +122,5 @@
 .lineTrack { position: relative; flex: none; width: 112px; height: 4px; overflow: hidden; border-radius: 2px; background: var(--q-hover, #f1f1ef); }
 .lineTrack i { position: absolute; inset: 0 auto 0 0; border-radius: 2px; background: var(--k-marigold, #f3b23e); }
 .lineTrack i.met { background: var(--q-green, #1f6b45); }
-.sep { width: 3px; height: 3px; border-radius: 50%; background: var(--q-text-3, #9a9e96); }
-.lineNote { color: var(--q-text-3, #9a9e96); }
+.sep { width: 3px; height: 3px; border-radius: 50%; background: var(--q-text-3, #70746c); }
+.lineNote { color: var(--q-text-3, #70746c); }

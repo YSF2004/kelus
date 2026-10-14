@@ -2,6 +2,7 @@
 
 import { useRef } from "react";
 import { motion, useInView, useReducedMotion } from "motion/react";
+import { Tick } from "@/components/Marks";
 import styles from "./FollowThrough.module.css";
 
 const ease = [0.22, 1, 0.36, 1] as const;
@@ -55,24 +56,28 @@ export function RevisionLoopVisuals() {
         <motion.article {...appear(1)} className={styles.step} data-revision-step="02">
           <h3><span>2</span> A question from that line</h3>
           <div className={styles.sheet}>
-            <p className={styles.ask}>Water moves from a dilute solution to a more ____ one.</p>
-            <p className={styles.blank}>
-              <motion.span
-                initial={reduce ? false : { clipPath: "inset(0 100% 0 0)" }}
-                animate={on ? { clipPath: "inset(0 0% 0 0)" } : undefined}
-                transition={{ duration: 0.55, delay: at(1, 0.35), ease: "linear" }}
-              >
-                concentrated
-              </motion.span>
-              <motion.i
-                aria-hidden="true"
-                initial={reduce ? false : { opacity: 0 }}
-                animate={on ? { opacity: 1 } : undefined}
-                transition={{ duration: 0.2, delay: at(1, 0.95) }}
-              >
-                ✓
-              </motion.i>
+            {/* The answer is typed into the blank of the sentence itself, as on a worksheet: no box in a box. */}
+            <p className={styles.ask}>
+              Water moves from a dilute solution to a more{" "}
+              <span className={styles.blank}>
+                <motion.span
+                  initial={reduce ? false : { clipPath: "inset(0 100% 0 0)" }}
+                  animate={on ? { clipPath: "inset(0 0% 0 0)" } : undefined}
+                  transition={{ duration: 0.55, delay: at(1, 0.35), ease: "linear" }}
+                >
+                  concentrated
+                </motion.span>
+              </span>{" "}
+              one.
             </p>
+            <motion.p
+              className={styles.right}
+              initial={reduce ? false : { opacity: 0, y: 4 }}
+              animate={on ? { opacity: 1, y: 0 } : undefined}
+              transition={{ duration: 0.3, delay: at(1, 0.95), ease }}
+            >
+              <Tick size={14} /> Right: that’s the line on page 2.
+            </motion.p>
           </div>
         </motion.article>
 

@@ -13,7 +13,6 @@ export default function QuestionsPage() {
   return (
     <main id="main" className="legal-page questions-page">
       <section className="legal-panel">
-        <p className="kicker">Questions</p>
         <h1>Ask us anything about Kelus.</h1>
         <p className="legal-lede">
           Stuck on your study plan, your notes or Kelus Plus? Ask here and a person replies by email. You can also write to{" "}

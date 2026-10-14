@@ -35,7 +35,6 @@ export default function PricingPage() {
       <section className="legal-panel pricing-booklet">
         {/* From the Kelus illustration pack: monthly, cancel any time, no trial that runs out. */}
         <PackArt name="time-flies" className="pricing-hero-art" size={190} />
-        <p className="kicker">Pricing</p>
         <h1>Start revising. Stay in control.</h1>
         <p className="legal-lede">
           Revise your own course for free. Kelus Plus is planned at $4.99/month.
@@ -48,7 +47,7 @@ export default function PricingPage() {
           <PricingPlanMotion>
             <article className="pricing-offer is-free pricing-plan">
               <div className="pricing-offer-head">
-                <div className="pricing-plan-name"><h2 className="kicker"><PackArt name="check" className="pricing-plan-icon" size={20} />Free</h2><span className="pricing-availability">Available now</span></div>
+                <div className="pricing-plan-name"><h2 className="kicker">Free</h2><span className="pricing-availability">Available now</span></div>
                 <p className="pricing-price">$0<span>/month</span></p>
               </div>
               <p className="pricing-offer-lede">Everything in Kelus today, with no limits.</p>
@@ -69,7 +68,7 @@ export default function PricingPage() {
           <PricingPlanMotion>
             <article className={`pricing-offer is-pass pricing-plan is-founding${paymentReady ? "" : " is-upcoming"}`}>
               <div className="pricing-offer-head">
-                <div className="pricing-plan-name"><h2 className="kicker"><PackArt name="award" className="pricing-plan-icon" size={20} />Kelus Plus</h2><span className="pricing-availability">{paymentReady ? "Available now" : "Coming soon"}</span></div>
+                <div className="pricing-plan-name"><h2 className="kicker">Kelus Plus</h2><span className="pricing-availability">{paymentReady ? "Available now" : "Coming soon"}</span></div>
                 <p className="pricing-price">
                   $4.99<span>/month</span>
                 </p>

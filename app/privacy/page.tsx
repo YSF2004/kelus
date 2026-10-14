@@ -12,7 +12,6 @@ export default function PrivacyPage() {
   return (
     <main id="main" className="legal-page">
       <article className="legal-panel">
-        <p className="kicker">Legal</p>
         <h1>Privacy</h1>
         <p className="legal-updated">Last updated: October 13, 2026</p>
         <p className="legal-lede">
