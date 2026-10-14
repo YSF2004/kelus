@@ -1,6 +1,6 @@
 import type { ExtractedMaterialPage, ExtractedTextBlock } from "../domain/types";
 
-type PdfTextItem = { str?: string; hasEOL?: boolean; transform?: number[]; width?: number; height?: number };
+type PdfTextItem = { str?: string; hasEOL?: boolean; transform?: number[]; width?: number; height?: number; fontName?: string };
 type PdfOutlineNode = { title?: string; items?: PdfOutlineNode[] };
 
 export type PdfTextDensity = "empty" | "sparse" | "ok";
@@ -34,11 +34,16 @@ export const MIN_OCR_LINE_CONFIDENCE = 70;
  * Keeps only the lines the text recogniser is reasonably sure of, paragraphs kept apart. A diagram or a blurry scan
  * yields mostly unsure lines; questions built from them would quote noise as if it were the student's notes.
  */
+/** A printed bullet that OCR reads as a lone letter or mark ("e Demand curve…", "« Supply…") is dropped. */
+function stripOcrBullet(line: string) {
+  return line.replace(/^(?:[eo«»©®*°¢•·◦‣▪]|\(?[-–—]\)?)\s+(?=[\p{Lu}\d"“(])/u, "");
+}
+
 export function confidentOcrText(data: OcrData) {
   const paragraphs = (data.blocks ?? []).flatMap((block) => block.paragraphs);
   if (!paragraphs.length) return (data.confidence ?? 0) >= MIN_OCR_LINE_CONFIDENCE ? data.text : "";
   return paragraphs
-    .map((paragraph) => paragraph.lines.filter((line) => line.confidence >= MIN_OCR_LINE_CONFIDENCE).map((line) => line.text.trim()).filter(Boolean).join("\n"))
+    .map((paragraph) => paragraph.lines.filter((line) => line.confidence >= MIN_OCR_LINE_CONFIDENCE).map((line) => stripOcrBullet(line.text.trim())).filter(Boolean).join("\n"))
     .filter(Boolean)
     .join("\n\n");
 }
@@ -83,9 +88,72 @@ function repairLigatures(text: string) {
   return LIGATURE_FIXES.reduce((value, [pattern, fix]) => value.replace(pattern, fix), text);
 }
 
+/**
+ * LaTeX slide decks set formula delimiters and operators in a symbol font whose characters pdf.js labels as letters:
+ * "D(p)" arrives as "Dppq", "−" as "´", ">" as "ą". Only a font whose every character is one of these is remapped, so
+ * a real "p" or "q" in running text is never touched.
+ */
+const SYMBOL_FONT_MAP: Record<string, string> = { p: "(", q: ")", "´": "−", "“": "=", "¨": "·", "ą": ">", "ă": "<", "ď": "≤", "ě": "≥" };
+const SYMBOL_ONLY = new RegExp(`^[\\s${Object.keys(SYMBOL_FONT_MAP).join("")}]+$`, "u");
+
+function symbolFonts(rawItems: PdfTextItem[]) {
+  // Only-these-characters and at least one that is plainly not a letter: a maths font that happens to draw only "p"
+  // on a page is a variable, not a bracket.
+  const seen = new Map<string, { only: boolean; symbol: boolean }>();
+  for (const item of rawItems) {
+    if (!item.fontName || !item.str?.trim()) continue;
+    const entry = seen.get(item.fontName) ?? { only: true, symbol: false };
+    entry.only &&= SYMBOL_ONLY.test(item.str);
+    entry.symbol ||= /[´“¨ąăďě]/u.test(item.str);
+    seen.set(item.fontName, entry);
+  }
+  return new Set([...seen].filter(([, entry]) => entry.only && entry.symbol).map(([font]) => font));
+}
+
+/**
+ * PowerPoint and Word draw bullets in symbol fonts (Wingdings, Monotype Sorts); pdf.js reads them as letters, so a
+ * bullet arrives as "X", "u", "*" or "Ø". A font that only ever draws one of these single characters is a bullet font.
+ */
+const BULLET_LETTERS = new Set(["X", "u", "*", "Ø", "§", "q", "n", "l", "ü", "v", "o", "Ÿ", "¨", "•", "–", "»", "w"]);
+
+function bulletFonts(rawItems: PdfTextItem[]) {
+  const seen = new Map<string, { only: boolean; count: number }>();
+  for (const item of rawItems) {
+    const text = item.str?.trim();
+    if (!item.fontName || !text) continue;
+    const entry = seen.get(item.fontName) ?? { only: true, count: 0 };
+    entry.only &&= BULLET_LETTERS.has(text);
+    entry.count += 1;
+    seen.set(item.fontName, entry);
+  }
+  return new Set([...seen].filter(([, entry]) => entry.only && entry.count >= 2).map(([font]) => font));
+}
+
+type Fragment = { text: string; x: number; width: number; fontSize: number };
+type Line = ExtractedTextBlock & { hasEOL: boolean; fragments: Fragment[] };
+
+/** A line's text from its fragments in left-to-right order; touching fragments join without a space. */
+function lineText(fragments: Fragment[]) {
+  const sorted = [...fragments].sort((a, b) => a.x - b.x);
+  // A lone dash first on a line, with a gap after it, is a slide bullet from the symbol font, not a minus sign.
+  if (sorted.length > 1 && /^[−–-]$/.test(sorted[0].text) && sorted[1].x - (sorted[0].x + sorted[0].width) > sorted[0].fontSize * 0.3) sorted.shift();
+  let text = "";
+  let right = -Infinity;
+  for (const part of sorted) {
+    const gap = part.x - right;
+    text += text && !(gap < part.fontSize * 0.1) ? ` ${part.text}` : part.text;
+    right = Math.max(right, part.x + part.width);
+  }
+  return text.replace(/\s+/g, " ").trim();
+}
+
 export function buildLayoutPage(pageNumber: number, rawItems: PdfTextItem[]): ExtractedMaterialPage {
+  const symbols = symbolFonts(rawItems);
+  const bullets = bulletFonts(rawItems);
   const items = rawItems.flatMap((item) => {
-    const text = item.str?.replace(/\s+/g, " ").trim();
+    if (item.fontName && bullets.has(item.fontName)) return [];
+    const raw = item.fontName && symbols.has(item.fontName) ? [...(item.str ?? "")].map((char) => SYMBOL_FONT_MAP[char] ?? char).join("") : item.str;
+    const text = raw?.replace(/\s+/g, " ").trim();
     if (!text) return [];
     const transform = item.transform ?? [];
     const measuredSize = item.height ?? Math.hypot(transform[0] ?? 0, transform[1] ?? 0);
@@ -97,21 +165,30 @@ export function buildLayoutPage(pageNumber: number, rawItems: PdfTextItem[]): Ex
     const before = all[index - 1];
     return !(before && before.text === item.text && Math.abs(before.x - item.x) < 2 && Math.abs(before.y - item.y) < 2);
   });
-  const lines: Array<ExtractedTextBlock & { hasEOL: boolean }> = [];
+  const lines: Line[] = [];
+  // Same row: level with the line, or a small superscript or subscript (f′, x₂) sitting within half a line of it.
+  const sameRow = (line: Line, item: { y: number; fontSize: number }) => Math.abs(line.y - item.y) <= Math.max(2, Math.min(line.fontSize, item.fontSize) * 0.28)
+    || (item.fontSize <= line.fontSize * 0.8 && Math.abs(line.y - item.y) <= line.fontSize * 0.6);
   for (const item of items) {
     const previous = lines.at(-1);
-    const sameLine = previous && Math.abs(previous.y - item.y) <= Math.max(2, Math.min(previous.fontSize, item.fontSize) * 0.28);
-    if (sameLine && !previous.hasEOL) {
-      // Fragments that touch (ligatures like "fi", styled runs) belong to one word; only a real gap is a space.
-      const gap = item.x - (previous.x + previous.width);
-      const glue = previous.width > 0 && gap < Math.min(previous.fontSize, item.fontSize) * 0.1 ? "" : " ";
-      previous.text = `${previous.text}${glue}${item.text}`.replace(/\s+/g, " ");
-      previous.width = Math.max(previous.width, item.x + item.width - previous.x);
-      previous.height = Math.max(previous.height, item.height);
-      previous.fontSize = Math.max(previous.fontSize, item.fontSize);
-      previous.hasEOL = item.hasEOL;
+    const fragment = { text: item.text, x: item.x, width: item.width, fontSize: item.fontSize };
+    // Usually the next run continues the last line. A formula drawn after its sentence belongs to the earlier line it
+    // sits inside; a neighbouring column starts beyond that line's right edge, so it is never pulled in.
+    const target = previous && sameRow(previous, item) && !previous.hasEOL
+      ? previous
+      : lines.slice(-40).reverse().find((line) => sameRow(line, item) && item.x >= line.x - 1 && item.x <= line.x + line.width + item.fontSize * 0.6);
+    if (target) {
+      // Fake bold slotted into the same line: a copy of a fragment already there, at the same spot, is the same text.
+      if (target.fragments.some((part) => part.text === fragment.text && Math.abs(part.x - fragment.x) < 2)) continue;
+      target.fragments.push(fragment);
+      target.text = lineText(target.fragments);
+      target.width = Math.max(target.width, item.x + item.width - target.x);
+      target.x = Math.min(target.x, item.x);
+      target.height = Math.max(target.height, item.height);
+      target.fontSize = Math.max(target.fontSize, item.fontSize);
+      if (target === previous) target.hasEOL = item.hasEOL;
     } else {
-      lines.push({ ...item });
+      lines.push({ ...item, fragments: [fragment] });
     }
   }
   const bodySize = median(lines.map((line) => line.fontSize));
@@ -139,7 +216,28 @@ export function buildLayoutPage(pageNumber: number, rawItems: PdfTextItem[]): Ex
     }
     text += line.text;
   });
-  return { pageNumber, text: text.trim(), blocks: lines.map(({ hasEOL: _hasEOL, ...line }) => line) };
+  return { pageNumber, text: text.trim(), blocks: lines.map(({ hasEOL: _hasEOL, fragments: _fragments, ...line }) => line) };
+}
+
+/**
+ * Lines printed on most pages (a slide footer "Mansfield University · Chapter 1 · Slide 5", a running header) are page
+ * furniture, not content. With at least three pages, a line found on half of them or more is removed; page and slide
+ * numbers are ignored when comparing, so "Slide 5" and "Slide 6" count as the same line.
+ */
+export function stripRunningLines(pages: ExtractedMaterialPage[]) {
+  const content = pages.filter((page) => page.pageNumber > 0);
+  if (content.length < 3) return pages;
+  const key = (line: string) => line.trim().toLocaleLowerCase().replace(/\d+/g, "#").replace(/\s+/g, " ");
+  const count = new Map<string, number>();
+  for (const page of content) for (const line of new Set(page.text.split("\n").map(key).filter((line) => line.length > 1))) count.set(line, (count.get(line) ?? 0) + 1);
+  const threshold = Math.max(3, Math.ceil(content.length * 0.5));
+  const running = new Set([...count].filter(([, n]) => n >= threshold).map(([line]) => line));
+  if (!running.size) return pages;
+  return pages.map((page) => page.pageNumber === 0 ? page : {
+    ...page,
+    text: page.text.split("\n").filter((line) => !running.has(key(line))).join("\n").replace(/\n{3,}/g, "\n\n").trim(),
+    blocks: page.blocks?.filter((block) => !running.has(key(block.text))),
+  });
 }
 
 /** Most pages read from one PDF. Extracting text is fast (31 pages take well under a second); this only guards memory. */
@@ -176,7 +274,7 @@ export async function extractPdfPages(file: File, options?: { maxContentPages?: 
   } finally {
     await document.destroy();
   }
-  return pages;
+  return stripRunningLines(pages);
 }
 
 export type OcrProgress = {
