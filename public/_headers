@@ -1,0 +1,16 @@
+# Cloudflare static assets. Pages and the version stamp are never served from a stale copy after a deploy;
+# hashed build files are safe to cache for a year.
+/version.json
+  Cache-Control: no-store
+/sw.js
+  Cache-Control: no-cache
+/
+  Cache-Control: no-cache
+/:page/
+  Cache-Control: no-cache
+/:section/:page/
+  Cache-Control: no-cache
+/*.html
+  Cache-Control: no-cache
+/_next/static/*
+  Cache-Control: public, max-age=31536000, immutable
