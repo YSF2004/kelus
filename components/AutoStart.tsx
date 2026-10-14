@@ -89,7 +89,6 @@ export function AutoStart({ ready, plan, showPlan, onStart }: { ready: boolean; 
             <path d="M74 22C66 37 56 46 43 51c14 5 25 15 33 28" />
           </g>
         </svg>
-        <motion.p {...rise(0)} className={styles.course}>{plan.course}</motion.p>
         <motion.h1 {...rise(0.06)} id="built-title">Let’s start with {plan.firstName}.</motion.h1>
         {shown.length ? (
           <motion.div {...rise(0.14)} className={styles.after}>
@@ -102,7 +101,7 @@ export function AutoStart({ ready, plan, showPlan, onStart }: { ready: boolean; 
             </ul>
           </motion.div>
         ) : null}
-        <motion.p {...rise(0.3)} className={styles.how}>Every question quotes a line from your notes, and what you miss comes back tomorrow. About {time} for all of it.</motion.p>
+        <motion.p {...rise(0.3)} className={styles.how}>Every question quotes a line from {plan.course}, and what you miss comes back tomorrow. About {time} for all of it.</motion.p>
         <motion.div {...rise(0.36)} className={styles.actions}>
           <button type="button" className="k-btn" onClick={start}>Start <span aria-hidden="true">→</span></button>
           <button type="button" className={styles.later} onClick={later}>See the plan first</button>

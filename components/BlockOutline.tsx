@@ -21,7 +21,6 @@ export function BlockOutline({ course, topics }: { course: string; topics: Outli
   return (
     <nav className={styles.outline} aria-label="This block">
       <p className={styles.course}>{course}</p>
-      <p className={styles.label}>This block</p>
       <ol>
         {topics.map((topic, index) => (
           <motion.li

@@ -212,7 +212,6 @@ function SessionBody() {
     return (
       <main id="main" className="study-shell">
         <section className="materials-empty is-session-empty">
-          <p className="kicker">Session</p>
           <h1>No active revision yet.</h1>
           <p>Sessions open from your study plan. Each block walks one topic through the same loop:</p>
           <LoopSteps />
@@ -730,10 +729,13 @@ function SessionBody() {
             <p className="study-count sr-only" aria-live="polite">{PHASE_LABEL[phase as "learn" | "retrieve" | "apply" | "evaluate"]}</p>
 
             {phase === "learn" && quickMode && run ? (
-              <p className="study-topic-kicker"><b>{concept.name}</b>{total > 1 ? <span>Topic {index + 1} of {total}</span> : null}</p>
-            ) : null}
-            {phase === "learn" && quickMode && run ? (
-              <QuickRun key={`${concept.id}-${runKey}`} run={run} onRevealSource={() => setSourceRevealed(true)} onFinish={finishQuick} />
+              <QuickRun
+                key={`${concept.id}-${runKey}`}
+                run={run}
+                onRevealSource={() => setSourceRevealed(true)}
+                onFinish={finishQuick}
+                context={<p className="study-topic-kicker"><b>{concept.name}</b>{total > 1 ? <span aria-label={`Topic ${index + 1} of ${total}`}>{index + 1} of {total}</span> : null}</p>}
+              />
             ) : null}
 
             {phase === "learn" && !quickMode ? (

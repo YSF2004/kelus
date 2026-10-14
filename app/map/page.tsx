@@ -43,7 +43,7 @@ export default function MapPage() {
           <FirstRunGate
             kicker="Topic map"
             title="Add your course PDF first."
-            body="Kelus proposes topics from your material. After you confirm them, the topic map shows what you know and links that your sources support."
+            body="Kelus finds the topics in your material. Then this page shows each one, how well you know it, and where it sits in your notes."
             preview="map"
           />
         </AppShell>
@@ -59,7 +59,6 @@ export default function MapPage() {
         <AppShell>
           <section className="materials-empty is-first-run-gate">
             <div className="first-run-gate-copy">
-              <p className="kicker">Topic map</p>
               <h1>Confirm topics from a source first.</h1>
               <p>Materials holds the PDFs. Here you’ll see the graph — exam importance, what you know, and links when pages show prerequisites.</p>
               <div className="materials-empty-actions">

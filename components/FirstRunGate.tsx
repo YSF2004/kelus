@@ -8,7 +8,8 @@ import { Pressable } from "@/components/motion";
 const PREVIEW_TOPICS = ["Elasticity", "Supply & Demand", "Market Structures"] as const;
 
 type FirstRunGateProps = {
-  kicker: string;
+  /** Kept for older call sites; no label is shown above the title. */
+  kicker?: string;
   title: string;
   body: string;
   ctaHref?: string;
@@ -17,7 +18,6 @@ type FirstRunGateProps = {
 };
 
 export function FirstRunGate({
-  kicker,
   title,
   body,
   ctaHref = "/today",
@@ -29,7 +29,6 @@ export function FirstRunGate({
   return (
     <section className="materials-empty is-first-run-gate is-booklet-gate">
       <div className="first-run-gate-copy">
-        <p className="kicker">{kicker}</p>
         <h1>{title}</h1>
         <p className="first-run-gate-lede">{body}</p>
         <div className="materials-empty-actions">

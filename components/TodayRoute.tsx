@@ -167,9 +167,12 @@ export function TodayRoute({
       </motion.header>
 
       <motion.section className={q.next} data-block="today-lead" aria-labelledby="today-title" {...settle(1)}>
-        <p className={q.label}>{startLabel ? "Continue" : goalDone ? "One more, if you like" : "Up next"}</p>
+        {/* No label above the topic: the name leads, and what is special about it (half done, or an extra after
+            today's goal) is said in the line under it. */}
         <h2 id="today-title" className={q.topic}>{firstName}</h2>
-        <p className={q.sub} data-block="today-page-folio">{first.minutes} min · 3 quick checks and 1 explanation</p>
+        <p className={q.sub} data-block="today-page-folio">
+          {startLabel ? "Started · " : goalDone ? "Today’s goal is done, so this one is extra · " : ""}{first.minutes} min · 3 quick checks and 1 explanation
+        </p>
         <p className={q.why} data-block="today-decision" aria-label="Why this topic is first">{decision.join(" ")}</p>
         <motion.button
           type="button"
@@ -188,7 +191,7 @@ export function TodayRoute({
 
       {nextStops.length ? (
         <motion.section className={q.then} data-block="today-next" aria-label="Planned next topics" {...settle(3)}>
-          <h2 className={q.label}>Then</h2>
+          <h2 className={q.thenTitle}>After that</h2>
           <ol>
             <AnimatePresence initial={false} mode="popLayout">
             {nextStops.map((stop, index) => (
