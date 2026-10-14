@@ -425,3 +425,5 @@ html body.is-course-studio .material-shelf-count { margin-left: 6px; color: var(
   unicode-range: U+0030;
 }
 html body.is-booklet-system { --font-inter: "Kelus Zero", "Atkinson Hyperlegible Next", "Atkinson Hyperlegible Next Fallback", system-ui, sans-serif; }
+html body .legal-panel .not-found-art { display: block; height: auto; margin: 0 0 20px; }
+html body section[aria-labelledby="reading-title"] .k-btn { box-shadow: none !important; border: 0 !important; border-radius: 999px !important; transform: none; }

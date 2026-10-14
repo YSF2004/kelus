@@ -3,7 +3,7 @@
 .returnSection { overflow: clip; }
 
 .studySection {
-  background: var(--color-loop-student-paper);
+  background: #f3f3f1;
   color: var(--ink);
   border-block: 1px solid var(--color-loop-student-line);
 }
@@ -22,7 +22,7 @@
   place-items: end center;
   min-height: clamp(28rem, 43vw, 38rem);
   padding: clamp(2rem, 4vw, 4rem) 1rem 0;
-  background: var(--color-loop-student-paper);
+  background: #f3f3f1;
 }
 .studyArt img { width: min(100%, 36rem); height: auto; object-fit: contain; }
 
@@ -71,7 +71,7 @@
 .textLink:focus-visible { outline: 2px solid var(--color-kelus); outline-offset: 4px; }
 
 .returnSection {
-  background: var(--color-loop-return-paper);
+  background: #fbfaf7;
   border-block: 1px solid var(--color-frost);
 }
 .returnInner { grid-template-columns: minmax(0, 0.78fr) minmax(0, 1.22fr); }
@@ -109,3 +109,7 @@
   .textLink { transition: none; }
   .textLink:active { transform: none; }
 }
+
+/* Pack drawings: ink on paper, sized to sit beside the copy. */
+.packArt { display: block; width: min(100%, 26rem); height: auto; margin: 0 auto; }
+.returnArt .packArt { width: min(60%, 15rem); }

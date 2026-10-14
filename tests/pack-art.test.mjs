@@ -18,8 +18,8 @@ test("every file the art component points at exists, is a real SVG, and keeps it
   assert.match(note, /https:\/\/www\.overflow\.design\/license\//);
 });
 
-test("the art is decorative: hidden from screen readers with empty alt text", () => {
+test("the art is decorative by default (empty alt, hidden), and named only where it carries a section", () => {
   const source = readFileSync("components/PackArt.tsx", "utf8");
-  assert.match(source, /alt=""/);
-  assert.match(source, /aria-hidden="true"/);
+  assert.match(source, /alt=\{label \?\? ""\}/);
+  assert.match(source, /aria-hidden=\{label \? undefined : true\}/);
 });

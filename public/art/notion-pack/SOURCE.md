@@ -6,7 +6,8 @@ Line icons and drawings used in Kelus, exported unmodified from the Figma Commun
 Source file: https://www.figma.com/design/az5PD5vLx4tXvsjsF7XeYM (duplicate of the community file)
 
 Files here (regular style): icon-list-check, icon-folder, icon-diagram-project, icon-award, icon-check, icon-info,
-icon-clipboard-check, art-growing, art-time-flies, art-target, art-on-the-laptop.
+icon-clipboard-check, art-growing, art-time-flies, art-target, art-on-the-laptop, and (exported 2026-10-14, Style=regular,
+cropped to the drawing, background removed) art-lighthouse, art-no-answer, art-taking-note, art-reviewing, art-thinking.
 
 License checked 2026-10-08: Overflow Design's Free license permits free items in commercial end products and
 open-source projects when they are used in the product rather than offered as a separate asset library.

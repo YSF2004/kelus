@@ -251,6 +251,21 @@ function MaterialRow({
   );
 }
 
+/**
+ * What went wrong reading a file, in words a student can act on. Kelus's own messages pass through; the PDF library's
+ * internal ones ("Invalid PDF structure", "Missing PDF") become a plain sentence.
+ */
+function readableReadError(caught: unknown) {
+  const message = caught instanceof Error ? caught.message : "";
+  if (!message) return "Kelus couldn’t read this file.";
+  if (/invalid pdf|missing pdf|unexpected server response|bad xref|password|encrypted|corrupt|unknown error/i.test(message)) {
+    return /password|encrypted/i.test(message)
+      ? "This PDF is locked with a password. Open it, save a copy without the password, then add that copy."
+      : "This file doesn’t open as a PDF. It may be damaged or only part-downloaded; try downloading it again.";
+  }
+  return message;
+}
+
 export function MaterialLibrary({ embedded = false, incomingFile = null, onIncomingFileHandled, interceptFile, quiet = false, onStartOver }: { embedded?: boolean; incomingFile?: File | null; onIncomingFileHandled?: () => void; interceptFile?: (file: File) => boolean; quiet?: boolean; onStartOver?: () => void } = {}) {
   const reduceMotion = useReducedMotion();
   const auth = useAuth();
@@ -479,7 +494,7 @@ export function MaterialLibrary({ embedded = false, incomingFile = null, onIncom
         dispatch({
           type: "FAIL",
           kind,
-          message: caught instanceof Error ? caught.message : "Kelus could not read this file.",
+          message: readableReadError(caught),
         });
       }
     } finally {

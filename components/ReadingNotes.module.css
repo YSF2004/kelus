@@ -53,6 +53,9 @@
 }
 
 .cta {
+  border-bottom-width: 0 !important;
+  box-shadow: none !important;
+  border-radius: 999px !important;
   min-height: 48px;
   margin-top: 6px;
   padding: 0 22px;
@@ -69,3 +72,5 @@
 .cta:focus-visible { outline: 2px solid var(--color-midnight-ink); outline-offset: 2px; }
 
 
+
+.shrug { display: block; height: auto; margin: 0 0 8px; }
