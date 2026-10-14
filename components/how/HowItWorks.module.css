@@ -85,19 +85,26 @@
   .hero, .chapter, .principle, .questions, .final { width: min(100% - 36px, 600px); }
   .hero { padding-top: 60px; }
   .heroBottom { align-items: start; flex-direction: column; }
-  .chapter, .chapter:nth-child(even) { grid-template-columns: 1fr; gap: 30px; min-height: auto; padding: 64px 0; }
+  /* On a phone each step is read in one scroll: label, title, two lines, then the screen. */
+  .chapter, .chapter:nth-child(even) { grid-template-columns: 1fr; gap: 20px; min-height: auto; padding: 40px 0; }
+  .chapterLabel { margin-bottom: 14px; }
+  .chapterText > p { margin-top: 14px; font-size: 16px; }
+  .art { padding: 22px 0; }
+  .visualCaption { padding: 14px 0; }
+  .heroArt { width: 140px; margin-top: 24px; }
   .chapter:nth-child(even) .visualWrap, .chapter:nth-child(even) .chapterText { grid-column: 1; grid-row: auto; }
   .chapter h2 { max-width: 15ch; }
   .art { min-height: 0; }
   .principle { grid-template-columns: minmax(0, 1fr); gap: 15px; padding: 65px 0; }
-  .questions { padding-bottom: 58px; }
+  .questions { padding-bottom: 44px; }
+  .questions dl > div { padding: 18px 0; }
   .questions dl > div { grid-template-columns: 1fr; gap: 8px; }
 }
 @media (max-width: 480px) {
   .hero h1 { font-size: clamp(43px, 11.2vw, 54px); }
   .hero h1 br { display: none; }
   .primaryAction { width: 100%; justify-content: space-between; }
-  .chapter h2 { font-size: 40px; }
+  .chapter h2 { font-size: 32px; }
   .art { min-height: 0; }
   .visualCaption { grid-template-columns: 1fr; row-gap: 4px; }
   .visualCaption span { grid-row: auto; }
