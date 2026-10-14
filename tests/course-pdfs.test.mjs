@@ -60,3 +60,27 @@ test("a sparse page of headings still knows its title: body size is counted by l
   const names = proposeConceptsFromPages({ materialId: "m", sourceLabel: "s", pages }).filter(isSourceBackedProposal).map((item) => item.name);
   assert.deepEqual(names, ["Cell Membranes", "Osmosis", "Diffusion"]);
 });
+
+// Found on real course files (MIT OpenCourseWare lecture slides and handouts), reproduced here with synthetic text.
+test("real-PDF quirks: fake-bold doubles, slide bullet glyphs and lost fi/fl ligatures are cleaned", () => {
+  const item = (str, x, y, size = 11) => ({ str, transform: [size, 0, 0, size, x, y], width: str.length * size * 0.5, height: size });
+  const page = buildLayoutPage(1, [
+    item("Effect of Structure on pK", 72, 700, 18), item("Effect of Structure on pK", 72.4, 700, 18),
+    item("´", 60, 660), item("Each frm is a price-taker; the defnition of a defect stays as written.", 72, 660),
+  ]);
+  assert.match(page.text, /^Effect of Structure on pK\n/);
+  assert.doesNotMatch(page.text, /pKEffect/);
+  assert.match(page.text, /Each firm is a price-taker; the definition of a defect stays as written\./);
+  assert.doesNotMatch(page.text, /´/);
+});
+
+test("real-PDF quirks: credit-only passages, course admin headings and shared slide passages are not topics", () => {
+  const pages = [{ pageNumber: 1, text: [
+    "Outline", "Minimum wages and the competitive model of the labour market.",
+    "Nominal value of the minimum wage", "Image is in the public\ndomain.",
+    "Monopsony", "A monopsonist faces an upward-sloping labour supply curve, so hiring one more worker raises the wage paid to all.",
+    "Monopsony power", "A monopsonist faces an upward-sloping labour supply curve, so hiring one more worker raises the wage paid to all.",
+  ].join("\n\n") }];
+  const names = proposeConceptsFromPages({ materialId: "m", sourceLabel: "s", pages }).filter(isSourceBackedProposal).map((item) => item.name);
+  assert.deepEqual(names, ["Monopsony"]);
+});

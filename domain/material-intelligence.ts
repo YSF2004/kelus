@@ -11,7 +11,7 @@ import type {
 const ADMINISTRATIVE =
   /\b(?:attendance|calendar|contact|course syllabus|email|grading|instructor|office hours|reading list|schedule|syllabus|textbook)\b|\b(?:late|attendance|grading|course|class|academic|honou?r(?: code)?|privacy|refund|make-?up|plagiarism|submission|exam|office|lab|safety) polic(?:y|ies)\b|^assessments?$|\bassessments? (?:schedule|dates?|weights?|weighting|breakdown|criteria|overview|methods?)\b/i;
 /** "BIO 101", "CS201", "Week 4", "Lecture 3", "Unit 2": a heading that names the document, not something to study. */
-const COURSE_CODE = /\b[A-Z]{2,5}\s?\d{3}[A-Z]?\b/;
+const COURSE_CODE = /\b[A-Z]{2,5}\s?\d{3}[A-Z]?\b|\b\d{1,2}[./]\d{2,3}(?:\/\d{2,3})?\b/;
 const DOCUMENT_NUMBER = /\b(?:week|lecture|lesson|unit|module|chapter|session|seminar|tutorial|class)\s*\d+\b/i;
 export function isDocumentTitle(value: string) {
   return COURSE_CODE.test(value) || DOCUMENT_NUMBER.test(value);
@@ -57,10 +57,19 @@ function layoutTitle(page: ExtractedMaterialPage | undefined) {
 }
 
 /** Course-logistics text near a heading means the "topic" is a title page, not something to study. */
+/** Licence notices, image credits and page furniture: a passage made of these teaches nothing. */
+const CREDIT_LINE = /(?:creative commons|all rights reserved|terms of use|ocw\.mit\.edu|image (?:is )?(?:courtesy|in the public domain)|public domain|excluded from our|© ?\d{4}|copyright|source:|licen[cs]ed under)/i;
+function creditOnly(excerpt: string) {
+  const flat = excerpt.replace(/\s+/g, " ");
+  if (!CREDIT_LINE.test(flat)) return false;
+  // What is left once the credit sentences go: fewer than eight real words is a figure caption, not a lesson.
+  const rest = flat.split(/(?<=[.!?])\s+/).filter((part) => !CREDIT_LINE.test(part)).join(" ");
+  return (rest.match(/\p{L}{3,}/gu) ?? []).length < 8;
+}
 const ADMINISTRATIVE_EXCERPT = /\b(?:office hours?|instructor\s*:|attendance|grading\s*:)|e-?mail\s*:|\S+@\S+\.\S+|\b(?:nous soussign[ée]s?|je soussign[ée]e?|certifions|certifie que|fait pour servir et valoir|pour valoir ce que de droit)\b/i;
 /** Headings that structure a document but are not something to study on their own. */
 const GENERIC_HEADING =
-  /^(?:examples?|summary|overview|introduction|intro|conclusions?|notes?|references?|resources?|further reading|homework|exercises?|practice|questions?|review|recap|key points|takeaways|table of contents|contents|agenda|to-?do|links?|bibliography|appendix|glossary|extra|misc(?:ellaneous)?|(?:learning )?objectives|learning outcomes|outcomes|aims|goals|key terms|objectifs|plan|sommaire|r[ée]sum[ée]|conclusion|exercices?|exemples?|bibliographie|annexes?|mots[- ]cl[ée]s)$/i;
+  /^(?:examples?|summary|overview|introduction|intro|conclusions?|notes?|references?|resources?|further reading|homework|exercises?|practice|questions?|review|recap|key points|takeaways|table of contents|contents|agenda|to-?do|links?|bibliography|appendix|glossary|extra|misc(?:ellaneous)?|(?:learning )?objectives|learning outcomes|outcomes|aims|goals|key terms|objectifs|plan|sommaire|outline|class material|course material|for today(?: and next week)?|next week|this week|today|to know(?: [-–—] .*)?|announcements?|logistics|reminders?|readings?|thank you|any questions\??|r[ée]sum[ée]|conclusion|exercices?|exemples?|bibliographie|annexes?|mots[- ]cl[ée]s)$/i;
 /** A course deck can hold dozens of topics; more than this is shown as a cap, not silently dropped. */
 export const MAX_PROPOSED_TOPICS = 40;
 const HEADING_PREFIX = /^(?:week|module|topic|chapter|unit|lecture|section)\s*\d*[.:\-–—]?\s*/i;
@@ -80,6 +89,15 @@ function cleanCandidate(value: string) {
     .replace(/\s+/g, " ")
     .replace(/^[\s:;,.\-–—]+|[\s:;,.\-–—]+$/g, "")
     .trim();
+  // A run drawn twice with different spacing ("Example: N vs O vs SExample: Nvs O vs S"): keep the first copy.
+  const squeezed = cleaned.replace(/\s+/g, "");
+  if (squeezed.length >= 8 && squeezed.length % 2 === 0 && squeezed.slice(0, squeezed.length / 2) === squeezed.slice(squeezed.length / 2)) {
+    let seen = 0;
+    for (let i = 0; i < cleaned.length; i += 1) {
+      if (!/\s/.test(cleaned[i])) seen += 1;
+      if (seen === squeezed.length / 2) return cleaned.slice(0, i + 1).trim();
+    }
+  }
   const words = cleaned.split(/\s+/);
   if (words.length >= 2 && words.length % 2 === 0) {
     const midpoint = words.length / 2;
@@ -493,6 +511,7 @@ export function proposeConceptsFromPages(input: {
   const limit = input.limit ?? MAX_PROPOSED_TOPICS;
   const matcher = input.mode === "relaxed" ? looksLikeConceptRelaxed : looksLikeConcept;
   // Only a title set apart by its size is skipped: "Week 1: Supply and Demand" is a heading with a real topic in it.
+  const seenPassages = new Set<string>();
   const title = input.locatorLabel === "Section" ? null : layoutTitle([...input.pages].filter((page) => page.pageNumber > 0).sort((a, b) => a.pageNumber - b.pageNumber)[0]);
   const titleKey = title ? title.toLocaleLowerCase() : null;
 
@@ -529,6 +548,10 @@ export function proposeConceptsFromPages(input: {
       const key = name.toLocaleLowerCase();
       if (key === titleKey) return;
       if ((!matcher(heading) && !layoutHeading) || seen.has(key) || ADMINISTRATIVE.test(name) || GENERIC_HEADING.test(name.trim()) || isDocumentTitle(name)) return;
+      // A slide with several headings gives them all the same passage; only the first is a topic.
+      const passageKey = `${page.pageNumber}:${sourceExcerpt.replace(/\s+/g, " ").trim().toLocaleLowerCase()}`;
+      if (creditOnly(sourceExcerpt) || seenPassages.has(passageKey)) return;
+      seenPassages.add(passageKey);
       seen.add(key);
       proposals.push({
         id: `proposal-${stablePart(`${input.materialId}:${key}`)}`,
