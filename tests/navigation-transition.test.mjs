@@ -153,8 +153,8 @@ test("ledger design keeps the mobile homepage in one column", async () => {
   const css = await source("app/globals.css");
   const layout = await source("app/layout.tsx");
   const header = await source("components/SiteHeader.tsx");
-  assert.match(layout, /Inter\(\{[^}]*variable: "--font-inter"/);
-  assert.doesNotMatch(layout, /IBM_Plex_Sans/, "one text face: Inter");
+  assert.match(layout, /Atkinson_Hyperlegible_Next\(\{[^}]*variable: "--font-inter"/);
+  assert.doesNotMatch(layout, /IBM_Plex_Sans|Fraunces\(/, "one pair: Literata and Atkinson Hyperlegible Next");
   assert.match(layout, /Literata/);
   assert.match(layout, /exam-booklet\.css/);
   assert.match(layout, /booklet-paper\.css/);

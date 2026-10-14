@@ -79,7 +79,7 @@
 .questions dl { margin: 0; border-top: 1px solid var(--rule); }
 .questions dl > div { display: grid; grid-template-columns: minmax(0, .7fr) minmax(0, 1.3fr); gap: 32px; padding: 24px 0; border-bottom: 1px solid var(--rule); }
 .questions dt { font-size: 17px; font-weight: 600; }
-.questions dd { max-width: 61ch; margin: 0; color: var(--mute); font-size: 16px; line-height: 1.55; }
+.questions dd { max-width: 58ch; margin: 0; color: var(--mute); font-size: 16px; line-height: 1.55; }
 .final { display: flex; justify-content: space-between; align-items: center; gap: 24px; padding: 32px 0 72px; border-top: 1px solid var(--rule); }
 .final p { margin: 0; font-size: clamp(29px, 3vw, 42px); font-weight: 500; letter-spacing: -.045em; }
 @media (max-width: 800px) {

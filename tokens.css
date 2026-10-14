@@ -40,7 +40,7 @@
   --font-display: var(--font-source-serif), Literata, Georgia, "Times New Roman", serif;
   --font-sans: var(--font-ledger);
   --font-editorial: var(--font-display);
-  --font-marketing-heading: var(--font-fraunces), Georgia, "Times New Roman", serif;
+  --font-marketing-heading: var(--font-source-serif), Georgia, "Times New Roman", serif;
   --font-marketing-sans: var(--font-inter), Arial, Helvetica, sans-serif;
 
   --text-caption: 0.75rem;
