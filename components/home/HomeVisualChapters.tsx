@@ -59,8 +59,8 @@ export function RevisionReturn() {
     <section className={styles.returnSection} aria-labelledby="revision-return-title">
       <div className={styles.returnInner}>
         <Reveal className={styles.returnCopy}>
-          <h2 id="revision-return-title">One answer doesn’t end the story.</h2>
-          <p>When recall is shaky, Kelus keeps the topic in view. Your next route reflects what needs another pass.</p>
+          <h2 id="revision-return-title">Tomorrow starts where you slipped.</h2>
+          <p>The lines you missed come back first, as a one-minute warm-up, before anything new. Then your next topic.</p>
         </Reveal>
         <Reveal className={styles.returnArt}>
           <ReturnIllustration />

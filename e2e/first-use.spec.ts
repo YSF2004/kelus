@@ -99,7 +99,7 @@ test("a PDF opens its first question by itself, and is still there after a refre
 test("homepage points into the real revision flow without a duplicate sample", async ({ page }) => {
   await page.goto("/");
   await expect(page.locator(".booklet-board")).toHaveCount(0);
-  await page.locator('[data-hero="product-video"]').getByRole("link", { name: "Set up" }).click();
+  await page.locator('[data-hero="product-video"]').getByRole("link", { name: "Add your notes" }).click();
   await expect(page.getByRole("heading", { name: "Start with your notes." })).toBeVisible();
 });
 

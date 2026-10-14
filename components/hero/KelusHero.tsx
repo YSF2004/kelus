@@ -22,7 +22,7 @@ export function KelusHero() {
 
         <div className={styles.actions}>
           <Link href="/today" className={styles.primary}>
-            Set up <span className={styles.primaryArrow} aria-hidden="true">→</span>
+            Add your notes <span className={styles.primaryArrow} aria-hidden="true">→</span>
           </Link>
         </div>
       </div>
@@ -42,11 +42,11 @@ export function KelusHero() {
 
       <p className={styles.worksWith}>
         <span>Works with</span>
-        <span className={styles.chip}>PDFs and slides</span>
+        <span className={styles.chip}><PackArt name="folder" size={15} />PDFs and slides</span>
         <span className={styles.chip}><BrandIcon brand="notion" size={14} />Notion</span>
         <span className={styles.chip}><BrandIcon brand="obsidian" size={14} />Obsidian</span>
         <span className={styles.chip}><BrandIcon brand="markdown" size={15} />Markdown</span>
-        <span className={styles.chip}>Pasted notes</span>
+        <span className={styles.chip}><PackArt name="list-check" size={15} />Pasted notes</span>
         <span className={styles.chip}><BrandIcon brand="anki" size={14} />Cards to Anki</span>
       </p>
     </section>

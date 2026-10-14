@@ -12,7 +12,7 @@ export function HomeFinal() {
         <p>Add your notes now. Your first question is ready in about a minute, and it’s free.</p>
       </div>
       <Link href="/today" className={styles.action}>
-        Set up <span aria-hidden="true">→</span>
+        Add your notes <span aria-hidden="true">→</span>
       </Link>
     </section>
   );

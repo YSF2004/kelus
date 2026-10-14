@@ -6,7 +6,8 @@ import { foundingPaymentConfigured, foundingPaymentLink } from "@/lib/founding";
 import { trackEvent } from "@/lib/analytics";
 import { waitlistEndpointConfigured } from "@/lib/waitlist";
 
-export function FoundingCta({ source = "pricing" }: { source?: string }) {
+/** `form: false` leaves the waitlist form out, for a page that shows it on its own below the plans. */
+export function FoundingCta({ source = "pricing", form = true }: { source?: string; form?: boolean }) {
   const paymentReady = foundingPaymentConfigured();
   const paymentLink = foundingPaymentLink();
   const syncReady = authConfigured();
@@ -36,11 +37,13 @@ export function FoundingCta({ source = "pricing" }: { source?: string }) {
     <div className="founding-cta is-reserve">
       <p className="founding-cta-status">Checkout isn’t live yet</p>
       <p className="founding-cta-note">
-        {waitlistReady
-          ? "Join the list for one launch update. Free revision stays available."
-          : "Ask us when Plus opens. Free revision stays available."}
+        {!form
+          ? "Leave your email below for one note when it opens."
+          : waitlistReady
+            ? "Join the list for one launch update. Free revision stays available."
+            : "Ask us when Plus opens. Free revision stays available."}
       </p>
-      {waitlistReady ? <WaitlistForm source={source} compact /> : (
+      {!form ? null : waitlistReady ? <WaitlistForm source={source} compact /> : (
         <a className="text-btn" href="mailto:hello@kelus.me?subject=Kelus%20Plus%20subscription">
           Ask about Kelus Plus <span aria-hidden="true">→</span>
         </a>

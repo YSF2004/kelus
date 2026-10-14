@@ -13,14 +13,14 @@ test("homepage presents the real product video followed by the illustrated revis
   assert.match(hero, /Revise your lessons/);
   assert.doesNotMatch(hero, /Try sample \(~1 min\)/);
   assert.doesNotMatch(hero, /today\?sample=1/);
-  assert.match(hero, /Set up/);
+  assert.match(hero, /Add your notes/);
   assert.doesNotMatch(hero, /Set up with your own course material/);
   assert.match(hero, /HeroProductVideo/);
   const video = readFileSync("components/hero/HeroProductVideo.tsx", "utf8");
   assert.match(video, /kelus-product-walkthrough\.webm/);
   assert.match(video, /kelus-product-walkthrough-mobile\.webm/);
-  assert.match(video, /kelus-product-walkthrough\.mp4/);
-  assert.match(video, /kelus-product-walkthrough-mobile\.mp4/);
+  // WebM only: an MP4 could not be re-encoded here, and an old recording is worse than the current poster.
+  assert.doesNotMatch(video, /\.mp4/);
   assert.match(video, /WALKTHROUGH_START_SECONDS = 4/);
   assert.doesNotMatch(video, /playbackButton/);
   assert.doesNotMatch(video, /Recorded in Kelus with a demo lecture PDF/);
@@ -73,7 +73,7 @@ test("route explainer lives on its own page", () => {
   assert.match(examples, /Computer science/);
   assert.match(examples, /History/);
   assert.doesNotMatch(story, /Choose an example course|exampleSwitcher|setExampleIndex/);
-  assert.match(story, /Not a predicted grade/);
+  assert.match(story, /not a predicted grade/i);
 });
 
 test("how-it-works illustrations explain causality without raster assets", () => {

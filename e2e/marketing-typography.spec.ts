@@ -22,9 +22,9 @@ test("How it works uses the shared Kelus canvas on desktop and mobile", async ({
 test("How it works tells one course story and actions stay green", async ({ page }) => {
   await page.goto("/route/");
   await expect(page.getByRole("group", { name: "Choose an example course" })).toHaveCount(0);
-  await expect(page.locator('figure').first()).toContainText("Lecture 4: Elasticity");
-  await expect(page.locator('figure').nth(1)).toContainText("what happens if PED is less than 1");
-  await expect(page.locator('figure').nth(2)).toContainText("Price elasticity of demand");
+  await expect(page.locator('figure').first()).toContainText("Cell Transport");
+  await expect(page.locator('figure').nth(1)).toContainText("a plant cell in a hypotonic solution");
+  await expect(page.locator('figure').nth(2)).toContainText("Osmosis");
   const setupActions = page.getByRole("link", { name: "Set up my course" });
   await expect(setupActions).toHaveCount(2);
   await expect(setupActions.first()).toHaveCSS("background-color", "rgb(31, 107, 69)");
@@ -59,7 +59,7 @@ test("editorial fonts stay on marketing headings and leave the app unchanged", a
   }
   await page.goto("/");
   await page.locator('#home-hero-title').waitFor();
-  await page.getByRole("link", { name: "Set up" }).first().click();
+  await page.getByRole("link", { name: "Add your notes" }).first().click();
   await expect(page.locator('[data-marketing]')).toHaveCount(0);
   await expect(page.locator('h1').first()).not.toHaveCSS("font-family", /Fraunces/i);
   await expect(page.locator('.site-header a').first()).toHaveCSS("font-family", /Plex/i);

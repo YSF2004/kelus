@@ -3,11 +3,12 @@ import { test, expect } from "@playwright/test";
 test("How it works owns the detailed source, recall, and route walkthrough", async ({ page }) => {
   await page.goto("/route/");
   const story = page.getByRole("region", { name: "The Kelus revision loop" });
-  await expect(story.locator("ol > li")).toHaveCount(3);
+  await expect(story.locator("ol > li")).toHaveCount(4);
   await expect(story.locator("h2")).toHaveText([
     "Start with what you were taught.",
     "Show what you can recall.",
     "See the route respond.",
+    "Keep what you learned.",
   ]);
 
   for (const width of [1440, 390]) {
@@ -23,5 +24,5 @@ test("How it works owns the detailed source, recall, and route walkthrough", asy
 test("the walkthrough remains legible when motion is reduced", async ({ page }) => {
   await page.emulateMedia({ reducedMotion: "reduce" });
   await page.goto("/route/");
-  await expect(page.getByRole("region", { name: "The Kelus revision loop" }).locator("h2")).toHaveCount(3);
+  await expect(page.getByRole("region", { name: "The Kelus revision loop" }).locator("h2")).toHaveCount(4);
 });

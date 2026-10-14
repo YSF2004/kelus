@@ -4,6 +4,7 @@ import Link from "next/link";
 import { motion, useInView, useReducedMotion } from "motion/react";
 import { useRef, useSyncExternalStore } from "react";
 import { kelusDuration, kelusEase } from "@/components/motion";
+import { BrandIcon } from "@/components/BrandIcon";
 import { PackArt } from "@/components/PackArt";
 import styles from "./how/HowItWorks.module.css";
 import sheets from "./how/HowSheets.module.css";
@@ -23,12 +24,12 @@ function useRows(visible: boolean, reduceMotion: boolean) {
 
 function SourceVisual({ visible, reduceMotion }: VisualProps) {
   const row = useRows(visible, reduceMotion);
-  const topics = [["Price elasticity of demand", "Page 3"], ["Determinants of elasticity", "Page 4"], ["Income elasticity of demand", "Page 5"], ["Cross-price elasticity", "Page 6"]] as const;
+  const topics = [["Diffusion", "Page 1"], ["Osmosis", "Page 2"], ["Active transport", "Page 3"]] as const;
   return (
     <figure className={`${styles.visual} ${styles.sourceVisual}`}>
       <div className={styles.art}>
         <div className={sheets.sheet} aria-hidden="true">
-          <p className={sheets.kicker}>Lecture 4: Elasticity · 7 pages</p>
+          <p className={sheets.kicker}>Biology · Cell Transport · 3 pages</p>
           <ul className={sheets.rows}>
             {topics.map(([name, page], index) => (
               <motion.li key={name} {...row(index)}><strong>{name}</strong><span>{page}</span></motion.li>
@@ -36,7 +37,7 @@ function SourceVisual({ visible, reduceMotion }: VisualProps) {
           </ul>
         </div>
       </div>
-      <figcaption className={styles.visualCaption}><span>From your material</span><strong>Four topics, each linked to its page.</strong><small>Rename or remove any of them; nothing to fill in first.</small></figcaption>
+      <figcaption className={styles.visualCaption}><span>From your material</span><strong>Three topics, each linked to its page.</strong><small>Rename or remove any of them; nothing to fill in first.</small></figcaption>
     </figure>
   );
 }
@@ -47,10 +48,10 @@ function RecallVisual({ visible, reduceMotion }: VisualProps) {
     <figure className={`${styles.visual} ${styles.recallVisual}`}>
       <div className={styles.art}>
         <div className={sheets.sheet} aria-hidden="true">
-          <p className={sheets.question}>According to your notes, what happens if PED is less than 1?</p>
-          <motion.p {...row(0)} className={`${sheets.choice} ${sheets.wrong}`}><i>×</i><s>Demand is elastic: quantity falls by more than price rises</s></motion.p>
-          <motion.p {...row(1)} className={`${sheets.choice} ${sheets.right}`}><i>✓</i>Demand is inelastic: total revenue rises when price rises</motion.p>
-          <motion.p {...row(2)} className={sheets.source}>That answer belongs to another line in your notes: “If PED is greater than 1, demand is elastic.”</motion.p>
+          <p className={sheets.question}>According to your notes, what happens to a plant cell in a hypotonic solution?</p>
+          <motion.p {...row(0)} className={`${sheets.choice} ${sheets.wrong}`}><i>×</i><s>It loses water and the membrane pulls away from the wall</s></motion.p>
+          <motion.p {...row(1)} className={`${sheets.choice} ${sheets.right}`}><i>✓</i>It gains water and becomes turgid</motion.p>
+          <motion.p {...row(2)} className={sheets.source}>That answer belongs to another line in your notes: “In a hypertonic solution the cell loses water.”</motion.p>
         </div>
       </div>
       <figcaption className={styles.visualCaption}><span>From memory</span><strong>Three quick checks, then your own words.</strong><small>A wrong pick shows the line it came from, so the mix-up is clear.</small></figcaption>
@@ -65,11 +66,11 @@ function RerouteVisual({ visible, reduceMotion }: VisualProps) {
       <div className={styles.art}>
         <div className={sheets.sheet} aria-hidden="true">
           <p className={sheets.kicker}>Up next</p>
-          <p className={sheets.title}>Price elasticity of demand</p>
-          <p className={sheets.why}>Last time, 3 days ago, it needed another attempt. Determinants of elasticity builds on it.</p>
+          <p className={sheets.title}>Osmosis</p>
+          <p className={sheets.why}>Last time, 3 days ago, it came out partly right. Active transport builds on it.</p>
           <ul className={sheets.rows}>
-            <motion.li {...row(0)}><strong>Determinants of elasticity</strong><span>New</span></motion.li>
-            <motion.li {...row(1)}><strong>Income elasticity of demand</strong><span>Solid · in 5 days</span></motion.li>
+            <motion.li {...row(0)}><strong>Active transport</strong><span>New</span></motion.li>
+            <motion.li {...row(1)}><strong>Diffusion</strong><span>Solid · in 5 days</span></motion.li>
           </ul>
         </div>
       </div>
@@ -82,10 +83,31 @@ function RerouteVisual({ visible, reduceMotion }: VisualProps) {
   );
 }
 
+function KeepVisual({ visible, reduceMotion }: VisualProps) {
+  const row = useRows(visible, reduceMotion);
+  return (
+    <figure className={`${styles.visual} ${styles.rerouteVisual}`}>
+      <div className={styles.art}>
+        <div className={sheets.sheet} aria-hidden="true">
+          <p className={sheets.title}>Block done.</p>
+          <ul className={sheets.rows}>
+            <motion.li {...row(0)}><strong>Diffusion</strong><span className={sheets.good}>Knew it</span></motion.li>
+            <motion.li {...row(1)}><strong>Osmosis</strong><span>Partly there</span></motion.li>
+          </ul>
+          <motion.p {...row(2)} className={sheets.why}>Tomorrow starts with a 1-minute warm-up on the 2 lines you missed.</motion.p>
+          <motion.p {...row(3)} className={sheets.anki}><BrandIcon brand="anki" size={16} />Export every question to Anki</motion.p>
+        </div>
+      </div>
+      <figcaption className={styles.visualCaption}><span>At the end</span><strong>What you practised, and what comes back.</strong><small>Your cards go to Anki too, with the line from your notes on the back.</small></figcaption>
+    </figure>
+  );
+}
+
 const stages = [
   { number: "01", cue: "Source", icon: "folder", title: "Start with what you were taught.", body: "Add a lecture PDF, slides, notes or a Notion export. Kelus finds the topics and links each one back to its page. Rename or remove any topic, any time.", Visual: SourceVisual, tone: "source" },
   { number: "02", cue: "Recall", icon: "clipboard-check", title: "Show what you can recall.", body: "Each topic is three quick checks written from your own lines, then one explanation in your own words. Kelus lays it beside the page and shows what you left out, or said the wrong way round.", Visual: RecallVisual, tone: "recall" },
   { number: "03", cue: "Route", icon: "diagram-project", title: "See the route respond.", body: "A weak answer brings a topic forward; a stronger one gives it room. The next session starts from what actually happened, not a fixed schedule.", Visual: RerouteVisual, tone: "route" },
+  { number: "04", cue: "Keep", icon: "award", title: "Keep what you learned.", body: "Each block ends on what you practised and what comes back. The lines you missed open tomorrow as a one-minute warm-up, and every question can go to Anki.", Visual: KeepVisual, tone: "route" },
 ] as const;
 
 function Chapter({ stage, reduceMotion }: { stage: (typeof stages)[number]; reduceMotion: boolean }) {
@@ -114,9 +136,7 @@ export function HowItWorks() {
   const hydrated = useSyncExternalStore(() => () => {}, () => true, () => false);
   const motionPreference = useReducedMotion();
   const reduceMotion = !hydrated || motionPreference === true;
-  const principleRef = useRef<HTMLElement>(null);
   const finalRef = useRef<HTMLElement>(null);
-  const principleVisible = useInView(principleRef, { once: true, margin: "-12% 0px -12%" });
   const finalVisible = useInView(finalRef, { once: true, margin: "-12% 0px -12%" });
   // Keep the heading id explicit for route-surface contract checks.
   // <h1 id="how-title"/>
@@ -140,27 +160,12 @@ export function HowItWorks() {
           {stages.map((stage) => <Chapter key={stage.number} stage={stage} reduceMotion={reduceMotion} />)}
         </ol>
       </section>
-      <motion.section ref={principleRef} className={styles.principle} aria-labelledby="how-principle-title" initial={reduceMotion ? false : { opacity: 0, y: 18 }} animate={principleVisible ? { opacity: 1, y: 0 } : undefined} transition={{ duration: 0.6, ease: kelusEase }}>
-        <div className={styles.principleHeading}>
-          <p className={styles.eyebrow}>What Kelus does—and doesn’t do</p>
-          <h2 id="how-principle-title">A route to practise.<br />Not a predicted grade.</h2>
-        </div>
-        <div className={styles.principleAside}>
-          <div className={`${styles.principleArt} ${sheets.principle}`} aria-hidden="true">
-            <div className={sheets.sheet}>
-              <p className={sheets.title}>Needs another attempt.</p>
-              <p className={sheets.why}>0 of 3 checks right and 3 of 5 key ideas in your explanation, so it comes back tomorrow.</p>
-            </div>
-          </div>
-          <p>Kelus uses your course material, exam date, and practice answers to choose what to revisit. Readiness is an estimate from that evidence, not a promise about your exam result.</p>
-        </div>
-      </motion.section>
       <section className={styles.questions} aria-labelledby="how-questions-title">
         <h2 id="how-questions-title">Before you begin</h2>
         <dl>
           <div><dt>What can I add?</dt><dd>A lecture PDF, slides, notes, a Notion export, or pasted text. Kelus finds the topics; you can rename or remove any of them.</dd></div>
           <div><dt>Do I need an account?</dt><dd>No. You can start revising for free on this device. Sign-in is optional when sync is available.</dd></div>
-          <div><dt>Will Kelus predict my exam grade?</dt><dd>No. It uses your practice answers to suggest what to review next. Readiness is an estimate, not an exam prediction.</dd></div>
+          <div><dt>Will Kelus predict my exam grade?</dt><dd>No. It gives you a route to practise, not a predicted grade: what to review next, from your own answers. Readiness is an estimate from that evidence, never a promise about your result.</dd></div>
         </dl>
       </section>
       <motion.footer ref={finalRef} className={styles.final} initial={reduceMotion ? false : { opacity: 0, y: 14 }} animate={finalVisible ? { opacity: 1, y: 0 } : undefined} transition={{ duration: 0.55, ease: kelusEase }}>
