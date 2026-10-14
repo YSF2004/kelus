@@ -23,6 +23,20 @@
 
 .copy p { margin: 0; color: #6b6f68; font-size: 1rem; line-height: 1.55; }
 
+.facts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px 22px;
+  margin: 16px 0 0;
+  padding: 0;
+  list-style: none;
+  color: #191a18;
+  font-size: 0.875rem;
+  line-height: 1.45;
+}
+.facts li { display: inline-flex; align-items: flex-start; gap: 8px; }
+.facts img { flex: none; margin-top: 2px; }
+
 .action {
   display: inline-flex;
   align-items: center;

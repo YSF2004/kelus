@@ -38,7 +38,7 @@ export function FoundingCta({ source = "pricing", form = true }: { source?: stri
       <p className="founding-cta-status">Checkout isn’t live yet</p>
       <p className="founding-cta-note">
         {!form
-          ? "Leave your email below for one note when it opens."
+          ? "No date yet: it opens once sync is built and tested. Leave your email below for one note when it does."
           : waitlistReady
             ? "Join the list for one launch update. Free revision stays available."
             : "Ask us when Plus opens. Free revision stays available."}

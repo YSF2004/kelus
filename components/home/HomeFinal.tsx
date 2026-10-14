@@ -10,6 +10,12 @@ export function HomeFinal() {
       <div className={styles.copy}>
         <h2 id="home-final-title">Your exam, one topic at a time.</h2>
         <p>Add your notes now. Your first question is ready in about a minute, and it’s free.</p>
+        {/* Facts we have checked ourselves, not testimonials: Kelus has no student results to quote yet. */}
+        <ul className={styles.facts} aria-label="What we have checked">
+          <li><PackArt name="check" size={16} />Tested on real course layouts: slides, textbook chapters, two-column handouts, notes in French</li>
+          <li><PackArt name="check" size={16} />No account needed; your notes stay on your device</li>
+          <li><PackArt name="check" size={16} />Free, with no trial that runs out</li>
+        </ul>
       </div>
       <Link href="/today" className={styles.action}>
         Add your notes <span aria-hidden="true">→</span>

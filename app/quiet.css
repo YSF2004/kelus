@@ -343,8 +343,9 @@ html body .pricing-page .pricing-faq dt { color: var(--q-ink); font-weight: 600;
 html body .pricing-page .pricing-faq dd { margin: 0; color: var(--q-text-2); line-height: 1.5; }
 @media (max-width: 640px) { html body .pricing-page .pricing-faq dl > div { grid-template-columns: minmax(0, 1fr); } }
 
-/* The two plans end together: the Free button sits at the bottom of its sheet. */
-html body .pricing-page.is-monthly-pricing .pricing-offer.is-free > .cta { margin-top: auto; }
+/* Each plan is as tall as what it says: no empty band above Free's button. */
+html body .pricing-page.is-monthly-pricing .pricing-grid { align-items: start !important; }
+html body .pricing-page.is-monthly-pricing .pricing-grid .pricing-offer { height: auto !important; }
 /* "Hear when Plus opens": the waitlist on its own row under both plans, email and button side by side. */
 html body .pricing-page .pricing-notify {
   display: grid;
