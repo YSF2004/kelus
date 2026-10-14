@@ -413,3 +413,15 @@ html body .pricing-page.is-monthly-pricing .pricing-price {
 /* Legal and help pages read at a book measure. */
 html body .legal-panel :is(p, li, dd) { max-width: 36em; }
 html body.is-course-studio .material-shelf-count { margin-left: 6px; color: var(--q-text-2); font-size: 0.8125rem; font-weight: 400; letter-spacing: 0; }
+
+/* ── A plain zero ───────────────────────────────────────────────────────────────────────────────────
+   Atkinson Hyperlegible Next draws 0 with a slash ("Ø of 3"). One glyph, the zero only, comes from Public Sans (OFL,
+   self-hosted, 1.7 KB) and sits in front of Atkinson; every other character is still Atkinson. */
+@font-face {
+  font-family: "Kelus Zero";
+  src: url("/fonts/kelus-zero.woff2") format("woff2");
+  font-weight: 300 800;
+  font-display: swap;
+  unicode-range: U+0030;
+}
+html body.is-booklet-system { --font-inter: "Kelus Zero", "Atkinson Hyperlegible Next", "Atkinson Hyperlegible Next Fallback", system-ui, sans-serif; }
