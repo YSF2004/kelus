@@ -43,9 +43,11 @@ function lecturePdf() {
 
 const browser = await chromium.launch({ headless: true });
 const context = await browser.newContext({
-  viewport: mobile ? { width: 390, height: 844 } : { width: 1280, height: 800 },
+  // Desktop is recorded in a 1024×640 window (same 8:5 shape as before): the product fills more of the frame, so the
+  // hero shows the interface, not a white page with a small column in it.
+  viewport: mobile ? { width: 390, height: 844 } : { width: 1024, height: 640 },
   deviceScaleFactor: 1,
-  recordVideo: { dir: "/private/tmp/kelus-product-capture", size: mobile ? { width: 390, height: 844 } : { width: 1280, height: 800 } },
+  recordVideo: { dir: "/private/tmp/kelus-product-capture", size: mobile ? { width: 390, height: 844 } : { width: 1024, height: 640 } },
   // Real motion: the K writing itself and carrying into the ready screen is part of what the video shows.
   reducedMotion: "no-preference",
 });

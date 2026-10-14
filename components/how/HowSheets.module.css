@@ -61,3 +61,7 @@
 .source { color: #6b6f68; font-size: 0.8125rem; line-height: 1.5; }
 
 .principle { background: #f3f3f1 !important; }
+
+.good { color: #1f6b45 !important; font-weight: 600; }
+.anki svg { width: 16px !important; height: 16px !important; }
+.anki { display: inline-flex; align-items: center; gap: 8px; color: #191a18; font-size: 0.8125rem; font-weight: 500; }

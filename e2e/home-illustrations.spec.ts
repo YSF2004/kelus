@@ -41,12 +41,12 @@ test("reduced motion shows every step finished at once", async ({ page }) => {
   await expect(page.getByRole("img", { name: "A student revising at a desk" })).toBeVisible();
 });
 
-test("How it works uses the same small icons without changing its three-step flow", async ({ page }, testInfo) => {
+test("How it works uses the same small icons with its four-step flow", async ({ page }, testInfo) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto("/route/");
   const chapters = page.getByRole("region", { name: "The Kelus revision loop" }).locator("ol > li");
-  await expect(chapters).toHaveCount(3);
-  await expect(chapters.locator('img[src^="/art/notion-pack/icon-"]')).toHaveCount(3);
+  await expect(chapters).toHaveCount(4);
+  await expect(chapters.locator('img[src^="/art/notion-pack/icon-"]')).toHaveCount(4);
   for (const icon of await chapters.locator('img[src^="/art/notion-pack/icon-"]').all()) {
     await expect(icon).toHaveAttribute("alt", "");
   }

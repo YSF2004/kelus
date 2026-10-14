@@ -27,7 +27,7 @@ test("homepage explains the revision loop without the duplicate sample board", a
 test("How it works keeps the steps without a redundant course chooser", async ({ page }) => {
   await page.goto("/route/");
   await expect(page.getByRole("group", { name: "Choose an example course" })).toHaveCount(0);
-  await expect(page.locator('section[class*="story"] ol > li')).toHaveCount(3);
+  await expect(page.locator('section[class*="story"] ol > li')).toHaveCount(4);
   await expect(page.getByRole("tablist")).toHaveCount(0);
 });
 

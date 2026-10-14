@@ -3,6 +3,7 @@ import Link from "next/link";
 import { PackArt } from "@/components/PackArt";
 import { SiteFooter } from "@/components/SiteFooter";
 import { FoundingCta } from "@/components/FoundingCta";
+import { WaitlistForm } from "@/components/WaitlistForm";
 import { PricingViewTracker } from "@/components/PricingViewTracker";
 import { authConfigured } from "@/lib/auth-config";
 import { foundingPaymentConfigured } from "@/lib/founding";
@@ -32,8 +33,8 @@ export default function PricingPage() {
     <main id="main">
       <PricingViewTracker />
       <section className="legal-panel pricing-booklet">
-        {/* From the Kelus illustration pack. */}
-        <PackArt name="target" className="pricing-hero-art" size={170} />
+        {/* From the Kelus illustration pack: monthly, cancel any time, no trial that runs out. */}
+        <PackArt name="time-flies" className="pricing-hero-art" size={190} />
         <p className="kicker">Pricing</p>
         <h1>Start revising. Stay in control.</h1>
         <p className="legal-lede">
@@ -50,7 +51,7 @@ export default function PricingPage() {
                 <div className="pricing-plan-name"><h2 className="kicker"><PackArt name="check" className="pricing-plan-icon" size={20} />Free</h2><span className="pricing-availability">Available now</span></div>
                 <p className="pricing-price">$0<span>/month</span></p>
               </div>
-              <p className="pricing-offer-lede">Everything you need to start a real revision session.</p>
+              <p className="pricing-offer-lede">Everything in Kelus today, with no limits.</p>
               <ul>
                 <li>Add your PDFs, slides or notes</li>
                 <li>Questions written from your own lines</li>
@@ -73,19 +74,26 @@ export default function PricingPage() {
                   $4.99<span>/month</span>
                 </p>
               </div>
-              <p className="pricing-offer-lede">For students who want deeper feedback and more room for their courses.</p>
+              <p className="pricing-offer-lede">Planned, not built yet. What we’re making for it:</p>
               <ul>
                 <li>Everything in Free{syncReady ? ", including optional sign-in sync" : ""}</li>
-                <li>Room for more courses and longer PDFs</li>
-                <li>Deeper feedback on your explanations</li>
-                <li>Early access to new revision features</li>
-                <li>Direct email support while subscribed</li>
-                <li>Monthly billing; no annual commitment</li>
+                <li>Your courses on every device, kept in sync</li>
+                <li>Clearer reading of scanned and handwritten pages</li>
+                <li>Several courses side by side for exam season</li>
+                <li>Email support from a person, within a day</li>
+                <li>Monthly; cancel any time</li>
               </ul>
-              <FoundingCta source="pricing" />
+              <FoundingCta source="pricing" form={false} />
             </article>
           </PricingPlanMotion>
         </div>
+
+        {paymentReady ? null : (
+          <section className="pricing-notify" aria-labelledby="pricing-notify-title">
+            <h2 id="pricing-notify-title">Hear when Plus opens</h2>
+            <WaitlistForm source="pricing" compact />
+          </section>
+        )}
 
         <section className="pricing-faq" aria-labelledby="pricing-faq-title">
           <h2 id="pricing-faq-title">Good to know</h2>

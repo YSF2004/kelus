@@ -4,8 +4,8 @@ test("How it works shows the plan saying why, from the student's own last answer
   await page.goto("/route/");
   const route = page.locator("figure").nth(2);
   await route.scrollIntoViewIfNeeded();
-  await expect(route).toContainText("Price elasticity of demand");
-  await expect(route).toContainText("Last time, 3 days ago, it needed another attempt.");
+  await expect(route).toContainText("Osmosis");
+  await expect(route).toContainText("Last time, 3 days ago, it came out partly right.");
   await expect(page.getByRole("button", { name: "Replay how the study route changes" })).toHaveCount(0);
 });
 

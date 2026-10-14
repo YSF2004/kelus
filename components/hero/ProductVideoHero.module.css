@@ -110,7 +110,15 @@
   from { opacity: 0; transform: translateY(14px); }
   to { opacity: 1; transform: none; }
 }
-@media (max-width: 1360px) { .climber { display: none; } }
+/* Without room beside the window, the climber stands on its top-right corner instead, smaller. */
+@media (max-width: 1360px) {
+  .climber { left: auto; right: 18px; bottom: auto; top: -74px; width: 92px; }
+  .visual { margin-top: 72px; }
+}
+@media (max-width: 640px) {
+  .climber { right: 10px; top: -60px; width: 76px; }
+  .visual { margin-top: 64px !important; }
+}
 
 /* What a student can bring, by name and by the marks they know. */
 .worksWith {

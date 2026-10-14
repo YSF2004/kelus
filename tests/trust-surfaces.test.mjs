@@ -186,7 +186,7 @@ test("primary CTA language and readiness stay consistent", async () => {
   ]);
   assert.doesNotMatch(hero, /Try sample \(~1 min\)/);
   assert.doesNotMatch(hero, /today\?sample=1/);
-  assert.match(hero, /Set up/);
+  assert.match(hero, /Add your notes/);
   assert.doesNotMatch(hero, /home-brand/);
   assert.doesNotMatch(hero, /hero-window-controls/);
   assert.doesNotMatch(header, /Try sample/);
@@ -226,7 +226,10 @@ test("pricing conversion loop is linked from product surfaces", async () => {
   assert.match(pricing, /\/month/);
   assert.match(pricing, /FoundingCta|WaitlistForm/);
   assert.match(pricing, /Optional free sign-in to sync across devices/);
-  assert.match(pricing, /Room for more courses and longer PDFs/);
+  // Plus says it is planned, and names concrete things rather than "deeper feedback".
+  assert.match(pricing, /Planned, not built yet/);
+  assert.match(pricing, /Your courses on every device, kept in sync/);
+  assert.doesNotMatch(pricing, /richer answer feedback|Priority access/);
   assert.doesNotMatch(pricing, /Cross-device course and learning-state sync/);
   assert.match(footer, /\/pricing/);
   assert.match(sitemap, /\/pricing\//);

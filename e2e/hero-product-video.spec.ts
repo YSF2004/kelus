@@ -8,7 +8,7 @@ test("the homepage shows a recording of the real product at desktop and phone si
     await page.goto("/");
     const hero = page.locator('[data-hero="product-video"]');
     await expect(hero.locator("h1")).toHaveText("Revise your lessons. Walk into the exam ready.");
-    await expect(hero.getByRole("link", { name: "Set up" })).toHaveAttribute("href", /^\/today\/?$/);
+    await expect(hero.getByRole("link", { name: "Add your notes" })).toHaveAttribute("href", /^\/today\/?$/);
     await expect(hero.locator("figcaption")).toHaveCount(0);
     await expect(hero.locator("video:visible")).toHaveAttribute("poster", /kelus-product-poster/);
     await expect(hero.locator("video:visible source").first()).toHaveAttribute("src", /kelus-product-walkthrough.*\.webm/);
@@ -38,7 +38,7 @@ test("the recording autoplays without a control bar or caption, and can be pause
   await expect.poll(() => video.evaluate((element: HTMLVideoElement) => element.paused)).toBe(true);
   await page.getByRole("button", { name: "Play product walkthrough" }).click();
   await expect.poll(() => video.evaluate((element: HTMLVideoElement) => element.paused)).toBe(false);
-  await page.locator('[data-hero="product-video"]').getByRole("link", { name: "Set up" }).click();
+  await page.locator('[data-hero="product-video"]').getByRole("link", { name: "Add your notes" }).click();
   await expect(page.getByRole("heading", { name: "Start with your notes." })).toBeVisible();
 });
 
