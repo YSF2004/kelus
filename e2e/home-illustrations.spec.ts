@@ -1,18 +1,16 @@
 import { expect, test } from "@playwright/test";
 
-test("the four study scenes and student illustration fit on mobile", async ({ page }, testInfo) => {
+test("the four steps and the student illustration fit on mobile", async ({ page }, testInfo) => {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto("/");
 
-  const chapters = page.locator("[data-revision-step]");
-  await expect(chapters).toHaveCount(4);
-  await expect(chapters.locator('img[src^="/art/notion-pack/icon-"]')).toHaveCount(4);
-  for (const chapter of await chapters.all()) {
-    await chapter.scrollIntoViewIfNeeded();
-    await expect(chapter.locator("svg")).toBeVisible();
-    await expect(chapter.locator('img[src^="/art/notion-pack/icon-"]')).toBeVisible();
+  const steps = page.locator("[data-revision-step]");
+  await expect(steps).toHaveCount(4);
+  for (const step of await steps.all()) {
+    await step.scrollIntoViewIfNeeded();
+    await expect(step).toBeVisible();
   }
-  await chapters.first().screenshot({ path: testInfo.outputPath("study-scene-mobile.png"), animations: "disabled" });
+  await steps.first().screenshot({ path: testInfo.outputPath("follow-through-mobile.png"), animations: "disabled" });
 
   const studying = page.locator("section").filter({ has: page.getByRole("heading", { name: "The studying happens here." }) });
   await studying.scrollIntoViewIfNeeded();
@@ -21,27 +19,25 @@ test("the four study scenes and student illustration fit on mobile", async ({ pa
   expect(await page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth)).toBe(false);
 });
 
-test("home tells the notes → recall → feedback → route story", async ({ page }, testInfo) => {
+test("home follows one line: notes → question → your words checked → the plan moves", async ({ page }) => {
   await page.goto("/");
   const steps = page.locator("[data-revision-step]");
-  await expect(steps.locator("h3")).toHaveText([
-    "Start with your material.",
-    "Try it from memory.",
-    "Check what held up.",
-    "See the route change.",
-  ]);
-  for (const step of await steps.all()) {
-    await step.scrollIntoViewIfNeeded();
-    await expect(step.locator("svg")).toBeVisible();
-  }
-  await steps.nth(2).screenshot({ path: testInfo.outputPath("feedback-scene-desktop.png"), animations: "disabled" });
+  await expect(steps.locator("h3")).toHaveText([/Your notes/, /A question from that line/, /Your words, checked/, /Your plan moves/]);
+  await steps.last().scrollIntoViewIfNeeded();
+  // The same features the product has: a quoted line, a blank from it, the direction check, a plan that reorders.
+  await expect(steps.nth(0)).toContainText("partially permeable membrane");
+  await expect(steps.nth(1)).toContainText("concentrated");
+  await expect(steps.nth(2)).toContainText("Check the direction");
+  await expect(steps.nth(3).getByRole("list", { name: "Your plan after this answer" }).locator("li").first()).toContainText("Osmosis");
   await expect(page.getByRole("img", { name: "A student revising at a desk" })).toBeVisible();
 });
 
-test("reduced motion keeps the illustrated sequence visible", async ({ page }) => {
+test("reduced motion shows every step finished at once", async ({ page }) => {
   await page.emulateMedia({ reducedMotion: "reduce" });
   await page.goto("/");
-  await expect(page.locator("[data-revision-step] svg")).toHaveCount(4);
+  const steps = page.locator("[data-revision-step]");
+  await expect(steps).toHaveCount(4);
+  for (const step of await steps.all()) await expect(step).toHaveCSS("opacity", "1");
   await expect(page.getByRole("img", { name: "A student revising at a desk" })).toBeVisible();
 });
 
