@@ -124,6 +124,10 @@ export function HowItWorks() {
   return (
     <div className={styles.page}>
       <section className={styles.hero} aria-labelledby="how-title">
+        {/* From the Kelus illustration pack: someone at a laptop, the way a revision session looks from outside. */}
+        <motion.span className={styles.heroArt} aria-hidden="true" initial={reduceMotion ? false : { opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: reduceMotion ? 0 : 0.2, duration: 0.6, ease: kelusEase }}>
+          <PackArt name="on-the-laptop" size={300} />
+        </motion.span>
         <motion.p className={styles.eyebrow} initial={reduceMotion ? false : { opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.45, ease: kelusEase }}>How Kelus works</motion.p>
         <motion.h1 id="how-title" initial={reduceMotion ? false : { opacity: 0, y: 16, scale: 0.98 }} animate={{ opacity: 1, y: 0, scale: 1 }} transition={{ delay: reduceMotion ? 0 : 0.06, duration: 0.65, ease: kelusEase }}>Your lessons become <br />a better revision habit.</motion.h1>
         <motion.div className={styles.heroBottom} initial={reduceMotion ? false : { opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: reduceMotion ? 0 : 0.14, duration: 0.5, ease: kelusEase }}>

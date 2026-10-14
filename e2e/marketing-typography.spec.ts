@@ -4,7 +4,7 @@ test("homepage uses editorial type around the real product recording", async ({ 
   await page.goto("/");
   const hero = page.locator('[data-hero="product-video"]');
   await expect(hero.locator("h1")).toHaveCSS("font-family", /Fraunces/i);
-  await expect(hero.locator("p")).toHaveCSS("font-family", /Inter/i);
+  await expect(hero.locator("p").first()).toHaveCSS("font-family", /Inter/i);
   await expect(hero.locator("figcaption")).toHaveCount(0);
   await expect(hero.locator("video:visible")).not.toHaveAttribute("controls", "");
 });

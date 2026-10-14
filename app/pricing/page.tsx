@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { PackArt } from "@/components/PackArt";
 import { SiteFooter } from "@/components/SiteFooter";
 import { FoundingCta } from "@/components/FoundingCta";
 import { PricingViewTracker } from "@/components/PricingViewTracker";
@@ -31,6 +32,8 @@ export default function PricingPage() {
     <main id="main">
       <PricingViewTracker />
       <section className="legal-panel pricing-booklet">
+        {/* From the Kelus illustration pack. */}
+        <PackArt name="target" className="pricing-hero-art" size={170} />
         <p className="kicker">Pricing</p>
         <h1>Start revising. Stay in control.</h1>
         <p className="legal-lede">
@@ -44,14 +47,15 @@ export default function PricingPage() {
           <PricingPlanMotion>
             <article className="pricing-offer is-free pricing-plan">
               <div className="pricing-offer-head">
-                <div className="pricing-plan-name"><h2 className="kicker">Free</h2><span className="pricing-availability">Available now</span></div>
+                <div className="pricing-plan-name"><h2 className="kicker"><PackArt name="check" className="pricing-plan-icon" size={20} />Free</h2><span className="pricing-availability">Available now</span></div>
                 <p className="pricing-price">$0<span>/month</span></p>
               </div>
               <p className="pricing-offer-lede">Everything you need to start a real revision session.</p>
               <ul>
-                <li>Add a course and exam date</li>
-                <li>Follow a plan shaped by your answers</li>
-                <li>Recall, apply, and check your work</li>
+                <li>Add your PDFs, slides or notes</li>
+                <li>Questions written from your own lines</li>
+                <li>A plan that moves with your answers</li>
+                <li>Export every question to Anki</li>
                 <li>No account required</li>
                 {syncReady ? <li>Optional free sign-in to sync across devices</li> : <li>Saved on this device</li>}
               </ul>
@@ -64,7 +68,7 @@ export default function PricingPage() {
           <PricingPlanMotion>
             <article className={`pricing-offer is-pass pricing-plan is-founding${paymentReady ? "" : " is-upcoming"}`}>
               <div className="pricing-offer-head">
-                <div className="pricing-plan-name"><h2 className="kicker">Kelus Plus</h2><span className="pricing-availability">{paymentReady ? "Available now" : "Coming soon"}</span></div>
+                <div className="pricing-plan-name"><h2 className="kicker"><PackArt name="award" className="pricing-plan-icon" size={20} />Kelus Plus</h2><span className="pricing-availability">{paymentReady ? "Available now" : "Coming soon"}</span></div>
                 <p className="pricing-price">
                   $4.99<span>/month</span>
                 </p>
@@ -72,8 +76,9 @@ export default function PricingPage() {
               <p className="pricing-offer-lede">For students who want deeper feedback and more room for their courses.</p>
               <ul>
                 <li>Everything in Free{syncReady ? ", including optional sign-in sync" : ""}</li>
-                <li>More course space and richer answer feedback</li>
-                <li>Priority access to new revision features</li>
+                <li>Room for more courses and longer PDFs</li>
+                <li>Deeper feedback on your explanations</li>
+                <li>Early access to new revision features</li>
                 <li>Direct email support while subscribed</li>
                 <li>Monthly billing; no annual commitment</li>
               </ul>
@@ -81,6 +86,15 @@ export default function PricingPage() {
             </article>
           </PricingPlanMotion>
         </div>
+
+        <section className="pricing-faq" aria-labelledby="pricing-faq-title">
+          <h2 id="pricing-faq-title">Good to know</h2>
+          <dl>
+            <div><dt>Is Free really free?</dt><dd>Yes. No card, no account, and no trial that runs out.</dd></div>
+            <div><dt>What changes when Plus opens?</dt><dd>Nothing for Free. You choose whether to switch, and we email the waitlist once.</dd></div>
+            <div><dt>Where is my work kept?</dt><dd>On this device. Sign in only if you want it on another browser too.</dd></div>
+          </dl>
+        </section>
 
         <p className="legal-inline-links">
           Questions? <a href="mailto:hello@kelus.me">hello@kelus.me</a>
