@@ -2,7 +2,7 @@
 .section {
   --ink: #191a18;
   --text-2: #6b6f68;
-  --text-3: #9a9e96;
+  --text-3: #70746c;
   --line: #e6e5e1;
   --green: #1f6b45;
   --marigold: #f3d27a;
@@ -136,21 +136,20 @@
 }
 
 .blank {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  min-height: 40px;
-  padding: 0 12px;
-  border: 1px solid var(--green);
-  border-radius: 8px;
-  background: #f3f8f5;
+  display: inline-block;
+  min-width: 7.5em;
+  border-bottom: 2px solid var(--green);
   color: var(--green);
-  font-size: 0.9375rem;
-  font-weight: 600;
+  line-height: 1.25;
 }
 
-.blank i {
-  font-style: normal;
+.right {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--green);
+  font-size: 0.8125rem;
+  font-weight: 600;
 }
 
 /* 3 · the student's words, with the opposite caught */

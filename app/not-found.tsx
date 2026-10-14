@@ -6,7 +6,6 @@ export default function NotFound() {
   return (
     <main id="main" className="legal-page">
       <section className="legal-panel">
-        <p className="kicker">Page not found</p>
         <h1>This page isn’t here.</h1>
         <p className="legal-lede">The link may be old or mistyped. Your notes and your study plan are still saved on this device.</p>
         <p className="legal-inline-links">

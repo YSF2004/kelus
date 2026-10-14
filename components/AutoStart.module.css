@@ -101,7 +101,7 @@
 
 .course {
   margin: 0;
-  color: var(--q-text-3, #9a9e96);
+  color: var(--q-text-3, #70746c);
   font-size: var(--text-body-sm);
   font-weight: 500;
 }
@@ -115,7 +115,7 @@
 }
 
 .after > span {
-  color: var(--q-text-3, #9a9e96);
+  color: var(--q-text-3, #70746c);
   font-size: var(--text-body-sm);
 }
 

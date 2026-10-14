@@ -5,6 +5,7 @@ import { motion, useInView, useReducedMotion } from "motion/react";
 import { useRef, useSyncExternalStore } from "react";
 import { kelusDuration, kelusEase } from "@/components/motion";
 import { BrandIcon } from "@/components/BrandIcon";
+import { Cross, Tick } from "@/components/Marks";
 import { PackArt } from "@/components/PackArt";
 import styles from "./how/HowItWorks.module.css";
 import sheets from "./how/HowSheets.module.css";
@@ -49,8 +50,8 @@ function RecallVisual({ visible, reduceMotion }: VisualProps) {
       <div className={styles.art}>
         <div className={sheets.sheet} aria-hidden="true">
           <p className={sheets.question}>According to your notes, what happens to a plant cell in a hypotonic solution?</p>
-          <motion.p {...row(0)} className={`${sheets.choice} ${sheets.wrong}`}><i>×</i><s>It loses water and the membrane pulls away from the wall</s></motion.p>
-          <motion.p {...row(1)} className={`${sheets.choice} ${sheets.right}`}><i>✓</i>It gains water and becomes turgid</motion.p>
+          <motion.p {...row(0)} className={`${sheets.choice} ${sheets.wrong}`}><i><Cross size={12} /></i><s>It loses water and the membrane pulls away from the wall</s></motion.p>
+          <motion.p {...row(1)} className={`${sheets.choice} ${sheets.right}`}><i><Tick size={12} /></i>It gains water and becomes turgid</motion.p>
           <motion.p {...row(2)} className={sheets.source}>That answer belongs to another line in your notes: “In a hypertonic solution the cell loses water.”</motion.p>
         </div>
       </div>
@@ -113,21 +114,18 @@ const stages = [
 function Chapter({ stage, reduceMotion }: { stage: (typeof stages)[number]; reduceMotion: boolean }) {
   const chapterRef = useRef<HTMLLIElement>(null);
   const visible = useInView(chapterRef, { once: true, margin: "-12% 0px -12%" });
-  const { number, cue, icon, title, body, Visual, tone } = stage;
+  const { title, body, Visual, tone } = stage;
   // <li key={number} /> remains the chapter identity contract for the route test.
 
   return (
     <motion.li ref={chapterRef} className={styles.chapter} data-tone={tone}>
       <div className={styles.chapterText}>
-        <motion.span className={styles.chapterLabel} initial={reduceMotion ? false : { opacity: 0, y: 8 }} animate={visible ? { opacity: 1, y: 0 } : undefined} transition={{ delay: reduceMotion ? 0 : .08, duration: .4, ease: kelusEase }}>
-          <span>{number}</span><PackArt name={icon} className={styles.chapterIcon} />{cue}
-        </motion.span>
-        <motion.h2 initial={reduceMotion ? false : { opacity: 0, y: 12 }} animate={visible ? { opacity: 1, y: 0 } : undefined} transition={{ delay: reduceMotion ? 0 : .15, duration: .48, ease: kelusEase }}>{title}</motion.h2>
-        <motion.p initial={reduceMotion ? false : { opacity: 0, y: 10 }} animate={visible ? { opacity: 1, y: 0 } : undefined} transition={{ delay: reduceMotion ? 0 : .22, duration: .48, ease: kelusEase }}>{body}</motion.p>
+        <h2>{title}</h2>
+        <p>{body}</p>
       </div>
-      <motion.div className={styles.visualWrap} initial={reduceMotion ? false : { opacity: 0, y: 18 }} animate={visible ? { opacity: 1, y: 0 } : undefined} transition={{ duration: reduceMotion ? 0 : kelusDuration.normal, ease: kelusEase }}>
+      <div className={styles.visualWrap}>
         <Visual visible={visible} reduceMotion={reduceMotion} />
-      </motion.div>
+      </div>
     </motion.li>
   );
 }
@@ -148,7 +146,6 @@ export function HowItWorks() {
         <motion.span className={styles.heroArt} aria-hidden="true" initial={reduceMotion ? false : { opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: reduceMotion ? 0 : 0.2, duration: 0.6, ease: kelusEase }}>
           <PackArt name="on-the-laptop" size={300} />
         </motion.span>
-        <motion.p className={styles.eyebrow} initial={reduceMotion ? false : { opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.45, ease: kelusEase }}>How Kelus works</motion.p>
         <motion.h1 id="how-title" initial={reduceMotion ? false : { opacity: 0, y: 16, scale: 0.98 }} animate={{ opacity: 1, y: 0, scale: 1 }} transition={{ delay: reduceMotion ? 0 : 0.06, duration: 0.65, ease: kelusEase }}>Your lessons become <br />a better revision habit.</motion.h1>
         <motion.div className={styles.heroBottom} initial={reduceMotion ? false : { opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: reduceMotion ? 0 : 0.14, duration: 0.5, ease: kelusEase }}>
           <p>Bring your course. Recall what you know. Let each answer shape what you practise next.</p>

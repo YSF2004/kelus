@@ -13,7 +13,6 @@ export default function WaitlistPage() {
   return (
     <main id="main" className="legal-page waitlist-page">
       <section className="legal-panel">
-        <p className="kicker">Waitlist</p>
         <h1>Hear when Kelus Plus opens.</h1>
         <p className="legal-lede">
           Kelus works today, free, on this device. Leave your email if you want one note when Kelus Plus opens.

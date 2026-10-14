@@ -2,7 +2,7 @@
 .sheet {
   display: grid;
   gap: 12px;
-  width: min(100% - 48px, 400px);
+  width: min(100%, 440px);
   padding: 22px 22px 20px;
   border: 1px solid #e6e5e1;
   border-radius: 12px;
@@ -15,7 +15,7 @@
 
 .sheet p { margin: 0; }
 
-.kicker { color: #9a9e96; font-size: 0.75rem; font-weight: 500; }
+.kicker { color: #70746c; font-size: 0.75rem; font-weight: 500; }
 .title { font-size: 1.125rem; font-weight: 600; letter-spacing: -0.01em; }
 .why { color: #6b6f68; font-size: 0.875rem; line-height: 1.5; }
 
@@ -30,33 +30,31 @@
   font-size: 0.875rem;
 }
 .rows strong { font-weight: 600; }
-.rows span { color: #9a9e96; font-size: 0.8125rem; white-space: nowrap; }
+.rows span { color: #70746c; font-size: 0.8125rem; white-space: nowrap; }
 
 .question { font-size: 0.9375rem; font-weight: 600; line-height: 1.4; }
+/* Choices read as lines of the answer, a drawn mark then the words: no box inside the sheet. */
 .choice {
   display: flex;
   align-items: flex-start;
   gap: 10px;
-  padding: 10px 12px;
-  border: 1px solid #e6e5e1;
-  border-radius: 8px;
   font-size: 0.875rem;
-  line-height: 1.4;
+  line-height: 1.45;
 }
 .choice i {
   display: inline-grid;
   flex: 0 0 auto;
   place-items: center;
-  width: 20px;
-  height: 20px;
-  border-radius: 5px;
+  width: 18px;
+  height: 18px;
+  margin-top: 1px;
+  border-radius: 50%;
   color: #fff;
-  font-size: 0.75rem;
-  font-style: normal;
 }
-.wrong { border-color: #f1cfc9; background: #fdf4f2; color: #6b6f68; }
+.wrong { color: #6b6f68; }
+.wrong s { text-decoration-color: #b42318; }
 .wrong i { background: #b42318; }
-.right { border-color: #1f6b45; background: #f3f8f5; color: #1f6b45; font-weight: 600; }
+.right { color: #1f6b45; font-weight: 600; }
 .right i { background: #1f6b45; }
 .source { color: #6b6f68; font-size: 0.8125rem; line-height: 1.5; }
 

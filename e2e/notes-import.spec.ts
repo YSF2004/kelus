@@ -148,7 +148,7 @@ test("a file with no real topics says so plainly and returns to the start screen
   await page.locator('input[type="file"]').setInputFiles({ name: "admin.md", mimeType: "text/markdown", buffer: Buffer.from(admin) });
   await expect(page.getByRole("heading", { name: "Kelus couldn’t find topics in this file." })).toBeVisible({ timeout: 30_000 });
   await page.getByRole("button", { name: "Try another file" }).click();
-  await expect(page.getByRole("heading", { name: /^(Start with|Add) your notes\.$/ })).toBeVisible();
+  await expect(page.getByRole("heading", { name: /^(Start with your notes|Add notes to .+|Add your notes)\.$/ })).toBeVisible();
   // The failed file is gone, so a good one works straight away.
   await page.locator('input[type="file"]').setInputFiles(mdFile);
   await startBuiltPlan(page);

@@ -40,14 +40,12 @@ export function KelusHero() {
         <PackArt name="growing" className={styles.climber} size={150} />
       </div>
 
+      {/* One sentence, with only the marks students already know. No chips, no filler icons. */}
       <p className={styles.worksWith}>
-        <span>Works with</span>
-        <span className={styles.chip}><PackArt name="folder" size={15} />PDFs and slides</span>
-        <span className={styles.chip}><BrandIcon brand="notion" size={14} />Notion</span>
-        <span className={styles.chip}><BrandIcon brand="obsidian" size={14} />Obsidian</span>
-        <span className={styles.chip}><BrandIcon brand="markdown" size={15} />Markdown</span>
-        <span className={styles.chip}><PackArt name="list-check" size={15} />Pasted notes</span>
-        <span className={styles.chip}><BrandIcon brand="anki" size={14} />Cards to Anki</span>
+        Works with PDFs and slides, <span className={styles.brand}><BrandIcon brand="notion" size={14} />Notion,</span>{" "}
+        <span className={styles.brand}><BrandIcon brand="obsidian" size={14} />Obsidian,</span>{" "}
+        <span className={styles.brand}><BrandIcon brand="markdown" size={15} />Markdown</span> and pasted notes, and sends your cards to{" "}
+        <span className={styles.brand}><BrandIcon brand="anki" size={14} />Anki</span>.
       </p>
     </section>
   );
