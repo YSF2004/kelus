@@ -200,9 +200,12 @@
   transform: scale(0.97);
 }
 
+/* Waiting for an answer: still clearly the button, just not yet pressable. */
 .primary:disabled {
-  background: var(--color-frost);
-  color: var(--color-smoke);
+  border: 1px solid #dededb !important;
+  background: #f3f3f1 !important;
+  color: #70746c !important;
+  box-shadow: none !important;
   cursor: not-allowed;
 }
 
