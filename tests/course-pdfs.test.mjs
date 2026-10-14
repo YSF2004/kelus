@@ -84,3 +84,35 @@ test("real-PDF quirks: credit-only passages, course admin headings and shared sl
   const names = proposeConceptsFromPages({ materialId: "m", sourceLabel: "s", pages }).filter(isSourceBackedProposal).map((item) => item.name);
   assert.deepEqual(names, ["Monopsony"]);
 });
+
+// Found on real LaTeX slides (MIT 14.03) and PowerPoint exports, reproduced with synthetic items.
+test("LaTeX maths: a symbol font's p q ´ ą read as ( ) − >, and a formula drawn after its sentence lands inside it", () => {
+  const it = (str, x, y, fontName, size = 11) => ({ str, transform: [size, 0, 0, size, x, y], width: str.length * size * 0.5, height: size, fontName });
+  const page = buildLayoutPage(1, [
+    it("Demand function D", 72, 600, "text"), it(": quantity consumed at price p.", 200, 600, "text"),
+    it("Why is", 72, 560, "text"), it("? It pays.", 160, 560, "text"),
+    it("p", 170, 600, "sym"), it("p", 178, 600, "math"), it("q", 186, 600, "sym"), it("´", 400, 400, "sym"),
+    it("w", 110, 560, "math"), it("ą", 118, 560, "sym"), it("0", 126, 560, "text"),
+  ]);
+  assert.match(page.text, /Demand function D\s?\(\s?p\s?\)\s?: quantity consumed at price p\./);
+  assert.match(page.text, /Why is w\s?>\s?0\s?\? It pays\./);
+});
+
+test("PowerPoint exports: Wingdings bullets read as letters are dropped, and the footer on every slide is removed", async () => {
+  const { stripRunningLines } = await import("../lib/pdf-extraction.ts");
+  const it = (str, x, y, fontName = "body", size = 14) => ({ str, transform: [size, 0, 0, size, x, y], width: str.length * size * 0.5, height: size, fontName });
+  const slide = (n, title, line) => buildLayoutPage(n, [
+    it(title, 72, 700, "body", 28), it("X", 60, 650, "wing"), it(line, 80, 650), it("u", 60, 620, "wing"), it("A second point on the slide.", 80, 620),
+    it("Mansfield University", 72, 60, "foot", 9), it(`Slide ${n}`, 400, 60, "foot", 9),
+  ]);
+  const pages = stripRunningLines([slide(1, "Structuralism", "Wundt studied conscious experience."), slide(2, "Functionalism", "James asked what the mind is for."), slide(3, "Behaviorism", "Watson studied observable behaviour.")]);
+  assert.doesNotMatch(pages.map((page) => page.text).join("\n"), /^X |\nu |Mansfield University|Slide \d/m);
+  assert.match(pages[0].text, /Wundt studied conscious experience\./);
+});
+
+test("headings that continue an earlier line are not topics: 'And assessing tradeoffs', '…be legal?)'", () => {
+  const pages = [{ pageNumber: 1, text: "Opportunity Cost\n\nEvery choice gives something up, the value of the best alternative not chosen.\n\nAnd Assessing Tradeoffs\n\nWeighing what is gained against what is given up in each decision.\n\nShould Organ Sales Be Legal?)\n\nA normative question about markets, values and what should be allowed." }];
+  const names = proposeConceptsFromPages({ materialId: "m", sourceLabel: "s", pages }).map((item) => item.name);
+  assert.ok(names.includes("Opportunity Cost"));
+  assert.ok(!names.some((name) => /^And |\)$/.test(name)), names.join(" / "));
+});

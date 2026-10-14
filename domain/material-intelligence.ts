@@ -9,7 +9,7 @@ import type {
 } from "./types";
 
 const ADMINISTRATIVE =
-  /\b(?:attendance|calendar|contact|course syllabus|email|grading|instructor|office hours|reading list|schedule|syllabus|textbook)\b|\b(?:late|attendance|grading|course|class|academic|honou?r(?: code)?|privacy|refund|make-?up|plagiarism|submission|exam|office|lab|safety) polic(?:y|ies)\b|^assessments?$|\bassessments? (?:schedule|dates?|weights?|weighting|breakdown|criteria|overview|methods?)\b/i;
+  /\b(?:attendance|calendar|contact|course syllabus|email|grading|instructor|your professor|professor is|teaching assistants?|office hours|reading list|schedule|syllabus|textbook)\b|\b(?:late|attendance|grading|course|class|academic|honou?r(?: code)?|privacy|refund|make-?up|plagiarism|submission|exam|office|lab|safety) polic(?:y|ies)\b|^assessments?$|\bassessments? (?:schedule|dates?|weights?|weighting|breakdown|criteria|overview|methods?)\b/i;
 /** "BIO 101", "CS201", "Week 4", "Lecture 3", "Unit 2": a heading that names the document, not something to study. */
 const COURSE_CODE = /\b[A-Z]{2,5}\s?\d{3}[A-Z]?\b|\b\d{1,2}[./]\d{2,3}(?:\/\d{2,3})?\b/;
 const DOCUMENT_NUMBER = /\b(?:week|lecture|lesson|unit|module|chapter|session|seminar|tutorial|class)\s*\d+\b/i;
@@ -64,7 +64,10 @@ function creditOnly(excerpt: string) {
   if (!CREDIT_LINE.test(flat)) return false;
   // What is left once the credit sentences go: fewer than eight real words is a figure caption, not a lesson.
   const rest = flat.split(/(?<=[.!?])\s+/).filter((part) => !CREDIT_LINE.test(part)).join(" ");
-  return (rest.match(/\p{L}{3,}/gu) ?? []).length < 8;
+  if ((rest.match(/\p{L}{3,}/gu) ?? []).length < 8) return true;
+  // A reproduced chart or map: a credit, and the rest is legend values and labels, not sentences.
+  const sentenceLines = excerpt.split(/\n+/).filter((line) => !CREDIT_LINE.test(line) && (line.match(/\p{L}{3,}/gu) ?? []).length >= 4);
+  return sentenceLines.length < 3;
 }
 const ADMINISTRATIVE_EXCERPT = /\b(?:office hours?|instructor\s*:|attendance|grading\s*:)|e-?mail\s*:|\S+@\S+\.\S+|\b(?:nous soussign[ée]s?|je soussign[ée]e?|certifions|certifie que|fait pour servir et valoir|pour valoir ce que de droit)\b/i;
 /** Headings that structure a document but are not something to study on their own. */
@@ -108,8 +111,19 @@ function cleanCandidate(value: string) {
   return cleaned;
 }
 
+/**
+ * The rest of an earlier line, not a heading of its own: it opens on a joining word ("And assessing tradeoffs",
+ * "To buy a certain good") or closes a bracket it never opened ("Should organ sales be legal?)").
+ */
+function isContinuation(value: string) {
+  const text = value.trim();
+  const opens = (text.match(/\(/g) ?? []).length;
+  const closes = (text.match(/\)/g) ?? []).length;
+  return /^(?:and|or|but|nor|to|of|for|with|as|than|that|which|so|then)\b/i.test(text) || closes > opens;
+}
+
 function looksLikeConcept(value: string) {
-  if (value.length < 3 || value.length > 72 || ADMINISTRATIVE.test(value) || GENERIC_HEADING.test(value.trim())) return false;
+  if (value.length < 3 || value.length > 72 || ADMINISTRATIVE.test(value) || GENERIC_HEADING.test(value.trim()) || isContinuation(value)) return false;
   if (/https?:|@|\b(?:monday|tuesday|wednesday|thursday|friday|saturday|sunday)\b/i.test(value)) return false;
   if (/\b(?:due|points?|percent|room|pm|am)\b/i.test(value)) return false;
   const words = value.split(/\s+/);
@@ -475,7 +489,7 @@ function inferRelationships(concepts: Concept[], corpus: string): ConceptRelatio
 }
 
 function looksLikeConceptRelaxed(value: string) {
-  if (value.length < 3 || value.length > 80 || ADMINISTRATIVE.test(value) || GENERIC_HEADING.test(value.trim())) return false;
+  if (value.length < 3 || value.length > 80 || ADMINISTRATIVE.test(value) || GENERIC_HEADING.test(value.trim()) || isContinuation(value)) return false;
   if (/https?:|@|\b(?:monday|tuesday|wednesday|thursday|friday|saturday|sunday)\b/i.test(value)) return false;
   if (/\b(?:due|points?|percent|room)\b/i.test(value)) return false;
   const words = value.split(/\s+/);
@@ -547,7 +561,7 @@ export function proposeConceptsFromPages(input: {
       const name = topicNameFrom(heading, sourceExcerpt, locator);
       const key = name.toLocaleLowerCase();
       if (key === titleKey) return;
-      if ((!matcher(heading) && !layoutHeading) || seen.has(key) || ADMINISTRATIVE.test(name) || GENERIC_HEADING.test(name.trim()) || isDocumentTitle(name)) return;
+      if ((!matcher(heading) && !layoutHeading) || seen.has(key) || ADMINISTRATIVE.test(name) || GENERIC_HEADING.test(name.trim()) || isDocumentTitle(name) || isContinuation(heading)) return;
       // A slide with several headings gives them all the same passage; only the first is a topic.
       const passageKey = `${page.pageNumber}:${sourceExcerpt.replace(/\s+/g, " ").trim().toLocaleLowerCase()}`;
       if (creditOnly(sourceExcerpt) || seenPassages.has(passageKey)) return;

@@ -409,8 +409,8 @@ export function MaterialLibrary({ embedded = false, incomingFile = null, onIncom
         if (ocrResult.ocrPages === 0 && quality.density === "empty") {
           const ocrError = new Error(
             ocrResult.timedOut
-              ? "Scan reading hit the time limit before usable English text appeared. Export a text PDF or try a clearer scan."
-              : "On-device OCR finished without usable English text. Export a text PDF or try a clearer English scan.",
+              ? "This scan is taking too long to read. Try a smaller file, or export the notes as a text PDF."
+              : "Kelus can read typed scans, but not handwriting or blurry photos yet. If these are handwritten notes, type the key lines into “Or paste your notes”.",
           );
           (ocrError as Error & { kind?: string }).kind = "ocr";
           throw ocrError;
@@ -438,7 +438,7 @@ export function MaterialLibrary({ embedded = false, incomingFile = null, onIncom
         const emptyScan = attemptedOcr && quality.density === "empty";
         const fail = new Error(
           emptyScan
-            ? "Kelus still could not recover usable English text from this scan. Try a clearer export or another course PDF."
+            ? "Kelus can read typed scans, but not handwriting or blurry photos yet. If these are handwritten notes, type the key lines into “Or paste your notes”."
             : isNotes
               ? "Kelus found no topics with a supporting passage under a heading. Put each topic under its own heading (for example “## Osmosis”) with a few sentences beneath it; it will not invent a lesson from the filename."
               : "Kelus found no topics with a readable supporting passage. Try lecture notes with selectable text or a clearer scan; it will not invent a lesson from the filename.",

@@ -38,7 +38,7 @@ test("nine-path: sample-first hero, today auto-load, PDF fail UX, inbox docs", a
   assert.match(materials, /errorKind === "ocr"/);
   assert.match(materials, /material-status-badge/);
   assert.match(materials, /PDF isn’t available on this device anymore/);
-  assert.match(materials, /usable English text/);
+  assert.match(materials, /not handwriting or blurry photos/);
 
   assert.match(env, /FormSubmit requires a one-time inbox activation/);
   assert.match(env, /local delivery/);
