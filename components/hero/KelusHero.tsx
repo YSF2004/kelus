@@ -32,7 +32,7 @@ export function KelusHero() {
         <div className={styles.window}>
           <div className={styles.chrome} aria-hidden="true">
             <span className={styles.dots}><i /><i /><i /></span>
-            <span className={styles.address}>kelus.me/today</span>
+            <span className={styles.address}>kelus.me</span>
           </div>
           <HeroProductVideo />
         </div>

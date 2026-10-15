@@ -4,8 +4,8 @@ import { useEffect, useRef, useState } from "react";
 import { useReducedMotion } from "motion/react";
 import styles from "./ProductVideoHero.module.css";
 
-// The recording's opening shows the setup screen; the hero begins once the imported course is ready.
-const WALKTHROUGH_START_SECONDS = 4;
+// The recording opens on the drop: a student drags their chapter in, so the hero starts at the very beginning.
+const WALKTHROUGH_START_SECONDS = 0;
 
 /** Actual browser recordings of a fresh PDF upload and revision session. */
 export function HeroProductVideo() {

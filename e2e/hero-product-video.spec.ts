@@ -49,7 +49,8 @@ test("reduced motion keeps the recording paused until the student chooses play",
   await expect(video).toBeVisible();
   await expect.poll(() => video.evaluate((element: HTMLVideoElement) => element.paused)).toBe(true);
   await expect(video).toHaveAttribute("poster", /kelus-product-poster/);
-  await expect.poll(() => video.evaluate((element: HTMLVideoElement) => element.currentTime)).toBeGreaterThanOrEqual(4);
+  // Paused at the opening shot, the chapter being dropped in, not skipped past it.
+  await expect.poll(() => video.evaluate((element: HTMLVideoElement) => element.currentTime)).toBeLessThan(1);
   await expect(video).toHaveCSS("opacity", "0");
   await expect(page.locator('[data-hero="product-video"] figure > div')).toHaveCSS("background-image", /kelus-product-poster/);
   await page.getByRole("button", { name: "Play product walkthrough" }).click();

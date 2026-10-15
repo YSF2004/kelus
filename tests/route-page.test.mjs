@@ -21,7 +21,7 @@ test("homepage presents the real product video followed by the illustrated revis
   assert.match(video, /kelus-product-walkthrough-mobile\.webm/);
   // WebM only: an MP4 could not be re-encoded here, and an old recording is worse than the current poster.
   assert.doesNotMatch(video, /\.mp4/);
-  assert.match(video, /WALKTHROUGH_START_SECONDS = 4/);
+  assert.match(video, /WALKTHROUGH_START_SECONDS = 0/); // the drop of the PDF is the opening shot
   assert.doesNotMatch(video, /playbackButton/);
   assert.doesNotMatch(video, /Recorded in Kelus with a demo lecture PDF/);
   assert.doesNotMatch(video, /\bcontrols\b/);
