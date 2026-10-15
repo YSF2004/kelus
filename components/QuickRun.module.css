@@ -39,12 +39,49 @@
   background: var(--color-midnight-ink);
 }
 
-.streak {
+/* Lines you can recall: a count with a meaning, not points. The +1 rises off it when a new line is shown. */
+.recall {
+  position: relative;
+  display: inline-flex;
+  align-items: baseline;
+  gap: 6px;
   margin: 0;
   font-size: var(--text-body-sm);
-  font-weight: 500;
-  color: var(--color-kelus);
+  color: var(--color-slate);
+  white-space: nowrap;
 }
+.recall b { display: inline-block; font-weight: 600; color: var(--color-midnight-ink); font-variant-numeric: tabular-nums; }
+.recall i { position: absolute; right: 100%; top: 0; margin-right: 6px; font-style: normal; font-weight: 600; color: var(--color-kelus); pointer-events: none; }
+@media (max-width: 520px) { .recall .recallLong { display: none; } }
+
+/* Reading a new topic: the lines build down the page, one per Continue. */
+.readLines { display: grid; gap: 10px; margin: 0; padding: 0; list-style: none; }
+.readLines li {
+  padding: 14px 16px;
+  border: 1px solid var(--color-frost);
+  border-radius: 8px;
+  background: #fff;
+  font-size: 1.0625rem;
+  line-height: 1.55;
+  color: var(--color-midnight-ink);
+}
+.readLines mark { padding: 0 2px; border-radius: 3px; background: color-mix(in srgb, var(--k-marigold, #f3b23e) 32%, transparent); color: inherit; }
+.readCount { margin: 0; font-size: var(--text-caption); color: var(--color-smoke); }
+
+/* Tap a word, on a phone. */
+.chips { display: flex; flex-wrap: wrap; gap: 8px; margin: 0; }
+.chip {
+  min-height: 44px;
+  padding: 0 16px;
+  border: 1px solid var(--color-frost);
+  border-radius: 8px;
+  background: #fff;
+  color: var(--color-midnight-ink);
+  font: inherit;
+  font-size: 1rem;
+  cursor: pointer;
+}
+.chip:active { background: var(--color-mist); }
 
 .card {
   display: grid;

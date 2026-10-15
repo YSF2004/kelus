@@ -1,6 +1,6 @@
 import { readFileSync } from "node:fs";
 import { expect, test } from "@playwright/test";
-import { nudgesAlreadyOn, startBuiltPlan, closeToToday, gotoStart, startFromFile, startFromPaste, topicNames } from "./helpers";
+import { nudgesAlreadyOn, startBuiltPlan, closeToToday, gotoStart, startFromFile, startFromPaste, topicNames, skipReading } from "./helpers";
 
 const notion = readFileSync("tests/fixtures/notion-export.md", "utf8");
 const mdFile = { name: "cell-biology.md", mimeType: "text/markdown", buffer: Buffer.from(notion) };
@@ -107,6 +107,7 @@ test("your own file never mixes into the sample: it starts your own course, and 
   // The file starts your own course and opens its first question; none of the sample is left.
   await startBuiltPlan(page);
   await expect(page).toHaveURL(/\/session/, { timeout: 30_000 });
+  await skipReading(page);
   await expect(page.getByLabel(/^Check 1 of \d$/)).toBeVisible();
   await closeToToday(page);
   await expect(page.getByText("Sample course")).toHaveCount(0);
@@ -139,6 +140,7 @@ test("a course with no topics is one screen with one job, and adding notes there
   // The notes are read quietly and the first question opens: no checklist in between.
   await startBuiltPlan(page);
   await expect(page).toHaveURL(/\/session/, { timeout: 30_000 });
+  await skipReading(page);
   await expect(page.getByLabel(/^Check 1 of \d$/)).toBeVisible();
 });
 

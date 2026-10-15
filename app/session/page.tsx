@@ -33,6 +33,7 @@ import { CourseSourceReader } from "@/components/CourseSourceReader";
 import { SessionMenu } from "@/components/SessionMenu";
 import { BlockOutline } from "@/components/BlockOutline";
 import { addMissedLines } from "@/lib/missed-lines";
+import { addKnownLines, forgetKnownLines, getKnownLines, getServerKnownLines, knownCount, subscribeKnownLines } from "@/lib/known-lines";
 import { trackEvent } from "@/lib/analytics";
 
 type Phase = "learn" | "retrieve" | "apply" | "evaluate" | "result" | "reroute";
@@ -159,6 +160,12 @@ function SessionBody() {
   );
   const quickMode = Boolean(run);
   const [runKey, setRunKey] = useState(0);
+  const knownLines = useSyncExternalStore(subscribeKnownLines, getKnownLines, getServerKnownLines);
+  const courseId = concept?.courseId;
+  const courseConceptIds = new Set(state.snapshot.concepts.filter((item) => item.courseId === courseId).map((item) => item.id));
+  // Fixed when the topic opens, like the run itself: the counter moves with this run's answers, not under them.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const knownAtOpen = useMemo(() => ({ set: new Set(knownLines.map((line) => line.quote)), count: knownCount(knownLines, courseConceptIds) }), [conceptId, runKey]);
   const total = session?.plannedConceptIds.length ?? 0;
   const focusStep = useCallback((node: HTMLElement | null) => {
     if (!node || (["retrieve", "apply"] as Phase[]).includes(phase)) return;
@@ -288,6 +295,9 @@ function SessionBody() {
     setQuickMissed(result.missed);
     // What was missed comes back at the start of the next visit, as a warm-up.
     if (concept) addMissedLines(result.missed.map((quote) => ({ conceptId: concept.id, name: concept.name, quote, at: state.nowIso })));
+    // What was right counts as a line you can recall; a miss takes the line off that count.
+    if (concept) addKnownLines(result.known.map((quote) => ({ conceptId: concept.id, name: concept.name, quote, at: state.nowIso })));
+    forgetKnownLines(result.missed);
     setRetrieveAnswer(result.explained);
     setApplicationAnswer(summary);
     responseTimeMs.current = result.elapsedMs;
@@ -638,6 +648,11 @@ function SessionBody() {
                 comesBack={comesBackLine(concept.nextReviewAt, state.nowIso)}
                 routeLine={planLine({ next: nextConceptName, movedUp: movedUpName, orderChanged: routeOrderChanged })}
                 nextName={nextConceptName}
+                path={{
+                  practised: state.snapshot.concepts.filter((item) => item.courseId === concept.courseId && item.retrievalAttempts > 0).length,
+                  total: courseConceptIds.size,
+                  recalled: knownCount(knownLines, courseConceptIds),
+                }}
                 onRetry={retryCurrentConcept}
                 onContinue={advance}
                 onSource={currentSource && currentMaterial ? () => void openSource(currentSource.materialId, currentSource.locator) : undefined}
@@ -737,6 +752,9 @@ function SessionBody() {
                 run={run}
                 onRevealSource={() => setSourceRevealed(true)}
                 onFinish={finishQuick}
+                readFirst={round === 0}
+                known={knownAtOpen.set}
+                recalled={knownAtOpen.count}
                 context={<p className="study-topic-kicker"><b>{concept.name}</b>{total > 1 ? <span aria-label={`Topic ${index + 1} of ${total}`}>{index + 1} of {total}</span> : null}</p>}
               />
             ) : null}

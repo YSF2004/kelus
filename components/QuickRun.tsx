@@ -7,14 +7,22 @@ import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { checkPracticeAnswer } from "@/domain/practice-check";
 import { explainMatch, looksLikeWords } from "@/domain/answer-evaluation";
 import { PackArt } from "@/components/PackArt";
-import { whereAnswerBelongs, type QuickRun as Run, type SelfGrade } from "@/domain/quick-run";
+import { gapChoices, keyWordsIn, readingLines, whereAnswerBelongs, type QuickRun as Run, type SelfGrade } from "@/domain/quick-run";
 import styles from "./QuickRun.module.css";
 
 /** `missed` holds the page lines behind the checks that were wrong or not sure, so the result can point back to them. */
-export type QuickRunResult = { right: number; total: number; unsure: number; self: SelfGrade; explained: string; elapsedMs: number; missed: string[]; /** Key ideas from the notes the explanation used, when there were enough to compare. */ coverage?: { hits: number; keys: number } | null };
+export type QuickRunResult = { right: number; total: number; unsure: number; self: SelfGrade; explained: string; elapsedMs: number; missed: string[]; /** The lines behind the checks that were right. */ known: string[]; /** Key ideas from the notes the explanation used, when there were enough to compare. */ coverage?: { hits: number; keys: number } | null };
 
 const noSubscribe = () => () => {};
 const modKeyNow = () => (/Mac|iPhone|iPad/.test(navigator.platform) ? "⌘" : "Ctrl ");
+const touchNow = () => window.matchMedia("(pointer: coarse)").matches;
+
+/** A line from the notes with the words the checks will ask for marked, so reading points at them. */
+function Marked({ line, words }: { line: string; words: string[] }) {
+  if (!words.length) return <>{line}</>;
+  const pattern = new RegExp(`(?<![\\p{L}])(${words.map((word) => word.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")).join("|")})(?![\\p{L}])`, "giu");
+  return <>{line.split(pattern).map((part, index) => (index % 2 ? <mark key={index}>{part}</mark> : part))}</>;
+}
 
 const GRADES: Array<{ value: SelfGrade; label: string; hint: string }> = [
   { value: "nailed", label: "Nailed it", hint: "Same idea, my own words" },
@@ -26,17 +34,28 @@ const GRADES: Array<{ value: SelfGrade; label: string; hint: string }> = [
  * One topic as a short run: instant checks that quote the page, then one explanation in your own words.
  * It is the whole loop for a topic: no separate read, use and mark screens.
  */
-export function QuickRun({ run, onRevealSource, onFinish, onChecksDone, context }: {
+export function QuickRun({ run, onRevealSource, onFinish, onChecksDone, context, readFirst = false, known, recalled }: {
   run: Run;
+  /** A topic met for the first time: its lines are read, one at a time, before anything is asked. */
+  readFirst?: boolean;
+  /** The lines already recalled, and how many of the course's lines that is: the counter in the top bar. */
+  known?: Set<string>;
+  recalled?: number;
   onRevealSource: () => void;
   onFinish: (result: QuickRunResult) => void;
   /** A warm-up is checks only: given this, the last Next ends the run instead of opening the explanation. */
-  onChecksDone?: (result: { right: number; total: number; missed: string[] }) => void;
+  onChecksDone?: (result: { right: number; total: number; missed: string[]; known: string[] }) => void;
   /** Which topic this is, set beside the progress bar as its caption rather than as a label above the question. */
   context?: ReactNode;
 }) {
   const reduce = useReducedMotion() === true;
   const modKey = useSyncExternalStore(noSubscribe, modKeyNow, () => "⌘");
+  const touch = useSyncExternalStore(noSubscribe, touchNow, () => false);
+  const [lines] = useState(() => (readFirst ? readingLines(run) : []));
+  // -1 once reading is over (or there is nothing to read); otherwise the last line shown so far.
+  const [reading, setReading] = useState(() => (lines.length >= 2 ? 0 : -1));
+  const [knownNow, setKnownNow] = useState<string[]>([]);
+  const [bump, setBump] = useState(0);
   const started = useRef(0);
   const total = run.checks.length;
   const [step, setStep] = useState(0); // 0..total-1 = checks, total = explain
@@ -46,7 +65,6 @@ export function QuickRun({ run, onRevealSource, onFinish, onChecksDone, context 
   const [missed, setMissed] = useState<string[]>([]);
   const [unsure, setUnsure] = useState(0);
   const [right, setRight] = useState(0);
-  const [streak, setStreak] = useState(0);
   const [explained, setExplained] = useState("");
   const [compared, setCompared] = useState(false);
   const [nudge, setNudge] = useState(false);
@@ -76,7 +94,7 @@ export function QuickRun({ run, onRevealSource, onFinish, onChecksDone, context 
     if (typeof value === "number") setPicked(value);
     const given = typeof value === "number" ? item.choices?.[value] ?? "" : value.trim();
     setAnswered({ right: ok, given, elsewhere: ok ? null : whereAnswerBelongs(item, given, run.sentences) });
-    if (ok) { setRight((count) => count + 1); setStreak((count) => count + 1); } else { setStreak(0); setMissed((list) => [...list, item.sourceQuote]); }
+    if (ok) { setRight((count) => count + 1); setKnownNow((list) => [...list, item.sourceQuote]); if (!known?.has(item.sourceQuote)) setBump((count) => count + 1); } else { setMissed((list) => [...list, item.sourceQuote]); }
     feel(ok);
   }
 
@@ -89,7 +107,7 @@ export function QuickRun({ run, onRevealSource, onFinish, onChecksDone, context 
   }
 
   function next() {
-    if (onChecksDone && step + 1 >= total) { onChecksDone({ right, total, missed }); return; }
+    if (onChecksDone && step + 1 >= total) { onChecksDone({ right, total, missed, known: knownNow }); return; }
     setAnswered(null); setPicked(null); setTyped("");
     setStep((current) => current + 1);
   }
@@ -104,12 +122,12 @@ export function QuickRun({ run, onRevealSource, onFinish, onChecksDone, context 
   }
 
   function finish(self: SelfGrade, at: number) {
-    onFinish({ right, total, unsure, self, explained, elapsedMs: Math.max(0, Math.round(at - started.current)), missed, coverage: useful ? { hits: useful.hits, keys: useful.keys } : null });
+    onFinish({ right, total, unsure, self, explained, elapsedMs: Math.max(0, Math.round(at - started.current)), missed, known: knownNow, coverage: useful ? { hits: useful.hits, keys: useful.keys } : null });
   }
 
   // In the explanation: ⌘↵ (Ctrl+Enter) compares; once compared, 1, 2 and 3 pick how close it was.
   useEffect(() => {
-    if (item) return;
+    if (item || reading >= 0) return;
     const onKey = (event: KeyboardEvent) => {
       if (!compared && event.key === "Enter" && (event.metaKey || event.ctrlKey)) { event.preventDefault(); compare(); return; }
       if (compared && !event.metaKey && !event.ctrlKey && !event.altKey && /^[123]$/.test(event.key) && !(event.target instanceof HTMLTextAreaElement)) {
@@ -119,11 +137,23 @@ export function QuickRun({ run, onRevealSource, onFinish, onChecksDone, context 
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [item, compared, explained]);
+  }, [item, compared, explained, reading]);
+
+  // Reading: Enter shows the next line, then opens the first check.
+  useEffect(() => {
+    if (reading < 0) return;
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key !== "Enter" || event.metaKey || event.ctrlKey || event.altKey || event.target instanceof HTMLInputElement || event.target instanceof HTMLTextAreaElement || event.target instanceof HTMLButtonElement) return;
+      event.preventDefault();
+      setReading((current) => (current + 1 < lines.length ? current + 1 : -1));
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [reading, lines.length]);
 
   // 1-4 pick an option, like a quiz.
   useEffect(() => {
-    if (!item || item.kind !== "choice" || answered) return;
+    if (!item || item.kind !== "choice" || answered || reading >= 0) return;
     const onKey = (event: KeyboardEvent) => {
       if (event.metaKey || event.ctrlKey || event.altKey) return;
       const index = Number(event.key) - 1;
@@ -132,27 +162,59 @@ export function QuickRun({ run, onRevealSource, onFinish, onChecksDone, context 
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [item, answered]);
+  }, [item, answered, reading]);
 
   const motionProps = reduce
     ? {}
     // The next card replaces the old one in the same frame and settles from almost visible: nothing to wait for.
     : { initial: { opacity: 0.6, y: 4 }, animate: { opacity: 1, y: 0 }, exit: { opacity: 0, transition: { duration: 0 } }, transition: { duration: 0.18, ease: [0.22, 1, 0.36, 1] as const } };
 
+  // The counter means something: lines of these notes you can recall now. It rises with a right answer to a line
+  // you had not shown before, and falls when you miss one you had.
+  const lost = missed.filter((quote) => known?.has(quote) && !knownNow.includes(quote)).length;
+  const count = recalled == null ? null : Math.max(0, recalled + bump - lost);
+  const readingNow = reading >= 0;
+  const segments = (lines.length >= 2 ? 1 : 0) + total + (onChecksDone ? 0 : 1);
+  const at = readingNow ? 0 : (lines.length >= 2 ? 1 : 0) + step;
+
   return (
     <div className={styles.run}>
       <header className={styles.top}>
-        <ol className={styles.steps} aria-label={`Step ${Math.min(step + 1, total + (onChecksDone ? 0 : 1))} of ${total + (onChecksDone ? 0 : 1)}`}>
-          {[...run.checks, ...(onChecksDone ? [] : [null])].map((_, index) => (
-            <li key={index} className={index < step ? styles.done : index === step ? styles.now : undefined} aria-current={index === step ? "step" : undefined} />
+        <ol className={styles.steps} aria-label={`Step ${Math.min(at + 1, segments)} of ${segments}`}>
+          {Array.from({ length: segments }, (_, index) => (
+            <li key={index} className={index < at ? styles.done : index === at ? styles.now : undefined} aria-current={index === at ? "step" : undefined} />
           ))}
         </ol>
         {context}
-        {streak >= 2 ? <p className={styles.streak} role="status">{streak} right in a row</p> : <span />}
+        {count == null ? <span /> : (
+          <p className={styles.recall} role="status" aria-label={`${count} ${count === 1 ? "line" : "lines"} from your notes you can recall`}>
+            <motion.b key={count} initial={reduce || !bump ? false : { y: -6, opacity: 0.4 }} animate={{ y: 0, opacity: 1 }} transition={{ type: "spring", bounce: 0, duration: 0.35 }}>{count}</motion.b>
+            <span>{count === 1 ? "line" : "lines"}<span className={styles.recallLong}> you can recall</span></span>
+            <AnimatePresence>{bump && !reduce ? <motion.i key={`b${bump}`} aria-hidden="true" initial={{ opacity: 1, y: 0 }} animate={{ opacity: 0, y: -14 }} transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1] }}>+1</motion.i> : null}</AnimatePresence>
+          </p>
+        )}
       </header>
 
       <AnimatePresence mode="wait" initial={false}>
-        {item ? (
+        {readingNow ? (
+          <motion.section key="read" className={styles.card} {...motionProps} aria-label="Read it first">
+            <h1 className={styles.prompt}>Read it first, then it’s your turn.</h1>
+            <ol className={styles.readLines}>
+              {lines.slice(0, reading + 1).map((line, index) => (
+                <motion.li key={line} initial={reduce || index === 0 ? false : { opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}>
+                  <Marked line={line} words={keyWordsIn(line, run)} />
+                </motion.li>
+              ))}
+            </ol>
+            <div className={styles.row}>
+              <button type="button" className={`k-btn ${styles.primary}`} autoFocus key={reading} onClick={() => setReading((current) => (current + 1 < lines.length ? current + 1 : -1))}>
+                {reading + 1 < lines.length ? "Continue" : "Now from memory"}<kbd className={styles.key} aria-hidden="true">↵</kbd>
+              </button>
+              <button type="button" className={styles.link} onClick={() => setReading(-1)}>Skip to the questions</button>
+            </div>
+            <p className={styles.readCount}>{reading + 1} of {lines.length} lines from your notes</p>
+          </motion.section>
+        ) : item ? (
           <motion.section key={`check-${step}`} className={styles.card} {...motionProps} aria-label={`Check ${step + 1} of ${total}`}>
             <h1 className={styles.prompt}>{item.prompt}</h1>
 
@@ -197,6 +259,14 @@ export function QuickRun({ run, onRevealSource, onFinish, onChecksDone, context 
                 {!answered ? <button type="submit" className={`k-btn ${styles.primary}`} disabled={!typed.trim()}>Check<kbd className={styles.key} aria-hidden="true">↵</kbd></button> : null}
               </motion.form>
             )}
+            {/* On a phone, typing one word is the slow part: tap the word instead. On a keyboard, recall it. */}
+            {touch && !answered && gapChoices(item, run).length ? (
+              <div className={styles.chips} role="group" aria-label="Or tap the word">
+                {gapChoices(item, run).map((word) => (
+                  <motion.button key={word} type="button" className={styles.chip} onClick={() => { setTyped(word); answer(word); }} whileTap={reduce ? undefined : { scale: 0.96 }}>{word}</motion.button>
+                ))}
+              </div>
+            ) : null}
 
             {!answered ? <button type="button" className={styles.unsure} onClick={notSure}>I’m not sure</button> : null}
 

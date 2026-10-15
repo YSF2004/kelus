@@ -10,9 +10,16 @@ export async function gotoStart(page: Page) {
 
 /** The one-step start: drop a file, and the first question opens by itself. */
 /** After notes are read, Kelus shows what it built; one tap starts the first topic. */
+/** A new topic opens on its lines to read; most tests are about the checks, so they step past the reading. */
+export async function skipReading(page: Page) {
+  const reading = page.getByRole("region", { name: "Read it first" });
+  await reading.or(page.locator('section[aria-label^="Check "]')).or(page.locator("#run-explain")).first().waitFor({ timeout: 30_000 });
+  if (await reading.count()) await reading.getByRole("button", { name: "Skip to the questions" }).click();
+}
+
 export async function startBuiltPlan(page: Page) {
   const start = page.getByRole("button", { name: /^Start$/ });
-  await start.or(page.getByLabel(/^Check 1 of \d$/)).first().waitFor({ timeout: 30_000 });
+  await start.or(page.getByLabel(/^Check 1 of \d$/)).or(page.getByRole("region", { name: "Read it first" })).first().waitFor({ timeout: 30_000 });
   if (await start.count()) await start.click();
 }
 
@@ -21,6 +28,7 @@ export async function startFromFile(page: Page, file: UploadFile) {
   await page.locator('input[type="file"]').setInputFiles(file);
   await startBuiltPlan(page);
   await expect(page).toHaveURL(/\/session/, { timeout: 30_000 });
+  await skipReading(page);
   await expect(page.getByLabel(/^Check 1 of \d$/)).toBeVisible();
 }
 
@@ -31,6 +39,7 @@ export async function startFromPaste(page: Page, text: string) {
   await page.getByRole("button", { name: "Use these notes" }).click();
   await startBuiltPlan(page);
   await expect(page).toHaveURL(/\/session/, { timeout: 30_000 });
+  await skipReading(page);
   await expect(page.getByLabel(/^Check 1 of \d$/)).toBeVisible();
 }
 
@@ -48,6 +57,7 @@ export async function topicNames(page: Page) {
 
 /** Answers every quick check (a wrong gap word, or option 1), then explains and rates itself. */
 export async function playQuickRun(page: Page, explanation = "It depends on how easily buyers can switch.", grade = "Nailed it") {
+  await skipReading(page);
   for (let guard = 0; guard < 6; guard += 1) {
     await expect(page.locator('#run-explain, input[id^="run-gap"]:not([disabled]), [role="group"][aria-label="Choose one"] button:not([disabled])').first()).toBeVisible();
     if (await page.locator("#run-explain").count()) break;

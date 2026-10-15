@@ -26,6 +26,8 @@ export type DemoState = {
   diagnosisCompleted: boolean;
   /** Lines missed in runs, for the next visit's warm-up. Part of the state, so it syncs with the account. */
   missedLines?: MissedLine[];
+  /** Lines answered right and not missed since: "lines you can recall". Synced with the account like missed lines. */
+  knownLines?: MissedLine[];
 };
 
 const MISSED_LIMIT = 40;
@@ -47,6 +49,27 @@ export function updateMissedLines(change: (lines: MissedLine[]) => MissedLine[])
   const next = change(current).slice(-MISSED_LIMIT);
   if (next.length === current.length && next.every((line, index) => line === current[index])) return;
   persistDemoState({ ...state, missedLines: next }, true);
+}
+
+const KNOWN_LIMIT = 800;
+
+/** Both devices' known lines, one entry per line, newest last. */
+export function mergeKnownLines(a: MissedLine[] = [], b: MissedLine[] = []) {
+  const byQuote = new Map<string, MissedLine>();
+  for (const line of [...a, ...b]) {
+    const seen = byQuote.get(line.quote);
+    if (!seen || line.at > seen.at) byQuote.set(line.quote, line);
+  }
+  return [...byQuote.values()].sort((x, y) => x.at.localeCompare(y.at)).slice(-KNOWN_LIMIT);
+}
+
+/** Changes the known-line list and saves it with the rest of the learner state. */
+export function updateKnownLines(change: (lines: MissedLine[]) => MissedLine[]) {
+  const state = getDemoSnapshot();
+  const current = state.knownLines ?? [];
+  const next = change(current).slice(-KNOWN_LIMIT);
+  if (next.length === current.length && next.every((line, index) => line === current[index])) return;
+  persistDemoState({ ...state, knownLines: next }, false, true);
 }
 
 function refreshCaches(snapshot: LearnerSnapshot, nowIso: string): LearnerSnapshot {
@@ -143,7 +166,7 @@ export function chooseLocalStateForSignIn(account: DemoState | null, guest: Demo
 export function replaceDemoState(value: unknown) {
   if (!validStoredState(value)) throw new Error("The saved learner state is not compatible with this version of Kelus.");
   const { state } = advanceNowIfNeeded(value);
-  persistDemoState(state, true);
+  persistDemoState(state, true, true);
   return state;
 }
 
@@ -177,8 +200,9 @@ const emit = () => listeners.forEach((listener) => listener());
  * with). Missed lines change on their own path, so every other save carries the newest list forward instead of
  * dropping lines added in the meantime. Only the missed-line updater and a full replace set the list itself.
  */
-function persistDemoState(input: DemoState, ownsMissedLines = false) {
-  const state = ownsMissedLines || !clientCache?.missedLines ? input : { ...input, missedLines: clientCache.missedLines };
+function persistDemoState(input: DemoState, ownsMissedLines = false, ownsKnownLines = false) {
+  const withMissed = ownsMissedLines || !clientCache?.missedLines ? input : { ...input, missedLines: clientCache.missedLines };
+  const state = ownsKnownLines || !clientCache?.knownLines ? withMissed : { ...withMissed, knownLines: clientCache.knownLines };
   clientCache = state;
   if (typeof window !== "undefined") window.localStorage.setItem(demoStateStorageKey(), JSON.stringify(state));
   emit();
@@ -215,7 +239,7 @@ export const getServerDemoSnapshot = () => SERVER_SNAPSHOT;
 
 export function resetDemoState(nowMs = Date.now()) {
   const state = initialDemoState(nowMs);
-  persistDemoState(state, true); // A fresh start: no lines carried over from before.
+  persistDemoState(state, true, true); // A fresh start: no lines carried over from before.
   if (typeof window !== "undefined") {
     void import("./material-store").then(({ clearMaterials }) => clearMaterials());
   }
@@ -230,7 +254,7 @@ export function loadAminaDemo(nowMs = Date.now()) {
     onboardingCompleted: true,
     diagnosisCompleted: true,
   };
-  persistDemoState(state, true); // A fresh start: no lines carried over from before.
+  persistDemoState(state, true, true); // A fresh start: no lines carried over from before.
   if (typeof window !== "undefined") {
     void import("./material-store").then(({ clearMaterials, seedDemoMaterial }) => {
       clearMaterials();
@@ -250,7 +274,7 @@ export function completeOnboarding(input: SetupInput, nowMs = Date.now()) {
   };
   // The first PDF is committed to IndexedDB before this state becomes visible.
   // Clearing materials here would race with that write and strand the course.
-  persistDemoState(state, true); // A fresh start: no lines carried over from before.
+  persistDemoState(state, true, true); // A fresh start: no lines carried over from before.
   return state;
 }
 
@@ -402,7 +426,7 @@ export function renameConcept(conceptId: string, name: string) {
 
 /** Puts back a state saved a moment ago: the undo after removing something. */
 export function restoreDemoState(state: DemoState) {
-  persistDemoState(state, true);
+  persistDemoState(state, true, true);
 }
 
 export function setExamDate(state: DemoState, date: string, targetPercent?: number) {

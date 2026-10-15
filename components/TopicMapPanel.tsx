@@ -11,6 +11,8 @@ import { AnkiExport } from "@/components/AnkiExport";
 import { freshOpenSession, restAware, restingTopics, resumeConceptId } from "@/lib/today-focus";
 import { describeRouteChoice } from "@/lib/today-reason";
 import { percent } from "@/lib/format";
+import { useSyncExternalStore } from "react";
+import { getKnownLines, getServerKnownLines, knownCount, subscribeKnownLines } from "@/lib/known-lines";
 import styles from "./TopicMapPanel.module.css";
 
 
@@ -37,12 +39,13 @@ function MasteryRing({ value }: { value: number | null }) {
 }
 
 /**
- * Topics as illustrated cards: what it is, where it came from, how much of the exam it carries,
- * what you can already recall, and whether it is due. The next topic comes first and says why.
+ * Topics as a path in the order of your notes: each topic a step with how it stands, a checkpoint after every three,
+ * and an exam check at the end. The next topic is named first, with why.
  */
 export function TopicMapPanel() {
   const { state, removeTopic } = useLearner();
   const reduce = useReducedMotion() === true;
+  const known = useSyncExternalStore(subscribeKnownLines, getKnownLines, getServerKnownLines);
   const course = state.snapshot.courses[0];
   if (!course) return <p>No active course.</p>;
 
@@ -96,78 +99,89 @@ export function TopicMapPanel() {
   // The next topic leads; the rest keep exam-weight order.
   rows.sort((a, b) => Number(b.concept.id === startConceptId) - Number(a.concept.id === startConceptId));
 
-  const tally = (label: string) => rows.filter((row) => row.label === label).length;
-  const summary = [
-    { label: "Solid", tone: styles.secure },
-    { label: "Partly there", tone: styles.developing },
-    { label: "Needs work", tone: styles.needs },
-    { label: "Not started", tone: styles.none },
-  ].map((item) => ({ ...item, count: tally(item.label) }));
+  // The path follows the notes: the order the topics were read from, not their estimated weight.
+  const order = new Map(state.snapshot.concepts.map((concept, position) => [concept.id, position]));
+  const path = [...rows].sort((x, y) => (order.get(x.concept.id) ?? 0) - (order.get(y.concept.id) ?? 0));
+  const practised = path.filter((row) => row.concept.retrievalAttempts > 0).length;
+  const solid = path.filter((row) => row.label === "Solid").length;
+  const recalled = knownCount(known, new Set(path.map((row) => row.concept.id)));
+  const start = rows.find((row) => row.concept.id === startConceptId);
+  const startReason = start && startAllocation && start.concept.retrievalAttempts > 0 ? describeRouteChoice(startAllocation, start.concept, { examDateKnown: !state.snapshot.exams.some((item) => item.isActive && item.datePlaceholder) })[0] : null;
+  // A checkpoint after every three topics: two lines from each, mixed. It opens once those three are practised.
+  const GROUP = 3;
+  const groups = Array.from({ length: Math.floor(path.length / GROUP) }, (_, index) => path.slice(index * GROUP, index * GROUP + GROUP));
+
+  const checkpoint = (topics: typeof path, label: string, each: number, key: string) => {
+    const left = topics.filter((row) => row.concept.retrievalAttempts === 0).length;
+    const ids = topics.map((row) => row.concept.id);
+    const lines = knownCount(known, new Set(ids));
+    return (
+      <li key={key} className={styles.checkpoint} data-ready={left === 0 ? "true" : undefined}>
+        <span className={styles.diamond} aria-hidden="true" />
+        <span className={styles.checkpointText}>
+          <strong>{label}</strong>
+          <span>{left === 0 ? `${topics.length === path.length ? "Every topic" : topics.map((row) => row.concept.name).join(", ")}, mixed${lines ? ` · ${lines} ${lines === 1 ? "line" : "lines"} recalled so far` : ""}` : `Opens after ${left} more ${left === 1 ? "topic" : "topics"}`}</span>
+        </span>
+        {left === 0 ? <Link className={`k-btn ${styles.checkpointGo}`} href={`/session/warmup?checkpoint=${ids.map(encodeURIComponent).join(",")}${each === 1 ? "&each=1" : ""}`}>Start <ArrowRight /></Link> : null}
+      </li>
+    );
+  };
 
   return (
     <div className="surface-map is-toc">
-      <div className={styles.summary} role="group" aria-label="Topic readiness summary">
-        <div className={styles.bar} aria-hidden="true">
-          {summary.map((item) => (
-            <span key={item.label} className={item.tone} style={{ flexGrow: item.count }} />
-          ))}
-        </div>
-        <ul className={styles.legend}>
-          {summary.filter((item) => item.count > 0).map((item) => (
-            <li key={item.label}>
-              <i className={item.tone} aria-hidden="true" />
-              {item.count} {item.label.toLowerCase()}
-            </li>
-          ))}
-        </ul>
+      <div className={styles.pathHead} role="group" aria-label="Where you are">
+        <p><strong>{practised} of {path.length}</strong> topics practised{solid ? ` · ${solid} solid` : ""}{recalled ? ` · ${recalled} ${recalled === 1 ? "line" : "lines"} you can recall` : ""}</p>
+        <span className={styles.pathBar} aria-hidden="true"><motion.i initial={reduce ? false : { scaleX: 0 }} animate={{ scaleX: path.length ? practised / path.length : 0 }} transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }} /></span>
       </div>
-      <ol className={`index-toc topic-cards ${styles.grid}`} aria-label="Topics, next topic first">
-        {/* A removed topic shrinks away and the others glide into its place; Undo brings it back the same way. */}
+
+      {start ? (
+        <Link href={`/concept?id=${encodeURIComponent(start.concept.id)}`} className={`index-toc-row topic-card is-start ${styles.next}`}>
+          <span className={styles.nextLabel}>Start here</span>
+          <strong>{start.concept.name}</strong>
+          {startReason ? <span className={styles.why}>{startReason}</span> : null}
+          <ArrowRight className={`k-mark ${styles.nextArrow}`} />
+        </Link>
+      ) : null}
+
+      <ol className={`index-toc ${styles.path}`} aria-label="Topics, in the order of your notes">
         <AnimatePresence initial={false} mode="popLayout">
-        {rows.map(({ concept, mastery, label, page, due }, index) => {
+        {path.flatMap(({ concept, mastery, label, page, due }, index) => {
           const isStart = startConceptId === concept.id;
           const checks = concept.retrievalAttempts;
-          // A new topic already says "Start here" / "Not started": the "no answers yet" reason would only repeat it.
-          const reason = isStart && startAllocation && concept.retrievalAttempts > 0 ? describeRouteChoice(startAllocation, concept, { examDateKnown: !state.snapshot.exams.some((exam) => exam.isActive && exam.datePlaceholder) })[0] : null;
-          return (
+          const row = (
             <motion.li
               key={concept.id}
               layout={!reduce}
-              className={`${styles.item}${isStart ? ` is-start ${styles.start}` : ""}`}
-              initial={reduce ? false : { opacity: 0, y: 10 }}
+              className={`${styles.step}${isStart ? ` ${styles.here}` : ""}`}
+              data-state={checks === 0 ? "new" : label === "Solid" ? "solid" : "practised"}
+              initial={reduce ? false : { opacity: 0, y: 8 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={reduce ? { opacity: 0, transition: { duration: 0.1 } } : { opacity: 0, scale: 0.94, filter: "blur(2px)", transition: { duration: 0.2, ease: [0.4, 0, 1, 1] } }}
-              transition={reduce ? { duration: 0 } : { duration: 0.22, ease: [0.22, 1, 0.36, 1], delay: Math.min(index, 8) * 0.025, layout: { type: "spring", stiffness: 420, damping: 38 } }}
+              exit={reduce ? { opacity: 0, transition: { duration: 0.1 } } : { opacity: 0, scale: 0.96, transition: { duration: 0.2, ease: [0.4, 0, 1, 1] } }}
+              transition={reduce ? { duration: 0 } : { duration: 0.22, ease: [0.22, 1, 0.36, 1], delay: Math.min(index, 8) * 0.025, layout: { type: "spring", bounce: 0, duration: 0.35 } }}
             >
-              <Link
-                href={`/concept?id=${encodeURIComponent(concept.id)}`}
-                className={`index-toc-row topic-card ${styles.card}${isStart ? " is-start" : ""}`}
-               
-              >
-                <span className={`topic-card-main ${styles.main}`}>
-                  <ConceptTitleTransition id={concept.id}>
-                    <strong className="index-toc-name">{concept.name}</strong>
-                  </ConceptTitleTransition>
-                  <span className="index-toc-meta">
-                    {isStart ? "Start here" : label}
-                    {mastery == null ? "" : concept.retrievalAttempts < 3 ? ` · ${concept.retrievalAttempts} ${concept.retrievalAttempts === 1 ? "try" : "tries"}` : ` · ${percent(mastery)}`}
-                  </span>
-                  <span className={styles.facts}>
-                    {/* Exam weights are estimated from how much text a topic has, not set by anyone, so no "% of exam" here. */}
-                    {[page, checks === 0 ? null : `${checks} check${checks === 1 ? "" : "s"}`].filter(Boolean).join(" · ")}
-                  </span>
-                  {due ? <span className={styles.due}>Review due</span> : null}
-                  {reason ? <span className={styles.why}>{reason}</span> : null}
+              <span className={styles.node}><MasteryRing value={mastery} /><b aria-hidden="true">{index + 1}</b></span>
+              <Link href={`/concept?id=${encodeURIComponent(concept.id)}`} className={`index-toc-row ${styles.stepLink}`}>
+                <ConceptTitleTransition id={concept.id}>
+                  <strong className="index-toc-name">{concept.name}</strong>
+                </ConceptTitleTransition>
+                <span className="index-toc-meta">
+                  {isStart ? "Start here" : label}
+                  {mastery == null ? "" : checks < 3 ? ` · ${checks} ${checks === 1 ? "try" : "tries"}` : ` · ${percent(mastery)}`}
+                  {page ? ` · ${page}` : ""}
                 </span>
-                <MasteryRing value={mastery} />
+                {due ? <span className={styles.due}>Review due</span> : null}
               </Link>
               <button type="button" className={styles.remove} onClick={() => removeTopic(concept.id)} aria-label={`Remove ${concept.name}`} title="Remove topic (you can undo)">
                 <svg viewBox="0 0 16 16" width="14" height="14" aria-hidden="true"><path d="M4 4l8 8M12 4l-8 8" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" /></svg>
               </button>
             </motion.li>
           );
+          const groupIndex = (index + 1) / GROUP - 1;
+          const closesGroup = Number.isInteger(groupIndex) && groups[groupIndex] && !(path.length === GROUP);
+          return closesGroup ? [row, checkpoint(groups[groupIndex], `Checkpoint ${groupIndex + 1}`, 2, `cp-${groupIndex}`)] : [row];
         })}
         </AnimatePresence>
+        {path.length >= 2 ? checkpoint(path, "Exam check", 1, "exam") : null}
       </ol>
       <AnkiExport course={course.name} concepts={concepts} activities={state.snapshot.learningActivities} />
     </div>

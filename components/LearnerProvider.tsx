@@ -29,6 +29,7 @@ import {
   setDemoStateOwner,
   subscribeDemoState,
   type DemoState,
+  mergeKnownLines,
   mergeMissedLines,
   renameCourse,
   renameConcept,
@@ -116,7 +117,8 @@ export function LearnerProvider({ children }: { children: ReactNode }) {
       if (remote) {
         // The account's state wins, but missed lines from this device join it, so a warm-up never loses a line.
         const localMissed = mergeMissedLines(readStoredDemoState(userId)?.missedLines, guestBeforeSwitch?.missedLines);
-        const claimed = stateForAuthenticatedUser({ ...remote, missedLines: mergeMissedLines(remote.missedLines, localMissed) }, userId);
+        const localKnown = mergeKnownLines(readStoredDemoState(userId)?.knownLines, guestBeforeSwitch?.knownLines);
+        const claimed = stateForAuthenticatedUser({ ...remote, missedLines: mergeMissedLines(remote.missedLines, localMissed), knownLines: mergeKnownLines(remote.knownLines, localKnown) }, userId);
         replaceDemoState(claimed);
         // Remember the account's copy, not the merge, so the merged lines are written back on the next sync.
         lastWritten.current = JSON.stringify(stateForAuthenticatedUser(remote, userId));
