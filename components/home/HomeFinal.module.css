@@ -5,7 +5,7 @@
   gap: clamp(20px, 3vw, 40px);
   padding: clamp(3rem, 6vw, 4.5rem) max(1.5rem, calc((100vw - 76rem) / 2));
   border-top: 1px solid var(--color-frost, #e6e5e1);
-  background: var(--paper, #fbfaf7);
+  background: var(--color-pure-white, #fff);
   color: #191a18;
 }
 
@@ -39,21 +39,24 @@
 .action {
   display: inline-flex;
   align-items: center;
-  gap: 22px;
-  min-height: 52px;
-  padding: 0 18px 0 24px;
-  border-radius: 999px;
-  background: #1f6b45;
+  gap: 10px;
+  min-height: 48px;
+  padding: 0 20px;
+  border-radius: 8px;
+  background: var(--k-green, #1f6b45);
+  box-shadow: 0 1px 2px rgba(25, 26, 24, 0.12);
   color: #fff;
   font-weight: 600;
   font-size: 15px;
   text-decoration: none;
   white-space: nowrap;
-  transition: background-color 180ms ease, transform 150ms ease;
+  transition: background-color 120ms ease, transform 120ms ease;
 }
-.action:hover { background: #18573a; transform: translateY(-2px); }
-.action:active { transform: scale(0.97); }
-.action:focus-visible { outline: 3px solid #1f6b45; outline-offset: 4px; }
+.arrow { transition: transform 120ms ease; }
+.action:hover { background: #18573a; }
+.action:hover .arrow { transform: translateX(3px); }
+.action:active { transform: scale(0.98); box-shadow: none; }
+.action:focus-visible { outline: 2px solid color-mix(in srgb, #1f6b45 45%, transparent); outline-offset: 2px; }
 
 @media (max-width: 720px) {
   .final { grid-template-columns: minmax(0, 1fr); justify-items: start; }
