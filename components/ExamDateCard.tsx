@@ -6,7 +6,8 @@ import styles from "./ExamDateCard.module.css";
 /** Asked after the first run, when the question has a reason: it sets the countdown, the pace and the daily reminder. */
 export function ExamDateCard({ onSave }: { onSave: (date: string, targetPercent: number) => void }) {
   const [date, setDate] = useState("");
-  const [aim, setAim] = useState(80);
+  // The aim stays at 80%: a student picking a date should not also have to price a percentage they have never seen.
+  const aim = 80;
   const [error, setError] = useState("");
   const [tomorrow] = useState(() => new Date(Date.now() + 86_400_000).toISOString().slice(0, 10));
 
@@ -22,17 +23,11 @@ export function ExamDateCard({ onSave }: { onSave: (date: string, targetPercent:
   return (
     <section className={styles.card} aria-labelledby="exam-date-title">
       <h2 id="exam-date-title">When is your exam?</h2>
-      <p>It sets your countdown, how many topics a day you need, and the readiness you’re aiming for. You can skip it for now.</p>
+      <p>Kelus spreads your topics over the days you have left, and tells you how many to do each day.</p>
       <div className={styles.row}>
         <label>
           <span>Exam date</span>
           <input type="date" value={date} min={tomorrow} onChange={(event) => { setDate(event.target.value); setError(""); }} />
-        </label>
-        <label>
-          <span>Aim for</span>
-          <select value={aim} onChange={(event) => setAim(Number(event.target.value))}>
-            {[60, 70, 80, 90].map((value) => <option key={value} value={value}>{value}% ready</option>)}
-          </select>
         </label>
         <button type="button" className="k-btn k-btn--small" onClick={save}>Save date</button>
       </div>

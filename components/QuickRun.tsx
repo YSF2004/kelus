@@ -202,7 +202,7 @@ export function QuickRun({ run, onRevealSource, onFinish, onChecksDone, context 
 
             {answered ? (
               <motion.div className={`${styles.feedback} ${answered.right ? styles.ok : styles.no}`} role="status" initial={reduce ? false : { opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.2 }}>
-                <strong>{answered.right ? <PackArt name="check" className={styles.mark} /> : null}{answered.unsure ? (item.kind === "cloze" ? `That’s fine. It was “${item.modelAnswer}”.` : "That’s fine. Here’s the answer.") : answered.right ? "Right." : item.kind === "cloze" ? `Not quite. It was “${item.modelAnswer}”.` : "Not quite."}</strong>
+                <strong>{answered.right ? <PackArt name="check" className={styles.mark} /> : null}{answered.unsure ? (item.kind === "cloze" ? `It was “${item.modelAnswer}”.` : "Here’s the line it comes from.") : answered.right ? "Right." : item.kind === "cloze" ? `Not quite. It was “${item.modelAnswer}”.` : "Not quite."}</strong>
                 <p className={styles.quote}>“{item.sourceQuote}”</p>
                 {answered.elsewhere ? (
                   <div className={styles.elsewhere}>

@@ -73,7 +73,11 @@ const RUNS_ON = /(?:,|\b(?:and|or|but|of|to|the|a|an|in|on|at|by|for|with|from|b
  * sentence cannot end on ("…in Africa and" / "Asia."). Separate slide bullets stay separate. (PDF pages are already
  * rejoined by line width when they are read.)
  */
+/** "e.g." and "i.e." end in a full stop but never end a sentence. */
+const ABBREVIATION_END = /(?:^|[\s(])(?:e\.g|i\.e|cf|vs|Fig|fig|Eq|eq|approx|Dr|Mr|Mrs|Ms|pp?)\.$/;
+
 function wrapsInto(previous: string, line: string) {
+  if (ABBREVIATION_END.test(previous)) return true;
   if (/[.!?:;]["”)]?$/.test(previous)) return false;
   if (/^\p{Ll}/u.test(line)) return true;
   return RUNS_ON.test(previous);
@@ -125,8 +129,8 @@ export function splitSentences(text: string) {
   // A line that ends a sentence ends it, even when a scan starts the next line in lowercase ("…departure.\ncrew
   // rest minimum"): only a line with no closing stop is a wrapped sentence that carries on.
   return text
-    .split(/(?<=[.!?]["”)]?)[ \t]*\n+/)
-    .flatMap((block) => block.replace(/\s+/g, " ").split(/(?<=[.!?])\s+(?=[A-Z“"(])/))
+    .split(/(?<!(?:^|[\s(])(?:e\.g|i\.e|cf|vs|Fig|fig|Eq|eq|approx|Dr|Mr|Mrs|Ms|pp?)\.)(?<=[.!?]["”)]?)[ \t]*\n+/)
+    .flatMap((block) => block.replace(/\s+/g, " ").split(/(?<!(?:^|[\s(])(?:e\.g|i\.e|cf|vs|Fig|fig|Eq|eq|approx|Dr|Mr|Mrs|Ms|pp?)\.)(?<=[.!?])\s+(?=[A-Z“"(])/))
     .map((part) => part.trim())
     .filter((part) => part.length >= 20);
 }
@@ -193,6 +197,9 @@ function pickGapWord(sentence: string, name: string, page: string, relaxed = fal
     const nextLower = next.toLocaleLowerCase();
     const before2 = tokens[index - 2]?.[0].toLocaleLowerCase() ?? "";
     if (nameParts.has(lower) || STOP.has(lower) || WEAK.has(lower)) return;
+    // Inside a bracketed example ("(e.g. eBay auctions)") the word is the page's instance, not its idea.
+    const opened = sentence.slice(0, match.index ?? 0);
+    if (opened.lastIndexOf("(") > opened.lastIndexOf(")") && /\((?:e\.g|i\.e|eg|for example|such as|like)\b/i.test(opened.slice(opened.lastIndexOf("(")))) return;
     // A figure, table or slide number is a label, not a fact ("Figure _____ Oxygen diffuses…").
     if (isNumber && /^(?:figure|fig|table|slide|page|chapter|section|lecture|week|unit|part|step|equation|eq)$/.test(previous)) return;
     // Half of a name: "the _____ Hand group", or the second author in "Card and _____".
@@ -433,7 +440,11 @@ export function buildPractice(input: {
   }
 
   // 4d. Which statement is from your notes on this topic: a real sentence among sentences from the course's other topics.
-  const foreign = (input.siblingFacts ?? []).filter((fact) => fact.length >= 25 && fact.length <= 160 && !excerpt.includes(fact));
+  // A wrong option has to be clearly about something else: one that names this topic ("…normative economics debates
+  // what should be") reads as true, and one that opens on "It" or "This" means nothing out of its own page.
+  const nameWords = name.toLocaleLowerCase().split(/[^\p{L}]+/u).filter((word) => word.length >= 5 && !/^(?:introduction|overview|basics|model|models)$/.test(word));
+  const namesTopic = (fact: string) => nameWords.some((word) => new RegExp(`\\b${word.slice(0, Math.max(5, word.length - 2))}`, "i").test(fact));
+  const foreign = (input.siblingFacts ?? []).filter((fact) => fact.length >= 25 && fact.length <= 160 && !excerpt.includes(fact) && !namesTopic(fact) && !/^(?:it|this|that|these|those|they|he|she)\b/i.test(fact.trim()));
   const statements = sentences.filter((sentence) => sentence.length >= 25 && sentence.length <= 160);
   if (foreign.length >= 3) {
     const start = hash(conceptId) % Math.max(1, statements.length);

@@ -56,6 +56,8 @@ function pickChecks(all: PracticeItem[], round: number, strict = true) {
       if (checks.length >= MAX_CHECKS || checks.includes(item)) continue;
       if (varied && checks.some((chosen) => style(chosen) === style(item))) continue;
       if (strict && checks.some((chosen) => clashes(chosen, item))) continue;
+      // Even on a thin page, three checks on one sentence is a quiz on a line, not a topic: two angles at most.
+      if (!strict && checks.filter((chosen) => overlaps(chosen.sourceQuote, item.sourceQuote)).length >= 2) continue;
       // One fill-the-gap per run while other kinds of question are still available: a run should make you think,
       // not just recall a word.
       if (strict && item.kind === "cloze" && checks.some((chosen) => chosen.kind === "cloze") && ordered.some((other) => other.kind !== "cloze" && !checks.includes(other) && !checks.some((chosen) => clashes(chosen, other)))) continue;

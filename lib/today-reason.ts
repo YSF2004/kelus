@@ -49,7 +49,7 @@ export function describeRouteChoice(allocation: RouteAllocation, concept?: Conce
 
   const own = concept.retrievalAttempts > 0 ? lastEvidenceLine(concept, options) : null;
   if (concept.retrievalAttempts === 0) {
-    lines.push("New to you here: no answers on it yet.");
+    lines.push("You haven’t answered it yet.");
   } else if (own) {
     lines.push(own);
   } else if (reasons.has("LOW_MASTERY")) {
@@ -65,8 +65,6 @@ export function describeRouteChoice(allocation: RouteAllocation, concept?: Conce
     lines.push(dependents.length === 1 ? `${dependents[0]} builds on it.` : `${dependents[0]} and ${dependents.length - 1 === 1 ? dependents[1] : `${dependents.length - 1} more topics`} build on it.`);
   } else if (reasons.has("PREREQUISITE_GAP")) {
     lines.push("It helps with the topics that build on it.");
-  } else if (reasons.has("HIGH_EXAM_VALUE")) {
-    lines.push("It carries more weight in your exam.");
   } else if (reasons.has("EXAM_APPROACHING")) {
     lines.push("Your exam is close.");
   }
@@ -82,9 +80,6 @@ export function describeRoutePayoff(
   const reasons = new Set(allocation.reasons);
   if (reasons.has("PREREQUISITE_GAP") && nextTopic) {
     return `A focused pass here should make ${nextTopic} easier to retrieve next.`;
-  }
-  if (reasons.has("HIGH_EXAM_VALUE")) {
-    return "A focused pass gives you stronger evidence on a high-value exam topic.";
   }
   if (reasons.has("REVIEW_DUE") || reasons.has("RETENTION_FADING")) {
     return "A short recall now helps keep this idea available before it fades.";
