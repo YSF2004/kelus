@@ -619,6 +619,9 @@ body.is-booklet-system .course-masthead-kicker {
 }
 
 body.is-booklet-system .course-masthead-title {
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
   margin: 0.15rem 0 0;
   font-family: var(--font-editorial);
   font-size: clamp(1.55rem, 3vw, 2rem);
@@ -626,6 +629,12 @@ body.is-booklet-system .course-masthead-title {
   letter-spacing: -0.03em;
   line-height: 1.1;
   color: var(--booklet-ink);
+}
+
+body.is-booklet-system .course-masthead-title .course-folder-icon {
+  width: 1.75rem;
+  height: auto;
+  flex: none;
 }
 
 body.is-booklet-system .course-masthead-exam {

@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useSyncExternalStore } from "react";
 import { useLearner } from "@/components/LearnerProvider";
+import { CourseFolderIcon } from "@/components/CourseFolderIcon";
 import { daysUntilExam } from "@/domain/scheduler";
 import {
   getMaterialsSnapshot,
@@ -24,6 +25,7 @@ export function CourseWorkspaceRail() {
 
   const concepts = state.snapshot.concepts.filter((item) => item.courseId === course.id);
   const sourceCount = materials.filter((item) => item.courseId === course.id).length;
+  const hasCoursePdf = materials.some((item) => item.courseId === course.id && item.kind === "pdf" && !item.id.startsWith("material-demo-"));
   const materialsReady = sourceCount > 0 || concepts.length > 0;
   const studyReady = state.diagnosisCompleted && concepts.length > 0;
 
@@ -78,7 +80,7 @@ export function CourseWorkspaceRail() {
     <aside className="course-masthead is-first-run" aria-label="Current course">
       <div className="course-masthead-identity">
         <p className="course-masthead-kicker">Current course</p>
-        <h2 className="course-masthead-title">{course.name}</h2>
+        <h2 className="course-masthead-title">{hasCoursePdf ? <CourseFolderIcon /> : null}<span>{course.name}</span></h2>
         <p className="course-masthead-exam">
           {exam.target}
           <span aria-hidden="true"> · </span>

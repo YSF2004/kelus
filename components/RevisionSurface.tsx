@@ -19,6 +19,7 @@ import { ankiCards } from "@/domain/anki-export";
 import { PackArt, type PackArtName } from "@/components/PackArt";
 import { AppTabBar } from "@/components/AppTabBar";
 import { InlineName } from "@/components/InlineName";
+import { CourseFolderIcon } from "@/components/CourseFolderIcon";
 import { kelusEase } from "@/components/motion";
 import { useAuth } from "@/components/AuthProvider";
 import { OPEN_SEARCH_EVENT } from "@/components/CommandPalette";
@@ -186,6 +187,7 @@ export function RevisionSurface({ topicId }: { /** A topic's own page, opened in
     : undefined;
   const modeMeta = MODES.find((item) => item.id === mode)!;
   const courseMaterials = materials.filter((item) => item.courseId === courseId);
+  const hasCoursePdf = courseMaterials.some((item) => item.kind === "pdf" && !item.id.startsWith("material-demo-"));
   const firstConceptId = route.allocations[0]?.conceptId;
   const firstReference = snapshot.learningActivities.find((item) => item.conceptId === firstConceptId)?.sourceReferences[0];
   const preferredMaterial = courseMaterials.find((item) => item.id === firstReference?.materialId);
@@ -337,7 +339,7 @@ export function RevisionSurface({ topicId }: { /** A topic's own page, opened in
 
       <div className="studio-main">
         <header className="studio-topbar">
-          <span className="studio-topbar-leading">{railHidden ? <button type="button" className="studio-rail-reopen" onClick={(event) => { setRailHidden(false); if (event.detail === 0) requestAnimationFrame(() => document.querySelector<HTMLButtonElement>(".studio-rail-toggle")?.focus({ preventScroll: true })); }} aria-label="Show workspace sidebar" title="Show sidebar"><RailChevrons open /></button> : null}<span className="studio-topbar-course" title={course.name}>{isSampleCourse ? course.name : <InlineName value={course.name} label="Rename course" onSave={(next) => renameCourse(course.id, next, "user")} />}</span></span>
+          <span className="studio-topbar-leading">{railHidden ? <button type="button" className="studio-rail-reopen" onClick={(event) => { setRailHidden(false); if (event.detail === 0) requestAnimationFrame(() => document.querySelector<HTMLButtonElement>(".studio-rail-toggle")?.focus({ preventScroll: true })); }} aria-label="Show workspace sidebar" title="Show sidebar"><RailChevrons open /></button> : null}<span className="studio-topbar-course" title={course.name}>{hasCoursePdf ? <CourseFolderIcon /> : null}{isSampleCourse ? course.name : <InlineName value={course.name} label="Rename course" onSave={(next) => renameCourse(course.id, next, "user")} />}</span></span>
           {!auth.user && auth.configured ? <button type="button" className="studio-topbar-signin" onClick={auth.openDialog}>Sign in</button> : null}
           <span className="studio-topbar-status"><span className="studio-topbar-kind">{isSampleCourse ? "Sample course" : exam.target}</span><span className="studio-topbar-divider" aria-hidden="true">·</span><span>{examDatePending ? "Add your exam date" : `${days} day${days === 1 ? "" : "s"} to exam`}</span></span>
         </header>
@@ -379,6 +381,7 @@ export function RevisionSurface({ topicId }: { /** A topic's own page, opened in
                     targetPercent={exam.targetPercent}
                     daysToExam={days}
                     isSampleCourse={isSampleCourse}
+                    hasCoursePdf={hasCoursePdf}
                     examDatePending={examDatePending}
                     onSetExamDate={setExamDate}
                     reminder={{ courseName: course.name, examDate: exam.examDate.slice(0, 10), minutes: exam.availableMinutes }}

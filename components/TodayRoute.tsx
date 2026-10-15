@@ -18,6 +18,7 @@ import { dependentNames, describeRouteChoice } from "@/lib/today-reason";
 import { trackEvent } from "@/lib/analytics";
 import { firstTimeToday, returnVisit } from "@/lib/pilot";
 import { HabitStrip } from "@/components/HabitStrip";
+import { CourseFolderIcon } from "@/components/CourseFolderIcon";
 import q from "./TodayQuiet.module.css";
 
 const pressSpring = { type: "spring", bounce: 0, duration: 0.28 } as const;
@@ -38,6 +39,7 @@ export function TodayRoute({
   onStart,
   startLabel,
   isSampleCourse = false,
+  hasCoursePdf = false,
   reminder,
   examDatePending = false,
   onSetExamDate,
@@ -55,6 +57,7 @@ export function TodayRoute({
   onStart: () => void;
   startLabel?: string;
   isSampleCourse?: boolean;
+  hasCoursePdf?: boolean;
   reminder?: { courseName: string; examDate: string; minutes: number };
   examDatePending?: boolean;
   onSetExamDate?: (date: string, targetPercent?: number) => void;
@@ -158,7 +161,7 @@ export function TodayRoute({
 
       {/* The page is titled like a document: the course, then one grey line on where it stands. */}
       <motion.header className={q.head} {...settle(0)}>
-        <h1 className={q.title}>{courseName}</h1>
+        <h1 className={q.title}>{hasCoursePdf ? <CourseFolderIcon /> : null}<span>{courseName}</span></h1>
         {warmupFirst ? null : (
           <p className={q.meta} role="group" aria-label="Your path through the course">
             <strong>{path.started} of {path.total}</strong> topics started{path.solid ? <> · <strong>{path.solid}</strong> solid</> : null} · {pathLine}

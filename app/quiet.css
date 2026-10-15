@@ -66,6 +66,9 @@ html body.is-course-studio .studio-rail-bottom :is(a, button, summary):hover { b
 /* Top bar: a quiet breadcrumb, the page itself carries the title. */
 html body.is-course-studio .studio-topbar { min-height: 44px !important; border-bottom: 0 !important; background: transparent !important; }
 html body.is-course-studio .studio-topbar-course { color: var(--q-text-2) !important; font-size: 0.8125rem !important; font-weight: 500 !important; }
+html body.is-course-studio .studio-topbar-course { display: inline-flex; align-items: center; min-width: 0; gap: 0.4rem; }
+html body.is-course-studio .studio-topbar-course .course-folder-icon { width: 1.35rem; height: auto; flex: none; }
+html body.is-course-studio .studio-topbar-course > button { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 html body.is-course-studio .studio-topbar-status { color: var(--q-text-3) !important; font-size: 0.8125rem !important; }
 
 /* The extras under Today (exam date, nudges, install, reminder, welcome): flat sections under a hairline. */
