@@ -136,13 +136,18 @@ function bulletFonts(rawItems: PdfTextItem[]) {
 }
 
 type Fragment = { text: string; x: number; width: number; fontSize: number };
-type Line = ExtractedTextBlock & { hasEOL: boolean; fragments: Fragment[] };
+type Line = ExtractedTextBlock & { hasEOL: boolean; fragments: Fragment[]; /** The line starts with a bullet. */ bullet?: boolean };
+
+/** A lone dash first on a line, with a gap after it, is a slide bullet from the symbol font, not a minus sign. */
+function dashBullet(fragments: Fragment[]) {
+  const sorted = [...fragments].filter((part) => part.text).sort((a, b) => a.x - b.x);
+  return sorted.length > 1 && /^[−–-]$/.test(sorted[0].text) && sorted[1].x - (sorted[0].x + sorted[0].width) > sorted[0].fontSize * 0.3;
+}
 
 /** A line's text from its fragments in left-to-right order; touching fragments join without a space. */
 function lineText(fragments: Fragment[]) {
-  const sorted = [...fragments].sort((a, b) => a.x - b.x);
-  // A lone dash first on a line, with a gap after it, is a slide bullet from the symbol font, not a minus sign.
-  if (sorted.length > 1 && /^[−–-]$/.test(sorted[0].text) && sorted[1].x - (sorted[0].x + sorted[0].width) > sorted[0].fontSize * 0.3) sorted.shift();
+  const sorted = [...fragments].filter((part) => part.text).sort((a, b) => a.x - b.x);
+  if (dashBullet(sorted)) sorted.shift();
   let text = "";
   let right = -Infinity;
   for (const part of sorted) {
@@ -157,16 +162,25 @@ export function buildLayoutPage(pageNumber: number, rawItems: PdfTextItem[]): Ex
   const symbols = symbolFonts(rawItems);
   const bullets = bulletFonts(rawItems);
   const items = rawItems.flatMap((item) => {
-    if (item.fontName && bullets.has(item.fontName)) return [];
+    const transformAt = item.transform ?? [];
+    // A slide's bullet drawn in a symbol font ("u" in Wingdings) is kept as a mark, not as text: it says a new point
+    // starts here, so the line is never glued onto the one before it.
+    if (item.fontName && bullets.has(item.fontName)) {
+      if (!item.str?.trim()) return [];
+      const size = Math.max(1, (item.height ?? Math.hypot(transformAt[0] ?? 0, transformAt[1] ?? 0)) || 12);
+      return [{ text: "", bullet: true, x: transformAt[4] ?? 0, y: transformAt[5] ?? 0, width: item.width ?? 0, height: item.height ?? size, fontSize: size, hasEOL: Boolean(item.hasEOL) }];
+    }
     const raw = item.fontName && symbols.has(item.fontName) ? [...(item.str ?? "")].map((char) => SYMBOL_FONT_MAP[char] ?? char).join("") : item.str;
     const text = raw?.replace(/\s+/g, " ").trim();
     if (!text) return [];
     const transform = item.transform ?? [];
     const measuredSize = item.height ?? Math.hypot(transform[0] ?? 0, transform[1] ?? 0);
     const fontSize = Math.max(1, measuredSize || 12);
-    return [{ text: repairLigatures(text.replace(BULLET_GLYPHS, "").trim()), x: transform[4] ?? 0, y: transform[5] ?? 0, width: item.width ?? 0, height: item.height ?? fontSize, fontSize, hasEOL: Boolean(item.hasEOL) }];
+    const lead = text.match(BULLET_GLYPHS)?.[0] ?? "";
+    return [{ text: repairLigatures(text.slice(lead.length).trim()), bullet: /[•‣▪◦▸►∙●○■□✓✔➢➤]/u.test(lead), x: transform[4] ?? 0, y: transform[5] ?? 0, width: item.width ?? 0, height: item.height ?? fontSize, fontSize, hasEOL: Boolean(item.hasEOL) }];
   }).filter((item, index, all) => {
-    if (!item.text) return false;
+    if (!item.text && !item.bullet) return false;
+    if (!item.text) return true;
     // Fake bold: the same run drawn twice a hair apart ("Acidity/BasicityAcidity/Basicity"). Keep the first.
     const before = all[index - 1];
     return !(before && before.text === item.text && Math.abs(before.x - item.x) < 2 && Math.abs(before.y - item.y) < 2);
@@ -183,18 +197,41 @@ export function buildLayoutPage(pageNumber: number, rawItems: PdfTextItem[]): Ex
     const target = previous && sameRow(previous, item) && !previous.hasEOL
       ? previous
       : lines.slice(-40).reverse().find((line) => sameRow(line, item) && item.x >= line.x - 1 && item.x <= line.x + line.width + item.fontSize * 0.6);
+    // A bullet mark only ever opens a line; one that lands inside a line is a stray glyph between words.
+    if (!item.text && (target || !item.bullet)) continue;
     if (target) {
       // Fake bold slotted into the same line: a copy of a fragment already there, at the same spot, is the same text.
       if (target.fragments.some((part) => part.text === fragment.text && Math.abs(part.x - fragment.x) < 2)) continue;
+      // A line that so far is only its bullet takes its height and size from its first words: a large bullet glyph
+      // would otherwise pull the next lines of the paragraph into the same row.
+      const onlyBullet = !target.text;
       target.fragments.push(fragment);
       target.text = lineText(target.fragments);
+      if (onlyBullet) { target.y = item.y; target.fontSize = item.fontSize; target.height = item.height; }
       target.width = Math.max(target.width, item.x + item.width - target.x);
       target.x = Math.min(target.x, item.x);
       target.height = Math.max(target.height, item.height);
       target.fontSize = Math.max(target.fontSize, item.fontSize);
       if (target === previous) target.hasEOL = item.hasEOL;
     } else {
-      lines.push({ ...item, fragments: [fragment] });
+      lines.push({ ...item, fragments: [fragment], bullet: item.bullet });
+    }
+  }
+  // A bullet that sat alone (its text drawn as the next run) leaves an empty line: fold it into the line it marks.
+  for (let index = lines.length - 1; index >= 0; index -= 1) {
+    const line = lines[index];
+    line.bullet = Boolean(line.bullet) || dashBullet(line.fragments);
+    // Measured from where its words start, not from the bullet: the line it wraps onto starts there too.
+    const words = line.fragments.filter((part) => part.text && !(dashBullet(line.fragments) && part === [...line.fragments].filter((p) => p.text).sort((a, b) => a.x - b.x)[0]));
+    if (line.bullet && words.length) {
+      const left = Math.min(...words.map((part) => part.x));
+      line.width = Math.max(...words.map((part) => part.x + part.width)) - left;
+      line.x = left;
+    }
+    if (!line.text.trim()) {
+      const next = lines[index + 1];
+      if (line.bullet && next) next.bullet = true;
+      lines.splice(index, 1);
     }
   }
   const bodySize = median(lines.map((line) => line.fontSize));
@@ -209,20 +246,20 @@ export function buildLayoutPage(pageNumber: number, rawItems: PdfTextItem[]): Ex
       const gap = Math.abs(previous.y - line.y);
       const paragraphBreak = gap > bodySize * 1.65 || line.fontSize >= bodySize * 1.18 || previous.fontSize >= bodySize * 1.18;
       // Justified text splits words at the line end ("de-" / "fend"): the word is joined back. "Austria-" / "Hungary" keeps its dash.
-      if (!paragraphBreak && /\p{Ll}-$/u.test(text) && /^\p{Ll}/u.test(line.text)) {
+      if (!paragraphBreak && !line.bullet && /\p{Ll}-$/u.test(text) && /^\p{Ll}/u.test(line.text)) {
         text = text.slice(0, -1);
         text += line.text;
         return;
       }
       // A line that ran to the column's edge without ending a sentence wrapped: the next line is the same sentence.
       // A short slide bullet stops well before the edge, so it keeps its own line.
-      const wrapped = !paragraphBreak && previous.width >= fullWidth(previous) * 0.85 && fullWidth(previous) > bodySize * 15
+      const wrapped = !paragraphBreak && !line.bullet && previous.width >= fullWidth(previous) * 0.85 && fullWidth(previous) > bodySize * 15
         && !/[.!?:;]["”)]?$/.test(previous.text) && Math.abs(line.x - previous.x) < 4;
       text += paragraphBreak ? "\n\n" : wrapped ? " " : "\n";
     }
-    text += line.text;
+    text += line.bullet ? `• ${line.text}` : line.text;
   });
-  return { pageNumber, text: text.trim(), blocks: lines.map(({ hasEOL: _hasEOL, fragments: _fragments, ...line }) => line) };
+  return { pageNumber, text: text.trim(), blocks: lines.map(({ hasEOL: _hasEOL, fragments: _fragments, bullet: _bullet, ...line }) => line) };
 }
 
 /**

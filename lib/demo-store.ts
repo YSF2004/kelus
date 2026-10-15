@@ -28,7 +28,27 @@ export type DemoState = {
   missedLines?: MissedLine[];
   /** Lines answered right and not missed since: "lines you can recall". Synced with the account like missed lines. */
   knownLines?: MissedLine[];
+  /** The latest result of each checkpoint on the course path, so the path can show it as passed. */
+  checkpoints?: CheckpointResult[];
 };
+
+/** One checkpoint's latest run: which topics (a stable key), how it went, and when. */
+export type CheckpointResult = { key: string; right: number; total: number; at: string };
+
+/** Both devices' results, the newest per checkpoint. */
+export function mergeCheckpoints(a: CheckpointResult[] = [], b: CheckpointResult[] = []) {
+  const byKey = new Map<string, CheckpointResult>();
+  for (const result of [...a, ...b]) {
+    const seen = byKey.get(result.key);
+    if (!seen || result.at > seen.at) byKey.set(result.key, result);
+  }
+  return [...byKey.values()].sort((x, y) => x.at.localeCompare(y.at)).slice(-60);
+}
+
+export function updateCheckpoints(change: (results: CheckpointResult[]) => CheckpointResult[]) {
+  const state = getDemoSnapshot();
+  persistDemoState({ ...state, checkpoints: change(state.checkpoints ?? []).slice(-60) }, false, false, true);
+}
 
 const MISSED_LIMIT = 40;
 
@@ -200,9 +220,10 @@ const emit = () => listeners.forEach((listener) => listener());
  * with). Missed lines change on their own path, so every other save carries the newest list forward instead of
  * dropping lines added in the meantime. Only the missed-line updater and a full replace set the list itself.
  */
-function persistDemoState(input: DemoState, ownsMissedLines = false, ownsKnownLines = false) {
+function persistDemoState(input: DemoState, ownsMissedLines = false, ownsKnownLines = false, ownsCheckpoints = ownsMissedLines && ownsKnownLines) {
   const withMissed = ownsMissedLines || !clientCache?.missedLines ? input : { ...input, missedLines: clientCache.missedLines };
-  const state = ownsKnownLines || !clientCache?.knownLines ? withMissed : { ...withMissed, knownLines: clientCache.knownLines };
+  const withKnown = ownsKnownLines || !clientCache?.knownLines ? withMissed : { ...withMissed, knownLines: clientCache.knownLines };
+  const state = ownsCheckpoints || !clientCache?.checkpoints ? withKnown : { ...withKnown, checkpoints: clientCache.checkpoints };
   clientCache = state;
   if (typeof window !== "undefined") window.localStorage.setItem(demoStateStorageKey(), JSON.stringify(state));
   emit();

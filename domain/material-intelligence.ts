@@ -89,6 +89,7 @@ const RELATED_SIGNAL = /\b(?:related to|closely related|see also|compared with|i
 
 function cleanCandidate(value: string) {
   const cleaned = value
+    .replace(/^\s*[•◦▪‣]\s+/, "")
     // "Definition (Elasticity of Y with respect to X)" is a definition of the thing in brackets.
     .replace(/^\s*(?:definition|déf(?:inition)?)s?\s*\((.+)\)\s*$/i, "$1")
     .replace(NUMBER_PREFIX, "")
@@ -147,8 +148,11 @@ function notATopic(value: string) {
     || /^(?:dr|prof|professor|mr|mrs|ms)\.?\s+\p{Lu}/iu.test(text);
 }
 
+/** A slide's bullet point is a point inside a topic, never the topic's heading. */
+const BULLETED = /^\s*[•◦▪‣]\s/;
+
 function looksLikeConcept(value: string) {
-  if (isStatement(value) || notATopic(value)) return false;
+  if (BULLETED.test(value) || isStatement(value) || notATopic(value)) return false;
   if (value.length < 3 || value.length > 72 || ADMINISTRATIVE.test(value) || GENERIC_HEADING.test(value.trim()) || isContinuation(value)) return false;
   if (/https?:|@|\b(?:monday|tuesday|wednesday|thursday|friday|saturday|sunday)\b/i.test(value)) return false;
   if (/\b(?:due|points?|percent|room|pm|am)\b/i.test(value)) return false;
@@ -198,10 +202,14 @@ function excerptFor(lines: string[], index: number, fallback: string, isHeading:
       if (nearby.length) break;
       continue;
     }
-    // A PDF wraps a sentence across lines; a short tail like "no energy." still belongs to it.
-    const continues = nearby.length > 0 && (!/[.!?:;”")]$/.test(nearby[nearby.length - 1]) || /^[a-z(]/.test(line));
+    // A PDF wraps a sentence across lines; a short tail like "no energy." still belongs to it. A slide's bullet point
+    // ends where its line ends, punctuated or not, so the next slide's heading is never read as its tail.
+    const last = nearby[nearby.length - 1] ?? "";
+    const bullet = BULLETED.test(line);
+    const continues = nearby.length > 0 && !bullet && ((!BULLETED.test(last) && !/[.!?:;”")]$/.test(last)) || /^[a-z(]/.test(line));
     if (heading && nearby.length && !continues) break;
-    if ((line.length > 18 && !heading) || continues) nearby.push(line);
+    // Short points count on a slide ("Introspection", "Edward Titchener"); in prose a short line is usually a label.
+    if (((bullet ? line.replace(BULLETED, "").length >= 6 : line.length > 18) && !heading) || continues) nearby.push(line);
     if (nearby.join(" ").length >= 520 && /[.!?]["”)]?$/.test(line)) break;
   }
   return wholeSentences(nearby.length ? nearby.join("\n") : fallback, 760);
@@ -267,8 +275,16 @@ function centralClaim(name: string, excerpt: string) {
   const named = pool.find((sentence) => sentence.toLocaleLowerCase().includes(coreName(name).toLocaleLowerCase()));
   // A definition counts only near the heading; a later "… is the market equilibrium" belongs to another idea.
   const defined = pool.slice(0, 2).find((sentence) => DEFINITION_SIGNAL.test(sentence));
-  if (!whole.length && sentences.length > 1) return sentences.slice(0, 3).join("; ").slice(0, 300);
-  return (named ?? defined ?? pool[0]).slice(0, 260);
+  if (!whole.length && sentences.length > 1) return clipAtPoint(sentences.slice(0, 3).join("; "), 300);
+  return clipAtPoint(named ?? defined ?? pool[0], 260);
+}
+
+/** A long slide point ("Parent: a; b; c; …") is cut after its last whole point, never inside a word. */
+function clipAtPoint(text: string, limit: number) {
+  if (text.length <= limit) return text;
+  const cut = text.slice(0, limit);
+  const at = Math.max(cut.lastIndexOf("; "), cut.lastIndexOf(". "));
+  return at > limit * 0.4 ? cut.slice(0, at + (cut[at] === "." ? 1 : 0)) : cut.slice(0, cut.lastIndexOf(" ")).replace(/[,;:]$/, "") + "…";
 }
 
 /** A topic that names a set: "Determinants of elasticity", "Causes of the war", "Limiting factors". */

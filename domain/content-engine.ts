@@ -78,7 +78,8 @@ const ABBREVIATION_END = /(?:^|[\s(])(?:e\.g|i\.e|cf|vs|Fig|fig|Eq|eq|approx|Dr|
 
 function wrapsInto(previous: string, line: string) {
   if (ABBREVIATION_END.test(previous)) return true;
-  if (/[.!?:;]["”)]?$/.test(previous)) return false;
+  // A semicolon joins two halves of one point ("…positive outcomes;" / "stop behaviors…"); a full stop ends it.
+  if (/[.!?:]["”)]?$/.test(previous) || (/;$/.test(previous) && !/^\p{Ll}/u.test(line))) return false;
   if (/^\p{Ll}/u.test(line)) return true;
   return RUNS_ON.test(previous);
 }
@@ -87,9 +88,19 @@ export function units(text: string) {
   const out: string[] = [];
   // A PDF wraps long lines. A line that starts in lowercase continues the one before it.
   const lines: string[] = [];
+  // On a slide, a point that starts in lowercase is a sub-point of the one above ("American openness" › "young
+  // universities…" › "less tradition bound…"): alone it says nothing, so it joins its parent as "Parent: a; b".
+  const parents = new Set<number>();
   for (const raw of text.split(/\n+/)) {
     const line = raw.trim();
     if (!line) continue;
+    const point = line.replace(BULLET, "");
+    const last = lines.length - 1;
+    if (last >= 0 && BULLET.test(line) && /^\p{Ll}/u.test(point) && !/[.!?]["”)]?$/.test(lines[last])) {
+      lines[last] = lines[last].replace(/:\s*$/, "") + (parents.has(last) ? "; " : ": ") + point;
+      parents.add(last);
+      continue;
+    }
     if (lines.length && !BULLET.test(line) && wrapsInto(lines[lines.length - 1], line)) lines[lines.length - 1] += ` ${line}`;
     else lines.push(restoreCapital(line));
   }
