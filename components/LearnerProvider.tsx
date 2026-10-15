@@ -16,6 +16,7 @@ import {
   clearStoredDemoState,
   chooseLocalStateForSignIn,
   getDemoStateOwner,
+  recordCheckpointAnswers,
   recordRetrieval,
   removeMaterialLearning,
   removeConcept,
@@ -59,6 +60,8 @@ type Store = {
   }) => void;
   reset: () => void;
   skipDay: () => void;
+  /** A checkpoint's answers, one result per topic, recorded as evidence. */
+  recordCheckpoint: (topics: Array<{ conceptId: string; right: number; total: number }>) => void;
   completeSetup: (input: SetupInput) => void;
   completeDiagnosis: (input: {
     ratings: Record<string, SelfRating>;
@@ -225,6 +228,9 @@ export function LearnerProvider({ children }: { children: ReactNode }) {
     },
     reset() {
       resetDemoState();
+    },
+    recordCheckpoint(topics) {
+      recordCheckpointAnswers(state, topics);
     },
     skipDay() {
       if (process.env.NODE_ENV !== "development") return;

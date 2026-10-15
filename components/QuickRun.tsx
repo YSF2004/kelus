@@ -55,13 +55,17 @@ export function QuickRun({ run, onRevealSource, onFinish, onChecksDone, context,
   // -1 once reading is over (or there is nothing to read); otherwise the last line shown so far.
   const [reading, setReading] = useState(() => (lines.length >= 2 ? 0 : -1));
   const [knownNow, setKnownNow] = useState<string[]>([]);
+  const [change, setChange] = useState<"+1" | "−1">("+1");
   const [bump, setBump] = useState(0);
   const started = useRef(0);
   const total = run.checks.length;
   const [step, setStep] = useState(0); // 0..total-1 = checks, total = explain
   const [picked, setPicked] = useState<number | null>(null);
   const [typed, setTyped] = useState("");
-  const [answered, setAnswered] = useState<null | { right: boolean; unsure?: boolean; elsewhere?: string | null; given?: string }>(null);
+  const [answered, setAnswered] = useState<null | { right: boolean; unsure?: boolean; elsewhere?: string | null; given?: string; picked?: boolean }>(null);
+  // A word tapped from four is recognised, not recalled: it earns the check, never a line on the recall count.
+  const [tapped, setTapped] = useState<string | null>(null);
+  const [drop, setDrop] = useState(0);
   const [missed, setMissed] = useState<string[]>([]);
   const [unsure, setUnsure] = useState(0);
   const [right, setRight] = useState(0);
@@ -82,6 +86,7 @@ export function QuickRun({ run, onRevealSource, onFinish, onChecksDone, context,
   // Below three key words there is too little to compare fairly, so nothing is highlighted or suggested.
   const useful = match && match.keys >= 3 && explained.trim() ? match : null;
   const item = onChecks ? run.checks[step] : null;
+  const chips = item ? gapChoices(item, run) : [];
 
   /** A light tap on phones: a short one when right, a slightly longer one when not. Never on desktop. */
   function feel(ok: boolean) {
@@ -93,8 +98,15 @@ export function QuickRun({ run, onRevealSource, onFinish, onChecksDone, context,
     const ok = checkPracticeAnswer(item, value);
     if (typeof value === "number") setPicked(value);
     const given = typeof value === "number" ? item.choices?.[value] ?? "" : value.trim();
-    setAnswered({ right: ok, given, elsewhere: ok ? null : whereAnswerBelongs(item, given, run.sentences) });
-    if (ok) { setRight((count) => count + 1); setKnownNow((list) => [...list, item.sourceQuote]); if (!known?.has(item.sourceQuote)) setBump((count) => count + 1); } else { setMissed((list) => [...list, item.sourceQuote]); }
+    const fromChips = typeof value === "string" && tapped !== null && tapped === value;
+    setAnswered({ right: ok, given, picked: fromChips, elsewhere: ok ? null : whereAnswerBelongs(item, given, run.sentences) });
+    if (ok) {
+      setRight((count) => count + 1);
+      if (!fromChips) { setKnownNow((list) => [...list, item.sourceQuote]); if (!known?.has(item.sourceQuote)) { setBump((count) => count + 1); setChange("+1"); } }
+    } else {
+      setMissed((list) => [...list, item.sourceQuote]);
+      if (known?.has(item.sourceQuote) && !missed.includes(item.sourceQuote)) { setDrop((count) => count + 1); setChange("−1"); }
+    }
     feel(ok);
   }
 
@@ -104,11 +116,12 @@ export function QuickRun({ run, onRevealSource, onFinish, onChecksDone, context,
     setAnswered({ right: false, unsure: true });
     setUnsure((count) => count + 1);
     setMissed((list) => [...list, item.sourceQuote]);
+    if (known?.has(item.sourceQuote) && !missed.includes(item.sourceQuote)) { setDrop((count) => count + 1); setChange("−1"); }
   }
 
   function next() {
     if (onChecksDone && step + 1 >= total) { onChecksDone({ right, total, missed, known: knownNow }); return; }
-    setAnswered(null); setPicked(null); setTyped("");
+    setAnswered(null); setPicked(null); setTyped(""); setTapped(null);
     setStep((current) => current + 1);
   }
 
@@ -143,6 +156,7 @@ export function QuickRun({ run, onRevealSource, onFinish, onChecksDone, context,
   useEffect(() => {
     if (reading < 0) return;
     const onKey = (event: KeyboardEvent) => {
+      if (event.key === "Escape") { event.preventDefault(); setReading(-1); return; }
       if (event.key !== "Enter" || event.metaKey || event.ctrlKey || event.altKey || event.target instanceof HTMLInputElement || event.target instanceof HTMLTextAreaElement || event.target instanceof HTMLButtonElement) return;
       event.preventDefault();
       setReading((current) => (current + 1 < lines.length ? current + 1 : -1));
@@ -171,8 +185,7 @@ export function QuickRun({ run, onRevealSource, onFinish, onChecksDone, context,
 
   // The counter means something: lines of these notes you can recall now. It rises with a right answer to a line
   // you had not shown before, and falls when you miss one you had.
-  const lost = missed.filter((quote) => known?.has(quote) && !knownNow.includes(quote)).length;
-  const count = recalled == null ? null : Math.max(0, recalled + bump - lost);
+  const count = recalled == null ? null : Math.max(0, recalled + bump - drop);
   const readingNow = reading >= 0;
   const segments = (lines.length >= 2 ? 1 : 0) + total + (onChecksDone ? 0 : 1);
   const at = readingNow ? 0 : (lines.length >= 2 ? 1 : 0) + step;
@@ -186,11 +199,14 @@ export function QuickRun({ run, onRevealSource, onFinish, onChecksDone, context,
           ))}
         </ol>
         {context}
-        {count == null ? <span /> : (
-          <p className={styles.recall} role="status" aria-label={`${count} ${count === 1 ? "line" : "lines"} from your notes you can recall`}>
-            <motion.b key={count} initial={reduce || !bump ? false : { y: -6, opacity: 0.4 }} animate={{ y: 0, opacity: 1 }} transition={{ type: "spring", bounce: 0, duration: 0.35 }}>{count}</motion.b>
-            <span>{count === 1 ? "line" : "lines"}<span className={styles.recallLong}> you can recall</span></span>
-            <AnimatePresence>{bump && !reduce ? <motion.i key={`b${bump}`} aria-hidden="true" initial={{ opacity: 1, y: 0 }} animate={{ opacity: 0, y: -14 }} transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1] }}>+1</motion.i> : null}</AnimatePresence>
+        {/* Nothing to count yet on a first visit: the count appears with the first line recalled. */}
+        {count == null || (count === 0 && !drop) ? <span /> : (
+          <p className={styles.recall} aria-label={`${count} ${count === 1 ? "line" : "lines"} from your notes you can recall`}>
+            <span className={styles.recallNumber}>
+              <motion.b key={count} initial={reduce || !(bump || drop) ? false : { y: bump ? -6 : 6, opacity: 0.4 }} animate={{ y: 0, opacity: 1 }} transition={{ type: "spring", bounce: 0, duration: 0.35 }}>{count}</motion.b>
+              <AnimatePresence>{(bump || drop) && !reduce ? <motion.i key={`${bump}-${drop}`} aria-hidden="true" className={change === "−1" ? styles.minus : undefined} initial={{ opacity: 1, y: 0 }} animate={{ opacity: 0, y: -12 }} transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1] }}>{change}</motion.i> : null}</AnimatePresence>
+            </span>
+            <span aria-hidden="true"><span className={styles.recallLong}>{count === 1 ? "line" : "lines"} you can recall</span><span className={styles.recallShort}>recalled</span></span>
           </p>
         )}
       </header>
@@ -199,7 +215,7 @@ export function QuickRun({ run, onRevealSource, onFinish, onChecksDone, context,
         {readingNow ? (
           <motion.section key="read" className={styles.card} {...motionProps} aria-label="Read it first">
             <h1 className={styles.prompt}>Read it first, then it’s your turn.</h1>
-            <ol className={styles.readLines}>
+            <ol className={styles.readLines} aria-live="polite">
               {lines.slice(0, reading + 1).map((line, index) => (
                 <motion.li key={line} initial={reduce || index === 0 ? false : { opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}>
                   <Marked line={line} words={keyWordsIn(line, run)} />
@@ -210,9 +226,8 @@ export function QuickRun({ run, onRevealSource, onFinish, onChecksDone, context,
               <button type="button" className={`k-btn ${styles.primary}`} autoFocus key={reading} onClick={() => setReading((current) => (current + 1 < lines.length ? current + 1 : -1))}>
                 {reading + 1 < lines.length ? "Continue" : "Now from memory"}<kbd className={styles.key} aria-hidden="true">↵</kbd>
               </button>
-              <button type="button" className={styles.link} onClick={() => setReading(-1)}>Skip to the questions</button>
+              <button type="button" className={styles.link} onClick={() => setReading(-1)}>Skip to the questions<kbd className={styles.linkKey} aria-hidden="true">Esc</kbd></button>
             </div>
-            <p className={styles.readCount}>{reading + 1} of {lines.length} lines from your notes</p>
           </motion.section>
         ) : item ? (
           <motion.section key={`check-${step}`} className={styles.card} {...motionProps} aria-label={`Check ${step + 1} of ${total}`}>
@@ -253,17 +268,18 @@ export function QuickRun({ run, onRevealSource, onFinish, onChecksDone, context,
               >
                 <label htmlFor={`run-gap-${step}`} className="sr-only">Your answer, one word</label>
                 <span className={styles.field} data-state={answered ? (answered.right ? "right" : answered.unsure ? "unsure" : "wrong") : undefined}>
-                  <input id={`run-gap-${step}`} value={typed} onChange={(event) => setTyped(event.target.value)} disabled={Boolean(answered)} autoComplete="off" autoFocus placeholder="One word" />
+                  <input id={`run-gap-${step}`} value={typed} onChange={(event) => { setTyped(event.target.value); setTapped(null); }} disabled={Boolean(answered)} autoComplete="off" autoFocus={!(touch && chips.length)} placeholder="One word" />
                   {answered?.right ? <motion.span className={styles.fieldMark} aria-hidden="true" initial={reduce ? false : { scale: 0.4, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={{ type: "spring", stiffness: 520, damping: 26 }}><Tick size={16} /></motion.span> : null}
                 </span>
                 {!answered ? <button type="submit" className={`k-btn ${styles.primary}`} disabled={!typed.trim()}>Check<kbd className={styles.key} aria-hidden="true">↵</kbd></button> : null}
               </motion.form>
             )}
             {/* On a phone, typing one word is the slow part: tap the word instead. On a keyboard, recall it. */}
-            {touch && !answered && gapChoices(item, run).length ? (
+            {touch && !answered && chips.length ? (
               <div className={styles.chips} role="group" aria-label="Or tap the word">
-                {gapChoices(item, run).map((word) => (
-                  <motion.button key={word} type="button" className={styles.chip} onClick={() => { setTyped(word); answer(word); }} whileTap={reduce ? undefined : { scale: 0.96 }}>{word}</motion.button>
+                {/* A tap puts the word in the gap; Check commits it, so a slip of the thumb costs nothing. */}
+                {chips.map((word) => (
+                  <motion.button key={word} type="button" className={styles.chip} aria-pressed={tapped === word} onClick={() => { setTyped(word); setTapped(word); }} whileTap={reduce ? undefined : { scale: 0.96 }}>{word}</motion.button>
                 ))}
               </div>
             ) : null}
@@ -272,7 +288,7 @@ export function QuickRun({ run, onRevealSource, onFinish, onChecksDone, context,
 
             {answered ? (
               <motion.div className={`${styles.feedback} ${answered.right ? styles.ok : styles.no}`} role="status" initial={reduce ? false : { opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.2 }}>
-                <strong>{answered.right ? <PackArt name="check" className={styles.mark} /> : null}{answered.unsure ? (item.kind === "cloze" ? `It was “${item.modelAnswer}”.` : "Here’s the line it comes from.") : answered.right ? "Right." : item.kind === "cloze" ? `Not quite. It was “${item.modelAnswer}”.` : "Not quite."}</strong>
+                <strong>{answered.right ? <PackArt name="check" className={styles.mark} /> : null}{answered.unsure ? (item.kind === "cloze" ? `It was “${item.modelAnswer}”.` : "Here’s the line it comes from.") : answered.right ? (answered.picked ? "Right, picked from four. Type it next time to count it as recalled." : "Right.") : item.kind === "cloze" ? `Not quite. It was “${item.modelAnswer}”.` : "Not quite."}</strong>
                 <p className={styles.quote}>“{item.sourceQuote}”</p>
                 {answered.elsewhere ? (
                   <div className={styles.elsewhere}>

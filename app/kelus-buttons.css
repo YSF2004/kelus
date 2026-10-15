@@ -77,7 +77,8 @@
 /* Keyboard focus: a thin ring a little away from the button, clear without being heavier than the button. */
 .k-btn:focus-visible,
 .cta:not(.home-cta):focus-visible {
-  outline: 2px solid color-mix(in srgb, var(--btn-edge) 45%, transparent) !important;
+  /* Solid ink, two pixels off the button: visible on green and on paper (a faded edge colour was 1.2–2.4:1). */
+  outline: 2px solid var(--k-ink) !important;
   outline-offset: 2px !important;
 }
 

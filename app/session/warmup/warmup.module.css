@@ -6,12 +6,6 @@
   color: var(--color-midnight-ink);
 }
 
-
-
-
-
-
-
 .runWrap,
 .done,
 .empty {
@@ -21,23 +15,10 @@
   margin: 0 auto;
 }
 
-.kicker {
-  margin: 0;
-  color: #9a5b16;
-  font-size: var(--text-body-sm);
-  font-weight: 600;
-}
-
 /* The ending: a drawing, a plain verdict, the lines themselves, one way on. */
 .done {
   justify-items: start;
   gap: 14px;
-}
-
-.art {
-  width: min(180px, 46vw);
-  height: auto;
-  margin: 8px 0 4px;
 }
 
 /* Global heading rules set a sans face; this page keeps the product's serif voice. */
@@ -52,7 +33,6 @@
 .done h1,
 .empty h1 {
   margin: 0;
-  font-family: var(--font-display);
   font-size: clamp(1.5rem, 4.6vw, 1.875rem);
   font-weight: 500;
   line-height: 1.2;
@@ -194,10 +174,9 @@
 
 /* The session's own bar: logo left, Close right, one hairline under it. */
 .bar { display: flex; align-items: center; justify-content: space-between; min-height: 58px; padding: 0 18px 0 22px; border-bottom: 1px solid var(--k-line); background: var(--k-surface); }
-.close { display: inline-flex; align-items: center; min-height: 40px; padding: 0 10px; border-radius: 8px; color: var(--k-text-2); font-size: 0.875rem; font-weight: 500; text-decoration: none; }
+.close { display: inline-flex; align-items: center; min-height: 44px; padding: 0 10px; border-radius: 8px; color: var(--k-text-2); font-size: 0.875rem; font-weight: 500; text-decoration: none; }
 .close:hover { background: var(--k-selected); color: var(--k-ink); }
 .sub { margin: -6px 0 18px; color: var(--k-text-2); font-size: 0.9375rem; }
-.page :is(h1, h2) { font-family: var(--font-inter), ui-sans-serif, system-ui, sans-serif !important; letter-spacing: -0.02em; }
 
 /* A checkpoint ends on the same seal as a topic's result: the score, then that it is marked on the path. */
 .seal { display: flex; align-items: center; gap: 14px; }
