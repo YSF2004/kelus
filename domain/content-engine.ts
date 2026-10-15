@@ -1,5 +1,5 @@
 import type { PracticeItem } from "./types";
-import { lintQuestion } from "./question-lint";
+import { lintQuestion, standsAlone } from "./question-lint";
 import { contrastChoices, effectQuestions, framePairs, notMatching, termFromMeaning, whyChoices } from "./question-types";
 
 /**
@@ -370,7 +370,7 @@ export function buildPractice(input: {
   for (const sentence of sentences.slice(0, 10)) {
     if (gapSentences.has(sentence)) continue;
     if (sentence === definition && sentences.length > 1 && usedDefinitionForIdea) continue;
-    if (words(sentence).length < 7 || sentence.length > 220 || !readsAsSentence(sentence)) continue;
+    if (words(sentence).length < 7 || sentence.length > 220 || !readsAsSentence(sentence) || !standsAlone(sentence)) continue;
     const pair = termPairs(sentence)[0];
     const gapSource = pair && sentence.includes(pair.meaning) ? pair.meaning : sentence;
     const gap = pickGapWord(gapSource, pair ? `${name} ${pair.term}` : name, excerpt, relaxed);
@@ -444,8 +444,8 @@ export function buildPractice(input: {
   // what should be") reads as true, and one that opens on "It" or "This" means nothing out of its own page.
   const nameWords = name.toLocaleLowerCase().split(/[^\p{L}]+/u).filter((word) => word.length >= 5 && !/^(?:introduction|overview|basics|model|models)$/.test(word));
   const namesTopic = (fact: string) => nameWords.some((word) => new RegExp(`\\b${word.slice(0, Math.max(5, word.length - 2))}`, "i").test(fact));
-  const foreign = (input.siblingFacts ?? []).filter((fact) => fact.length >= 25 && fact.length <= 160 && !excerpt.includes(fact) && !namesTopic(fact) && !/^(?:it|this|that|these|those|they|he|she)\b/i.test(fact.trim()));
-  const statements = sentences.filter((sentence) => sentence.length >= 25 && sentence.length <= 160);
+  const foreign = (input.siblingFacts ?? []).filter((fact) => fact.length >= 25 && fact.length <= 160 && !excerpt.includes(fact) && !namesTopic(fact) && standsAlone(fact));
+  const statements = sentences.filter((sentence) => sentence.length >= 25 && sentence.length <= 160 && standsAlone(sentence));
   if (foreign.length >= 3) {
     const start = hash(conceptId) % Math.max(1, statements.length);
     for (let k = 0; k < Math.min(2, statements.length); k += 1) {

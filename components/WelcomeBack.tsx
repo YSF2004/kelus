@@ -39,7 +39,7 @@ export function useReturnVisit(events: LearningEvent[], concepts: Concept[]) {
   const names = useMemo(() => new Map(concepts.map((concept) => [concept.id, concept.name])), [concepts]);
   // Lines of topics that were removed, or of another course, should never come back.
   useEffect(() => { keepMissedLinesFor(new Set(names.keys())); }, [names]);
-  return { visit: returnVisit({ events, names, missed, nowMs: Date.parse(state.nowIso) }), nowIso: state.nowIso };
+  return { visit: returnVisit({ events, names, missed, nowMs: Date.parse(state.nowIso) }), nowIso: state.nowIso, missed };
 }
 
 export function WelcomeBack({ visit, nowIso, nextName }: { visit: ReturnVisit; nowIso: string; nextName?: string }) {
