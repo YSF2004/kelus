@@ -13,6 +13,15 @@ import { describeRouteChoice } from "@/lib/today-reason";
 import { percent } from "@/lib/format";
 import { useSyncExternalStore } from "react";
 import { getKnownLines, getServerKnownLines, knownCount, subscribeKnownLines } from "@/lib/known-lines";
+import { checkpointKey, getCheckpoints, getServerCheckpoints, passed, subscribeCheckpoints } from "@/lib/checkpoints";
+import { Tick } from "@/components/Marks";
+
+/** "today", "yesterday", "3 days ago": when a checkpoint was last run. */
+function whenAgo(at: string, nowIso: string) {
+  const day = (iso: string) => { const d = new Date(iso); return new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime(); };
+  const days = Math.round((day(nowIso) - day(at)) / 86_400_000);
+  return days <= 0 ? "today" : days === 1 ? "yesterday" : days < 7 ? `${days} days ago` : days < 14 ? "last week" : `${Math.round(days / 7)} weeks ago`;
+}
 import styles from "./TopicMapPanel.module.css";
 
 
@@ -46,6 +55,7 @@ export function TopicMapPanel() {
   const { state, removeTopic } = useLearner();
   const reduce = useReducedMotion() === true;
   const known = useSyncExternalStore(subscribeKnownLines, getKnownLines, getServerKnownLines);
+  const results = useSyncExternalStore(subscribeCheckpoints, getCheckpoints, getServerCheckpoints);
   const course = state.snapshot.courses[0];
   if (!course) return <p>No active course.</p>;
 
@@ -109,20 +119,30 @@ export function TopicMapPanel() {
   const startReason = start && startAllocation && start.concept.retrievalAttempts > 0 ? describeRouteChoice(startAllocation, start.concept, { examDateKnown: !state.snapshot.exams.some((item) => item.isActive && item.datePlaceholder) })[0] : null;
   // A checkpoint after every three topics: two lines from each, mixed. It opens once those three are practised.
   const GROUP = 3;
+  const passedCount = results.filter((result) => passed(result) && result.key.split(",").every((id) => path.some((row) => row.concept.id === id))).length;
   const groups = Array.from({ length: Math.floor(path.length / GROUP) }, (_, index) => path.slice(index * GROUP, index * GROUP + GROUP));
 
   const checkpoint = (topics: typeof path, label: string, each: number, key: string) => {
     const left = topics.filter((row) => row.concept.retrievalAttempts === 0).length;
     const ids = topics.map((row) => row.concept.id);
     const lines = knownCount(known, new Set(ids));
+    const last = results.find((result) => result.key === checkpointKey(ids));
+    const done = passed(last);
+    const href = `/session/warmup?checkpoint=${ids.map(encodeURIComponent).join(",")}${each === 1 ? "&each=1" : ""}`;
+    const scope = topics.length === path.length ? "Every topic" : topics.map((row) => row.concept.name).join(", ");
+    const status = done ? "passed" : last ? "tried" : left === 0 ? "ready" : "locked";
     return (
-      <li key={key} className={styles.checkpoint} data-ready={left === 0 ? "true" : undefined}>
-        <span className={styles.diamond} aria-hidden="true" />
+      <li key={key} className={styles.checkpoint} data-state={status} data-ready={left === 0 ? "true" : undefined}>
+        <span className={styles.diamond} aria-hidden="true">{done ? <Tick size={10} /> : null}</span>
         <span className={styles.checkpointText}>
-          <strong>{label}</strong>
-          <span>{left === 0 ? `${topics.length === path.length ? "Every topic" : topics.map((row) => row.concept.name).join(", ")}, mixed${lines ? ` · ${lines} ${lines === 1 ? "line" : "lines"} recalled so far` : ""}` : `Opens after ${left} more ${left === 1 ? "topic" : "topics"}`}</span>
+          <strong>{label}{done ? <em className={styles.passed}>Passed</em> : null}</strong>
+          <span>
+            {last
+              ? `${last.right} of ${last.total} from memory, ${whenAgo(last.at, state.nowIso)}${done ? "" : " · four in five passes"}`
+              : left === 0 ? `${scope}, mixed${lines ? ` · ${lines} ${lines === 1 ? "line" : "lines"} recalled so far` : ""}` : `Opens after ${left} more ${left === 1 ? "topic" : "topics"}`}
+          </span>
         </span>
-        {left === 0 ? <Link className={`k-btn ${styles.checkpointGo}`} href={`/session/warmup?checkpoint=${ids.map(encodeURIComponent).join(",")}${each === 1 ? "&each=1" : ""}`}>Start <ArrowRight /></Link> : null}
+        {left === 0 ? <Link className={`k-btn ${done ? "k-btn--paper " : ""}${styles.checkpointGo}`} href={href} aria-label={`${done ? "Run again" : last ? "Try again" : "Start"}: ${label}`}>{done ? "Again" : last ? "Try again" : "Start"} {done ? null : <ArrowRight />}</Link> : null}
       </li>
     );
   };
@@ -130,7 +150,7 @@ export function TopicMapPanel() {
   return (
     <div className="surface-map is-toc">
       <div className={styles.pathHead} role="group" aria-label="Where you are">
-        <p><strong>{practised} of {path.length}</strong> topics practised{solid ? ` · ${solid} solid` : ""}{recalled ? ` · ${recalled} ${recalled === 1 ? "line" : "lines"} you can recall` : ""}</p>
+        <p><strong>{practised} of {path.length}</strong> topics practised{solid ? ` · ${solid} solid` : ""}{recalled ? ` · ${recalled} ${recalled === 1 ? "line" : "lines"} you can recall` : ""}{passedCount ? ` · ${passedCount} ${passedCount === 1 ? "checkpoint" : "checkpoints"} passed` : ""}</p>
         <span className={styles.pathBar} aria-hidden="true"><motion.i initial={reduce ? false : { scaleX: 0 }} animate={{ scaleX: path.length ? practised / path.length : 0 }} transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }} /></span>
       </div>
 

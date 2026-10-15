@@ -1,5 +1,5 @@
 import { expect, test, type Page } from "@playwright/test";
-import { gotoStart, skipReading } from "./helpers";
+import { gotoStart, playQuickRun, skipReading } from "./helpers";
 
 const notes = "Cell biology\n\nOsmosis\nOsmosis is the movement of water across a partially permeable membrane from a dilute solution to a more concentrated solution. In a hypotonic solution a plant cell gains water and becomes turgid because the cell wall pushes back. In a hypertonic solution the cell loses water and becomes plasmolysed.\n\nEnzymes\nEnzymes are biological catalysts that speed up reactions without being used up. Each enzyme has an active site with a specific shape, so it only binds one substrate. High temperatures denature an enzyme because the active site changes shape.\n\nDiffusion\nDiffusion is the net movement of particles from an area of higher concentration to an area of lower concentration. It is a passive process, so it needs no energy from the cell. The rate of diffusion increases with a steeper concentration gradient.";
 const shots = process.env.RPR_SHOTS;
@@ -56,6 +56,38 @@ test("Topics is a path in the order of the notes, with an exam check that opens 
   await expect(path.getByText("Exam check")).toBeVisible();
   await expect(path.getByText(/Opens after 3 more topics/)).toBeVisible();
   if (shots) await page.screenshot({ path: `${shots}/path.png`, fullPage: true });
+});
+
+test("a checkpoint run is remembered on the path, with its score and when", async ({ page }) => {
+  test.setTimeout(150_000);
+  await begin(page);
+  for (let topic = 0; topic < 3; topic += 1) {
+    await playQuickRun(page, "Water moves across the membrane.", "Partly");
+    const next = page.getByRole("button", { name: /^Continue to / });
+    await next.or(page.getByRole("button", { name: /Finish block/ })).first().waitFor();
+    if (!(await next.count())) break;
+    await next.click();
+  }
+  await page.goto("/today?section=map");
+  const path = page.getByRole("list", { name: "Topics, in the order of your notes" });
+  await path.getByRole("link", { name: "Start: Exam check" }).click();
+  await expect(page.getByRole("heading", { name: "Checkpoint", exact: true })).toBeVisible();
+  // Not sure on every line: tried, not passed.
+  for (let guard = 0; guard < 6; guard += 1) {
+    const unsure = page.getByRole("button", { name: "I’m not sure" });
+    await unsure.or(page.getByRole("heading", { name: /Not yet|Not passed|passed/ })).first().waitFor();
+    if (!(await unsure.count())) break;
+    await unsure.click();
+    await page.getByRole("button", { name: /^(Next|See how it went)/ }).click();
+  }
+  await expect(page.getByRole("heading", { name: /Not yet/ })).toBeVisible();
+  await expect(page.getByText(/marked on your path/)).toBeVisible();
+  if (shots) await page.screenshot({ path: `${shots}/checkpoint-done.png` });
+  await page.getByRole("link", { name: "See it on your path" }).click();
+  const exam = page.getByRole("list", { name: "Topics, in the order of your notes" }).locator("li", { hasText: "Exam check" });
+  await expect(exam).toContainText(/0 of \d from memory, today · four in five passes/);
+  await expect(exam.getByRole("link", { name: "Try again: Exam check" })).toBeVisible();
+  if (shots) await page.screenshot({ path: `${shots}/path-tried.png`, fullPage: true });
 });
 
 test.describe("on a phone", () => {

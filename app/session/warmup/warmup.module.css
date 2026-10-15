@@ -198,3 +198,7 @@
 .close:hover { background: var(--k-selected); color: var(--k-ink); }
 .sub { margin: -6px 0 18px; color: var(--k-text-2); font-size: 0.9375rem; }
 .page :is(h1, h2) { font-family: var(--font-inter), ui-sans-serif, system-ui, sans-serif !important; letter-spacing: -0.02em; }
+
+/* A checkpoint ends on the same seal as a topic's result: the score, then that it is marked on the path. */
+.seal { display: flex; align-items: center; gap: 14px; }
+.seal h1 { margin: 0; }

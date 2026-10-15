@@ -11,6 +11,8 @@ import { QuickRun } from "@/components/QuickRun";
 import { checkpointLines, returnVisit, warmupChecks } from "@/domain/return-visit";
 import type { QuickRun as Run } from "@/domain/quick-run";
 import { addMissedLines, getMissedLines, getServerMissedLines, resolveMissedLines, subscribeMissedLines } from "@/lib/missed-lines";
+import { recordCheckpoint, PASS_SHARE } from "@/lib/checkpoints";
+import { MarkStamp } from "@/components/MarkStamp";
 import { addKnownLines, forgetKnownLines, getKnownLines, getServerKnownLines, knownCount, subscribeKnownLines } from "@/lib/known-lines";
 import { KelusLogoMark } from "@/components/KelusLogoMark";
 import { useEffect } from "react";
@@ -64,6 +66,8 @@ function WarmUp() {
     addKnownLines(plan.filter((entry) => !still.has(entry.line.quote)).map((entry) => ({ ...entry.line, at: state.nowIso })));
     forgetKnownLines([...still]);
     // A checkpoint line you could not recall joins the warm-up list, like any other miss.
+    // The path remembers it: passed (four in five or better) or tried, with when.
+    if (checkpoint && outcome.total) recordCheckpoint(checkpointIds, outcome.right, outcome.total, state.nowIso);
     if (checkpoint) addMissedLines(plan.filter((entry) => still.has(entry.line.quote)).map((entry) => ({ ...entry.line, at: state.nowIso })));
     setResult({ right: outcome.right, total: outcome.total, back, still: [...still] });
   }
@@ -101,11 +105,20 @@ function WarmUp() {
           transition={reduce ? { duration: 0.12 } : { type: "spring", bounce: 0, duration: 0.5 }}
           aria-labelledby="warmup-done-title"
         >
-          <h1 id="warmup-done-title">
-            {result.right === result.total ? (checkpoint ? "Checkpoint passed." : "All of it came back.") : result.right === 0 ? (checkpoint ? "Not yet. These come back first next time." : "Not yet. That’s what warm-ups are for.") : `${result.right} of ${result.total} came back.`}
-          </h1>
+          {checkpoint ? (
+            <div className={styles.seal}>
+              <MarkStamp outcome={result.total && result.right / result.total >= PASS_SHARE ? "success" : result.right > 0 ? "partial" : "failure"} />
+              <h1 id="warmup-done-title">
+                {result.total && result.right / result.total >= PASS_SHARE ? "Checkpoint passed." : result.right === 0 ? "Not yet. These come back first next time." : `${result.right} of ${result.total}. Not passed yet.`}
+              </h1>
+            </div>
+          ) : (
+            <h1 id="warmup-done-title">
+              {result.right === result.total ? "All of it came back." : result.right === 0 ? "Not yet. That’s what warm-ups are for." : `${result.right} of ${result.total} came back.`}
+            </h1>
+          )}
           <p className={styles.line}>
-            {checkpoint ? (result.still.length ? (result.still.length === 1 ? "The one you missed comes back first next time." : "The ones you missed come back first next time.") : "Every line came back from memory.") : null}
+            {checkpoint ? `${result.right} of ${result.total} from memory, marked on your path. ${result.still.length ? (result.still.length === 1 ? "The one you missed comes back first next time." : "The ones you missed come back first next time.") : "Nothing to come back."}${result.total && result.right / result.total < PASS_SHARE ? ` Four in five passes.` : ""}` : null}
             {!checkpoint && result.back.length ? "The lines you got are off your list. " : ""}
             {!checkpoint && result.still.length ? (result.back.length ? (result.still.length === 1 ? "The other one comes back next time." : "The others come back next time.") : result.still.length === 1 ? "It comes back next time, once it has had a rest." : "They come back next time, once they have had a rest.") : ""}
           </p>
@@ -134,7 +147,7 @@ function WarmUp() {
             <motion.button type="button" className={`k-btn ${styles.primary}`} onClick={continueOn} whileTap={reduce ? undefined : { scale: 0.97 }}>
               {nextName ? `Continue to ${nextName}` : "Continue to your next topic"} <ArrowRight />
             </motion.button>
-            <Link href="/today" className={`k-btn k-btn--paper ${styles.secondary}`}>Back to study plan</Link>
+            <Link href={checkpoint ? "/today?section=map" : "/today"} className={`k-btn k-btn--paper ${styles.secondary}`}>{checkpoint ? "See it on your path" : "Back to study plan"}</Link>
           </div>
         </motion.section>
       )}

@@ -311,7 +311,7 @@
 .step:hover .remove, .step:focus-within .remove { opacity: 1; }
 
 .diamond { position: relative; z-index: 1; justify-self: center; width: 14px; height: 14px; transform: rotate(45deg); border: 2px solid var(--color-frost); border-radius: 3px; background: #fff; }
-.checkpoint[data-ready] .diamond { border-color: var(--color-kelus); background: var(--color-kelus); }
+
 .checkpointText { display: grid; gap: 2px; padding: 10px 0; }
 .checkpointText strong { font-size: 0.9375rem; font-weight: 600; color: var(--color-midnight-ink); }
 .checkpointText span { font-size: 0.8125rem; color: var(--color-slate); }
@@ -345,3 +345,12 @@
 }
 :global(.is-course-studio) :global(.surface-map) a.next:hover { background: #fff; border-color: var(--color-midnight-ink); }
 .node .ringDot { display: none; }
+
+/* A checkpoint remembers how it went: passed is a filled diamond with a tick, tried is outlined in marigold. */
+.diamond { display: grid; place-items: center; color: #fff; }
+.diamond svg { transform: rotate(-45deg); }
+.checkpoint[data-state="passed"] .diamond { border-color: var(--color-kelus); background: var(--color-kelus); }
+.checkpoint[data-state="tried"] .diamond { border-color: var(--k-marigold-edge, #c5841a); background: var(--k-marigold-wash, #fdf2dc); }
+.checkpoint[data-state="ready"] .diamond { border-color: var(--color-kelus); background: #fff; }
+.checkpoint[data-state="passed"]::before { background: color-mix(in srgb, var(--color-kelus) 45%, var(--color-frost)); }
+.passed { margin-left: 8px; padding: 1px 7px; border-radius: 999px; background: color-mix(in srgb, var(--color-kelus) 12%, #fff); color: var(--color-kelus); font-size: 0.6875rem; font-style: normal; font-weight: 600; vertical-align: 2px; }

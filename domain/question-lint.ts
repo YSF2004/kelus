@@ -30,6 +30,8 @@ export function standsAlone(line: string) {
   const text = line.trim().replace(/^[“"‘'(]+/, "");
   const words = text.match(/[\p{L}\p{N}'’-]+/gu) ?? [];
   if (words.length < 5) return false;
+  // "the scientific study of conscious experience" is the end of a bullet, not a line of its own.
+  if (/^\p{Ll}/u.test(text)) return false;
   if (/(?::|…|\.\.\.|,)["”]?$/.test(text) || /\?["”)]?$/.test(text)) return false;
   if (PRONOUN_START.test(text)) return false;
   if (/\s[a-z]\.$/.test(text) || (text.match(/\s[<>=]\s?/g) ?? []).length >= 2) return false;
