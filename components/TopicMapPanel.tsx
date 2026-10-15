@@ -13,7 +13,7 @@ import { describeRouteChoice } from "@/lib/today-reason";
 import { percent } from "@/lib/format";
 import { useSyncExternalStore } from "react";
 import { getKnownLines, getServerKnownLines, knownCount, subscribeKnownLines } from "@/lib/known-lines";
-import { checkpointKey, getCheckpoints, getServerCheckpoints, passed, subscribeCheckpoints } from "@/lib/checkpoints";
+import { checkpointKey, getCheckpoints, getServerCheckpoints, PASS_SHARE, passed, subscribeCheckpoints } from "@/lib/checkpoints";
 import { Tick } from "@/components/Marks";
 
 /** "today", "yesterday", "3 days ago": when a checkpoint was last run. */
@@ -39,7 +39,8 @@ function MasteryRing({ value }: { value: number | null }) {
           cx="20"
           cy="20"
           r={radius}
-          strokeDasharray={`${Math.max(0.02, value) * circumference} ${circumference}`}
+          // A sliver under 8% reads as a stray tick, not a little progress.
+          strokeDasharray={`${Math.max(0.08, value) * circumference} ${circumference}`}
           transform="rotate(-90 20 20)"
         />
       ) : null}
@@ -128,8 +129,10 @@ export function TopicMapPanel() {
     const lines = knownCount(known, new Set(ids));
     const last = results.find((result) => result.key === checkpointKey(ids));
     const done = passed(last);
-    const href = `/session/warmup?checkpoint=${ids.map(encodeURIComponent).join(",")}${each === 1 ? "&each=1" : ""}`;
-    const scope = topics.length === path.length ? "Every topic" : topics.map((row) => row.concept.name).join(", ");
+    const href = `/session/warmup?checkpoint=${ids.map(encodeURIComponent).join(",")}${each === 1 ? "&each=1" : ""}&label=${encodeURIComponent(label)}`;
+    const first = path.indexOf(topics[0]) + 1;
+    const scope = topics.length === path.length ? "Every topic" : `Topics ${first}–${first + topics.length - 1}`;
+    const need = last ? Math.max(1, Math.ceil(last.total * PASS_SHARE)) : 0;
     const status = done ? "passed" : last ? "tried" : left === 0 ? "ready" : "locked";
     return (
       <li key={key} className={styles.checkpoint} data-state={status} data-ready={left === 0 ? "true" : undefined}>
@@ -138,8 +141,8 @@ export function TopicMapPanel() {
           <strong>{label}{done ? <em className={styles.passed}>Passed</em> : null}</strong>
           <span>
             {last
-              ? `${last.right} of ${last.total} from memory, ${whenAgo(last.at, state.nowIso)}${done ? "" : " · four in five passes"}`
-              : left === 0 ? `${scope}, mixed${lines ? ` · ${lines} ${lines === 1 ? "line" : "lines"} recalled so far` : ""}` : `Opens after ${left} more ${left === 1 ? "topic" : "topics"}`}
+              ? `${last.right} of ${last.total} from memory, ${whenAgo(last.at, state.nowIso)}${done ? "" : ` · pass at ${need} of ${last.total}`}`
+              : left === 0 ? `${scope}, mixed${lines ? ` · ${lines} ${lines === 1 ? "line" : "lines"} you can recall` : ""}` : `A short mixed review of ${scope === "Every topic" ? "every topic" : scope.toLocaleLowerCase()}. Opens after ${left} more ${left === 1 ? "topic" : "topics"}.`}
           </span>
         </span>
         {left === 0 ? <Link className={`k-btn ${done ? "k-btn--paper " : ""}${styles.checkpointGo}`} href={href} aria-label={`${done ? "Run again" : last ? "Try again" : "Start"}: ${label}`}>{done ? "Again" : last ? "Try again" : "Start"} {done ? null : <ArrowRight />}</Link> : null}
@@ -151,7 +154,11 @@ export function TopicMapPanel() {
     <div className="surface-map is-toc">
       <div className={styles.pathHead} role="group" aria-label="Where you are">
         <p><strong>{practised} of {path.length}</strong> topics practised{solid ? ` · ${solid} solid` : ""}{recalled ? ` · ${recalled} ${recalled === 1 ? "line" : "lines"} you can recall` : ""}{passedCount ? ` · ${passedCount} ${passedCount === 1 ? "checkpoint" : "checkpoints"} passed` : ""}</p>
-        <span className={styles.pathBar} aria-hidden="true"><motion.i initial={reduce ? false : { scaleX: 0 }} animate={{ scaleX: path.length ? practised / path.length : 0 }} transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }} /></span>
+        {/* Two tones: solid topics in green, practised ones lighter. A path is not done while its topics need work. */}
+        <span className={styles.pathBar} aria-hidden="true">
+          <motion.i className={styles.pathPractised} initial={false} animate={{ scaleX: path.length ? practised / path.length : 0 }} transition={{ duration: reduce ? 0 : 0.5, ease: [0.22, 1, 0.36, 1] }} />
+          <motion.i className={styles.pathSolid} initial={false} animate={{ scaleX: path.length ? solid / path.length : 0 }} transition={{ duration: reduce ? 0 : 0.5, ease: [0.22, 1, 0.36, 1] }} />
+        </span>
       </div>
 
       {start ? (
@@ -185,7 +192,7 @@ export function TopicMapPanel() {
                   <strong className="index-toc-name">{concept.name}</strong>
                 </ConceptTitleTransition>
                 <span className="index-toc-meta">
-                  {isStart ? "Start here" : label}
+                  {isStart ? "Next" : label}
                   {mastery == null ? "" : checks < 3 ? ` · ${checks} ${checks === 1 ? "try" : "tries"}` : ` · ${percent(mastery)}`}
                   {page ? ` · ${page}` : ""}
                 </span>

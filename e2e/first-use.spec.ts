@@ -230,7 +230,7 @@ test("a real PDF becomes a first question, then Today, topics and a full session
   await start.click();
 
   await expect(page).toHaveURL(/\/session/);
-  await expect(page.locator(".study-topic-kicker span")).toHaveAttribute("aria-label", /^Topic 1 of \d+$/);
+  await expect(page.locator(".study-topic-kicker span")).toHaveText(/^Topic 1 of \d+$/);
   // One topic is a short run: instant checks, then one explanation in your own words.
   await expect(page.getByRole("list", { name: /^Step 1 of \d$/ })).toBeVisible();
   await expect(page.getByRole("button", { name: "Close", exact: true })).toBeVisible();
@@ -249,7 +249,8 @@ test("a real PDF becomes a first question, then Today, topics and a full session
   await playQuickRun(page, "I cannot yet explain the mechanism from memory.", "Missed it");
   await expect(page.getByRole("heading", { name: /^(Needs another attempt|Partly there)\.$/ })).toBeVisible();
   await expect(page.getByText(/first (?:check|try)/)).toBeVisible();
-  await expect(page.getByRole("status").filter({ hasText: /(Next: |last topic for now)/ })).toBeVisible();
+  // The next step is named once: by the "Continue to …" button, or the route line when the plan has news.
+  await expect(page.getByRole("button", { name: /^Continue to / }).or(page.getByRole("status").filter({ hasText: /(Next: |last topic for now)/ })).first()).toBeVisible();
   for (const width of [320, 375, 414]) {
     await page.setViewportSize({ width, height: 844 });
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);

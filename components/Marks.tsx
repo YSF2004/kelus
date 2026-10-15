@@ -64,3 +64,13 @@ export function Page({ size = 14, className }: MarkProps) {
     </svg>
   );
 }
+
+/** Comes back: a line or topic returns for another try. */
+export function Return({ size = 14, className }: MarkProps) {
+  return (
+    <svg className={className ?? "k-mark"} width={size} height={size} viewBox="0 0 16 16" aria-hidden="true" focusable="false">
+      <path d="M12.5 6A5 5 0 1 0 13 10" {...line} />
+      <path d="M13 2.5V6H9.5" {...line} />
+    </svg>
+  );
+}

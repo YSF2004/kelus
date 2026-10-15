@@ -651,6 +651,8 @@ function SessionBody() {
                 path={{
                   practised: state.snapshot.concepts.filter((item) => item.courseId === concept.courseId && item.retrievalAttempts > 0).length,
                   total: courseConceptIds.size,
+                  here: state.snapshot.concepts.filter((item) => item.courseId === concept.courseId).findIndex((item) => item.id === concept.id),
+                  done: state.snapshot.concepts.filter((item) => item.courseId === concept.courseId).map((item) => item.retrievalAttempts > 0),
                   recalled: knownCount(knownLines, courseConceptIds),
                 }}
                 onRetry={retryCurrentConcept}
@@ -755,7 +757,7 @@ function SessionBody() {
                 readFirst={round === 0}
                 known={knownAtOpen.set}
                 recalled={knownAtOpen.count}
-                context={<p className="study-topic-kicker"><b>{concept.name}</b>{total > 1 ? <span aria-label={`Topic ${index + 1} of ${total}`}>{index + 1} of {total}</span> : null}</p>}
+                context={<p className="study-topic-kicker"><b>{concept.name}</b>{total > 1 ? <span>Topic {index + 1} of {total}</span> : null}</p>}
               />
             ) : null}
 

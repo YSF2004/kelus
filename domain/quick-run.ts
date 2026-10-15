@@ -173,11 +173,15 @@ export function readingLines(run: QuickRun) {
   return lines;
 }
 
-/** The key words to mark in a line being read: the answers the checks will ask for, so reading points at them. */
+/**
+ * What to mark in a line being read: the term it defines ("Osmosis is …", "Turgid: …"), at most one per line. Never
+ * the word a check is about to ask for: marking the answer seconds before the gap is an echo, not recall.
+ */
 export function keyWordsIn(line: string, run: QuickRun) {
-  return run.checks
-    .filter((check) => check.kind === "cloze" && check.modelAnswer && hasWord(line, check.modelAnswer))
-    .map((check) => check.modelAnswer);
+  const asked = run.checks.filter((check) => check.kind === "cloze" && check.modelAnswer).map((check) => norm(check.modelAnswer));
+  const term = line.match(/^(?:the\s+|an?\s+)?([\p{L}][\p{L}'’ -]{2,40}?)(?:\s+(?:is|are|means|refers to)\s|\s*:\s)/iu)?.[1]?.trim();
+  if (!term || term.split(/\s+/).length > 4 || asked.some((answer) => norm(term).split(" ").includes(answer))) return [];
+  return [term];
 }
 
 /**
@@ -201,7 +205,13 @@ export function gapChoices(item: PracticeItem, run: QuickRun) {
     .filter((word) => norm(word) !== norm(answer) && !hasWord(shown, word) && Math.abs(word.length - answer.length) <= 4)
     .filter((word) => !/^(?:which|their|there|these|those|about|other|where|while|because|between|without|through)$/i.test(word))
     .map((word) => (/^\p{Lu}/u.test(answer) ? word : word.toLocaleLowerCase()));
-  const unique = [...new Set(candidates)].sort((a, b) => Math.abs(a.length - answer.length) - Math.abs(b.length - answer.length) || a.localeCompare(b));
+  const otherAnswers = new Set(run.checks.filter((other) => other !== item && other.kind === "cloze").map((other) => norm(other.modelAnswer)));
+  const ending = answer.toLocaleLowerCase().slice(-3);
+  // The best wrong words are the same kind of word: another answer from this topic, then a word with the same ending.
+  const score = (word: string) => (otherAnswers.has(norm(word)) ? 0 : word.toLocaleLowerCase().endsWith(ending) ? 1 : 2) * 10 + Math.abs(word.length - answer.length);
+  const unique = [...new Set(candidates)]
+    .filter((word) => /ly$/i.test(answer) || !/ly$/i.test(word))
+    .sort((a, b) => score(a) - score(b) || a.localeCompare(b));
   if (unique.length < 3) return [];
   const seed = [...answer].reduce((sum, char) => sum + char.charCodeAt(0), 0);
   const options = [answer, ...unique.slice(0, 3)];

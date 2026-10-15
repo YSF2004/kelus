@@ -558,6 +558,35 @@ export function recordRetrieval(state: DemoState, input: {
   return next;
 }
 
+/**
+ * A checkpoint is evidence like any other answer: each topic in it gets one retrieval, a success when every line of
+ * it came back, partial when some did, a miss when none did. Mastery and the next review move the usual way, so the
+ * path a student returns to shows what the checkpoint showed.
+ */
+export function recordCheckpointAnswers(state: DemoState, topics: Array<{ conceptId: string; right: number; total: number }>) {
+  const sessionId = `checkpoint-${Date.parse(state.nowIso)}`;
+  const events: LearningEvent[] = [];
+  for (const topic of topics) {
+    const concept = state.snapshot.concepts.find((item) => item.id === topic.conceptId);
+    if (!concept || topic.total <= 0) continue;
+    const outcome: RetrievalOutcome = topic.right >= topic.total ? "success" : topic.right > 0 ? "partial" : "failure";
+    events.push(createRetrievalEvent({
+      id: `evt-${crypto.randomUUID()}`,
+      userId: state.snapshot.profile.id,
+      concept,
+      sessionId,
+      promptId: `checkpoint-${concept.id}`,
+      responseText: `Checkpoint: ${topic.right} of ${topic.total} lines from memory.`,
+      outcome,
+      createdAt: state.nowIso,
+    }));
+  }
+  if (!events.length) return state;
+  const next = { ...state, snapshot: refreshCaches({ ...state.snapshot, events: [...state.snapshot.events, ...events] }, state.nowIso) };
+  persistDemoState(next);
+  return next;
+}
+
 /** `firstConceptId` opens the block on that topic (from its own page); the rest follow in the route's order. */
 export function startSession(state: DemoState, courseId: string, examId: string, firstConceptId?: string) {
   const exam = state.snapshot.exams.find((item) => item.id === examId);

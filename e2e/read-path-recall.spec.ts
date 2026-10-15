@@ -27,8 +27,9 @@ test("a new topic is read first, one line at a time, then asked; the recall coun
     await reading.getByRole("button", { name: /^(Continue|Now from memory)/ }).click();
   }
   await expect(page.getByLabel(/^Check 1 of \d$/)).toBeVisible();
-  const counter = page.getByRole("status", { name: /lines? from your notes you can recall/ });
-  await expect(counter).toContainText("0");
+  // Nothing recalled yet: no count in the bar until the first line comes back.
+  const counter = page.getByLabel(/lines? from your notes you can recall/);
+  await expect(counter).toHaveCount(0);
   // Answer the first check right: the counter goes to 1.
   // Answer the first check: "Which idea…" is the topic itself; a gap gets the word the notes use.
   const check = page.getByLabel(/^Check 1 of \d$/);
@@ -43,7 +44,8 @@ test("a new topic is read first, one line at a time, then asked; the recall coun
   }
   if (shots) await page.screenshot({ path: `${shots}/check.png` });
   const right = await page.getByText(/^Right\.$/).count();
-  await expect(counter).toContainText(right ? "1" : "0");
+  if (right) await expect(counter).toContainText("1");
+  else await expect(counter).toHaveCount(0);
 });
 
 test("Topics is a path in the order of the notes, with an exam check that opens once every topic is practised", async ({ page }) => {
@@ -71,21 +73,23 @@ test("a checkpoint run is remembered on the path, with its score and when", asyn
   await page.goto("/today?section=map");
   const path = page.getByRole("list", { name: "Topics, in the order of your notes" });
   await path.getByRole("link", { name: "Start: Exam check" }).click();
-  await expect(page.getByRole("heading", { name: "Checkpoint", exact: true })).toBeVisible();
+  // The run carries the checkpoint's own name and its pass mark.
+  await expect(page.getByRole("heading", { name: "Exam check", exact: true })).toBeVisible();
+  await expect(page.getByText(/Pass mark: \d of \d/)).toBeVisible();
   // Not sure on every line: tried, not passed.
   for (let guard = 0; guard < 6; guard += 1) {
     const unsure = page.getByRole("button", { name: "I’m not sure" });
-    await unsure.or(page.getByRole("heading", { name: /Not yet|Not passed|passed/ })).first().waitFor();
+    await unsure.or(page.getByRole("heading", { name: /this time\.|passed\./ })).first().waitFor();
     if (!(await unsure.count())) break;
     await unsure.click();
     await page.getByRole("button", { name: /^(Next|See how it went)/ }).click();
   }
-  await expect(page.getByRole("heading", { name: /Not yet/ })).toBeVisible();
-  await expect(page.getByText(/marked on your path/)).toBeVisible();
+  await expect(page.getByRole("heading", { name: /^0 of \d this time\.$/ })).toBeVisible();
+  await expect(page.getByText(/back first next time\. Pass mark: \d of \d\./)).toBeVisible();
   if (shots) await page.screenshot({ path: `${shots}/checkpoint-done.png` });
   await page.getByRole("link", { name: "See it on your path" }).click();
   const exam = page.getByRole("list", { name: "Topics, in the order of your notes" }).locator("li", { hasText: "Exam check" });
-  await expect(exam).toContainText(/0 of \d from memory, today · four in five passes/);
+  await expect(exam).toContainText(/0 of \d from memory, today · pass at \d of \d/);
   await expect(exam.getByRole("link", { name: "Try again: Exam check" })).toBeVisible();
   if (shots) await page.screenshot({ path: `${shots}/path-tried.png`, fullPage: true });
 });
@@ -104,7 +108,11 @@ test.describe("on a phone", () => {
     const chips = page.getByRole("group", { name: "Or tap the word" }).getByRole("button");
     await expect(chips).toHaveCount(4);
     if (shots) await page.screenshot({ path: `${shots}/phone-chips.png` });
+    // A tap fills the gap; Check commits it, so a slip of the thumb can still be changed.
     await chips.first().click();
+    await expect(chips.first()).toHaveAttribute("aria-pressed", "true");
+    await expect(page.getByRole("button", { name: /^(Next|Now say it yourself)/ })).toHaveCount(0);
+    await page.getByRole("button", { name: "Check", exact: true }).click();
     await expect(page.getByRole("button", { name: /^(Next|Now say it yourself)/ })).toBeVisible();
   });
 });

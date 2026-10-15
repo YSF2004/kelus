@@ -49,7 +49,7 @@ export function QuickResult({
   onContinue: () => void;
   onSource?: () => void;
   /** Where this topic leaves you on the course path: topics practised of all, and lines you can recall. */
-  path?: { practised: number; total: number; recalled: number };
+  path?: { practised: number; total: number; recalled: number; /** This topic's place on the path, from 0. */ here?: number; /** Each topic, in order: practised or not. */ done?: boolean[] };
 }) {
   const reduce = useReducedMotion() === true;
   const verdict = VERDICT[outcome];
@@ -78,13 +78,15 @@ export function QuickResult({
       {path && path.total > 1 ? (
         <motion.div {...rise(0.6)} className={styles.path} aria-label={`${path.practised} of ${path.total} topics practised`}>
           <span className={styles.pathSteps} aria-hidden="true">
-            {Array.from({ length: Math.min(path.total, 24) }, (_, index) => <i key={index} data-done={index < path.practised ? "true" : undefined} />)}
+            {/* One step per topic, in the order of the notes; this topic's step is marked. Practised steps fill. */}
+            {path.total <= 24 ? Array.from({ length: path.total }, (_, index) => <i key={index} data-here={index === path.here ? "true" : undefined} data-done={(path.done?.[index] ?? index < path.practised) ? "true" : undefined} />) : <i className={styles.pathFill} style={{ ["--share" as string]: path.practised / path.total }} />}
           </span>
           <span>{path.practised} of {path.total} topics practised{path.recalled ? ` · ${path.recalled} ${path.recalled === 1 ? "line" : "lines"} you can recall` : ""}</span>
         </motion.div>
       ) : null}
 
-      <p className={styles.route} role="status">{routeLine}</p>
+      {/* "Next: X." would only repeat the button below it. */}
+      {nextName && routeLine.trim() === `Next: ${nextName}.` ? null : <p className={styles.route} role="status">{routeLine}</p>}
 
       <div className={styles.actions}>
         {outcome !== "success" ? <button type="button" className={`k-btn k-btn--paper ${styles.secondary}`} onClick={onRetry}>Try again</button> : null}
