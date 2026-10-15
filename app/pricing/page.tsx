@@ -39,7 +39,7 @@ export default function PricingPage() {
         <p className="legal-lede">
           Revise your own course for free. Kelus Plus is planned at $4.99/month.
           {syncReady
-            ? " Free sign-in can sync your progress across devices."
+            ? " Free sign-in can sync your revision progress; source-file sync is still being tested."
             : " Your progress stays on this device."}
         </p>
 
@@ -57,7 +57,7 @@ export default function PricingPage() {
                 <li>A plan that moves with your answers</li>
                 <li>Export every question to Anki</li>
                 <li>No account required</li>
-                {syncReady ? <li>Optional free sign-in to sync across devices</li> : <li>Saved on this device</li>}
+                {syncReady ? <li>Optional free sign-in to sync revision progress</li> : <li>Saved on this device</li>}
               </ul>
               <Link className="cta" href="/today">
                 Start revising <span aria-hidden="true">→</span>
@@ -75,8 +75,7 @@ export default function PricingPage() {
               </div>
               <p className="pricing-offer-lede">Planned, not built yet. What we’re making for it:</p>
               <ul>
-                <li>Everything in Free{syncReady ? ", including optional sign-in sync" : ""}</li>
-                <li>Your courses on every device, kept in sync</li>
+                <li>Everything in Free</li>
                 <li>Clearer reading of scanned and handwritten pages</li>
                 <li>Several courses side by side for exam season</li>
                 <li>Email support from a person, within a day</li>
@@ -99,7 +98,7 @@ export default function PricingPage() {
           <dl>
             <div><dt>Is Free really free?</dt><dd>Yes. No card, no account, and no trial that runs out.</dd></div>
             <div><dt>What changes when Plus opens?</dt><dd>Nothing for Free. You choose whether to switch, and we email the waitlist once.</dd></div>
-            <div><dt>Where is my work kept?</dt><dd>On this device. Sign in only if you want it on another browser too.</dd></div>
+            <div><dt>Where is my work kept?</dt><dd>Your work starts on this device. Free sign-in can sync revision progress; keep a copy of your source files while file sync is being tested.</dd></div>
           </dl>
         </section>
 

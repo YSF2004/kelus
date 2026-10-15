@@ -153,7 +153,7 @@ function SessionBody() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const round = useMemo(() => concept?.retrievalAttempts ?? 0, [conceptId]);
   const run = useMemo(
-    () => (activity && concept ? buildQuickRun({ activity, name: concept.name, siblingNames, round }) : null),
+    () => (activity && concept ? buildQuickRun({ activity, name: concept.name, siblingNames, round, readFirst: round === 0 }) : null),
     // The run is rebuilt only when the topic or its content changes.
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [conceptId, round, activity?.practice?.length, activity?.teach?.aiExplanation],
@@ -289,8 +289,9 @@ function SessionBody() {
   }
 
   function finishQuick(result: QuickRunResult) {
-    const outcome = quickOutcome(result);
-    const summary = quickSummary(result);
+    const outcome = quickOutcome({ ...result, readFirst: round === 0 });
+    const firstPassOnly = round === 0 && outcome === "partial" && quickOutcome(result) === "success";
+    const summary = `${quickSummary(result)}${firstPassOnly ? " Good first pass; Kelus will check it again later before calling it solid." : ""}`;
     setQuickStats({ right: result.right, total: result.total, unsure: result.unsure, self: result.self, coverage: result.coverage ?? null });
     setQuickMissed(result.missed);
     // What was missed comes back at the start of the next visit, as a warm-up.

@@ -49,7 +49,7 @@ export function describeRouteChoice(allocation: RouteAllocation, concept?: Conce
 
   const own = concept.retrievalAttempts > 0 ? lastEvidenceLine(concept, options) : null;
   if (concept.retrievalAttempts === 0) {
-    lines.push("You haven’t answered it yet.");
+    lines.push("For new topics, your plan follows your notes. You haven’t tried this one yet.");
   } else if (own) {
     lines.push(own);
   } else if (reasons.has("LOW_MASTERY")) {

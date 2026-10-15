@@ -225,10 +225,11 @@ test("pricing conversion loop is linked from product surfaces", async () => {
   assert.match(pricing, /\$4\.99/);
   assert.match(pricing, /\/month/);
   assert.match(pricing, /FoundingCta|WaitlistForm/);
-  assert.match(pricing, /Optional free sign-in to sync across devices/);
+  assert.match(pricing, /Optional free sign-in to sync revision progress/);
   // Plus says it is planned, and names concrete things rather than "deeper feedback".
   assert.match(pricing, /Planned, not built yet/);
-  assert.match(pricing, /Your courses on every device, kept in sync/);
+  assert.doesNotMatch(pricing, /Your courses on every device, kept in sync/);
+  assert.doesNotMatch(pricing, /<li>.*source files.*across devices/);
   assert.doesNotMatch(pricing, /richer answer feedback|Priority access/);
   assert.doesNotMatch(pricing, /Cross-device course and learning-state sync/);
   assert.match(footer, /\/pricing/);
@@ -246,11 +247,12 @@ test("pricing conversion loop is linked from product surfaces", async () => {
   assert.match(complete, /WaitlistForm/);
   assert.match(complete, /completedSessions === 1/);
   assert.match(complete, /completedSessions >= 2/);
-  assert.match(auth, /Sync your course PDFs and revision progress across devices/);
+  assert.match(auth, /Sync revision progress across devices/);
+  assert.match(auth, /Keep a copy of your PDFs while source-file sync is being tested/);
   assert.doesNotMatch(auth, /future cross-device sync/);
   assert.match(envExample, /NEXT_PUBLIC_MONTHLY_PAYMENT_LINK/);
   assert.doesNotMatch(envExample, /NEXT_PUBLIC_EXAM_PASS_PAYMENT_LINK/);
-  assert.match(founding, /Sync across devices is included with\s+free sign-in|Sync across devices is already available/s);
+  assert.match(founding, /Free sign-in can sync revision progress; source-file sync is still being tested/);
 });
 
 test("materials stay honest about PDF OCR limits and bookmark-only links", async () => {

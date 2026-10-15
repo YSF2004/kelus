@@ -55,6 +55,14 @@ test("the result comes from what was shown; the self-rating can lower it, never 
   assert.equal(quickOutcome({ right: 2, total: 3, self: "nailed", coverage: { hits: 1, keys: 5 } }), "partial", "an explanation missing most key ideas pulls it down");
 });
 
+test("a first reading never uses an immediate fill-in gap or declares durable mastery", () => {
+  const first = buildQuickRun({ activity, name: "Tax Incidence", siblingNames: ["Total Revenue Test"], round: 0, readFirst: true });
+  assert.ok(first);
+  assert.ok(first.checks.every((check) => check.kind !== "cloze"));
+  assert.equal(quickOutcome({ right: first.checks.length, total: first.checks.length, self: "nailed", coverage: { hits: 4, keys: 4 }, readFirst: true }), "partial");
+  assert.equal(quickOutcome({ right: 2, total: 2, self: "nailed", readFirst: false }), "success");
+});
+
 test("the summary says exactly what the outcome is based on", () => {
   assert.equal(quickSummary({ right: 2, total: 3, self: "partly" }), "2 of 3 quick checks right. You rated your explanation: partly there.");
 });

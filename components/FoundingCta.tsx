@@ -26,8 +26,8 @@ export function FoundingCta({ source = "pricing", form = true }: { source?: stri
           Get Kelus Plus · $4.99/month <span aria-hidden="true">→</span>
         </a>
         <p className="founding-cta-note">
-          Monthly subscription. Your free revision and account sync are still available without Plus.
-          {syncReady ? " Sync across devices is included with free sign-in." : " Study stays on this device until account sync is enabled."}
+          Monthly subscription. Free revision stays available without Plus.
+          {syncReady ? " Free sign-in can sync revision progress; source-file sync is still being tested." : " Study stays on this device until account sync is enabled."}
         </p>
       </div>
     );

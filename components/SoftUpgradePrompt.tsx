@@ -51,7 +51,7 @@ export function SoftUpgradePrompt({ moment }: SoftUpgradePromptProps) {
 
   const copy = COPY[moment];
   const body = syncReady
-    ? `${copy.body} Sign in free anytime to sync this course across devices.`
+    ? `${copy.body} Sign in free to sync revision progress; keep a copy of your source files while file sync is being tested.`
     : `${copy.body} Your learning stays on this device.`;
 
   function dismiss() {

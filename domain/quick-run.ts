@@ -73,7 +73,7 @@ function pickChecks(all: PracticeItem[], round: number, strict = true) {
  * Every topic gets the same run. A page too thin for two checks still gets one check, or none, and the
  * explanation; null only when there is nothing on the page to explain at all.
  */
-export function buildQuickRun(input: { activity: LearningActivity; name: string; siblingNames: string[]; round?: number }): QuickRun | null {
+export function buildQuickRun(input: { activity: LearningActivity; name: string; siblingNames: string[]; round?: number; readFirst?: boolean }): QuickRun | null {
   const { activity, name, siblingNames } = input;
   const round = Math.max(0, Math.floor(input.round ?? 0));
   const own = activity.practice?.length
@@ -89,7 +89,8 @@ export function buildQuickRun(input: { activity: LearningActivity; name: string;
   // Each round starts further along the list, so a second session brings questions the first one did not.
   const explainAnswer = activity.retrieve.modelAnswer;
   // "Which idea does this describe?" is answered by the topic name at the top of the screen, so it is a last resort.
-  const anyDrillable = own.filter(isDrillable);
+  // A fill-in gap on a line shown seconds ago tests recognition, not recall. Save it for a return visit.
+  const anyDrillable = own.filter((item) => isDrillable(item) && (!input.readFirst || item.kind !== "cloze"));
   const drillable = anyDrillable.filter((item) => !/^Which idea\b/.test(item.prompt));
   // The explanation at the end asks for this sentence, so a check that shows it first would spoil it.
   const fresh = drillable.filter((item) => !overlaps(item.sourceQuote, explainAnswer));
@@ -140,12 +141,13 @@ export function quickEvidence(input: { right: number; total: number; coverage?: 
   return parts.reduce((sum, [value, w]) => sum + value * w, 0) / weight;
 }
 
-export function quickOutcome(input: { right: number; total: number; self: SelfGrade; coverage?: { hits: number; keys: number } | null }): RetrievalOutcome {
+export function quickOutcome(input: { right: number; total: number; self: SelfGrade; coverage?: { hits: number; keys: number } | null; readFirst?: boolean }): RetrievalOutcome {
   const evidence = quickEvidence(input);
   // Nothing measurable (no checks, an explanation too short to compare): a self-rating alone is never a pass.
   if (evidence === null) return input.self === "missed" ? "failure" : "partial";
   if (input.self === "missed") return evidence >= 0.67 ? "partial" : "failure";
-  if (evidence >= 0.75) return "success";
+  // Immediately after reading, even a perfect answer is early evidence, not durable recall.
+  if (evidence >= 0.75) return input.readFirst ? "partial" : "success";
   if (evidence >= 0.4) return "partial";
   return "failure";
 }

@@ -34,7 +34,8 @@ test("a brand-new course says it is too early instead of inventing a trend", asy
   await newCourse(page);
   await page.getByRole("navigation", { name: "Revision sections" }).getByRole("button", { name: "Progress" }).click();
   await expect(page.getByRole("heading", { name: "Progress", level: 1 })).toBeVisible();
-  await expect(page.locator("#progress-headline")).toContainText("Too early to say. Answer 6 more topic checks");
+  await expect(page.locator("#progress-headline")).toHaveText("Your progress starts with a first answer.");
+  await expect(page.locator("#progress-headline")).toBeVisible();
   // No estimate and no exam date: no row of dashes.
   await expect(page.getByText("Readiness after 6 answers", { exact: false })).toHaveCount(0);
   await expect(page.getByRole("img", { name: /Estimated readiness over 14 days/ })).toHaveCount(0); // no chart yet

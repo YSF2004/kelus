@@ -144,7 +144,7 @@ export function SignInDialog() {
             <p className="auth-intro">
               {mode === "signin"
                 ? "Return to your lessons and revision progress."
-                : "Sync your course PDFs and revision progress across devices."}
+                : "Sync revision progress across devices. Keep a copy of your PDFs while source-file sync is being tested."}
             </p>
 
             {!auth.configured ? <p className="auth-message is-error" role="alert">Sign-in isn’t available right now. Everything still works on this device.</p> : null}

@@ -8,7 +8,7 @@ test("a first attempt is described as missing evidence, not low ability", () => 
     { retrievalAttempts: 0 },
   );
   assert.deepEqual(explanation, [
-    "You haven’t answered it yet.",
+    "For new topics, your plan follows your notes. You haven’t tried this one yet.",
   ]);
 });
 

@@ -131,7 +131,7 @@ export function TodayRoute({
   const firstName = firstConcept?.name ?? "A mix of earlier topics";
   // The same run the session builds, so the count here is the count the student gets.
   const firstChecks = firstActivity && firstConcept
-    ? buildQuickRun({ activity: firstActivity, name: firstConcept.name, siblingNames: concepts.filter((item) => item.courseId === firstConcept.courseId).map((item) => item.name), round: firstConcept.retrievalAttempts })?.checks.length ?? 0
+    ? buildQuickRun({ activity: firstActivity, name: firstConcept.name, siblingNames: concepts.filter((item) => item.courseId === firstConcept.courseId).map((item) => item.name), round: firstConcept.retrievalAttempts, readFirst: firstConcept.retrievalAttempts === 0 })?.checks.length ?? 0
     : 0;
   const runLine = firstChecks ? `${firstChecks} quick check${firstChecks === 1 ? "" : "s"} and 1 explanation` : "1 explanation";
   // The reason quotes the student's own last answer and names the topics that build on this one.

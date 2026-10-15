@@ -61,9 +61,7 @@ export function TopicMapPanel() {
   if (!course) return <p>No active course.</p>;
 
   const concepts = state.snapshot.concepts
-    .filter((concept) => concept.courseId === course.id)
-    .slice()
-    .sort((a, b) => b.examImportance - a.examImportance || a.mastery - b.mastery);
+    .filter((concept) => concept.courseId === course.id);
   const exam = state.snapshot.exams.find((item) => item.courseId === course.id && item.isActive);
   const routeStart = exam
     ? restAware(generateRoute({
@@ -107,7 +105,7 @@ export function TopicMapPanel() {
       due,
     };
   });
-  // The next topic leads; the rest keep exam-weight order.
+  // Route new topics in source order, exactly as Today does. Weight still decides revisits.
   rows.sort((a, b) => Number(b.concept.id === startConceptId) - Number(a.concept.id === startConceptId));
 
   // The path follows the notes: the order the topics were read from, not their estimated weight.

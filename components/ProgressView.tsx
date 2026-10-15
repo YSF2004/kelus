@@ -81,7 +81,8 @@ export function ProgressView({ concepts, events, nowIso, daysToExam, targetPerce
     return (
       <div className={styles.page}>
         <section className={styles.group} aria-labelledby="progress-headline">
-          <h2 id="progress-headline" className="sr-only">{summary.practised.length} of {concepts.length} topics tried</h2>
+          <h2 id="progress-headline" className={styles.earlyHeading}>{summary.practised.length} of {concepts.length} topics tried</h2>
+          <p className={styles.note}>A few more answers across your topics will show a useful trend. For now, here is what you tried.</p>
           <ul>
             {summary.practised.map((topic) => (
               <li key={topic.id}>
@@ -102,7 +103,7 @@ export function ProgressView({ concepts, events, nowIso, daysToExam, targetPerce
     <div className={styles.page}>
       <motion.section className={styles.lead} initial={reduce ? false : { opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: reduce ? 0 : 0.3, ease: [0.22, 1, 0.36, 1] }} aria-labelledby="progress-headline">
         {/* Before there are enough answers there is no trend to talk about: the counts below say where you are. */}
-        {summary.enough ? <h2 id="progress-headline">{progressHeadline(summary)}</h2> : <h2 id="progress-headline" className="sr-only">{progressHeadline(summary)}</h2>}
+        <h2 id="progress-headline">{fresh ? "Your progress starts with a first answer." : progressHeadline(summary)}</h2>
         {summary.enough ? <p className={styles.caveat}>Estimated from your own answers, not a prediction of your grade.</p> : null}
         {fresh ? null : summary.enough ? (
           <Trend series={summary.series} target={examDatePending ? null : target} />

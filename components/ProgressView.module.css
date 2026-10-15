@@ -68,6 +68,8 @@
   color: var(--color-midnight-ink);
 }
 
+.earlyHeading { margin: 0 0 8px; font-size: 1.5rem; font-weight: 600; line-height: 1.25; color: var(--color-midnight-ink); }
+
 .note { margin: 0 0 8px; font-size: var(--text-body-sm); color: var(--color-smoke); }
 .empty { margin: 0; padding: 12px 4px; font-size: var(--text-body-sm); color: var(--color-slate); border-top: 1px solid var(--color-frost); }
 
