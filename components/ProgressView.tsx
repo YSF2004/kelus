@@ -1,5 +1,6 @@
 "use client";
 
+import { ArrowRight } from "@/components/Marks";
 import Link from "next/link";
 import { motion, useReducedMotion } from "motion/react";
 import { progressHeadline, progressSummary, type TopicChange } from "@/domain/progress";
@@ -43,7 +44,7 @@ function Topics({ title, note, items, empty }: { title: string; note: string; it
   return (
     <section className={styles.group} aria-label={title}>
       <h3>{title}</h3>
-      <p className={styles.note}>{note}</p>
+      {note ? <p className={styles.note}>{note}</p> : null}
       {items.length ? (
         <ul>
           {items.slice(0, 6).map((topic) => (
@@ -51,9 +52,10 @@ function Topics({ title, note, items, empty }: { title: string; note: string; it
               <strong>{topic.name}</strong>
               <span className={styles.move} aria-label={`${pct(topic.before)} percent to ${pct(topic.after)} percent`}>
                 {/* A change is shown as a change; "0% → 0%" says nothing, so the last answer is named instead. */}
-                {topic.attempts === 0 ? "Not started" : pct(topic.before) !== pct(topic.after) ? <>{pct(topic.before)}% <span aria-hidden="true">→</span> {pct(topic.after)}%</> : LAST[topic.lastOutcome ?? "partial"]}
+                {/* Percentages only once there are a few answers behind them; before that, the last answer in words. */}
+                {topic.attempts === 0 ? "Not started" : topic.attempts < 3 ? `${LAST[topic.lastOutcome ?? "partial"]} · ${topic.attempts} ${topic.attempts === 1 ? "try" : "tries"}` : pct(topic.before) !== pct(topic.after) ? <>{pct(topic.before)}% <ArrowRight /> {pct(topic.after)}%</> : LAST[topic.lastOutcome ?? "partial"]}
               </span>
-              <span className={styles.bar} aria-hidden="true"><i style={{ width: `${pct(topic.after)}%` }} /></span>
+              {topic.attempts >= 3 ? <span className={styles.bar} aria-hidden="true"><i style={{ width: `${pct(topic.after)}%` }} /></span> : <span className={styles.bar} aria-hidden="true" style={{ visibility: "hidden" }} />}
             </li>
           ))}
         </ul>
@@ -77,25 +79,23 @@ export function ProgressView({ concepts, events, nowIso, daysToExam, targetPerce
         {/* Not enough answers yet: the pack's clock says "give it time" before the words do. */}
         {!summary.enough ? <PackArt name="time-flies" className={styles.earlyArt} size={110} /> : null}
         <h2 id="progress-headline">{progressHeadline(summary)}</h2>
-        <p className={styles.caveat}>{fresh ? "Nothing is estimated until you answer. When it is, it comes from your own answers, not a prediction of your grade." : "Estimated from your own answers. It is not a prediction of your grade."}</p>
+        {summary.enough ? <p className={styles.caveat}>Estimated from your own answers, not a prediction of your grade.</p> : null}
         {fresh ? null : summary.enough ? (
           <Trend series={summary.series} target={examDatePending ? null : target} />
         ) : (
-          <div className={styles.thinRow}>
-            <p className={styles.thin}>{summary.answers} answer{summary.answers === 1 ? "" : "s"} so far. Kelus draws a trend once there are 6, so it never guesses from a few.</p>
-          </div>
+          null
         )}
         {fresh ? null : <dl className={styles.stats}>
           <div><dt>Answers</dt><dd>{summary.answers}</dd></div>
           <div><dt>Days studied</dt><dd>{summary.daysStudied}<small> of 7</small></dd></div>
           <div><dt>Topics practised</dt><dd>{summary.topicsPractised}<small> of {concepts.length}</small></dd></div>
         </dl>}
-        {!summary.enough ? <Link href="/today" className={`k-btn ${styles.cta}`}>Practise a topic <span aria-hidden="true">→</span></Link> : null}
+        {!summary.enough ? <Link href="/today" className={`k-btn ${styles.cta}`}>Practise a topic <ArrowRight /></Link> : null}
       </motion.section>
 
-      {fresh ? null : <Topics title="Got stronger" note="Higher than a week ago." items={summary.stronger} empty="Nothing has moved up yet. It shows here as soon as an answer does." />}
+      {fresh || !summary.stronger.length ? null : <Topics title="Got stronger" note="Higher than a week ago." items={summary.stronger} empty="" />}
       {fresh ? null : <Topics title="Needs another pass" note="Low, slipping, or your last answer missed." items={summary.needsPass} empty="No weak spots from your answers so far." />}
-      {summary.notStarted.length ? <Topics title="Not started" note="No answers yet, so Kelus has no evidence either way." items={summary.notStarted} empty="" /> : null}
+      {summary.notStarted.length ? <Topics title="Not started" note="" items={summary.notStarted} empty="" /> : null}
 
       {fresh ? null : <section className={styles.pace} aria-label="Pace to your target">
         <h3>To reach your target</h3>

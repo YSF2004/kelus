@@ -168,5 +168,12 @@ export function explainMatch(answer: string, reference: string, topic = ""): Exp
   const flipped = [...new Map(parts.filter((part) => part.flip).map((part) => [part.flip!, { page: part.text.replace(/[^\p{L}\p{N}-]+/gu, "").toLocaleLowerCase(), said: part.flip! }])).values()];
   // An opposite is a wrong idea, not a gap: it never suggests a full mark.
   const suggest = !answer.trim() || share < 0.35 ? "missed" : share < 0.75 || flipped.length ? "partly" : "nailed";
-  return { parts, keys, hits, missed: [...new Set(missed.map((phrase) => phrase.toLocaleLowerCase()))], flipped, suggest };
+  // "dilute solution" already says "solution": a phrase whose words were all named before is not listed again.
+  const named2: string[] = [];
+  for (const phrase of missed.map((item) => item.toLocaleLowerCase())) {
+    const said = new Set(named2.flatMap((item) => item.split(" ").map(family)));
+    if (phrase.split(" ").every((word) => said.has(family(word)))) continue;
+    named2.push(phrase);
+  }
+  return { parts, keys, hits, missed: named2, flipped, suggest };
 }

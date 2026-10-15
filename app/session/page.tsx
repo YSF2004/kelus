@@ -1,5 +1,6 @@
 "use client";
 
+import { ArrowOut, ArrowRight } from "@/components/Marks";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { kelusDuration, kelusEase } from "@/components/motion";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -17,7 +18,7 @@ import { KelusLogoMark } from "@/components/KelusLogoMark";
 import { LoopSteps } from "@/components/LoopSteps";
 import { MarkStamp } from "@/components/MarkStamp";
 import { QuickResult, type QuickStats } from "@/components/QuickResult";
-import { planLine } from "@/lib/verdict";
+import { comesBackLine, planLine } from "@/lib/verdict";
 import { habitSummary } from "@/domain/habit";
 import { MinuteShift, RouteShift } from "@/components/RouteShift";
 import { PracticeDrill } from "@/components/PracticeDrill";
@@ -217,7 +218,7 @@ function SessionBody() {
           <LoopSteps />
           <div className="materials-empty-actions">
             <button className="cta" type="button" onClick={() => router.replace("/today")}>
-              Open today’s route <span aria-hidden="true">→</span>
+              Open today’s route <ArrowRight />
             </button>
           </div>
         </section>
@@ -527,7 +528,7 @@ function SessionBody() {
         );
       })()}
       {hasReadableSource ? <div className="session-workspace-source" aria-label="Your notes">
-        {quickMode ? <button type="button" className="session-notes-close" onClick={() => setNotesOpen(false)} aria-label="Close your notes">Close notes <span aria-hidden="true">→</span></button> : null}
+        {quickMode ? <button type="button" className="session-notes-close" onClick={() => setNotesOpen(false)} aria-label="Close your notes">Close notes <ArrowRight /></button> : null}
         <CourseSourceReader key={`${currentMaterial.id}-${sourcePage}`} material={currentMaterial} initialPage={sourcePage} concealed={recallWithoutLooking} onShowSource={() => setSourceRevealed(true)} />
       </div> : null}
       <div className="study-loop-track">
@@ -604,7 +605,7 @@ function SessionBody() {
               whileTap={reduceMotion ? undefined : { scale: 0.97 }}
               transition={{ type: "spring", bounce: 0, duration: 0.28 }}
             >
-              Continue <span aria-hidden="true">→</span>
+              Continue <ArrowRight />
             </motion.button>
           </motion.section>
         ) : phase === "result" ? (
@@ -634,17 +635,19 @@ function SessionBody() {
                 locator={activity.sourceReferences[0]?.locator ?? "your notes"}
                 goalDone={goalToday.topicsToday}
                 goal={goalToday.goal}
+                comesBack={comesBackLine(concept.nextReviewAt, state.nowIso)}
                 routeLine={planLine({ next: nextConceptName, movedUp: movedUpName, orderChanged: routeOrderChanged })}
                 nextName={nextConceptName}
                 onRetry={retryCurrentConcept}
                 onContinue={advance}
                 onSource={currentSource && currentMaterial ? () => void openSource(currentSource.materialId, currentSource.locator) : undefined}
                 details={(
-                  <div className="session-value-proof" aria-label="What changed in this session">
+                  <div className="session-value-proof" aria-label="What changed in your plan">
                     <div>
-                      <span>This check</span>
-                      <strong>{evaluation?.label ?? (lastOutcome === "failure" ? "Needs another pass" : "Partial evidence")}</strong>
+                      <span>{concept.name}</span>
+                      <strong>{comesBackLine(concept.nextReviewAt, state.nowIso)}</strong>
                     </div>
+                    {movedUpName ? <div><span>Moved up</span><strong>{movedUpName}</strong></div> : null}
                     {minuteChanges.length ? <div><span>Time adjusted</span><strong>{minuteChanges.slice(0, 2).map((change) => `${change.name} ${change.before} → ${change.after} min`).join(" · ")}</strong></div> : null}
                   </div>
                 )}
@@ -705,12 +708,12 @@ function SessionBody() {
                 className="text-btn session-source-return"
                 onClick={() => void openSource(currentSource.materialId, currentSource.locator)}
               >
-                Review the source behind this topic <span aria-hidden="true">↗</span>
+                Review the source behind this topic <ArrowOut />
               </button>
             ) : null}
             <div className="study-result-actions">
               {lastOutcome !== "success" ? <motion.button type="button" className="cta" onClick={retryCurrentConcept} whileTap={reduceMotion ? undefined : { scale: 0.97 }} transition={{ type: "spring", bounce: 0, duration: 0.28 }}>Try again <span aria-hidden="true">↻</span></motion.button> : null}
-              <button type="button" className={lastOutcome === "success" ? "cta" : "text-btn"} onClick={advance}>{nextConceptName ? `Continue to ${nextConceptName}` : "Finish block"} <span aria-hidden="true">→</span></button>
+              <button type="button" className={lastOutcome === "success" ? "cta" : "text-btn"} onClick={advance}>{nextConceptName ? `Continue to ${nextConceptName}` : "Finish block"} <ArrowRight /></button>
             </div>
               </>
             )}
@@ -752,7 +755,7 @@ function SessionBody() {
                       const showLocator = locator && !/not your upload|demo/i.test(locator);
                       return (
                       <button key={`${reference.materialId}-${reference.locator}`} type="button" disabled={openingSource} onClick={() => void openSource(reference.materialId, reference.locator)}>
-                        {reference.label}{showLocator ? ` · ${locator}` : ""} <span aria-hidden="true">↗</span>
+                        {reference.label}{showLocator ? ` · ${locator}` : ""} <ArrowOut />
                       </button>
                       );
                     })}
@@ -766,7 +769,7 @@ function SessionBody() {
                   whileTap={reduceMotion ? undefined : { scale: 0.97 }}
                   transition={{ type: "spring", bounce: 0, duration: 0.28 }}
                 >
-                  Retrieve it <span aria-hidden="true">→</span>
+                  Retrieve it <ArrowRight />
                 </motion.button>
               </div>
             ) : null}
@@ -810,7 +813,7 @@ function SessionBody() {
                     whileTap={reduceMotion || !retrieveAnswer.trim() ? undefined : { scale: 0.97 }}
                     transition={{ type: "spring", bounce: 0, duration: 0.28 }}
                   >
-                    Continue <span aria-hidden="true">→</span>
+                    Continue <ArrowRight />
                   </motion.button>
                   <button type="button" className="text-btn study-back" onClick={() => { setHelpMode(null); setPhase("learn"); }}>
                     Back
@@ -848,7 +851,7 @@ function SessionBody() {
                     whileTap={reduceMotion || !applicationAnswer.trim() ? undefined : { scale: 0.97 }}
                     transition={{ type: "spring", bounce: 0, duration: 0.28 }}
                   >
-                    Check my thinking <span aria-hidden="true">→</span>
+                    Check my thinking <ArrowRight />
                   </motion.button>
                   <button type="button" className="text-btn study-back" onClick={() => { setHelpMode(null); setPhase("retrieve"); }}>
                     Back
@@ -861,7 +864,7 @@ function SessionBody() {
               <div className="study-feedback is-page is-mark-folio">
                 <h1>Mark.</h1>
                 <p className="study-mark-lede">Set your answers beside the model, then record what stuck.</p>
-                {currentSource && currentMaterial ? <button type="button" className="text-btn session-source-compare" onClick={() => void openSource(currentSource.materialId, currentSource.locator)}>View original page · {currentSource.locator ?? "source"} <span aria-hidden="true">↗</span></button> : null}
+                {currentSource && currentMaterial ? <button type="button" className="text-btn session-source-compare" onClick={() => void openSource(currentSource.materialId, currentSource.locator)}>View original page · {currentSource.locator ?? "source"} <ArrowOut /></button> : null}
                 {evaluation ? (
                   <motion.div
                     className={`answer-evaluation is-page is-${evaluation.outcome}`}
@@ -956,7 +959,7 @@ function SessionBody() {
             {sourcePanel.kind === "link" && sourcePanel.href ? (
               <div className="session-source-link">
                 <p>This source is saved as a web link. Open it when you need the original context; your session stays here.</p>
-                <a href={sourcePanel.href} target="_blank" rel="noreferrer">Open original source <span aria-hidden="true">↗</span></a>
+                <a href={sourcePanel.href} target="_blank" rel="noreferrer">Open original source <ArrowOut /></a>
               </div>
             ) : null}
             {sourcePanel.kind === "unavailable" ? (
@@ -968,7 +971,7 @@ function SessionBody() {
                     ? "Kelus could not open this PDF just now. Your session stays here — add the file again from Materials, then reopen the source."
                     : "The reference is part of your learning activity, but the original file is not available on this device."}
                 </p>
-                <button type="button" onClick={() => router.push("/materials")}>{sourcePanel.reason === "built_in" ? "Add your own material" : "Add the PDF again"} <span aria-hidden="true">→</span></button>
+                <button type="button" onClick={() => router.push("/materials")}>{sourcePanel.reason === "built_in" ? "Add your own material" : "Add the PDF again"} <ArrowRight /></button>
               </div>
             ) : null}
           </motion.aside>

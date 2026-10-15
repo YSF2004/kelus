@@ -1,5 +1,6 @@
 "use client";
 
+import { ArrowRight, Cross, Tick } from "@/components/Marks";
 import type { ReactNode } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { useEffect, useRef, useState, useSyncExternalStore } from "react";
@@ -174,7 +175,7 @@ export function QuickRun({ run, onRevealSource, onFinish, onChecksDone, context 
                       whileTap={reduce || answered ? undefined : { scale: 0.985 }}
                     >
                       {/* The number becomes the verdict in place, so the eye does not have to travel. */}
-                      <kbd aria-hidden="true">{isRight ? "✓" : isWrong ? "✕" : index + 1}</kbd>
+                      <kbd aria-hidden="true">{isRight ? <Tick size={12} /> : isWrong ? <Cross size={12} /> : index + 1}</kbd>
                       <span>{choice}</span>
                     </motion.button>
                   );
@@ -191,7 +192,7 @@ export function QuickRun({ run, onRevealSource, onFinish, onChecksDone, context 
                 <label htmlFor={`run-gap-${step}`} className="sr-only">Your answer, one word</label>
                 <span className={styles.field} data-state={answered ? (answered.right ? "right" : answered.unsure ? "unsure" : "wrong") : undefined}>
                   <input id={`run-gap-${step}`} value={typed} onChange={(event) => setTyped(event.target.value)} disabled={Boolean(answered)} autoComplete="off" autoFocus placeholder="One word" />
-                  {answered?.right ? <motion.span className={styles.fieldMark} aria-hidden="true" initial={reduce ? false : { scale: 0.4, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={{ type: "spring", stiffness: 520, damping: 26 }}>✓</motion.span> : null}
+                  {answered?.right ? <motion.span className={styles.fieldMark} aria-hidden="true" initial={reduce ? false : { scale: 0.4, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={{ type: "spring", stiffness: 520, damping: 26 }}><Tick size={16} /></motion.span> : null}
                 </span>
                 {!answered ? <button type="submit" className={`k-btn ${styles.primary}`} disabled={!typed.trim()}>Check<kbd className={styles.key} aria-hidden="true">↵</kbd></button> : null}
               </motion.form>
@@ -209,7 +210,7 @@ export function QuickRun({ run, onRevealSource, onFinish, onChecksDone, context 
                     <p>“{answered.elsewhere}”</p>
                   </div>
                 ) : null}
-                <button ref={nextRef} type="button" className={`k-btn ${styles.primary}`} onClick={next}>{step + 1 >= total ? (onChecksDone ? "See how it went" : "Now say it yourself") : "Next"} <span aria-hidden="true">→</span></button>
+                <button ref={nextRef} type="button" className={`k-btn ${styles.primary}`} onClick={next}>{step + 1 >= total ? (onChecksDone ? "See how it went" : "Now say it yourself") : "Next"} <ArrowRight /></button>
               </motion.div>
             ) : null}
           </motion.section>

@@ -1,5 +1,6 @@
 "use client";
 
+import { ArrowRight } from "@/components/Marks";
 import { topicLevel } from "@/lib/format";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import Link from "next/link";
@@ -72,7 +73,7 @@ export function TopicMapPanel() {
       <div className="surface-map is-toc is-empty">
         <p>No topics yet. Add a page in the binder, then confirm what this exam covers.</p>
         <Link className="cta" href="/today?section=materials">
-          Open binder <span aria-hidden="true">→</span>
+          Open binder <ArrowRight />
         </Link>
       </div>
     );
@@ -149,7 +150,7 @@ export function TopicMapPanel() {
                   </ConceptTitleTransition>
                   <span className="index-toc-meta">
                     {isStart ? "Start here" : label}
-                    {mastery == null ? "" : ` · ${percent(mastery)}`}
+                    {mastery == null ? "" : concept.retrievalAttempts < 3 ? ` · ${concept.retrievalAttempts} ${concept.retrievalAttempts === 1 ? "try" : "tries"}` : ` · ${percent(mastery)}`}
                   </span>
                   <span className={styles.facts}>
                     {/* Exam weights are estimated from how much text a topic has, not set by anyone, so no "% of exam" here. */}

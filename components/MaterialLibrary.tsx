@@ -1,5 +1,6 @@
 "use client";
 
+import { ArrowRight } from "@/components/Marks";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { kelusDuration, kelusEase } from "@/components/motion";
 import Link from "next/link";
@@ -839,7 +840,7 @@ export function MaterialLibrary({ embedded = false, incomingFile = null, onIncom
             <p>
               Your topics are saved. Next, check what you remember so Kelus can suggest where to begin. You can inspect the map whenever you need it.</p>
             <div className="material-ready-actions">
-              <Link className="cta" href="/today">Continue: short check, then study <span aria-hidden="true">→</span></Link>
+              <Link className="cta" href="/today">Continue: short check, then study <ArrowRight /></Link>
               <div className="material-ready-secondary">
                 <Link href="/today?section=map">Review the index</Link>
                 <button type="button" onClick={() => dispatch({ type: "ADD_ANOTHER" })}>Add another source</button>
@@ -915,7 +916,7 @@ export function MaterialLibrary({ embedded = false, incomingFile = null, onIncom
             </ol>
             </div>
             <div className="concept-confirmation-actions">
-              <button type="button" className="cta" disabled={!selectedIds.size} onClick={buildMap}>Confirm topics <span aria-hidden="true">→</span></button>
+              <button type="button" className="cta" disabled={!selectedIds.size} onClick={buildMap}>Confirm topics <ArrowRight /></button>
               <div className="concept-confirmation-secondary">
                 <button type="button" onClick={() => dispatch({ type: "REVIEW_LATER" })}>Review later</button>
               </div>
@@ -945,7 +946,7 @@ export function MaterialLibrary({ embedded = false, incomingFile = null, onIncom
           <div className="material-shelf-empty">
             <p>Sample model is ready. Add your own syllabus when you want Kelus grounded in your files.</p>
             <Link className="cta" href="/today">
-              Continue to study plan <span aria-hidden="true">→</span>
+              Continue to study plan <ArrowRight />
             </Link>
           </div>
         ) : (
@@ -953,7 +954,7 @@ export function MaterialLibrary({ embedded = false, incomingFile = null, onIncom
             <p>{embedded ? "Add the syllabus or lecture for this exam. Kelus proposes topics you confirm." : "No sources on this shelf yet. Add the syllabus or lecture you’re studying — Kelus will propose topics you confirm."}</p>
             <div className="materials-empty-actions">
               <a className="cta" href="#add-material-title">
-                Add first PDF <span aria-hidden="true">→</span>
+                Add first PDF <ArrowRight />
               </a>
             </div>
           </div>

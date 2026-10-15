@@ -430,3 +430,8 @@ html body.is-course-studio .material-shelf-count { margin-left: 6px; color: var(
 html body.is-booklet-system { --font-inter: "Kelus Zero", "Atkinson Hyperlegible Next", "Atkinson Hyperlegible Next Fallback", system-ui, sans-serif; }
 html body .legal-panel .not-found-art { display: block; height: auto; margin: 0 0 20px; }
 html body section[aria-labelledby="reading-title"] .k-btn { box-shadow: none !important; border: 0 !important; border-radius: 999px !important; transform: none; }
+
+/* Drawn marks sit on the text like a glyph would: same colour, a hair below centre. */
+.k-mark { display: inline-block; flex: none; vertical-align: -0.15em; }
+html body.is-course-studio :is(.studio-home-link, .core-add-source) { display: inline-flex; align-items: center; gap: 6px; }
+html body.is-course-studio .core-source-remove { display: inline-grid; place-items: center; }

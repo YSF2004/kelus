@@ -2,13 +2,15 @@
 
 import { motion, useReducedMotion } from "motion/react";
 import type { RetrievalOutcome } from "@/domain/types";
+import { Tick } from "@/components/Marks";
 import styles from "./BlockOutline.module.css";
 
 export type OutlineTopic = { id: string; name: string; outcome: RetrievalOutcome | null; current: boolean };
 
 /** Partly there is a half-filled dot everywhere in Kelus, never a minus. */
 const HALF = <svg viewBox="0 0 16 16" width="11" height="11" style={{ display: "block" }}><circle cx="8" cy="8" r="6.25" fill="none" stroke="currentColor" strokeWidth="1.6" /><path d="M8 1.75A6.25 6.25 0 0 0 8 14.25Z" fill="currentColor" /></svg>;
-const MARK: Record<RetrievalOutcome, React.ReactNode> = { success: "✓", partial: HALF, failure: "↻" };
+const RETURN = <svg viewBox="0 0 16 16" width="11" height="11" style={{ display: "block" }} fill="none" stroke="currentColor" strokeWidth="1.75" strokeLinecap="round" strokeLinejoin="round"><path d="M12.5 6A5 5 0 1 0 13 10" /><path d="M13 2.5V6H9.5" /></svg>;
+const MARK: Record<RetrievalOutcome, React.ReactNode> = { success: <Tick size={11} />, partial: HALF, failure: RETURN };
 const WORD: Record<RetrievalOutcome, string> = { success: "Solid pass", partial: "Partly there", failure: "Needs another attempt" };
 
 /**
