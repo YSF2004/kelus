@@ -55,7 +55,7 @@
 .cta {
   border-bottom-width: 0 !important;
   box-shadow: none !important;
-  border-radius: 999px !important;
+  border-radius: 8px !important;
   min-height: 48px;
   margin-top: 6px;
   padding: 0 22px;

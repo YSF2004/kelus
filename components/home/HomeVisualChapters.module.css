@@ -3,9 +3,9 @@
 .returnSection { overflow: clip; }
 
 .studySection {
-  background: #f3f3f1;
+  background: #fff;
   color: var(--ink);
-  border-block: 1px solid var(--color-loop-student-line);
+  border-block: 1px solid var(--color-frost);
 }
 
 .studyInner,
@@ -22,7 +22,7 @@
   place-items: end center;
   min-height: clamp(28rem, 43vw, 38rem);
   padding: clamp(2rem, 4vw, 4rem) 1rem 0;
-  background: #f3f3f1;
+  background: #fff;
 }
 .studyArt img { width: min(100%, 36rem); height: auto; object-fit: contain; }
 
@@ -71,7 +71,7 @@
 .textLink:focus-visible { outline: 2px solid var(--color-kelus); outline-offset: 4px; }
 
 .returnSection {
-  background: #fbfaf7;
+  background: #fff;
   border-block: 1px solid var(--color-frost);
 }
 .returnInner { grid-template-columns: minmax(0, 0.78fr) minmax(0, 1.22fr); }

@@ -8,7 +8,7 @@
   --marigold: #f3d27a;
   --red: #b42318;
   border-top: 1px solid var(--line);
-  background: var(--paper, #fbfaf7);
+  background: #fff;
   color: var(--ink);
   padding: clamp(4rem, 8vw, 6.5rem) max(1.5rem, calc((100vw - 76rem) / 2)) clamp(4rem, 7vw, 6rem);
 }
@@ -64,7 +64,7 @@
   /* Sits on the joining line like a label on a rule: the line stops at the words. */
   justify-self: start;
   padding-right: 12px;
-  background: var(--paper, #fbfaf7);
+  background: #fff;
   display: flex;
   align-items: center;
   gap: 10px;
@@ -84,7 +84,7 @@
   height: 24px;
   border: 1px solid var(--line);
   border-radius: 50%;
-  background: var(--paper, #fbfaf7);
+  background: #fff;
   color: var(--ink);
   font-size: 0.75rem;
   font-weight: 600;
@@ -97,7 +97,7 @@
   min-height: 188px;
   padding: 18px 18px 16px;
   border: 1px solid var(--line);
-  border-radius: 10px;
+  border-radius: 8px;
   background: #fff;
 }
 

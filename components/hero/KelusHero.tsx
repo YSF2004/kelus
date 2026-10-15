@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { BrandIcon } from "@/components/BrandIcon";
+import { ArrowRight } from "@/components/Marks";
 import { HeroProductVideo } from "./HeroProductVideo";
 import styles from "./ProductVideoHero.module.css";
 
@@ -21,7 +22,7 @@ export function KelusHero() {
 
         <div className={styles.actions}>
           <Link href="/today" className={styles.primary}>
-            Add your notes <span className={styles.primaryArrow} aria-hidden="true">→</span>
+            Add your notes <ArrowRight className={`k-mark ${styles.primaryArrow}`} />
           </Link>
         </div>
       </div>

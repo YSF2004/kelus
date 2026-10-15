@@ -27,11 +27,11 @@
 .hero h1 { max-width: 18ch; min-width: 0; margin: 0; font-size: clamp(44px, 5.4vw, 68px); font-weight: 500; letter-spacing: -0.038em; line-height: 1.08; overflow-wrap: anywhere; }
 .heroBottom { display: flex; justify-content: flex-start; align-items: end; gap: 40px; max-width: 960px; margin-top: 36px; }
 .heroBottom p { max-width: 37ch; margin: 0; color: var(--mute); font-size: clamp(17px, 1.8vw, 21px); line-height: 1.45; }
-.primaryAction { display: inline-flex; min-height: 52px; align-items: center; justify-content: center; gap: 26px; padding: 0 18px 0 25px; border: 1px solid var(--green); border-radius: 999px; background: var(--green); color: var(--color-pure-white); font-size: 15px; font-weight: 600; text-decoration: none; white-space: nowrap; transition: background-color 180ms var(--ease-standard), transform 150ms var(--ease-standard); }
+.primaryAction { display: inline-flex; min-height: 48px; align-items: center; justify-content: center; gap: 10px; padding: 0 20px; border: 1px solid var(--green); border-radius: 8px; box-shadow: 0 1px 2px rgba(25, 26, 24, 0.12); background: var(--green); color: var(--color-pure-white); font-size: 15px; font-weight: 600; text-decoration: none; white-space: nowrap; transition: background-color 180ms var(--ease-standard), transform 150ms var(--ease-standard); }
 .primaryArrow { display: inline-block; font-size: 20px; font-weight: 400; line-height: 1; transition: transform 180ms var(--ease-standard); }
 @media (hover: hover) {
-  .primaryAction:hover { background: var(--color-kelus-hover); color: var(--color-pure-white); transform: translateY(-2px); }
-  .primaryAction:hover .primaryArrow { transform: translateX(4px); }
+  .primaryAction:hover { background: var(--color-kelus-hover); color: var(--color-pure-white); }
+  .primaryAction:hover .primaryArrow { transform: translateX(3px); }
 }
 .primaryAction:active { transform: scale(.97); transition-duration: var(--dur-instant); }
 .primaryAction:focus-visible { outline: 3px solid var(--green); outline-offset: 4px; }

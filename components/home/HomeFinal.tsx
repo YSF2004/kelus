@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { ArrowRight } from "@/components/Marks";
 import { PackArt } from "@/components/PackArt";
 import styles from "./HomeFinal.module.css";
 
@@ -18,7 +19,7 @@ export function HomeFinal() {
         </ul>
       </div>
       <Link href="/today" className={styles.action}>
-        Add your notes <span aria-hidden="true">→</span>
+        Add your notes <ArrowRight className={`k-mark ${styles.arrow}`} />
       </Link>
     </section>
   );
