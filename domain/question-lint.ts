@@ -12,9 +12,31 @@ export type Defect =
   | "answer-in-prompt"
   | "too-long"
   | "weak-options"
-  | "trivial-gap";
+  | "trivial-gap"
+  | "gap-in-question"
+  | "orphan-pronoun"
+  | "fragment-option";
 
 const GAP = /_____/g;
+
+const PRONOUN_START = /^(?:it|this|that|these|those|they|he|she)\b/i;
+
+/**
+ * A line a student can read on its own, out of its page: a real sentence of five words or more, not a heading cut off
+ * at a colon or "…", not a question from the slide, not "It …" with nothing to point at, and not a chain of symbols
+ * ("I- > Br- > Cl-") or a list marker left at the end ("… acidic) b.").
+ */
+export function standsAlone(line: string) {
+  const text = line.trim().replace(/^[“"‘'(]+/, "");
+  const words = text.match(/[\p{L}\p{N}'’-]+/gu) ?? [];
+  if (words.length < 5) return false;
+  if (/(?::|…|\.\.\.|,)["”]?$/.test(text) || /\?["”)]?$/.test(text)) return false;
+  if (PRONOUN_START.test(text)) return false;
+  if (/\s[a-z]\.$/.test(text) || (text.match(/\s[<>=]\s?/g) ?? []).length >= 2) return false;
+  // A line with no lowercase word of four letters is a label row ("Strong acid Weak acid", "B.A., University of …").
+  const lower = words.filter((word) => /^\p{Ll}{4,}$/u.test(word)).length;
+  return lower >= 2;
+}
 
 /** The statement shown to the learner, without the "Fill the gap…" wrapper. */
 function shown(item: PracticeItem) {
@@ -35,6 +57,10 @@ export function lintQuestion(item: PracticeItem): Defect[] {
     if (blanks > 1) defects.push("double-blank");
     // A gap whose sentence is almost nothing but the gap.
     if (text.replace(GAP, "").split(/\s+/).filter(Boolean).length < 6) defects.push("trivial-gap");
+    // "What was new about _____'s theory?" quotes a question from the slide, not a fact from the notes.
+    if (/\?\s*$/.test(text)) defects.push("gap-in-question");
+    // "It measures the willingness of _____ to sell": out of its page, "it" could be supply or demand.
+    if (PRONOUN_START.test(text.trim())) defects.push("orphan-pronoun");
     if (item.modelAnswer && new RegExp(`(?<![\\w])${item.modelAnswer.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}(?![\\w])`, "i").test(text.replace(GAP, ""))) defects.push("answer-in-prompt");
   }
 
@@ -58,6 +84,8 @@ export function lintQuestion(item: PracticeItem): Defect[] {
     if (!distinct || (item.choices.length > 2 && Math.max(...lengths) > 3.2 * Math.max(8, Math.min(...lengths)) && item.variant !== "truefalse")) defects.push("weak-options");
   }
 
+  // "Which of these is from your notes": every option is a line to judge, so each must read as one on its own.
+  if (item.kind === "choice" && item.choices && /^Which of these (?:is from|does NOT match) your notes/.test(item.prompt) && !item.choices.every(standsAlone)) defects.push("fragment-option");
   if (item.prompt.length > 330) defects.push("too-long");
   return [...new Set(defects)];
 }

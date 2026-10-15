@@ -1,4 +1,5 @@
 import { buildPractice, teachingFacts, units } from "./content-engine";
+import { standsAlone } from "./question-lint";
 import type {
   Concept,
   ConceptRelationship,
@@ -88,6 +89,8 @@ const RELATED_SIGNAL = /\b(?:related to|closely related|see also|compared with|i
 
 function cleanCandidate(value: string) {
   const cleaned = value
+    // "Definition (Elasticity of Y with respect to X)" is a definition of the thing in brackets.
+    .replace(/^\s*(?:definition|déf(?:inition)?)s?\s*\((.+)\)\s*$/i, "$1")
     .replace(NUMBER_PREFIX, "")
     .replace(HEADING_PREFIX, "")
     .replace(/\s+/g, " ")
@@ -129,8 +132,23 @@ function isStatement(value: string) {
   return !/\?$/.test(text) && !/^(?:what|why|how|when|where|who|which)\b/i.test(text) && /\S\s+(?:is|are|was|were)\s+\S/i.test(text);
 }
 
+/**
+ * Lines that look like headings but are not topics: a heading cut off mid-phrase ("The Role of the"), a quote or a
+ * continued slide ("“Why do we…", "(cont’d)"), an example label, a chain of symbols ("HI > HBr > HCl"), or the
+ * lecturer's name on the title slide.
+ */
+function notATopic(value: string) {
+  const text = value.trim();
+  return /\b(?:the|of|in|and|to|a|an|for|with|on|at|by|from|or|as)$/i.test(text)
+    || /^[“"‘']/.test(text) || (/[”"]\??$/.test(text) && !/[“"]/.test(text.slice(0, -2)))
+    || /\((?:cont(?:’|')?d|cont\.|continued)\)|\bcontinued$/i.test(text)
+    || /^examples?\b/i.test(text)
+    || (text.match(/[<>=]/g) ?? []).length >= 2
+    || /^(?:dr|prof|professor|mr|mrs|ms)\.?\s+\p{Lu}/iu.test(text);
+}
+
 function looksLikeConcept(value: string) {
-  if (isStatement(value)) return false;
+  if (isStatement(value) || notATopic(value)) return false;
   if (value.length < 3 || value.length > 72 || ADMINISTRATIVE.test(value) || GENERIC_HEADING.test(value.trim()) || isContinuation(value)) return false;
   if (/https?:|@|\b(?:monday|tuesday|wednesday|thursday|friday|saturday|sunday)\b/i.test(value)) return false;
   if (/\b(?:due|points?|percent|room|pm|am)\b/i.test(value)) return false;
@@ -240,21 +258,51 @@ function centralClaim(name: string, excerpt: string) {
     const [a, b] = [opens(sides.leftKey), opens(sides.rightKey)];
     if (a && b && a !== b) return `${a} ${b}`.slice(0, 320);
   }
-  const named = sentences.find((sentence) => sentence.toLocaleLowerCase().includes(name.toLocaleLowerCase()));
-  const defined = sentences.find((sentence) => DEFINITION_SIGNAL.test(sentence));
-  return (named ?? defined ?? sentences[0]).slice(0, 260);
+  // The answer a student is compared with must read as a statement: "Strong acid Weak acid" or "Consider a market
+  // with:" cannot be explained back. Lines that stand alone come first; only a page with none falls back to its lines.
+  const whole = sentences.filter(standsAlone);
+  const pool = whole.length ? whole : sentences;
+  // "Determinants of elasticity", "Causes of …": the answer is the list, not its first item.
+  if (isListTopic(name) && whole.length >= 2) return whole.slice(0, 3).join(" ").slice(0, 360);
+  const named = pool.find((sentence) => sentence.toLocaleLowerCase().includes(coreName(name).toLocaleLowerCase()));
+  // A definition counts only near the heading; a later "… is the market equilibrium" belongs to another idea.
+  const defined = pool.slice(0, 2).find((sentence) => DEFINITION_SIGNAL.test(sentence));
+  if (!whole.length && sentences.length > 1) return sentences.slice(0, 3).join("; ").slice(0, 300);
+  return (named ?? defined ?? pool[0]).slice(0, 260);
+}
+
+/** A topic that names a set: "Determinants of elasticity", "Causes of the war", "Limiting factors". */
+export function isListTopic(name: string) {
+  return /^(?:the\s+)?(?:determinants|causes|factors|types|kinds|effects|consequences|features|characteristics|properties|advantages|disadvantages|stages|steps|functions|principles|methods|sources|uses|limitations|reasons|themes)\b|\b(?:factors|causes|types|stages)$/i.test(name.trim());
 }
 
 /**
  * The topic as it reads inside a sentence: "the cell membrane", "osmosis", but "ATP" and "Bayes' theorem" as written.
  * A heading capitalises every word; a question in the middle of a sentence should not.
  */
+const PLACE_WORDS = /^(?:Europe|European|America|American|Africa|African|Asia|Asian|Britain|British|English|France|French|Germany|German|China|Chinese|Japan|Japanese|India|Indian|Russia|Russian|Western|Eastern|Roman|Greek|Christian|Islamic|Jewish|Latin|Arab|Arabic|Atlantic|Pacific|Mediterranean)[,:]?$/;
+
+/** A slide title ("Evolution of Psychology: Sigmund Freud") reads badly rewritten into a sentence; it is quoted as written. */
+export function isTitleHeading(name: string) {
+  return /:|\s[-–]\s|-\s/.test(name) || name.split(/\s+/).length > 4;
+}
+
 export function spokenName(name: string, claim: string) {
+  if (isTitleHeading(name)) return `“${name.replace(/[?.]+$/, "")}”`;
   const leadingThe = new RegExp(`^the\\s+${escapeRegExp(name)}\\b`, "i").test(claim.trim());
   // Capitalised in the middle of a sentence in the notes themselves: a proper name, keep it.
   const properNoun = new RegExp(`[a-z,;:]\\s+${escapeRegExp(name)}\\b`).test(claim) && /^[A-Z]/.test(name);
-  const words = name.split(/\s+/).map((word) => (/^[A-Z0-9]{2,}s?$/.test(word) || /\d/.test(word) || /['’]/.test(word) ? word : word.charAt(0).toLocaleLowerCase() + word.slice(1)));
-  const base = properNoun ? name : words.join(" ");
+  // Only a plain capitalised word reads in lowercase ("Cell Membrane" → "cell membrane"). "pKa", "U.S.", "HBr",
+  // "acidity/Basicity" or a name with initials ("B. F. Skinner") keep their own spelling.
+  // A person ("Wilhelm Wundt (1832-1920)", "… : Pavlov") or a place keeps its capitals too.
+  const keep = /\b\p{Lu}\.\s|[/>]|\(\d{4}/u.test(name);
+  const parts = name.split(/\s+/);
+  const words = parts.map((word, index) => {
+    if (!/^\p{Lu}\p{Ll}+(?:-\p{Ll}+)*[,:]?$/u.test(word)) return word;
+    if (PLACE_WORDS.test(word) || (index === parts.length - 1 && /:$/.test(parts[index - 1] ?? ""))) return word;
+    return word.charAt(0).toLocaleLowerCase() + word.slice(1);
+  });
+  const base = properNoun || keep ? name : words.join(" ");
   return leadingThe ? `the ${base}` : base;
 }
 
@@ -265,6 +313,9 @@ export function coreName(name: string) {
 }
 
 function recallQuestion(fullName: string, claim: string, fallback: string) {
+  // A heading that is already a question ("Should we impose a minimum wage?") is asked as it stands.
+  if (/\?\s*$/.test(fullName)) return `${fullName.replace(/\s+\?$/, "?")} What do your notes say?`;
+  if (isListTopic(fullName)) return `What are the ${spokenName(fullName, claim).replace(/^the\s+/i, "")}, according to your notes?`;
   const sides = versusSides(fullName);
   if (sides) return `How do your notes tell ${spokenName(sides.left, claim)} and ${spokenName(sides.right, claim)} apart?`;
   const core = coreName(fullName);
@@ -296,7 +347,8 @@ function subjectModeFor(name: string, excerpt: string): SubjectMode {
 function activityLanguage(mode: SubjectMode, name: string, claim: string) {
   name = coreName(name);
   const spoken = spokenName(name, claim);
-  switch (mode) {
+  // "How does “The Evolution of Psychology: Beginnings” work?" fits no title; a quoted title gets the plain question.
+  switch (spoken.startsWith("“") ? "general" : mode) {
     case "biology":
       return {
         learnTitle: `Trace the mechanism behind ${name}.`,
@@ -524,7 +576,7 @@ function inferRelationships(concepts: Concept[], corpus: string): ConceptRelatio
 }
 
 function looksLikeConceptRelaxed(value: string) {
-  if (isStatement(value)) return false;
+  if (isStatement(value) || notATopic(value)) return false;
   if (value.length < 3 || value.length > 80 || ADMINISTRATIVE.test(value) || GENERIC_HEADING.test(value.trim()) || isContinuation(value)) return false;
   if (/https?:|@|\b(?:monday|tuesday|wednesday|thursday|friday|saturday|sunday)\b/i.test(value)) return false;
   if (/\b(?:due|points?|percent|room)\b/i.test(value)) return false;
@@ -597,7 +649,7 @@ export function proposeConceptsFromPages(input: {
       const name = topicNameFrom(heading, sourceExcerpt, locator);
       const key = name.toLocaleLowerCase();
       if (key === titleKey) return;
-      if ((!matcher(heading) && !layoutHeading) || seen.has(key) || ADMINISTRATIVE.test(name) || GENERIC_HEADING.test(name.trim()) || isDocumentTitle(name) || isContinuation(heading)) return;
+      if ((!matcher(heading) && !layoutHeading) || seen.has(key) || ADMINISTRATIVE.test(name) || GENERIC_HEADING.test(name.trim()) || isDocumentTitle(name) || isContinuation(heading) || notATopic(heading) || isStatement(heading)) return;
       // A slide with several headings gives them all the same passage; only the first is a topic.
       const passageKey = `${page.pageNumber}:${sourceExcerpt.replace(/\s+/g, " ").trim().toLocaleLowerCase()}`;
       if (creditOnly(sourceExcerpt) || seenPassages.has(passageKey)) return;

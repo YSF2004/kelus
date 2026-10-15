@@ -14,12 +14,19 @@ export function rankLearningActions(input: {
   exam: Exam;
   nowIso: string;
 }) {
-  return input.concepts
+  const ranked = input.concepts
     .map((concept) => ({
       concept,
       value: calculateLearningValue({ ...input, concept }),
     }))
     .sort((a, b) => b.value.score - a.value.score || a.concept.name.localeCompare(b.concept.name));
+  // Topics you have not tried yet are met in the order your notes give them: a lecture is read from its first idea,
+  // not from whichever heading scored a point higher. Reviews keep their place; only the new topics' slots are filled
+  // in course order.
+  const courseOrder = new Map(input.concepts.map((concept, index) => [concept.id, index]));
+  const fresh = ranked.filter((action) => action.concept.retrievalAttempts === 0).sort((a, b) => (courseOrder.get(a.concept.id) ?? 0) - (courseOrder.get(b.concept.id) ?? 0));
+  let next = 0;
+  return ranked.map((action) => (action.concept.retrievalAttempts === 0 ? fresh[next++] : action));
 }
 
 function allocateMinutes(actions: RankedLearningAction[], availableMinutes: number) {

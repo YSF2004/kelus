@@ -6,7 +6,7 @@ import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import Link from "next/link";
 import type { Concept, ConceptRelationship, LearningActivity, LearningEvent, RoutePlan, StudySession } from "@/domain/types";
-import { habitSummary, studyPath } from "@/domain/habit";
+import { dayKey, habitSummary, studyPath } from "@/domain/habit";
 import { NudgeCard } from "@/components/NudgeCard";
 import { InstallCard } from "@/components/InstallCard";
 import { getNudgeSettings, getServerNudgeSettings, nudgesSupported, subscribeNudgeSettings } from "@/lib/nudge";
@@ -69,7 +69,7 @@ export function TodayRoute({
   const reduceMotion = useReducedMotion();
   // The topic this card is about: the open block's current topic when there is one, else the route's first.
   const first = focus ?? route.allocations[0];
-  const { visit, nowIso } = useReturnVisit(events, concepts);
+  const { visit, nowIso, missed } = useReturnVisit(events, concepts);
   const nudges = useSyncExternalStore(subscribeNudgeSettings, getNudgeSettings, getServerNudgeSettings);
   const install = useSyncExternalStore(subscribeInstall, installState, serverInstallState);
   // Nudges off when Today opened: the card stays for this visit, so turning them on is confirmed where you tapped.
@@ -153,6 +153,14 @@ export function TodayRoute({
     const concept = concepts.find((item) => item.id === allocation.conceptId);
     return { ...allocation, name: concept?.name ?? mixName, mastery: concept?.mastery ?? 0, tried: (concept?.retrievalAttempts ?? 0) > 0 };
   });
+  const today = dayKey(new Date(Date.parse(nowIso)));
+  const courseIds = new Set(concepts.map((concept) => concept.id));
+  const missedToday = isSampleCourse || visit.returning ? [] : missed.filter((line) => courseIds.has(line.conceptId) && dayKey(new Date(Date.parse(line.at))) === today);
+  const missedTopics = [...new Set(missedToday.map((line) => concepts.find((concept) => concept.id === line.conceptId)?.name).filter(Boolean))] as string[];
+  const lines = Math.min(3, missedToday.length);
+  const tomorrowLine = lines
+    ? `Tomorrow opens with ${lines === 1 ? "the line" : `${lines} lines`} you missed today${missedTopics.length === 1 ? ` in ${missedTopics[0]}` : ""}, about a minute, before anything new.`
+    : null;
   const installable = install === "prompt" || install === "ios";
   const path = studyPath({ concepts, nowMs: Date.parse(nowIso), daysToExam: examDatePending ? null : daysToExam, doneToday: goalDoneCount });
   const level = (mastery: number, tried: boolean) => (tried ? topicLevel(mastery, 1) : "New");
@@ -206,6 +214,8 @@ export function TodayRoute({
       </motion.section>
 
       <motion.div {...settle(2)}><HabitStrip events={events} concepts={concepts} link={false} line /></motion.div>
+      {/* Day two, shown on day one: what you missed today is what tomorrow opens with, so the plan says so now. */}
+      {tomorrowLine ? <motion.p className={q.tomorrow} data-block="today-tomorrow" {...settle(2)}>{tomorrowLine}</motion.p> : null}
 
       {nextStops.length ? (
         <motion.section className={q.then} data-block="today-next" aria-label="Planned next topics" {...settle(3)}>

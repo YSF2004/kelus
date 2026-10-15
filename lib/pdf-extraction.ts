@@ -82,9 +82,15 @@ const LIGATURE_FIXES: Array<[RegExp, string]> = [
   [/([Ee])fcien/g, "$1fficien"], [/\b([Cc])onfict/g, "$1onflict"], [/\b([Ii])nfuen/g, "$1nfluen"], [/\b([Rr])efect/g, "$1eflect"],
   [/\b([Ff])ow(s|ing)?\b/g, "$1low$2"], [/([Ff])exib/g, "$1lexib"], [/([Cc])oefcient/g, "$1oefficient"],
   [/([Ss])ufcien/g, "$1ufficien"], [/\b([Oo])fce/g, "$1ffice"], [/\b([Dd])ifcult/g, "$1ifficult"], [/\b([Aa])fect/g, "$1ffect"], [/\b([Ee])fect/g, "$1ffect"], [/\b([Ee])fort/g, "$1ffort"], [/\b([Tt])radeof(s?)\b/g, "$1radeoff$2"], [/\b([Oo])fer/g, "$1ffer"], [/\b([Dd])ifer/g, "$1iffer"],
+  // "simplifed", "satisfed", "classifcation", "scientifc", "fgure": the lost "fi" in endings no English word has.
+  [/ifed\b/g, "ified"], [/sfed\b/g, "sfied"], [/ifcation/g, "ification"], [/([a-z])ifc(?=[a-z]|\b)/g, "$1ific"], [/\b([Ff])gur/g, "$1igur"],
+  // "trade-ofs", "pay-ofs": the lost "ff" after the usual phrasal nouns, never "roofs" or "proofs".
+  [/\b(trade|pay|take|cut|drop|kick|play|lay|tip|run|sign|show|face|stand|write|turn|hand|spin)(-?)of(s?)\b/gi, "$1$2off$3"],
+  // A word of four letters or more with no vowel after its "f" ("frms", "fnds") lost an "i"; "fps" stays.
+  [/\b([Ff])([b-df-hj-np-tv-xz]{3,})\b/g, "$1i$2"],
 ];
 
-function repairLigatures(text: string) {
+export function repairLigatures(text: string) {
   return LIGATURE_FIXES.reduce((value, [pattern, fix]) => value.replace(pattern, fix), text);
 }
 
