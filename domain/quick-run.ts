@@ -156,3 +156,54 @@ export function quickSummary(input: { right: number; total: number; self: SelfGr
   if (input.total === 0) return `You rated your explanation: ${rating}.`;
   return `${input.right} of ${input.total} quick checks right${unsure}. You rated your explanation: ${rating}.`;
 }
+
+/**
+ * A new topic is read before it is asked: the lines the checks and the explanation come from, in the order the notes
+ * give them, two to four of them. On a later visit nothing is read first; recall is the point then.
+ */
+export function readingLines(run: QuickRun) {
+  const asked = [...run.checks.map((check) => check.sourceQuote), run.explainAnswer].filter(Boolean);
+  const inOrder = run.sentences.filter((sentence) => asked.some((quote) => overlaps(quote, sentence)));
+  const lines: string[] = [];
+  for (const line of [...inOrder, ...asked, ...run.sentences]) {
+    if (lines.length >= 4) break;
+    if (line.length < 20 || lines.some((kept) => overlaps(kept, line))) continue;
+    lines.push(line);
+  }
+  return lines;
+}
+
+/** The key words to mark in a line being read: the answers the checks will ask for, so reading points at them. */
+export function keyWordsIn(line: string, run: QuickRun) {
+  return run.checks
+    .filter((check) => check.kind === "cloze" && check.modelAnswer && hasWord(line, check.modelAnswer))
+    .map((check) => check.modelAnswer);
+}
+
+/**
+ * On a phone, a gap can be answered by tapping one of four words: the right one and three that also appear in this
+ * topic's notes, of a similar length, none of them already in the sentence. Fewer than three such words: no chips.
+ */
+export function gapChoices(item: PracticeItem, run: QuickRun) {
+  if (item.kind !== "cloze" || !item.modelAnswer || /\s/.test(item.modelAnswer)) return [];
+  const answer = item.modelAnswer;
+  const shown = norm(item.prompt);
+  const isNumber = /^\d/.test(answer);
+  const pool = new Set<string>();
+  for (const other of run.checks) if (other !== item && other.kind === "cloze" && other.modelAnswer && !/\s/.test(other.modelAnswer)) pool.add(other.modelAnswer);
+  for (const sentence of run.sentences) {
+    for (const word of sentence.match(/[\p{L}\d][\p{L}\d'-]*/gu) ?? []) {
+      if (isNumber ? !/^\d/.test(word) : !/^\p{L}{4,}$/u.test(word)) continue;
+      pool.add(word);
+    }
+  }
+  const candidates = [...pool]
+    .filter((word) => norm(word) !== norm(answer) && !hasWord(shown, word) && Math.abs(word.length - answer.length) <= 4)
+    .filter((word) => !/^(?:which|their|there|these|those|about|other|where|while|because|between|without|through)$/i.test(word))
+    .map((word) => (/^\p{Lu}/u.test(answer) ? word : word.toLocaleLowerCase()));
+  const unique = [...new Set(candidates)].sort((a, b) => Math.abs(a.length - answer.length) - Math.abs(b.length - answer.length) || a.localeCompare(b));
+  if (unique.length < 3) return [];
+  const seed = [...answer].reduce((sum, char) => sum + char.charCodeAt(0), 0);
+  const options = [answer, ...unique.slice(0, 3)];
+  return options.map((word, index) => ({ word, key: (index * 7 + seed) % 11 })).sort((a, b) => a.key - b.key || a.word.localeCompare(b.word)).map((entry) => entry.word);
+}

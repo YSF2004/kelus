@@ -1,5 +1,5 @@
 import { expect, test, type Page } from "@playwright/test";
-import { startBuiltPlan, sectionsNav, closeToToday, startFromFile } from "./helpers";
+import { startBuiltPlan, sectionsNav, closeToToday, startFromFile, skipReading } from "./helpers";
 
 function biologyPdf() {
   const text = [
@@ -90,6 +90,7 @@ test("the start screen is one clear screen on phone, tablet and desktop", async 
 test("a PDF opens its first question by itself, and is still there after a refresh", async ({ page }) => {
   await startFromFile(page, { name: "cell-biology-lecture.pdf", mimeType: "application/pdf", buffer: biologyPdf() });
   await page.reload();
+  await skipReading(page);
   await expect(page.getByLabel(/^Check 1 of \d$/)).toBeVisible();
   await expect(page.getByText(/Cell Membranes/).first()).toBeVisible({ timeout: 15_000 }).catch(() => undefined);
   await closeToToday(page);
@@ -119,6 +120,7 @@ test("Add source opens the file picker and reads the chosen PDF", async ({ page 
   // Your file starts your own course: Kelus shows what it built, and one tap opens the first question.
   await startBuiltPlan(page);
   await expect(page).toHaveURL(/\/session/, { timeout: 30_000 });
+  await skipReading(page);
   await expect(page.getByLabel(/^Check 1 of \d$/)).toBeVisible();
 });
 
@@ -203,7 +205,7 @@ test("a real PDF becomes a first question, then Today, topics and a full session
   }
   await sectionsNav(page).getByRole("button", { name: "Topics", exact: true }).click();
   await expect(page).toHaveURL(/\/today\/?\?section=map/);
-  await expect(page.getByRole("list", { name: "Topics, next topic first" })).toBeVisible();
+  await expect(page.getByRole("list", { name: "Topics, in the order of your notes" })).toBeVisible();
   await expect(page.locator(".index-toc > li").first()).toBeVisible();
   await expect(page.getByLabel("Find a topic")).toHaveCount(0);
   await expect(page.locator(".topic-map-graph")).toHaveCount(0);
@@ -239,6 +241,7 @@ test("a real PDF becomes a first question, then Today, topics and a full session
   // One quiet header: peeking and removing live behind "More", not in a line above the question.
   await expect(page.getByRole("button", { name: "Peek at the notes" })).toHaveCount(0);
   await expect(page.getByRole("button", { name: "More session options" })).toBeVisible();
+  await skipReading(page);
   await expect(page.getByLabel(/^Check 1 of \d$/)).toBeVisible();
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
   await page.evaluate(() => window.scrollTo(0, 0));
@@ -253,6 +256,7 @@ test("a real PDF becomes a first question, then Today, topics and a full session
   }
   await page.screenshot({ path: "/tmp/kelus-result-mobile.png", fullPage: true });
   await page.getByRole("button", { name: /Try again/ }).click();
+  await skipReading(page);
   await expect(page.getByLabel(/^Check 1 of \d$/)).toBeVisible();
   await playQuickRun(page, "I still cannot explain it.", "Missed it");
   await expect(page.getByText(/try 2/)).toBeVisible();

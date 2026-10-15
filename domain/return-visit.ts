@@ -80,3 +80,26 @@ export function warmupChecks(lines: MissedLine[]): Array<{ line: MissedLine; ite
   }
   return out;
 }
+
+/**
+ * A checkpoint after a few topics: two lines from each, mixed, asked again from the same sentences. Lines you have
+ * met come first (the ones a check or an explanation used), so it reviews, it does not surprise.
+ */
+export function checkpointLines(topics: Array<{ conceptId: string; name: string; lines: string[] }>, nowIso: string, perTopic = 2): MissedLine[] {
+  const picked = topics.map((topic) => {
+    const seen = new Set<string>();
+    const lines: MissedLine[] = [];
+    for (const quote of topic.lines) {
+      const key = quote.trim().toLocaleLowerCase();
+      if (lines.length >= perTopic || quote.length < 25 || seen.has(key)) continue;
+      seen.add(key);
+      const line = { conceptId: topic.conceptId, name: topic.name, quote, at: nowIso };
+      if (warmupChecks([line]).length) lines.push(line);
+    }
+    return lines;
+  });
+  // Mixed: one from each topic, then the second of each, so two lines of one topic never sit side by side.
+  const out: MissedLine[] = [];
+  for (let round = 0; round < perTopic; round += 1) for (const lines of picked) if (lines[round]) out.push(lines[round]);
+  return out;
+}

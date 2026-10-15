@@ -1,5 +1,5 @@
 import { expect, test, type Page } from "@playwright/test";
-import { closeToToday, startFromPaste } from "./helpers";
+import { closeToToday, startFromPaste, skipReading } from "./helpers";
 
 const notes = `# Osmosis
 Osmosis is the movement of water across a selectively permeable membrane from a region of low solute concentration to a region of high solute concentration. Water moves toward the side with more solute because the solute lowers the water potential there.
@@ -16,6 +16,7 @@ async function newCourse(page: Page) {
 }
 
 async function playRun(page: Page) {
+  await skipReading(page);
   for (let guard = 0; guard < 6; guard += 1) {
     await expect(page.locator('#run-explain, input[id^="run-gap"]:not([disabled]), [role="group"][aria-label="Choose one"] button:not([disabled])').first()).toBeVisible();
     if (await page.locator("#run-explain").count()) break;

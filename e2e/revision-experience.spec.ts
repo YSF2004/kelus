@@ -65,7 +65,8 @@ test("a student can follow the study plan into topics and open one", async ({ pa
 
   await page.getByRole("button", { name: "Topics" }).click();
   await expect(page.getByRole("heading", { name: "Topics" })).toBeVisible();
-  await page.locator(".index-toc a").first().click();
+  // The "Start here" card above the path opens the topic the plan starts with.
+  await page.locator(".index-toc-row").first().click();
   await expect(page).toHaveURL(/\/concept\/?\?id=c-elasticity/);
   await expect(page.getByRole("heading", { name: "Elasticity" })).toBeVisible();
   await expect(page.getByTestId("topic-standing")).toContainText("Needs work");

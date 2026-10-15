@@ -27,7 +27,7 @@ const ease = [0.22, 1, 0.36, 1] as const;
  * remember (quoted from your notes), today's goal filling up, and a single next step. Detail is one tap away.
  */
 export function QuickResult({
-  outcome, topic, attempts, stats, comesBack, remember, rememberLabel = "Worth remembering", locator, goalDone, goal, routeLine, nextName, details, onRetry, onContinue, onSource,
+  outcome, topic, attempts, stats, comesBack, remember, rememberLabel = "Worth remembering", locator, goalDone, goal, routeLine, nextName, details, onRetry, onContinue, onSource, path,
 }: {
   outcome: RetrievalOutcome;
   topic: string;
@@ -48,6 +48,8 @@ export function QuickResult({
   onRetry: () => void;
   onContinue: () => void;
   onSource?: () => void;
+  /** Where this topic leaves you on the course path: topics practised of all, and lines you can recall. */
+  path?: { practised: number; total: number; recalled: number };
 }) {
   const reduce = useReducedMotion() === true;
   const verdict = VERDICT[outcome];
@@ -71,6 +73,16 @@ export function QuickResult({
 
       {/* Today's count lives on the study plan; here it only shows the moment the goal is reached. */}
       {goalMet ? <motion.p {...rise(0.54)} className={styles.goal}><PackArt name="award" className={styles.icon} /> Today’s goal reached: {goal} topics.</motion.p> : null}
+
+      {/* The course path in one line: a step for every topic, filled as each is practised. */}
+      {path && path.total > 1 ? (
+        <motion.div {...rise(0.6)} className={styles.path} aria-label={`${path.practised} of ${path.total} topics practised`}>
+          <span className={styles.pathSteps} aria-hidden="true">
+            {Array.from({ length: Math.min(path.total, 24) }, (_, index) => <i key={index} data-done={index < path.practised ? "true" : undefined} />)}
+          </span>
+          <span>{path.practised} of {path.total} topics practised{path.recalled ? ` · ${path.recalled} ${path.recalled === 1 ? "line" : "lines"} you can recall` : ""}</span>
+        </motion.div>
+      ) : null}
 
       <p className={styles.route} role="status">{routeLine}</p>
 

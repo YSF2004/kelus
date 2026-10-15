@@ -15,7 +15,8 @@ test("Today is one booklet page — topic title, no planner chrome", async ({ pa
 test("topic index and topic detail show the same derived practice mastery", async ({ page }) => {
   await page.goto("/today?sample=1");
   await page.getByRole("navigation", { name: "Revision sections" }).getByRole("button", { name: "Topics" }).click();
-  const topic = page.locator(".index-toc-row").filter({ hasText: "Elasticity" });
+  // The step on the path, not the "Start here" card above it.
+  const topic = page.getByRole("list", { name: "Topics, in the order of your notes" }).locator(".index-toc-row").filter({ hasText: "Elasticity" });
   // A percentage once there are three answers, the number of tries before that: the same on both screens.
   const indexMastery = (await topic.locator(".index-toc-meta").innerText()).match(/\d+%|\d+ tr(?:y|ies)/)?.[0];
   expect(indexMastery).toBeTruthy();

@@ -8,9 +8,10 @@ import { Suspense, useMemo, useState, useSyncExternalStore } from "react";
 import { useLearner } from "@/components/LearnerProvider";
 import { PackArt } from "@/components/PackArt";
 import { QuickRun } from "@/components/QuickRun";
-import { returnVisit, warmupChecks } from "@/domain/return-visit";
+import { checkpointLines, returnVisit, warmupChecks } from "@/domain/return-visit";
 import type { QuickRun as Run } from "@/domain/quick-run";
-import { getMissedLines, getServerMissedLines, resolveMissedLines, subscribeMissedLines } from "@/lib/missed-lines";
+import { addMissedLines, getMissedLines, getServerMissedLines, resolveMissedLines, subscribeMissedLines } from "@/lib/missed-lines";
+import { addKnownLines, forgetKnownLines, getKnownLines, getServerKnownLines, knownCount, subscribeKnownLines } from "@/lib/known-lines";
 import { KelusLogoMark } from "@/components/KelusLogoMark";
 import { useEffect } from "react";
 import styles from "./warmup.module.css";
@@ -25,12 +26,26 @@ function WarmUp() {
   const router = useRouter();
   const params = useSearchParams();
   const nextName = params.get("next");
+  // A checkpoint names its topics; a warm-up takes the missed lines that have rested.
+  const checkpointIds = (params.get("checkpoint") ?? "").split(",").filter(Boolean);
+  const checkpoint = checkpointIds.length > 0;
   const reduce = useReducedMotion() === true;
   const { state } = useLearner();
   const missed = useSyncExternalStore(subscribeMissedLines, getMissedLines, getServerMissedLines);
   const names = useMemo(() => new Map(state.snapshot.concepts.map((concept) => [concept.id, concept.name])), [state.snapshot.concepts]);
   // Fixed when the page opens: answering must not reshuffle the run underneath the student.
-  const [plan] = useState(() => warmupChecks(returnVisit({ events: state.snapshot.events, names, missed, nowMs: Date.parse(state.nowIso) }).warmup));
+  const known = useSyncExternalStore(subscribeKnownLines, getKnownLines, getServerKnownLines);
+  const [plan] = useState(() => warmupChecks(checkpoint
+    ? checkpointLines(checkpointIds.map((id) => {
+        const activity = state.snapshot.learningActivities.find((item) => item.conceptId === id);
+        return { conceptId: id, name: names.get(id) ?? "", lines: [...(activity?.practice ?? []).map((item) => item.sourceQuote), activity?.retrieve.modelAnswer ?? ""] };
+      }).filter((topic) => topic.name), state.nowIso, Math.max(1, Number(params.get("each")) || 2)).slice(0, 12)
+    : returnVisit({ events: state.snapshot.events, names, missed, nowMs: Date.parse(state.nowIso) }).warmup));
+  const [knownAtOpen] = useState(() => {
+    const courseId = state.snapshot.concepts.find((concept) => concept.id === plan[0]?.line.conceptId)?.courseId;
+    const ids = new Set(state.snapshot.concepts.filter((concept) => concept.courseId === courseId).map((concept) => concept.id));
+    return { set: new Set(known.map((line) => line.quote)), count: knownCount(known, ids) };
+  });
   const [result, setResult] = useState<{ right: number; total: number; back: string[]; still: string[] } | null>(null);
 
   const run: Run = useMemo(() => ({
@@ -46,6 +61,10 @@ function WarmUp() {
     const still = new Set(outcome.missed);
     const back = plan.map((entry) => entry.line.quote).filter((quote) => !still.has(quote));
     resolveMissedLines(back);
+    addKnownLines(plan.filter((entry) => !still.has(entry.line.quote)).map((entry) => ({ ...entry.line, at: state.nowIso })));
+    forgetKnownLines([...still]);
+    // A checkpoint line you could not recall joins the warm-up list, like any other miss.
+    if (checkpoint) addMissedLines(plan.filter((entry) => still.has(entry.line.quote)).map((entry) => ({ ...entry.line, at: state.nowIso })));
     setResult({ right: outcome.right, total: outcome.total, back, still: [...still] });
   }
 
@@ -58,8 +77,8 @@ function WarmUp() {
     return (
       <section className={styles.empty}>
         <PackArt name="award" className={styles.emptyIcon} size={40} />
-        <h1>Nothing to warm up on.</h1>
-        <p>Every line you missed has come back, or it is still too fresh to ask again.</p>
+        <h1>{checkpoint ? "Nothing to check yet." : "Nothing to warm up on."}</h1>
+        <p>{checkpoint ? "These topics have no lines Kelus can ask about on their own. Study them first." : "Every line you missed has come back, or it is still too fresh to ask again."}</p>
         <Link href="/today" className={`k-btn ${styles.primary}`}>Back to study plan <ArrowRight /></Link>
       </section>
     );
@@ -69,9 +88,9 @@ function WarmUp() {
     <>
       {!result ? (
         <div className={styles.runWrap}>
-          <h1 className={styles.heading}>Warm up on what you missed</h1>
-          <p className={styles.sub}>{plan.length === 1 ? "One line" : `${plan.length} lines`} from last time, about a minute.</p>
-          <QuickRun run={run} onRevealSource={() => undefined} onFinish={() => undefined} onChecksDone={done} />
+          <h1 className={styles.heading}>{checkpoint ? "Checkpoint" : "Warm up on what you missed"}</h1>
+          <p className={styles.sub}>{checkpoint ? `${plan.length} lines from ${[...new Set(plan.map((entry) => entry.line.name))].join(", ")}, mixed. About ${plan.length <= 3 ? "a minute" : `${Math.round(plan.length / 3)} minutes`}.` : `${plan.length === 1 ? "One line" : `${plan.length} lines`} from last time, about a minute.`}</p>
+          <QuickRun run={run} onRevealSource={() => undefined} onFinish={() => undefined} onChecksDone={done} known={knownAtOpen.set} recalled={knownAtOpen.count} />
         </div>
       ) : (
         <motion.section
@@ -83,11 +102,12 @@ function WarmUp() {
           aria-labelledby="warmup-done-title"
         >
           <h1 id="warmup-done-title">
-            {result.right === result.total ? "All of it came back." : result.right === 0 ? "Not yet. That’s what warm-ups are for." : `${result.right} of ${result.total} came back.`}
+            {result.right === result.total ? (checkpoint ? "Checkpoint passed." : "All of it came back.") : result.right === 0 ? (checkpoint ? "Not yet. These come back first next time." : "Not yet. That’s what warm-ups are for.") : `${result.right} of ${result.total} came back.`}
           </h1>
           <p className={styles.line}>
-            {result.back.length ? "The lines you got are off your list. " : ""}
-            {result.still.length ? (result.back.length ? (result.still.length === 1 ? "The other one comes back next time." : "The others come back next time.") : result.still.length === 1 ? "It comes back next time, once it has had a rest." : "They come back next time, once they have had a rest.") : ""}
+            {checkpoint ? (result.still.length ? (result.still.length === 1 ? "The one you missed comes back first next time." : "The ones you missed come back first next time.") : "Every line came back from memory.") : null}
+            {!checkpoint && result.back.length ? "The lines you got are off your list. " : ""}
+            {!checkpoint && result.still.length ? (result.back.length ? (result.still.length === 1 ? "The other one comes back next time." : "The others come back next time.") : result.still.length === 1 ? "It comes back next time, once it has had a rest." : "They come back next time, once they have had a rest.") : ""}
           </p>
           <ul className={styles.lines}>
             {plan.map((entry, index) => {
