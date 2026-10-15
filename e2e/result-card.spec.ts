@@ -7,16 +7,15 @@ Osmosis is the movement of water across a selectively permeable membrane from a 
 # Enzymes
 Enzymes are biological catalysts, almost always proteins, that speed up reactions by lowering the activation energy. Each enzyme has an active site whose shape fits a specific substrate, which is why enzymes are specific.`;
 
-test("the result is one visual card: verdict, checks as dots, what to remember, today's goal, one next step", async ({ page }) => {
+test("the result is one card: verdict with its evidence, what to remember, one next step", async ({ page }) => {
   await startFromPaste(page, notes);
   await playQuickRun(page, "It moves water toward more solute.", "Nailed it");
 
   await expect(page.getByRole("heading", { level: 1 })).toHaveText(/^(Solid pass|Partly there|Needs another attempt)\.$/);
-  await expect(page.getByText("Quick checks", { exact: true })).toBeVisible();
-  await expect(page.getByRole("img", { name: /\d of \d checks right/ })).toBeVisible();
-  await expect(page.getByText("You said", { exact: true })).toBeVisible();
+  // The evidence is said once, in the verdict line; no second copy as dots and labels.
+  await expect(page.getByText(/\d of \d checks right/)).toBeVisible();
+  await expect(page.getByText("Quick checks", { exact: true })).toHaveCount(0);
   await expect(page.getByText(/^(?:Worth remembering|The line you missed|A line you missed|One more line from your notes)/)).toBeVisible();
-  await expect(page.getByLabel(/Today: \d of \d topics/)).toBeVisible();
 
   // The next step is on screen without scrolling, on a phone too.
   for (const viewport of [{ width: 1280, height: 800 }, { width: 390, height: 780 }]) {
@@ -30,7 +29,7 @@ test("the result is one visual card: verdict, checks as dots, what to remember, 
 
   // The detail is one tap away, not in your face.
   await expect(page.getByText("What changed in your plan")).toBeVisible();
-  await expect(page.getByLabel("What changed in this session")).toBeHidden();
+  await expect(page.getByLabel("What changed in your plan", { exact: true })).toBeHidden();
   await page.getByText("What changed in your plan").click();
-  await expect(page.getByLabel("What changed in this session")).toBeVisible();
+  await expect(page.getByLabel("What changed in your plan", { exact: true })).toContainText(/Comes back/);
 });

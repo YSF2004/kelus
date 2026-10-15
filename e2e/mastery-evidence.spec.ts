@@ -16,7 +16,8 @@ test("topic index and topic detail show the same derived practice mastery", asyn
   await page.goto("/today?sample=1");
   await page.getByRole("navigation", { name: "Revision sections" }).getByRole("button", { name: "Topics" }).click();
   const topic = page.locator(".index-toc-row").filter({ hasText: "Elasticity" });
-  const indexMastery = (await topic.locator(".index-toc-meta").innerText()).match(/\d+%/)?.[0];
+  // A percentage once there are three answers, the number of tries before that: the same on both screens.
+  const indexMastery = (await topic.locator(".index-toc-meta").innerText()).match(/\d+%|\d+ tr(?:y|ies)/)?.[0];
   expect(indexMastery).toBeTruthy();
   await topic.click();
   await expect(page.getByRole("heading", { name: "Elasticity" })).toBeVisible();

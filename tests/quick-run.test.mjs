@@ -119,3 +119,12 @@ test("pasted notes do not mention a meaningless section number in gap prompts", 
   const items = buildPractice({ conceptId: "osm", name: "Osmosis", excerpt: osmosisText, locator: "Section 1", siblingNames: [] });
   assert.ok(items.filter((item) => item.kind === "cloze").every((item) => item.prompt.startsWith("Fill the gap: ")));
 });
+
+test("a gap tests the idea, not a describing word, a label, half a name or an example", () => {
+  const gaps = (name, excerpt) => buildPractice({ conceptId: "c", name, excerpt, locator: "Page 1", siblingNames: [name, "Other"] }).filter((item) => item.kind === "cloze").map((item) => item.modelAnswer);
+  const osmosis = gaps("Osmosis", "Osmosis is the net movement of water molecules from a dilute solution to a more concentrated solution through a partially permeable membrane. In a hypotonic solution a plant cell gains water and becomes turgid, because the cell wall pushes back against the swelling vacuole.\nFigure 7.1 Oxygen diffuses from the alveolus into the blood.");
+  assert.ok(!osmosis.includes("swelling"), osmosis.join(", "));
+  assert.ok(!osmosis.includes("7.1"), osmosis.join(", "));
+  const history = gaps("Nationalism", "Serbia wanted to unite the Slav peoples, and the Black Hand group used violence to achieve it. Necessities such as insulin have inelastic demand. The key concept behind tradeoffs is opportunity cost: every action or inaction has a cost in terms of what could have been done instead.");
+  for (const bad of ["Black", "insulin", "terms", "action"]) assert.ok(!history.includes(bad), `${bad} in ${history.join(", ")}`);
+});

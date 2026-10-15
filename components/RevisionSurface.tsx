@@ -1,5 +1,6 @@
 "use client";
 
+import { ArrowLeft, ArrowOut, Cross, Page, Plus } from "@/components/Marks";
 import { motion, useReducedMotion } from "motion/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
@@ -279,9 +280,9 @@ export function RevisionSurface({ topicId }: { /** A topic's own page, opened in
             const linkedTopics = snapshot.learningActivities.filter((activity) => activity.sourceReferences.some((reference) => reference.materialId === material.id)).length;
             return <div key={material.id} className="core-source-item">
               <button type="button" className={`core-source-open${selectedMaterial?.id === material.id ? " is-selected" : ""}`} onClick={() => { setSelectedMaterialId(material.id); setMode("materials"); }} title={title}>
-                {brandForFile(material.fileName, material.mimeType) ? <BrandIcon brand={brandForFile(material.fileName, material.mimeType)!} size={14} className="core-source-brand" /> : <span aria-hidden="true">{material.id.startsWith("material-demo-") ? "◇" : material.storage === "local" ? "▤" : "↗"}</span>}<span className="core-source-name">{title}</span>
+                {brandForFile(material.fileName, material.mimeType) ? <BrandIcon brand={brandForFile(material.fileName, material.mimeType)!} size={14} className="core-source-brand" /> : material.storage === "url" ? <ArrowOut /> : <Page />}<span className="core-source-name">{title}</span>
               </button>
-              <button type="button" className="core-source-remove" aria-label={`Remove ${title}`} title={`Remove ${title}`} onClick={() => { setSourceError(null); setConfirmSourceId(material.id); }}>×</button>
+              <button type="button" className="core-source-remove" aria-label={`Remove ${title}`} title={`Remove ${title}`} onClick={() => { setSourceError(null); setConfirmSourceId(material.id); }}><Cross size={12} /></button>
               {confirmSourceId === material.id ? <div className="rail-confirm is-source" role="group" aria-label={`Confirm remove ${title}`}>
                 <span>{linkedTopics ? `Remove it and its ${linkedTopics} topic${linkedTopics === 1 ? "" : "s"}? Your answers stay in your history.` : "Remove this source?"}</span>
                 <span className="rail-confirm-actions">
@@ -309,10 +310,10 @@ export function RevisionSurface({ topicId }: { /** A topic's own page, opened in
               setMode("materials");
             }}
           />
-          <button type="button" className="core-add-source" onClick={() => sourcePickerRef.current?.click()}>＋ Add source</button>
+          <button type="button" className="core-add-source" onClick={() => sourcePickerRef.current?.click()}><Plus /> Add source</button>
         </div>
         <div className="studio-rail-bottom">
-          <Link href="/" className="studio-home-link">← Back</Link>
+          <Link href="/" className="studio-home-link"><ArrowLeft /> Back</Link>
           {auth.user ? (
             <button type="button" className="studio-account-action" onClick={() => auth.signOut()}>Sign out</button>
           ) : auth.configured ? (
@@ -339,7 +340,7 @@ export function RevisionSurface({ topicId }: { /** A topic's own page, opened in
         <header className="studio-topbar">
           <span className="studio-topbar-leading">{railHidden ? <button type="button" className="studio-rail-reopen" onClick={(event) => { setRailHidden(false); if (event.detail === 0) requestAnimationFrame(() => document.querySelector<HTMLButtonElement>(".studio-rail-toggle")?.focus({ preventScroll: true })); }} aria-label="Show workspace sidebar" title="Show sidebar"><RailChevrons open /></button> : null}<span className="studio-topbar-course" title={course.name}>{isSampleCourse ? course.name : <InlineName value={course.name} label="Rename course" onSave={(next) => renameCourse(course.id, next, "user")} />}</span></span>
           {!auth.user && auth.configured ? <button type="button" className="studio-topbar-signin" onClick={auth.openDialog}>Sign in</button> : null}
-          <span className="studio-topbar-status"><span className="studio-topbar-kind">{isSampleCourse ? "Sample course" : exam.target}</span><span className="studio-topbar-divider" aria-hidden="true">·</span><span>{examDatePending ? "Add your exam date" : `${days} day${days === 1 ? "" : "s"} to exam`}</span></span>
+          <span className="studio-topbar-status">{isSampleCourse ? <><span className="studio-topbar-kind">Sample course</span><span className="studio-topbar-divider" aria-hidden="true">·</span></> : null}<span>{examDatePending ? "Add your exam date" : `${days} day${days === 1 ? "" : "s"} to exam`}</span></span>
         </header>
         <main id="main" className="studio-page kelus-space-stage">
         {topicId ? <ConceptDetail conceptId={topicId} embedded /> : null}
@@ -348,9 +349,6 @@ export function RevisionSurface({ topicId }: { /** A topic's own page, opened in
             <div className="kelus-space-identity">
               {/* Sections swap at once, as pages do in Notion: no waiting for the old one to leave. */}
               <h1 id="section-title">{modeMeta.label}</h1>
-              <p className="kelus-paper-lede kelus-space-lede">
-                {mode === "materials" ? "The sources behind your revision." : mode === "progress" ? "What your own answers say has changed." : "What to study next, then everything else."}
-              </p>
               {mode !== "progress" ? null : <ExamPulse readiness={estimatedReadiness(concepts)} targetPercent={exam.targetPercent} daysToExam={days} datePending={examDatePending} answered={snapshot.events.filter((event) => event.kind === "retrieval" && concepts.some((concept) => concept.id === event.conceptId)).length} />}
             </div>          </header>
         ) : null}

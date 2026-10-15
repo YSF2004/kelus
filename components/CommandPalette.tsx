@@ -24,6 +24,7 @@ const SECTIONS: Item[] = [
 function status(mastery: number, attempts: number) {
   if (!attempts) return "Not started";
   const percent = Math.round(mastery * 100);
+  if (attempts < 3) return `${percent >= 80 ? "Solid" : "Needs work"} · ${attempts} ${attempts === 1 ? "try" : "tries"}`;
   return percent >= 80 ? `Solid · ${percent}%` : `Needs work · ${percent}%`;
 }
 

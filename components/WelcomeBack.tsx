@@ -1,5 +1,6 @@
 "use client";
 
+import { ArrowRight } from "@/components/Marks";
 import Link from "next/link";
 import { motion, useReducedMotion } from "motion/react";
 import { Fragment, useEffect, useMemo, useSyncExternalStore } from "react";
@@ -75,7 +76,7 @@ export function WelcomeBack({ visit, nowIso, nextName }: { visit: ReturnVisit; n
             </ul>
             <motion.div className={styles.actions} {...rise(0.3 + visit.warmup.length * 0.07)}>
               <Link href={`/session/warmup${nextName ? `?next=${encodeURIComponent(nextName)}` : ""}`} className={`k-btn k-btn--marigold ${styles.primary}`} data-action="start-warmup">
-                Warm up · 1 min <span aria-hidden="true">→</span>
+                Warm up · 1 min <ArrowRight />
               </Link>
               {nextName ? <span className={styles.or}>or go straight to {nextName} below</span> : null}
             </motion.div>

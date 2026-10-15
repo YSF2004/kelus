@@ -1,5 +1,6 @@
 "use client";
 
+import { ArrowLeft, ArrowRight } from "@/components/Marks";
 import Link from "next/link";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { AppShell } from "@/components/AppShell";
@@ -56,7 +57,7 @@ export function ConceptDetail({ conceptId, embedded = false }: { conceptId?: str
   const { renameTopic, start, abandon, state } = useLearner();
   if (!state.onboardingCompleted) {
     return (
-      <Frame embedded={embedded}><div className={styles.page}><h1 className={styles.title}>Add your notes first.</h1><Link href="/today" className="k-btn">Start with your notes <span aria-hidden="true">→</span></Link></div></Frame>
+      <Frame embedded={embedded}><div className={styles.page}><h1 className={styles.title}>Add your notes first.</h1><Link href="/today" className="k-btn">Start with your notes <ArrowRight /></Link></div></Frame>
     );
   }
   const concept = state.snapshot.concepts.find((item) => item.id === id);
@@ -81,7 +82,7 @@ export function ConceptDetail({ conceptId, embedded = false }: { conceptId?: str
   const standing = !answered
     ? `Not started. ${checks ? `${checks} questions are ready from your notes.` : "Its questions are ready from your notes."}`
     // The same percentage as Topics; straight after a block, say when it comes back rather than "due now".
-    : `${percent >= 80 ? "Solid" : "Needs work"} · ${percent}% from ${answered} answer${answered === 1 ? "" : "s"}. ${justStudied ? "It comes back in your next warm-up." : comesBack ? `${comesBack.charAt(0).toUpperCase()}${comesBack.slice(1)}.` : ""}`.trim();
+    : `${percent >= 80 ? "Solid" : "Needs work"} · ${answered < 3 ? `${answered} ${answered === 1 ? "try" : "tries"}` : `${percent}% from ${answered} answers`}. ${justStudied ? "It comes back in your next warm-up." : comesBack ? `${comesBack.charAt(0).toUpperCase()}${comesBack.slice(1)}.` : ""}`.trim();
 
   function study() {
     if (!course || !exam || !concept) return;
@@ -96,7 +97,7 @@ export function ConceptDetail({ conceptId, embedded = false }: { conceptId?: str
     <Frame embedded={embedded}>
         <article className={styles.page}>
           <nav className={styles.crumbs} aria-label="Where you are">
-            <Link href="/today?section=map">← Topics</Link>
+            <Link href="/today?section=map"><ArrowLeft /> Topics</Link>
           </nav>
           <header className={styles.header}>
             <ConceptTitleTransition id={concept.id}>
@@ -104,7 +105,7 @@ export function ConceptDetail({ conceptId, embedded = false }: { conceptId?: str
             </ConceptTitleTransition>
             <p className={styles.lede} data-testid="topic-standing">{standing}</p>
             <button type="button" className="k-btn" onClick={study} disabled={!course || !exam}>
-              {answered ? "Study it again" : "Study this topic"} <span aria-hidden="true">→</span>
+              {answered ? "Study it again" : "Study this topic"} <ArrowRight />
             </button>
           </header>
 

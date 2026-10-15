@@ -1,5 +1,6 @@
 "use client";
 
+import { ArrowRight } from "@/components/Marks";
 import Link from "next/link";
 import { motion, useReducedMotion } from "motion/react";
 import { useSearchParams } from "next/navigation";
@@ -109,7 +110,7 @@ function CompleteBody() {
         <main id="main" className={styles.empty}>
           <h1>Nothing finished yet.</h1>
           <p>When you finish a block, this page shows what you practised and what comes back tomorrow.</p>
-          <Link href="/today" className="k-btn">Back to your plan <span aria-hidden="true">→</span></Link>
+          <Link href="/today" className="k-btn">Back to your plan <ArrowRight /></Link>
         </main>
       </>
     );
@@ -194,14 +195,14 @@ function CompleteBody() {
             {missedToday > 3 ? <p>{missedToday} lines are saved for it.</p> : null}
             {missedToday && nextFresh ? <p>Then {name(nextFresh.conceptId)}, a topic you haven’t done yet.</p> : null}
             <button type="button" className={`text-btn ${styles.calendar}`} onClick={addCalendar}>
-              Add tomorrow to calendar <span aria-hidden="true">→</span>
+              Add tomorrow to calendar <ArrowRight />
             </button>
             {calendarNote ? <p className={styles.note} role="status">{calendarNote}</p> : null}
           </div>
         </section>
 
         <Link href="/today" className={`cta ${styles.primary}`} onClick={() => trackEvent({ name: "next_route_opened", source: "completion" })}>
-          Back to study plan <span aria-hidden="true">→</span>
+          Back to study plan <ArrowRight />
         </Link>
 
         <div className={styles.quiet}>

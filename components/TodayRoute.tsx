@@ -1,5 +1,6 @@
 "use client";
 
+import { ArrowRight } from "@/components/Marks";
 import { topicLevel } from "@/lib/format";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { useEffect, useRef, useState, useSyncExternalStore } from "react";
@@ -111,7 +112,7 @@ export function TodayRoute({
         <p>Add a page to the binder so Kelus can open the first block.</p>
         <div className="today-route-empty-actions">
           <Link className="cta" href="/today?section=materials">
-            Open binder <span aria-hidden="true">→</span>
+            Open binder <ArrowRight />
           </Link>
           <Link className="text-btn" href="/today?section=map">
             Open index
@@ -125,12 +126,14 @@ export function TodayRoute({
   const firstActivity = activities.find((item) => item.conceptId === first.conceptId);
   const firstName = firstConcept?.name ?? "A mix of earlier topics";
   // The reason quotes the student's own last answer and names the topics that build on this one.
-  const decision = describeRouteChoice(first, firstConcept, {
+  const reasons = describeRouteChoice(first, firstConcept, {
     examDateKnown: !examDatePending,
     events: isSampleCourse ? [] : events,
     nowIso,
     dependents: firstConcept ? dependentNames(firstConcept.id, relationships, concepts) : [],
   });
+  // Opened but not answered yet: "New to you here" would contradict "In progress" above it.
+  const decision = startLabel && !(firstConcept?.retrievalAttempts) ? ["You opened it; pick up with the first check."] : reasons;
   const nextStops = route.allocations.filter((allocation) => allocation.conceptId !== first.conceptId).slice(0, 3).map((allocation) => {
     const concept = concepts.find((item) => item.id === allocation.conceptId);
     return { ...allocation, name: concept?.name ?? "A mix of earlier topics", mastery: concept?.mastery ?? 0, tried: (concept?.retrievalAttempts ?? 0) > 0 };
@@ -171,7 +174,7 @@ export function TodayRoute({
             today's goal) is said in the line under it. */}
         <h2 id="today-title" className={q.topic}>{firstName}</h2>
         <p className={q.sub} data-block="today-page-folio">
-          {startLabel ? "Started · " : goalDone ? "Today’s goal is done, so this one is extra · " : ""}{first.minutes} min · 3 quick checks and 1 explanation
+          {startLabel ? "In progress · " : goalDone ? "Today’s goal is done, so this one is extra · " : ""}{first.minutes} min · 3 quick checks and 1 explanation
         </p>
         <p className={q.why} data-block="today-decision" aria-label="Why this topic is first">{decision.join(" ")}</p>
         <motion.button
@@ -210,7 +213,6 @@ export function TodayRoute({
             ))}
             </AnimatePresence>
           </ol>
-          <p className={q.foot}>Your answers can change what comes next.</p>
         </motion.section>
       ) : null}
 

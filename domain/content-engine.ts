@@ -161,7 +161,13 @@ export function teachingFacts(name: string, excerpt: string, limit = 4) {
 
 const DETERMINER = new Set(["the", "a", "an", "its", "their", "this", "that", "these", "those", "of", "in", "on", "into", "inside", "by", "from", "at", "between", "per", "each", "every", "one", "two", "three", "four", "five", "called", "known", "as"]);
 // Verbs and filler that read as a blank but test nothing.
-const WEAK = new Set(["includes", "include", "included", "occurs", "occur", "produces", "produce", "takes", "make", "makes", "made", "uses", "used", "causes", "contains", "contain", "involves", "involve", "requires", "require", "allows", "allow", "gives", "give", "helps", "means", "called", "known", "based", "example", "examples", "several", "various", "different", "important", "usually", "often", "typically", "generally", "process", "result", "results", "number", "type", "types", "form", "forms", "part", "parts", "kind", "way", "ways", "tends", "tend", "first", "effect", "effects", "level", "levels", "amount", "value", "values"]);
+const WEAK = new Set(["includes", "include", "included", "occurs", "occur", "produces", "produce", "takes", "make", "makes", "made", "uses", "used", "causes", "contains", "contain", "involves", "involve", "requires", "require", "allows", "allow", "gives", "give", "helps", "means", "called", "known", "based", "example", "examples", "several", "various", "different", "important", "usually", "often", "typically", "generally", "process", "result", "results", "number", "type", "types", "form", "forms", "part", "parts", "kind", "way", "ways", "tends", "tend", "first", "effect", "effects", "level", "levels", "amount", "value", "values",
+  // Everyday nouns that any reader could guess: a gap on them tests reading, not the course.
+  "country", "countries", "action", "actions", "research", "study", "studies", "data", "people", "person", "thing", "things",
+  "time", "world", "group", "groups", "idea", "ideas", "case", "cases", "area", "areas", "system", "systems", "market",
+  "carry", "carries", "certain", "whole", "always", "never", "rather", "simply"]);
+/** Common words that open a multi-word name ("Black Hand", "New Deal"): half a name is not a fair gap. */
+const NAME_OPENERS = new Set(["black", "white", "red", "blue", "green", "new", "old", "great", "united", "first", "second", "holy", "free", "young", "grand", "high", "low", "north", "south", "east", "west"]);
 
 /**
  * The word or number that is the point of the sentence: a figure, an acronym, a named term, or a noun after
@@ -172,7 +178,8 @@ function pickGapWord(sentence: string, name: string, page: string, relaxed = fal
   const nameParts = new Set(words(name).map((w) => w.toLocaleLowerCase()));
   const counts = new Map<string, number>();
   for (const w of words(page)) counts.set(w.toLocaleLowerCase(), (counts.get(w.toLocaleLowerCase()) ?? 0) + 1);
-  const tokens = [...sentence.matchAll(/\d[\d,]*(?:\.\d+)?|[A-Za-z][A-Za-z0-9'-]*/g)];
+  // A comma inside a number ("17,000") belongs to it; one after it ("than 1, demand") does not.
+  const tokens = [...sentence.matchAll(/\d+(?:,\d{3})*(?:\.\d+)?|[A-Za-z][A-Za-z0-9'-]*/g)];
   let best: { word: string; score: number } | null = null;
   tokens.forEach((match, index) => {
     const word = match[0];
@@ -182,7 +189,19 @@ function pickGapWord(sentence: string, name: string, page: string, relaxed = fal
     const before = sentence.slice(Math.max(0, (match.index ?? 0) - 5), match.index ?? 0);
     const isNumber = /^\d/.test(word);
     const isAcronym = /^[A-Z][A-Z0-9]{1,}$/.test(word);
+    const next = tokens[index + 1]?.[0] ?? "";
+    const nextLower = next.toLocaleLowerCase();
+    const before2 = tokens[index - 2]?.[0].toLocaleLowerCase() ?? "";
     if (nameParts.has(lower) || STOP.has(lower) || WEAK.has(lower)) return;
+    // A figure, table or slide number is a label, not a fact ("Figure _____ Oxygen diffuses…").
+    if (isNumber && /^(?:figure|fig|table|slide|page|chapter|section|lecture|week|unit|part|step|equation|eq)$/.test(previous)) return;
+    // Half of a name: "the _____ Hand group", or the second author in "Card and _____".
+    if (/^[A-Z][a-z]/.test(word) && /^[A-Z][a-z]/.test(next) && NAME_OPENERS.has(lower)) return;
+    if (/^[A-Z][a-z]/.test(word) && (previous === "and" || previous === "&") && /^[A-Z]/.test(tokens[index - 2]?.[0] ?? "")) return;
+    // Inside a fixed phrase ("in terms of", "in order to", "as well as") the word carries no idea.
+    if (/^(?:terms|order|addition|spite|case|view|respect|regard|well|least|most|fact|front|charge|favour|favor)$/.test(lower) && /^(?:in|as|at|of)$/.test(previous)) return;
+    // A verb with its particle ("carry out", "set up") cannot be blanked as one word.
+    if (/^(?:out|up|off|over|away|back)$/.test(nextLower) && !DETERMINER.has(previous)) return;
     // A word that appears twice in the sentence would need two blanks, and one inside a hyphenated compound
     // ("competitive" in "non-competitive") cannot be blanked cleanly. Pick a different word instead.
     const escaped = word.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
@@ -197,6 +216,16 @@ function pickGapWord(sentence: string, name: string, page: string, relaxed = fal
     if (index > 0 && /^[A-Z][a-z]/.test(word)) score += 3;
     if (DETERMINER.has(previous)) score += 3;
     if (/(?:ing|ed)$/.test(lower) && !DETERMINER.has(previous)) score -= 4;
+    // A participle describing the next noun ("the swelling vacuole", "two armed camps"): the noun is the idea.
+    if (/(?:ing|ed)$/.test(lower) && /^[a-z]{3,}$/.test(next) && !STOP.has(nextLower) && !GLUE_WORDS.has(nextLower)) score -= 5;
+    // A size or limit word in front of its noun ("the small intestine", "minimum wage") is half of a compound term.
+    if (/^(?:small|large|big|minimum|maximum|high|low|short|long|main|total|net|full|open|major|minor|upper|lower|outer|inner)$/.test(lower) && /^[a-z]{3,}$/.test(next) && !GLUE_WORDS.has(nextLower)) score -= 5;
+    // The verb of a relative clause ("processes that _____ behavior") is grammar, not content.
+    if (/^(?:that|which|who|whom)$/.test(previous)) score -= 3;
+    // An example after "such as" / "e.g." is trivia: the page's point is the rule, not the instance.
+    if (previous === "as" && before2 === "such" || /^(?:e\.g|eg|like|including)$/.test(previous)) score -= 4;
+    // One item of a list ("the lungs and villi", "Africa and Asia") is arbitrary to recall on its own.
+    if (/^(?:and|or)$/.test(nextLower) && !isNumber) score -= 2;
     if ((counts.get(lower) ?? 1) === 1) score += 1;
     if (word.length >= 8) score += 1;
     if (index === 0) score -= 2;
@@ -205,6 +234,7 @@ function pickGapWord(sentence: string, name: string, page: string, relaxed = fal
   return best ? (best as { word: string }).word : null;
 }
 
+const GLUE_WORDS = new Set(["and", "or", "but", "is", "are", "was", "were", "be", "to", "of", "in", "on", "at", "by", "for", "with", "from", "as", "than", "that", "which"]);
 const GLUE = new Set(["a", "an", "the", "of", "to", "in", "on", "at", "by", "for", "with", "from", "and", "or", "but", "is", "are", "was", "were", "be", "been", "has", "have", "had", "it", "its", "this", "that", "these", "those", "as", "into", "not", "no", "can", "will", "when", "which", "who", "than", "so", "if", "their", "they", "each", "does", "do", "because", "while", "where", "how", "may", "must", "should"]);
 
 /**
