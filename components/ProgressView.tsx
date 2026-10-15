@@ -5,7 +5,7 @@ import Link from "next/link";
 import { motion, useReducedMotion } from "motion/react";
 import { progressHeadline, progressSummary, type TopicChange } from "@/domain/progress";
 import type { Concept, LearningEvent } from "@/domain/types";
-import { PackArt } from "@/components/PackArt";
+import { comesBackLine } from "@/lib/verdict";
 import styles from "./ProgressView.module.css";
 
 const pct = (value: number) => Math.round(Math.max(0, Math.min(1, value)) * 100);
@@ -38,6 +38,7 @@ function Trend({ series, target }: { series: Array<{ label: string; readiness: n
   );
 }
 
+const EARLY: Record<string, string> = { success: "Solid", partial: "Partly there", failure: "Missed" };
 const LAST: Record<string, string> = { success: "Last answer: solid", partial: "Last answer: partly there", failure: "Last answer: missed" };
 
 function Topics({ title, note, items, empty }: { title: string; note: string; items: TopicChange[]; empty: string }) {
@@ -73,12 +74,35 @@ export function ProgressView({ concepts, events, nowIso, daysToExam, targetPerce
   // Before the first answer there is nothing to compare, so the page is one card and the list of topics to start.
   const fresh = summary.answers === 0;
 
+  // A few answers in: no trend, no counts that need explaining. Just each topic you tried, how it went and when it is back.
+  if (!fresh && !summary.enough) {
+    const byId = new Map(concepts.map((concept) => [concept.id, concept]));
+    const rest = summary.notStarted.map((topic) => topic.name);
+    return (
+      <div className={styles.page}>
+        <section className={styles.group} aria-labelledby="progress-headline">
+          <h2 id="progress-headline" className="sr-only">{summary.practised.length} of {concepts.length} topics tried</h2>
+          <ul>
+            {summary.practised.map((topic) => (
+              <li key={topic.id}>
+                <strong>{topic.name}</strong>
+                <span className={styles.move}>{EARLY[topic.lastOutcome ?? "partial"]} · {comesBackLine(byId.get(topic.id)?.nextReviewAt, nowIso).replace(/^Comes back/, "back")}</span>
+                <span className={styles.bar} aria-hidden="true" style={{ visibility: "hidden" }} />
+              </li>
+            ))}
+          </ul>
+          {rest.length ? <p className={styles.rest}>Not started: {rest.length > 3 ? `${rest.slice(0, 2).join(", ")} and ${rest.length - 2} more` : rest.join(", ")}.</p> : null}
+        </section>
+        <Link href="/today" className={`k-btn ${styles.cta}`}>Practise a topic <ArrowRight /></Link>
+      </div>
+    );
+  }
+
   return (
     <div className={styles.page}>
       <motion.section className={styles.lead} initial={reduce ? false : { opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: reduce ? 0 : 0.3, ease: [0.22, 1, 0.36, 1] }} aria-labelledby="progress-headline">
-        {/* Not enough answers yet: the pack's clock says "give it time" before the words do. */}
-        {!summary.enough ? <PackArt name="time-flies" className={styles.earlyArt} size={110} /> : null}
-        <h2 id="progress-headline">{progressHeadline(summary)}</h2>
+        {/* Before there are enough answers there is no trend to talk about: the counts below say where you are. */}
+        {summary.enough ? <h2 id="progress-headline">{progressHeadline(summary)}</h2> : <h2 id="progress-headline" className="sr-only">{progressHeadline(summary)}</h2>}
         {summary.enough ? <p className={styles.caveat}>Estimated from your own answers, not a prediction of your grade.</p> : null}
         {fresh ? null : summary.enough ? (
           <Trend series={summary.series} target={examDatePending ? null : target} />
@@ -93,15 +117,13 @@ export function ProgressView({ concepts, events, nowIso, daysToExam, targetPerce
         {!summary.enough ? <Link href="/today" className={`k-btn ${styles.cta}`}>Practise a topic <ArrowRight /></Link> : null}
       </motion.section>
 
-      {fresh || !summary.stronger.length ? null : <Topics title="Got stronger" note="Higher than a week ago." items={summary.stronger} empty="" />}
-      {fresh ? null : <Topics title="Needs another pass" note="Low, slipping, or your last answer missed." items={summary.needsPass} empty="No weak spots from your answers so far." />}
+      {fresh || !summary.stronger.length ? null : <Topics title="Got stronger" note="" items={summary.stronger} empty="" />}
+      {fresh ? null : <Topics title="Needs another pass" note="" items={summary.needsPass} empty="No weak spots from your answers so far." />}
       {summary.notStarted.length ? <Topics title="Not started" note="" items={summary.notStarted} empty="" /> : null}
 
-      {fresh ? null : <section className={styles.pace} aria-label="Pace to your target">
+      {fresh || examDatePending ? null : <section className={styles.pace} aria-label="Pace to your target">
         <h3>To reach your target</h3>
-        {examDatePending ? (
-          <p>{summary.topicsLeft} topic{summary.topicsLeft === 1 ? " is" : "s are"} not strong yet. Add your exam date on the Study plan page and Kelus will work out how many topics a day you need.</p>
-        ) : summary.topicsLeft > 0 ? (
+        {summary.topicsLeft > 0 ? (
           <p>
             {summary.topicsLeft} topic{summary.topicsLeft === 1 ? " is" : "s are"} not strong yet, with {daysToExam} day{daysToExam === 1 ? "" : "s"} left. That is about <strong>{summary.perDay} topic{summary.perDay === 1 ? "" : "s"} a day</strong>.
             {gap > 0 ? ` You are ${gap} point${gap === 1 ? "" : "s"} below your ${target}% target.` : ` You are at or above your ${target}% target.`}

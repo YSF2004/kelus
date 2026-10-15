@@ -15,6 +15,7 @@ import { useReturnVisit, WelcomeBack } from "@/components/WelcomeBack";
 import { ReminderCard } from "@/components/ReminderCard";
 import { ExamDateCard } from "@/components/ExamDateCard";
 import { estimatedReadiness } from "@/domain/readiness";
+import { buildQuickRun } from "@/domain/quick-run";
 import { dependentNames, describeRouteChoice } from "@/lib/today-reason";
 import { trackEvent } from "@/lib/analytics";
 import { firstTimeToday, returnVisit } from "@/lib/pilot";
@@ -128,6 +129,11 @@ export function TodayRoute({
   const firstConcept = concepts.find((item) => item.id === first.conceptId);
   const firstActivity = activities.find((item) => item.conceptId === first.conceptId);
   const firstName = firstConcept?.name ?? "A mix of earlier topics";
+  // The same run the session builds, so the count here is the count the student gets.
+  const firstChecks = firstActivity && firstConcept
+    ? buildQuickRun({ activity: firstActivity, name: firstConcept.name, siblingNames: concepts.filter((item) => item.courseId === firstConcept.courseId).map((item) => item.name), round: firstConcept.retrievalAttempts })?.checks.length ?? 0
+    : 0;
+  const runLine = firstChecks ? `${firstChecks} quick check${firstChecks === 1 ? "" : "s"} and 1 explanation` : "1 explanation";
   // The reason quotes the student's own last answer and names the topics that build on this one.
   const reasons = describeRouteChoice(first, firstConcept, {
     examDateKnown: !examDatePending,
@@ -137,9 +143,15 @@ export function TodayRoute({
   });
   // Opened but not answered yet: "New to you here" would contradict "In progress" above it.
   const decision = startLabel && !(firstConcept?.retrievalAttempts) ? ["You opened it; pick up with the first check."] : reasons;
-  const nextStops = route.allocations.filter((allocation) => allocation.conceptId !== first.conceptId).slice(0, 3).map((allocation) => {
+  // A mixed review is named by what it mixes: answered topics the plan does not already list on their own. With
+  // none (day one, or every answered topic is already a row), it is not offered.
+  const named = route.allocations.filter((allocation) => allocation.conceptId !== first.conceptId && allocation.conceptId !== "mixed-retrieval").slice(0, 3);
+  const listed = new Set([first.conceptId, ...named.map((allocation) => allocation.conceptId)]);
+  const mixed = concepts.filter((concept) => concept.retrievalAttempts > 0 && !listed.has(concept.id)).map((concept) => concept.name);
+  const mixName = mixed.length === 1 ? `Quick review: ${mixed[0]}` : `Quick review: ${mixed[0]} and ${mixed.length - 1} more`;
+  const nextStops = route.allocations.filter((allocation) => allocation.conceptId !== first.conceptId && (allocation.conceptId !== "mixed-retrieval" || mixed.length > 0)).slice(0, 3).map((allocation) => {
     const concept = concepts.find((item) => item.id === allocation.conceptId);
-    return { ...allocation, name: concept?.name ?? "A mix of earlier topics", mastery: concept?.mastery ?? 0, tried: (concept?.retrievalAttempts ?? 0) > 0 };
+    return { ...allocation, name: concept?.name ?? mixName, mastery: concept?.mastery ?? 0, tried: (concept?.retrievalAttempts ?? 0) > 0 };
   });
   const installable = install === "prompt" || install === "ios";
   const path = studyPath({ concepts, nowMs: Date.parse(nowIso), daysToExam: examDatePending ? null : daysToExam, doneToday: goalDoneCount });
@@ -177,7 +189,7 @@ export function TodayRoute({
             today's goal) is said in the line under it. */}
         <h2 id="today-title" className={q.topic}>{firstName}</h2>
         <p className={q.sub} data-block="today-page-folio">
-          {startLabel ? "In progress · " : goalDone ? "Today’s goal is done, so this one is extra · " : ""}{first.minutes} min · 3 quick checks and 1 explanation
+          {startLabel ? "In progress · " : goalDone ? "Today’s goal is done, so this one is extra · " : ""}{first.minutes} min · {runLine}
         </p>
         <p className={q.why} data-block="today-decision" aria-label="Why this topic is first">{decision.join(" ")}</p>
         <motion.button

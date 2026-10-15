@@ -55,7 +55,7 @@ function RecallVisual({ visible, reduceMotion }: VisualProps) {
           <motion.p {...row(2)} className={sheets.source}>That answer belongs to another line in your notes: “In a hypertonic solution the cell loses water.”</motion.p>
         </div>
       </div>
-      <figcaption className={styles.visualCaption}><span>From memory</span><strong>Three quick checks, then your own words.</strong><small>A wrong pick shows the line it came from, so the mix-up is clear.</small></figcaption>
+      <figcaption className={styles.visualCaption}><span>From memory</span><strong>A few quick checks, then your own words.</strong><small>A wrong pick shows the line it came from, so the mix-up is clear.</small></figcaption>
     </figure>
   );
 }
@@ -106,7 +106,7 @@ function KeepVisual({ visible, reduceMotion }: VisualProps) {
 
 const stages = [
   { number: "01", cue: "Source", icon: "folder", title: "Start with what you were taught.", body: "Add a lecture PDF, slides, notes or a Notion export. Kelus finds the topics and links each one back to its page. Rename or remove any topic, any time.", Visual: SourceVisual, tone: "source" },
-  { number: "02", cue: "Recall", icon: "clipboard-check", title: "Show what you can recall.", body: "Each topic is three quick checks written from your own lines, then one explanation in your own words. Kelus lays it beside the page and shows what you left out, or said the wrong way round.", Visual: RecallVisual, tone: "recall" },
+  { number: "02", cue: "Recall", icon: "clipboard-check", title: "Show what you can recall.", body: "Each topic is up to three quick checks written from your own lines, then one explanation in your own words. Kelus lays it beside the page and shows what you left out, or said the wrong way round.", Visual: RecallVisual, tone: "recall" },
   { number: "03", cue: "Route", icon: "diagram-project", title: "See the route respond.", body: "A weak answer brings a topic forward; a stronger one gives it room. The next session starts from what actually happened, not a fixed schedule.", Visual: RerouteVisual, tone: "route" },
   { number: "04", cue: "Keep", icon: "award", title: "Keep what you learned.", body: "Each block ends on what you practised and what comes back. The lines you missed open tomorrow as a one-minute warm-up, and every question can go to Anki.", Visual: KeepVisual, tone: "route" },
 ] as const;

@@ -117,7 +117,8 @@ test("⌘Z also takes back a rename, and a topic's page keeps the course sidebar
   await page.getByRole("textbox", { name: "Rename course" }).fill("Biology mock exam");
   await page.keyboard.press("Enter");
   await expect(page.locator(".studio-topbar-course")).toHaveText("Biology mock exam");
-  await page.locator("body").click({ position: { x: 600, y: 700 } });
+  // Leave the field, as a student clicking elsewhere would, without landing on whatever control sits at a fixed point.
+  await page.evaluate(() => (document.activeElement as HTMLElement | null)?.blur());
   await page.keyboard.press("ControlOrMeta+z");
   await expect(page.locator(".studio-topbar-course")).toHaveText(before);
 

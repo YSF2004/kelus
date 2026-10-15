@@ -125,6 +125,8 @@ export function termFromMeaning(ctx: Ctx): Draft[] {
     if (!match) continue;
     const term = match[1].trim();
     if (term.toLocaleLowerCase() === ctx.name.toLocaleLowerCase() || PRONOUN_START.test(term) || words(term) > 4) continue;
+    // "The core of microeconomics is the study of …" points at a part of something, it is not a term to name.
+    if (/^the\s+\w+\s+(?:of|behind|in)\b/i.test(term)) continue;
     // "Factorial is a classic example: …" describes an example, not what the word means.
     if (/^(?:an? )?(?:classic |common |simple |typical )?example\b|:/.test(match[2])) continue;
     defs.push({ term, meaning: match[2].trim(), sentence });
@@ -135,7 +137,10 @@ export function termFromMeaning(ctx: Ctx): Draft[] {
     const single = words(def.term) === 1;
     const onPage = [...defs.filter((d) => d !== def).map((d) => d.term), ...ctx.terms.map((t) => (single ? cap(t) : t))];
     const inMeaning = (t: string) => def.meaning.toLocaleLowerCase().includes(t.toLocaleLowerCase());
-    const eligible = (t: string) => t.toLocaleLowerCase() !== def.term.toLocaleLowerCase() && !inMeaning(t) && Math.abs(words(t) - words(def.term)) <= 1;
+    // A wrong option is another term: not a piece of the right one ("analysis" for "Positive analysis") and not a
+    // whole statement ("Supply curve is upward-sloping").
+    const piece = (t: string) => new RegExp(`(?:^|\\s)${t.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}(?:\\s|$)`, "i").test(def.term) || new RegExp(`(?:^|\\s)${def.term.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}(?:\\s|$)`, "i").test(t);
+    const eligible = (t: string) => t.toLocaleLowerCase() !== def.term.toLocaleLowerCase() && !inMeaning(t) && !piece(t) && !/\s(?:is|are|was|were)\s/i.test(t) && Math.abs(words(t) - words(def.term)) <= 1;
     const pool = [...new Set(onPage)].filter(eligible);
     const course = ctx.others.filter(eligible);
     const wrong = [...shuffle(pool, `${ctx.conceptId}${def.term}`).slice(0, 3), ...shuffle(course, `${ctx.conceptId}k${def.term}`)].slice(0, 3);

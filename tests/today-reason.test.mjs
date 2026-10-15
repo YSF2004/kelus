@@ -8,8 +8,7 @@ test("a first attempt is described as missing evidence, not low ability", () => 
     { retrievalAttempts: 0 },
   );
   assert.deepEqual(explanation, [
-    "New to you here: no answers on it yet.",
-    "It carries more weight in your exam.",
+    "You haven’t answered it yet.",
   ]);
 });
 
@@ -39,7 +38,7 @@ test("route choice includes a useful student-facing payoff", () => {
   );
   assert.match(
     describeRoutePayoff({ reasons: ["HIGH_EXAM_VALUE"] }),
-    /high-value exam topic/,
+    /better evidence/,
   );
 });
 

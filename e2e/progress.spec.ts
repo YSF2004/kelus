@@ -34,7 +34,8 @@ test("a brand-new course says it is too early instead of inventing a trend", asy
   await page.getByRole("navigation", { name: "Revision sections" }).getByRole("button", { name: "Progress" }).click();
   await expect(page.getByRole("heading", { name: "Progress", level: 1 })).toBeVisible();
   await expect(page.locator("#progress-headline")).toContainText("Too early to say. Answer 6 more topic checks");
-  await expect(page.getByText("Readiness after 6 answers", { exact: false })).toBeVisible();
+  // No estimate and no exam date: no row of dashes.
+  await expect(page.getByText("Readiness after 6 answers", { exact: false })).toHaveCount(0);
   await expect(page.getByRole("img", { name: /Estimated readiness over 14 days/ })).toHaveCount(0); // no chart yet
   await expect(page.getByRole("region", { name: "Not started" })).toContainText("Osmosis");
   await expect(page.getByRole("link", { name: /Practise a topic/ })).toBeVisible();
@@ -45,13 +46,14 @@ test("after answering, the screen counts the answers but still does not claim a 
   await page.locator('button[data-action="start-topic"]').click();
   await playRun(page);
   await page.goto("/today?section=progress");
-  await expect(page.locator("#progress-headline")).toContainText("Too early to say");
-  await expect(page.getByText(/Readiness after 6 answers \(\d+ so far\)/)).toBeVisible();
-  const answers = page.locator("dl").getByText("Answers", { exact: true }).locator("xpath=..").locator("dd");
-  await expect(answers).not.toHaveText("0");
-  // Osmosis was answered; "Not started" lists only the rest, and disappears once every topic has an answer.
-  const notStarted = page.getByRole("region", { name: "Not started" });
-  if (await notStarted.count()) await expect(notStarted).not.toContainText("Osmosis");
+  // A few answers in: each topic you tried, how it went and when it comes back. No trend, no counts, no dashes.
+  await expect(page.locator("#progress-headline")).toHaveText(/1 of \d+ topics tried/);
+  await expect(page.getByRole("img", { name: /Estimated readiness over 14 days/ })).toHaveCount(0);
+  await expect(page.getByText(/Readiness after 6 answers/)).toHaveCount(0);
+  const tried = page.locator('section[aria-labelledby="progress-headline"] li').first();
+  await expect(tried).toContainText("Osmosis");
+  await expect(tried).toContainText(/(Solid|Partly there|Missed) · back /);
+  await expect(page.getByText(/^Not started: /)).not.toContainText("Osmosis");
 });
 
 test("the sample course has history, so it shows a real trend with a chart and a pace line", async ({ page }) => {

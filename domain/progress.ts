@@ -36,6 +36,8 @@ export type ProgressSummary = {
   stronger: TopicChange[];
   needsPass: TopicChange[];
   notStarted: TopicChange[];
+  /** Every topic with at least one answer, most recently answered first. */
+  practised: TopicChange[];
   topicsLeft: number;
   perDay: number;
   daysToExam: number;
@@ -108,6 +110,8 @@ export function progressSummary(input: { concepts: Concept[]; events: LearningEv
   const needing = new Set(needsPass.map((topic) => topic.id));
   const stronger = topics.filter((topic) => climbing.has(topic.id) && !needing.has(topic.id)).sort((a, b) => b.delta - a.delta);
   const notStarted = topics.filter((topic) => topic.attempts === 0);
+  const lastAt = (id: string) => answered.filter((event) => event.conceptId === id).reduce((max, event) => (event.createdAt > max ? event.createdAt : max), "");
+  const practised = topics.filter((topic) => topic.attempts > 0).sort((a, b) => lastAt(b.id).localeCompare(lastAt(a.id)));
   const topicsLeft = topics.filter((topic) => topic.after < STRONG).length;
 
   return {
@@ -123,6 +127,7 @@ export function progressSummary(input: { concepts: Concept[]; events: LearningEv
     stronger,
     needsPass,
     notStarted,
+    practised,
     topicsLeft,
     perDay: Math.ceil(topicsLeft / Math.max(1, input.daysToExam)),
     daysToExam: input.daysToExam,

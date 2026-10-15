@@ -127,7 +127,9 @@ export function looksLikeWords(text: string) {
 }
 
 /** Words that carry no idea on their own, on top of the stopwords: they never count as a key word to remember. */
-const FILLER = new Set(["also", "because", "been", "being", "both", "each", "every", "more", "most", "only", "other", "some", "such", "than", "there", "these", "they", "those", "very", "what", "when", "where", "will", "would", "about", "after", "before", "between", "during", "over", "under", "your", "make", "makes", "made", "does", "done", "much", "many", "same", "into", "onto", "upon", "across", "through", "within", "without", "toward", "towards", "along"]);
+const FILLER = new Set(["also", "because", "been", "being", "both", "each", "every", "more", "most", "only", "other", "some", "such", "than", "there", "these", "they", "those", "very", "what", "when", "where", "will", "would", "about", "after", "before", "between", "during", "over", "under", "your", "make", "makes", "made", "does", "done", "much", "many", "same", "into", "onto", "upon", "across", "through", "within", "without", "toward", "towards", "along",
+  // Academic frame words: "X is the study of", "the way things are", "a kind of". They frame an idea, they are not one.
+  "study", "studies", "way", "ways", "thing", "things", "kind", "kinds", "type", "types", "form", "forms", "part", "parts", "called", "known", "refers", "used", "uses", "example", "examples", "world", "should", "could", "might", "must"]);
 
 export type ExplainPart = { text: string; key: boolean; hit: boolean; /** The student's word that says the opposite of this one. */ flip?: string };
 export type ExplainMatch = { parts: ExplainPart[]; keys: number; hits: number; missed: string[]; /** Opposites: what the page says, and what the student wrote instead. */ flipped: Array<{ page: string; said: string }>; suggest: "nailed" | "partly" | "missed" };
@@ -142,11 +144,16 @@ export function explainMatch(answer: string, reference: string, topic = ""): Exp
   const said = readAnswer(answer);
   const ownGroups = pageGroups(reference);
   // The topic's own name is on the screen; leaving it out of an explanation is not a gap.
-  const named = new Set(topic.toLocaleLowerCase().split(/[^\p{L}\p{N}-]+/u).filter(Boolean));
+  // Except in "A vs. B": telling the two apart is the whole point, so their names are the key words.
+  const named = new Set(/\s(?:vs\.?|versus)\s/i.test(topic) ? [] : topic.toLocaleLowerCase().split(/[^\p{L}\p{N}-]+/u).filter(Boolean));
   const parts: ExplainPart[] = [];
+  // "(e.g. eBay auctions)" is the page's example, not the idea: leaving it out of an explanation is not a gap.
+  let example = false;
   for (const piece of reference.split(/(\s+)/)) {
+    if (/^\((?:e\.g|i\.e|eg|for)\b/i.test(piece)) example = true;
     const word = piece.toLocaleLowerCase().replace(/[^\p{L}\p{N}-]+/gu, "");
-    const key = word.length >= 4 && !STOPWORDS.has(word) && !FILLER.has(word) && !named.has(word) && !/^\d+$/.test(word);
+    const key = !example && word.length >= 4 && !STOPWORDS.has(word) && !FILLER.has(word) && !named.has(word) && !/^\d+$/.test(word);
+    if (example && piece.includes(")")) example = false;
     const verdict = key ? judgeWord(word, said, ownGroups) : { hit: false };
     parts.push({ text: piece, key, hit: verdict.hit, ...(verdict.flip ? { flip: verdict.flip } : {}) });
   }
@@ -170,10 +177,12 @@ export function explainMatch(answer: string, reference: string, topic = ""): Exp
   const suggest = !answer.trim() || share < 0.35 ? "missed" : share < 0.75 || flipped.length ? "partly" : "nailed";
   // "dilute solution" already says "solution": a phrase whose words were all named before is not listed again.
   const named2: string[] = [];
-  for (const phrase of missed.map((item) => item.toLocaleLowerCase())) {
-    const said = new Set(named2.flatMap((item) => item.split(" ").map(family)));
+  for (const original of missed) {
+    const phrase = original.toLocaleLowerCase();
+    const said = new Set(named2.flatMap((item) => item.toLocaleLowerCase().split(" ").map(family)));
     if (phrase.split(" ").every((word) => said.has(family(word)))) continue;
-    named2.push(phrase);
+    // "eBay" and "ATP" keep their own spelling; an ordinary word reads in lowercase.
+    named2.push(original.split(" ").map((word) => (/\p{Lu}/u.test(word.slice(1)) ? word : word.toLocaleLowerCase())).join(" "));
   }
   return { parts, keys, hits, missed: named2, flipped, suggest };
 }

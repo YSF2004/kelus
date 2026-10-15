@@ -21,7 +21,8 @@ export function isDocumentTitle(value: string) {
 export function documentTitle(pages: ExtractedMaterialPage[], options: { fromLayout?: boolean } = {}) {
   const first = [...pages].filter((page) => page.pageNumber > 0).sort((a, b) => a.pageNumber - b.pageNumber)[0];
   const line = first?.text.split(/\n+/).slice(0, 6).map((entry) => entry.trim()).find((entry) => entry.length >= 4 && entry.length <= 90 && isDocumentTitle(entry));
-  if (line) return line.replace(/\s+/g, " ");
+  // "1.1 Lecture 1: …" carries the handout's section number in front of its own; "Lecture 1: …" says it once.
+  if (line) return line.replace(/\s+/g, " ").replace(/^\d+(?:\.\d+)*\s+(?=(?:week|lecture|lesson|unit|module|chapter|session|seminar|tutorial|class)\s*\d)/i, "");
   // Only a PDF's first page is a title page; notes are sections, each opening on its own topic heading.
   return options.fromLayout === false ? null : layoutTitle(first);
 }
@@ -122,7 +123,14 @@ function isContinuation(value: string) {
   return /^(?:and|or|but|nor|to|of|for|with|as|than|that|which|so|then)\b/i.test(text) || closes > opens;
 }
 
+/** "Demand curve is downward-sloping" is a fact from the notes, not the name of a topic; "What is demand?" can be. */
+function isStatement(value: string) {
+  const text = value.trim();
+  return !/\?$/.test(text) && !/^(?:what|why|how|when|where|who|which)\b/i.test(text) && /\S\s+(?:is|are|was|were)\s+\S/i.test(text);
+}
+
 function looksLikeConcept(value: string) {
+  if (isStatement(value)) return false;
   if (value.length < 3 || value.length > 72 || ADMINISTRATIVE.test(value) || GENERIC_HEADING.test(value.trim()) || isContinuation(value)) return false;
   if (/https?:|@|\b(?:monday|tuesday|wednesday|thursday|friday|saturday|sunday)\b/i.test(value)) return false;
   if (/\b(?:due|points?|percent|room|pm|am)\b/i.test(value)) return false;
@@ -213,9 +221,25 @@ function sentencesFrom(excerpt: string) {
     .filter((part) => part.length > 18);
 }
 
+/** "Positive vs. normative economics": the two sides, so a question can ask for both. */
+export function versusSides(name: string) {
+  const match = name.match(/^(.+?)\s+(?:vs\.?|versus)\s+(.+)$/i);
+  if (!match) return null;
+  // "Positive vs. normative economics": the shared noun ("economics") belongs to both sides.
+  const [left, right] = [match[1].trim(), match[2].trim()];
+  const tail = right.split(/\s+/).slice(1).join(" ");
+  return { left: !/\s/.test(left) && tail ? `${left} ${tail}` : left, right, leftKey: left.split(/\s+/)[0], rightKey: right.split(/\s+/)[0] };
+}
+
 function centralClaim(name: string, excerpt: string) {
   const sentences = units(excerpt);
   if (!sentences.length) return excerpt.slice(0, 220);
+  const sides = versusSides(name);
+  if (sides) {
+    const opens = (key: string) => sentences.find((sentence) => new RegExp(`^(?:the\\s+)?${escapeRegExp(key)}\\b`, "i").test(sentence)) ?? sentences.find((sentence) => new RegExp(`\\b${escapeRegExp(key)}\\b`, "i").test(sentence));
+    const [a, b] = [opens(sides.leftKey), opens(sides.rightKey)];
+    if (a && b && a !== b) return `${a} ${b}`.slice(0, 320);
+  }
   const named = sentences.find((sentence) => sentence.toLocaleLowerCase().includes(name.toLocaleLowerCase()));
   const defined = sentences.find((sentence) => DEFINITION_SIGNAL.test(sentence));
   return (named ?? defined ?? sentences[0]).slice(0, 260);
@@ -234,7 +258,17 @@ export function spokenName(name: string, claim: string) {
   return leadingThe ? `the ${base}` : base;
 }
 
-function recallQuestion(name: string, claim: string, fallback: string) {
+/** "Introduction to Microeconomics" is a chapter title; the thing to ask about is "microeconomics". */
+export function coreName(name: string) {
+  const core = name.replace(/^(?:an?\s+)?(?:introduction|intro|overview|basics|fundamentals|principles)\s+(?:to|of)\s+/i, "").trim();
+  return core.length >= 3 ? core : name;
+}
+
+function recallQuestion(fullName: string, claim: string, fallback: string) {
+  const sides = versusSides(fullName);
+  if (sides) return `How do your notes tell ${spokenName(sides.left, claim)} and ${spokenName(sides.right, claim)} apart?`;
+  const core = coreName(fullName);
+  const name = core !== fullName && new RegExp(`^(?:the\\s+)?${escapeRegExp(core)}\\b`, "i").test(claim.trim()) ? core : fullName;
   const verb = claim.match(new RegExp(`^(?:the\\s+)?${escapeRegExp(name)}\\s+(is|are|means|measures?|regulates?|depends on|moves?|converts?|calculates?|requires?|links?|describes?|shows?|explains?|determines?|compares?|relates?)\\b`, "i"))?.[1]?.toLocaleLowerCase();
   if (!verb) return fallback;
   const spoken = spokenName(name, claim);
@@ -260,6 +294,7 @@ function subjectModeFor(name: string, excerpt: string): SubjectMode {
 }
 
 function activityLanguage(mode: SubjectMode, name: string, claim: string) {
+  name = coreName(name);
   const spoken = spokenName(name, claim);
   switch (mode) {
     case "biology":
@@ -489,6 +524,7 @@ function inferRelationships(concepts: Concept[], corpus: string): ConceptRelatio
 }
 
 function looksLikeConceptRelaxed(value: string) {
+  if (isStatement(value)) return false;
   if (value.length < 3 || value.length > 80 || ADMINISTRATIVE.test(value) || GENERIC_HEADING.test(value.trim()) || isContinuation(value)) return false;
   if (/https?:|@|\b(?:monday|tuesday|wednesday|thursday|friday|saturday|sunday)\b/i.test(value)) return false;
   if (/\b(?:due|points?|percent|room)\b/i.test(value)) return false;

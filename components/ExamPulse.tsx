@@ -7,6 +7,8 @@ import styles from "./ExamPulse.module.css";
 export function ExamPulse({ readiness, targetPercent, daysToExam, datePending = false, answered = 1 }: { readiness: number; targetPercent: number; daysToExam: number; datePending?: boolean; /** Answers given so far: with none, there is nothing to estimate from, so no number is shown. */ answered?: number }) {
   const ready = answered ? Math.round(Math.max(0, Math.min(1, readiness)) * 100) : 0;
   const target = Math.round(Math.max(0, Math.min(100, targetPercent)));
+  // No estimate yet and no exam date: the row would be three dashes, so it is left out.
+  if (answered < 6 && datePending) return null;
   return (
     <div className={styles.pulse} role="group" aria-label="Exam readiness">
       <div className={styles.fact}>
