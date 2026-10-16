@@ -43,7 +43,7 @@ test("a new topic is read first, one line at a time, then asked; the recall coun
     await ((await topic.count()) ? topic.first() : options.first()).click();
   }
   if (shots) await page.screenshot({ path: `${shots}/check.png` });
-  const right = await page.getByText(/^Right\.$/).count();
+  const right = await page.getByText(/^Right\./).count();
   if (right) await expect(counter).toContainText("1");
   else await expect(counter).toHaveCount(0);
 });

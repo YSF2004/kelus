@@ -610,3 +610,13 @@
 .around { display: grid; gap: 6px; margin: 0; padding: 12px 14px; border-radius: 8px; background: #fff; border: 1px solid var(--color-frost); }
 .around p { margin: 0; font-size: 0.9375rem; line-height: 1.5; color: var(--color-slate); }
 .around .aroundLine { color: var(--color-midnight-ink); font-weight: 500; background: color-mix(in srgb, var(--k-marigold, #f3b23e) 22%, transparent); border-radius: 4px; padding: 2px 4px; margin: 0 -4px; }
+
+.firstNote { margin: -4px 0 0; font-size: var(--text-body-sm); line-height: 1.5; color: var(--color-kelus); }
+
+/* Hide a line not worth reading: a small × in the card's corner, shown on hover or focus (always on touch). */
+.readLines li { position: relative; padding-right: 40px; }
+.hideLine { position: absolute; top: 4px; right: 4px; display: grid; place-items: center; width: 36px; height: 36px; border: 0; border-radius: 6px; background: transparent; color: var(--color-slate); cursor: pointer; opacity: 0; transition: opacity 120ms, background-color 120ms; }
+.readLines li:hover .hideLine, .hideLine:focus-visible { opacity: 1; }
+.hideLine:hover { background: var(--color-mist); color: var(--color-midnight-ink); }
+.hideLine:focus-visible { outline: 2px solid var(--color-kelus); outline-offset: -2px; }
+@media (hover: none) { .hideLine { opacity: 0.6; } }

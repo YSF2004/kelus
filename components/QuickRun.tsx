@@ -8,6 +8,8 @@ import { checkPracticeAnswer } from "@/domain/practice-check";
 import { explainMatch, looksLikeWords } from "@/domain/answer-evaluation";
 import { PackArt } from "@/components/PackArt";
 import { ListenButton } from "@/components/ListenButton";
+import { play } from "@/lib/sound";
+import { hiddenLines, hideLine } from "@/lib/hidden-lines";
 import { gapChoices, keyWordsIn, linesAround, readingLines, whereAnswerBelongs, type QuickRun as Run, type SelfGrade } from "@/domain/quick-run";
 import { trackEvent } from "@/lib/analytics";
 import { FLAG_REASONS, flagQuestion, sendFlaggedQuestion, type FlagReason } from "@/lib/flags";
@@ -54,7 +56,8 @@ export function QuickRun({ run, onRevealSource, onFinish, onChecksDone, context,
   const reduce = useReducedMotion() === true;
   const modKey = useSyncExternalStore(noSubscribe, modKeyNow, () => "⌘");
   const touch = useSyncExternalStore(noSubscribe, touchNow, () => false);
-  const [lines] = useState(() => (readFirst ? readingLines(run) : []));
+  // Lines a student hid as not worth reading stay out of the reading for good, on this device.
+  const [lines, setLines] = useState(() => (readFirst ? readingLines(run).filter((line) => !hiddenLines().has(line)) : []));
   // -1 once reading is over (or there is nothing to read); otherwise the last line shown so far.
   const [reading, setReading] = useState(() => (lines.length >= 2 ? 0 : -1));
   const [knownNow, setKnownNow] = useState<string[]>([]);
@@ -66,7 +69,7 @@ export function QuickRun({ run, onRevealSource, onFinish, onChecksDone, context,
   const [step, setStep] = useState(0); // 0..total-1 = checks, total = explain
   const [picked, setPicked] = useState<number | null>(null);
   const [typed, setTyped] = useState("");
-  const [answered, setAnswered] = useState<null | { right: boolean; unsure?: boolean; elsewhere?: string | null; given?: string; picked?: boolean }>(null);
+  const [answered, setAnswered] = useState<null | { right: boolean; unsure?: boolean; elsewhere?: string | null; given?: string; picked?: boolean; firstEver?: boolean }>(null);
   // A word tapped from four is recognised, not recalled: it earns the check, never a line on the recall count.
   const [tapped, setTapped] = useState<string | null>(null);
   const [drop, setDrop] = useState(0);
@@ -108,7 +111,9 @@ export function QuickRun({ run, onRevealSource, onFinish, onChecksDone, context,
     if (typeof value === "number") setPicked(value);
     const given = typeof value === "number" ? item.choices?.[value] ?? "" : value.trim();
     const fromChips = typeof value === "string" && tapped !== null && tapped === value;
-    setAnswered({ right: ok, given, picked: fromChips, elsewhere: ok ? null : whereAnswerBelongs(item, given, run.sentences) });
+    // The very first line a student ever recalls: the moment to say what Kelus does with it.
+    const firstEver = ok && !fromChips && known !== undefined && known.size === 0 && knownNow.length === 0;
+    setAnswered({ right: ok, given, picked: fromChips, firstEver, elsewhere: ok ? null : whereAnswerBelongs(item, given, run.sentences) });
     if (ok) {
       setRight((count) => count + 1);
       if (!fromChips) { setKnownNow((list) => [...list, item.sourceQuote]); if (!known?.has(item.sourceQuote)) { setBump((count) => count + 1); setChange("+1"); } }
@@ -117,6 +122,7 @@ export function QuickRun({ run, onRevealSource, onFinish, onChecksDone, context,
       if (known?.has(item.sourceQuote) && !missed.includes(item.sourceQuote)) { setDrop((count) => count + 1); setChange("−1"); }
     }
     feel(ok);
+    play(ok ? "right" : "miss");
   }
 
   // "Not sure" earns no credit, shows the answer, and does not break a streak: honesty should never cost more than guessing.
@@ -236,6 +242,14 @@ export function QuickRun({ run, onRevealSource, onFinish, onChecksDone, context,
               {lines.slice(0, reading + 1).map((line, index) => (
                 <motion.li key={line} initial={reduce || index === 0 ? false : { opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}>
                   <Marked line={line} words={keyWordsIn(line, run)} />
+                  <button type="button" className={styles.hideLine} aria-label="Hide this line: it isn’t worth reading" title="Not worth reading" onClick={() => {
+                    hideLine(line);
+                    const rest = lines.filter((kept) => kept !== line);
+                    setLines(rest);
+                    // Nothing left to read, or this was the last line shown: go on as Continue would.
+                    if (rest.length < 1) setReading(-1);
+                    else setReading((current) => Math.min(current, rest.length - 1));
+                  }}><Cross size={10} /></button>
                 </motion.li>
               ))}
             </ol>
@@ -306,7 +320,7 @@ export function QuickRun({ run, onRevealSource, onFinish, onChecksDone, context,
 
             {answered ? (
               <motion.div className={`${styles.feedback} ${answered.right ? styles.ok : styles.no}`} role="status" initial={reduce ? false : { opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.2 }}>
-                <strong>{answered.right ? <PackArt name="check" className={styles.mark} /> : null}{answered.unsure ? (item.kind === "cloze" ? `It was “${item.modelAnswer}”.` : "Here’s the line it comes from.") : answered.right ? (answered.picked ? "Right, picked from four. Type it next time to count it as recalled." : "Right.") : item.kind === "cloze" ? `Not quite. It was “${item.modelAnswer}”.` : "Not quite."}</strong>
+                <strong>{answered.right ? <PackArt name="check" className={styles.mark} /> : null}{answered.unsure ? (item.kind === "cloze" ? `It was “${item.modelAnswer}”.` : "Here’s the line it comes from.") : answered.right ? (answered.picked ? "Right, picked from four. Type it next time to count it as recalled." : answered.firstEver ? "Right. That’s your first line recalled." : "Right.") : item.kind === "cloze" ? `Not quite. It was “${item.modelAnswer}”.` : "Not quite."}</strong>
                 {around && linesAround(run, item.sourceQuote) ? (
                   <div className={styles.around} aria-label="This line in your notes">
                     {linesAround(run, item.sourceQuote)!.before ? <p>{linesAround(run, item.sourceQuote)!.before}</p> : null}
@@ -314,6 +328,7 @@ export function QuickRun({ run, onRevealSource, onFinish, onChecksDone, context,
                     {linesAround(run, item.sourceQuote)!.after ? <p>{linesAround(run, item.sourceQuote)!.after}</p> : null}
                   </div>
                 ) : <p className={styles.quote}>“{item.sourceQuote}”</p>}
+                {answered.firstEver ? <p className={styles.firstNote}>Kelus brings it back in a few days, just before you’d forget it, so it sticks for the exam.</p> : null}
                 <div className={styles.lineTools}>
                   <ListenButton key={`listen-q-${step}`} text={item.sourceQuote} className={styles.listen} />
                   {!answered.right && !around && linesAround(run, item.sourceQuote) ? <button type="button" className={styles.listen} onClick={() => setAround(true)}>Show it in your notes</button> : null}

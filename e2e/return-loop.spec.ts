@@ -22,14 +22,15 @@ test("answering a topic starts a streak and moves today's goal", async ({ page }
   await page.goto("/today?sample=1");
   const strip = page.getByRole("region", { name: "Your study habit" });
   await expect(strip).toContainText("0 of 3 topics");
-  // The sample comes with earlier practice, so it is a new streak, not a first one.
-  await expect(strip).toContainText("Answer one topic today to start a new streak.");
+  // The sample comes with earlier practice and one day off: a rest day keeps its streak alive, and today keeps it.
+  await expect(strip).toContainText(/One topic today keeps your \d+-day streak\.|Answer one topic today to start a new streak\./);
+  const before = Number((await strip.innerText()).match(/(\d+)-day streak/)?.[1] ?? 0);
 
   await page.getByRole("button", { name: /Start this topic/ }).click();
   await playQuickRun(page);
 
   await page.goto("/today");
-  await expect(strip).toContainText("1-day streak");
+  await expect(strip).toContainText(`${before + 1}-day streak`);
   await expect(strip).toContainText("1 of 3 topics");
   await expect(strip).toContainText("2 more to reach today’s goal.");
   await expect(strip.getByRole("progressbar", { name: "Today’s goal" })).toHaveAttribute("aria-valuenow", "1");

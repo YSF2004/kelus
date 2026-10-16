@@ -3,8 +3,13 @@ import type { Concept, LearningEvent } from "./types";
 export type HabitDay = { key: string; label: string; studied: boolean; today: boolean };
 
 export type HabitSummary = {
-  /** Consecutive days with at least one answered topic. Stays alive until the end of the day after the last one. */
+  /**
+   * Days studied in a row, forgiving one missed day in any seven: a single day off between study days is a rest day,
+   * not a break. Two missed days in a row end it. Counts study days, never the rest days.
+   */
   streak: number;
+  /** A rest day kept the streak alive in the last seven days. */
+  restUsed: boolean;
   studiedToday: boolean;
   topicsToday: number;
   goal: number;
@@ -44,11 +49,16 @@ export function habitSummary(input: { events: LearningEvent[]; concepts: Concept
   const todayKey = dayKey(now);
   const studiedToday = topicsByDay.has(todayKey);
   let streak = 0;
-  for (let back = studiedToday ? 0 : 1; ; back += 1) {
-    if (!topicsByDay.has(dayKey(daysAgo(now, back)))) break;
-    streak += 1;
-    if (streak > 3650) break;
+  let lastRest: number | null = null;
+  const studied = (back: number) => topicsByDay.has(dayKey(daysAgo(now, back)));
+  for (let back = studiedToday ? 0 : 1; back < 3650; back += 1) {
+    if (studied(back)) { streak += 1; continue; }
+    // One day off, with study on both sides, and no other rest day within the same seven: the streak holds.
+    const restAllowed = studied(back + 1) && (streak > 0 || back === 1) && (lastRest === null || back - lastRest >= 7);
+    if (!restAllowed) break;
+    lastRest = back;
   }
+  const restUsed = lastRest !== null && lastRest <= 7 && streak > 0;
 
   const week = Array.from({ length: 7 }, (_, index) => {
     const date = daysAgo(now, 6 - index);
@@ -73,6 +83,7 @@ export function habitSummary(input: { events: LearningEvent[]; concepts: Concept
 
   return {
     streak,
+    restUsed,
     studiedToday,
     topicsToday,
     goal,
