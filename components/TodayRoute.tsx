@@ -162,9 +162,15 @@ export function TodayRoute({
   const missedToday = isSampleCourse || visit.returning ? [] : missed.filter((line) => courseIds.has(line.conceptId) && dayKey(new Date(Date.parse(line.at))) === today);
   const missedTopics = [...new Set(missedToday.map((line) => concepts.find((concept) => concept.id === line.conceptId)?.name).filter(Boolean))] as string[];
   const lines = Math.min(3, missedToday.length);
-  const tomorrowLine = lines
-    ? `Tomorrow opens with ${lines === 1 ? "the line" : `${lines} lines`} you missed today${missedTopics.length === 1 ? ` in ${missedTopics[0]}` : ""}, about a minute, before anything new.`
-    : null;
+  // Tomorrow, said on the day you studied: the warm-up first, then the next new topic, then how long is left.
+  const studiedToday = !isSampleCourse && events.some((event) => event.kind === "retrieval" && courseIds.has(event.conceptId) && dayKey(new Date(Date.parse(event.createdAt))) === today);
+  // Today's card is today's; tomorrow's new topic is the next untried one after it.
+  const nextNew = nextStops.map((stop) => concepts.find((concept) => concept.id === stop.conceptId)).find((concept) => concept && concept.retrievalAttempts === 0 && concept.id !== first.conceptId)?.name;
+  const examPart = !examDatePending && daysToExam > 0 ? ` Exam in ${daysToExam} ${daysToExam === 1 ? "day" : "days"}.` : "";
+  const warmup = lines ? `a 1-minute warm-up on ${lines === 1 ? "the line" : `${lines} lines`} you missed today${missedTopics.length === 1 ? ` in ${missedTopics[0]}` : ""}` : "";
+  const tomorrowLine = !studiedToday && !lines
+    ? null
+    : `Tomorrow: ${[warmup, nextNew ? (warmup ? `then ${nextNew}` : `${nextNew}, a new topic`) : ""].filter(Boolean).join(", ") || "a short review of what you did today"}.${examPart}`;
   const installable = install === "prompt" || install === "ios";
   const path = studyPath({ concepts, nowMs: Date.parse(nowIso), daysToExam: examDatePending ? null : daysToExam, doneToday: goalDoneCount });
   const level = (mastery: number, tried: boolean) => (tried ? topicLevel(mastery, 1) : "New");

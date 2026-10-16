@@ -12,7 +12,8 @@ function message(summary: ReturnType<typeof habitSummary>, studiedBefore: boolea
       ? `Done for today. ${summary.backTomorrow} topic${summary.backTomorrow === 1 ? "" : "s"} come${summary.backTomorrow === 1 ? "s" : ""} back tomorrow.`
       : "Done for today. Come back tomorrow to keep it going.";
   }
-  if (summary.streak > 0 && !summary.studiedToday) return `Study one topic today to keep your ${summary.streak}-day streak.`;
+  // A rest day already used this week: today is the day that keeps it.
+  if (summary.streak > 0 && !summary.studiedToday) return summary.restUsed ? `You took a rest day. One topic today keeps your ${summary.streak}-day streak.` : `Study one topic today to keep your ${summary.streak}-day streak.`;
   if (summary.topicsToday > 0) return `${summary.goal - summary.topicsToday} more to reach today’s goal.`;
   if (summary.streak === 0) return studiedBefore ? "Answer one topic today to start a new streak." : "Answer your first topic to start a streak.";
   return "";
@@ -32,7 +33,7 @@ export function HabitStrip({ events, concepts, compact = false, link = true, lin
           <motion.i className={summary.goalMet ? styles.met : undefined} initial={reduce ? false : { width: 0 }} animate={{ width: `${share * 100}%` }} transition={{ duration: reduce ? 0 : 0.4, ease: [0.22, 1, 0.36, 1] }} />
         </span>
         <span><strong>{Math.min(summary.topicsToday, summary.goal)} of {summary.goal} topics</strong> today</span>
-        {summary.streak > 0 ? <><span className={styles.sep} aria-hidden="true" /><span>{summary.streak}-day streak</span></> : null}
+        {summary.streak > 0 ? <><span className={styles.sep} aria-hidden="true" /><span title={summary.restUsed ? "One missed day a week doesn't break a streak." : undefined}>{summary.streak}-day streak{summary.restUsed ? ", one rest day" : ""}</span></> : null}
         {text ? <><span className={styles.sep} aria-hidden="true" /><span className={styles.lineNote} role="status">{text}</span></> : null}
       </section>
     );

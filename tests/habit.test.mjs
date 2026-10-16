@@ -20,12 +20,21 @@ test("studying today starts a streak of one and counts topics, not attempts", ()
   assert.equal(s.goalMet, false);
 });
 
-test("a streak survives until the day after the last session ends, then resets", () => {
+test("a streak survives until the day after the last session ends; one missed day is a rest, two end it", () => {
   const alive = habitSummary({ events: [ev(-1, "a"), ev(-2, "a"), ev(-3, "a")], concepts, nowMs: now });
   assert.equal(alive.streak, 3);
   assert.equal(alive.studiedToday, false);
-  const broken = habitSummary({ events: [ev(-2, "a"), ev(-3, "a")], concepts, nowMs: now });
-  assert.equal(broken.streak, 0);
+  assert.equal(alive.restUsed, false);
+  // Yesterday off, the two days before studied: still alive today, with the rest day used.
+  const rested = habitSummary({ events: [ev(-2, "a"), ev(-3, "a")], concepts, nowMs: now });
+  assert.equal(rested.streak, 2);
+  assert.equal(rested.restUsed, true);
+  // A gap in the middle of a run is forgiven once a week.
+  const gap = habitSummary({ events: [ev(0, "a"), ev(-1, "a"), ev(-3, "a"), ev(-4, "a")], concepts, nowMs: now });
+  assert.equal(gap.streak, 4);
+  // Two missed days in a row end it, and so does a second rest day in the same week.
+  assert.equal(habitSummary({ events: [ev(-3, "a"), ev(-4, "a")], concepts, nowMs: now }).streak, 0);
+  assert.equal(habitSummary({ events: [ev(0, "a"), ev(-2, "a"), ev(-4, "a")], concepts, nowMs: now }).streak, 2);
 });
 
 test("opening the app or rating alone never counts as studying", () => {

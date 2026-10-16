@@ -6,6 +6,9 @@ import { kelusDuration, kelusEase } from "@/components/motion";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { Suspense, useCallback, useEffect, useMemo, useRef, useState, useSyncExternalStore, type SyntheticEvent } from "react";
+import { toast } from "sonner";
+import { InlineName } from "@/components/InlineName";
+import { play, setSounds, soundsOn, subscribeSounds } from "@/lib/sound";
 import { useLearner } from "@/components/LearnerProvider";
 import { evaluateLearningResponse, type AnswerEvaluation } from "@/domain/answer-evaluation";
 import { resumeSessionIndex } from "@/domain/session-engine";
@@ -85,7 +88,7 @@ function SessionBody() {
   const search = useSearchParams();
   const reduceMotion = useReducedMotion();
   const sessionId = search.get("id");
-  const { state, submit, abandon, removeTopic } = useLearner();
+  const { state, submit, abandon, removeTopic, renameTopic } = useLearner();
   const auth = useAuth();
   const materials = useSyncExternalStore(subscribeMaterials, getMaterialsSnapshot, getServerMaterialsSnapshot);
   const session = state.snapshot.sessions.find((item) => item.id === sessionId);
@@ -167,6 +170,7 @@ function SessionBody() {
   );
   const quickMode = Boolean(run);
   const [runKey, setRunKey] = useState(0);
+  const soundsEnabled = useSyncExternalStore(subscribeSounds, soundsOn, () => false);
   const knownLines = useSyncExternalStore(subscribeKnownLines, getKnownLines, getServerKnownLines);
   const courseId = concept?.courseId;
   const courseConceptIds = new Set(state.snapshot.concepts.filter((item) => item.courseId === courseId).map((item) => item.id));
@@ -296,6 +300,7 @@ function SessionBody() {
   }
 
   function finishQuick(result: QuickRunResult) {
+    play("done");
     const outcome = quickOutcome({ ...result, readFirst: round === 0 });
     const firstPassOnly = round === 0 && outcome === "partial" && quickOutcome(result) === "success";
     const summary = `${quickSummary(result)}${firstPassOnly ? " Good first pass; Kelus will check it again later before calling it solid." : ""}`;
@@ -478,6 +483,10 @@ function SessionBody() {
         <div className="study-folio-actions">
           <SessionMenu
             items={[
+              {
+                label: soundsEnabled ? "Turn sounds off" : "Turn sounds on",
+                onSelect: () => setSounds(!soundsEnabled),
+              },
               ...(quickMode && hasReadableSource ? [{
                 label: notesOpen ? "Hide your notes" : recallWithoutLooking ? "Peek at the notes" : "See your notes",
                 onSelect: () => { setSourceRevealed(true); setNotesOpen((open) => !open); },
@@ -506,7 +515,12 @@ function SessionBody() {
             type="button"
             className="text-btn study-close"
             title="Back to your study plan — your place is kept"
-            onClick={() => router.push("/today")}
+            onClick={() => {
+              // Say what is kept, honestly: the block and its topic, not the check inside it.
+              const done = session.plannedConceptIds.filter((id) => state.snapshot.events.some((event) => event.sessionId === session.id && event.kind === "retrieval" && event.conceptId === id)).length;
+              toast(`Saved. ${done ? `${done} of ${session.plannedConceptIds.length} topics done in this block. ` : ""}Continue on your plan opens ${concept.name} again.`);
+              router.push("/today");
+            }}
           >
             Close
           </button>
@@ -765,7 +779,8 @@ function SessionBody() {
                 readFirst={round === 0}
                 known={knownAtOpen.set}
                 recalled={knownAtOpen.count}
-                context={<p className="study-topic-kicker"><b>{concept.name}</b>{total > 1 ? <span>Topic {index + 1} of {total}</span> : null}</p>}
+                // A topic Kelus misnamed is renamed right here, the way the course is: tap the name (⌘Z undoes it).
+                context={<p className="study-topic-kicker"><b><InlineName value={concept.name} onSave={(next) => renameTopic(concept.id, next)} label="Rename this topic" /></b>{total > 1 ? <span>Topic {index + 1} of {total}</span> : null}</p>}
               />
             ) : null}
 
