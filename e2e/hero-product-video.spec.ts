@@ -7,7 +7,7 @@ test("the homepage shows a recording of the real product at desktop and phone si
     await page.setViewportSize({ width, height: 900 });
     await page.goto("/");
     const hero = page.locator('[data-hero="product-video"]');
-    await expect(hero.locator("h1")).toHaveText("Revise your lessons. Walk into the exam ready.");
+    await expect(hero.locator("h1")).toHaveText("Questions from your notes. Checked against the page.");
     await expect(hero.getByRole("link", { name: "Add your notes" })).toHaveAttribute("href", /^\/today\/?$/);
     await expect(hero.locator("figcaption")).toHaveCount(0);
     await expect(hero.locator("video:visible")).toHaveAttribute("poster", /kelus-product-poster/);
@@ -64,4 +64,17 @@ test("the revision story still follows the video without a duplicate sample", as
   await page.goto("/");
   await expect(page.locator("#try, .booklet-board")).toHaveCount(0);
   await expect(page.locator("main > section").nth(1).getByRole("heading", { name: "One line from your notes, followed all the way." })).toBeVisible();
+});
+
+test("the walkthrough's steps are named under it, follow the playhead, and jump when chosen", async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: "no-preference" });
+  await page.goto("/");
+  const hero = page.locator('[data-hero="product-video"]');
+  const steps = hero.getByRole("list", { name: "Steps in the walkthrough" }).getByRole("button");
+  await expect(steps).toHaveCount(5);
+  await expect(steps.first()).toHaveAttribute("aria-current", "step");
+  await hero.getByRole("button", { name: "Watch step 5: Your plan moves" }).click();
+  const video = hero.locator("video:visible");
+  await expect.poll(() => video.evaluate((element: HTMLVideoElement) => element.currentTime)).toBeGreaterThan(45);
+  await expect(steps.nth(4)).toHaveAttribute("aria-current", "step");
 });

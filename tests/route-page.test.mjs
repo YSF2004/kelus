@@ -10,7 +10,7 @@ test("homepage presents the real product video followed by the illustrated revis
   assert.doesNotMatch(page, /StartHereJourney/);
   assert.match(page, /HomeAfterHero/);
   assert.match(hero, /is-folio|is-poster/);
-  assert.match(hero, /Revise your lessons/);
+  assert.match(hero, /Questions from your notes/);
   assert.doesNotMatch(hero, /Try sample \(~1 min\)/);
   assert.doesNotMatch(hero, /today\?sample=1/);
   assert.match(hero, /Add your notes/);

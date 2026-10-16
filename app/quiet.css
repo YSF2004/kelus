@@ -403,7 +403,7 @@ html body :is(.legal-page, .pricing-page, [data-marketing="editorial"]) ::placeh
 /* ── Literata + Atkinson Hyperlegible Next ───────────────────────────────────────────────────────────
    Literata is wider than the old display face: headings get room and lighter tracking. Atkinson's zero is slashed
    for legibility, right in running text; big figures (prices, results, percentages) are set in Literata instead. */
-html body [data-hero="product-video"] h1 { max-width: 20ch !important; letter-spacing: -0.025em !important; }
+html body [data-hero="product-video"] h1 { max-width: 26ch !important; letter-spacing: -0.025em !important; }
 html body [data-marketing="editorial"] :is(h1, h2),
 html body :is(.legal-panel, .pricing-page) :is(h1, h2) { letter-spacing: -0.02em !important; }
 html body .pricing-page.is-monthly-pricing .pricing-price {

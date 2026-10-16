@@ -7,6 +7,15 @@ import styles from "./ProductVideoHero.module.css";
 // The recording opens on the drop: a student drags their chapter in, so the hero starts at the very beginning.
 const WALKTHROUGH_START_SECONDS = 0;
 
+// The five steps of the recording, from its captions (scripts/record-product-hero.mjs prints the times). Each one is a place to jump to, and fills while it plays.
+const CHAPTERS = [
+  { at: 0, label: "Drop your notes", short: "Drop" },
+  { at: 9.3, label: "Read it first", short: "Read" },
+  { at: 16, label: "Answer from a line", short: "Answer" },
+  { at: 30, label: "Explain, checked", short: "Explain" },
+  { at: 45.5, label: "Your plan moves", short: "Plan" },
+] as const;
+
 /** Actual browser recordings of a fresh PDF upload and revision session. */
 export function HeroProductVideo() {
   const desktop = useRef<HTMLVideoElement>(null);
@@ -16,6 +25,8 @@ export function HeroProductVideo() {
   const [playback, setPlayback] = useState<"playing" | "paused" | "ended">("paused");
   const [decodedFrame, setDecodedFrame] = useState({ desktop: false, mobile: false });
   const reduceMotion = useReducedMotion();
+  const fills = useRef<(HTMLSpanElement | null)[]>([]);
+  const [chapter, setChapter] = useState(0);
 
   const visibleVideo = () => [desktop.current, mobile.current].find(
     (video) => video && getComputedStyle(video).display !== "none",
@@ -35,6 +46,38 @@ export function HeroProductVideo() {
     if (video.ended) video.currentTime = WALKTHROUGH_START_SECONDS;
     void video.play().catch(() => setPlayback("paused"));
   };
+
+  const jumpTo = (index: number) => {
+    const video = visibleVideo();
+    if (!video) return;
+    video.currentTime = CHAPTERS[index].at + 0.05;
+    pausedByUser.current = false;
+    manuallyPlaying.current = true;
+    void video.play().catch(() => setPlayback("paused"));
+  };
+
+  // Chapter fills follow the playhead frame by frame (timeupdate alone steps four times a second).
+  useEffect(() => {
+    let frame = 0;
+    const tick = () => {
+      const video = [desktop.current, mobile.current].find((item) => item && getComputedStyle(item).display !== "none");
+      if (video) {
+        const time = video.currentTime;
+        const end = Number.isFinite(video.duration) && video.duration > 0 ? video.duration : 51;
+        CHAPTERS.forEach((item, index) => {
+          const next = CHAPTERS[index + 1]?.at ?? end;
+          const share = Math.min(1, Math.max(0, (time - item.at) / (next - item.at)));
+          const fill = fills.current[index];
+          if (fill) fill.style.transform = `scaleX(${share})`;
+        });
+        const current = CHAPTERS.reduce((found, item, index) => (time >= item.at ? index : found), 0);
+        setChapter((previous) => (previous === current ? previous : current));
+      }
+      frame = requestAnimationFrame(tick);
+    };
+    frame = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(frame);
+  }, []);
 
   useEffect(() => {
     const videos = [desktop.current, mobile.current].filter((video): video is HTMLVideoElement => Boolean(video));
@@ -79,6 +122,7 @@ export function HeroProductVideo() {
   }, [reduceMotion]);
 
   return (
+    <>
     <figure className={styles.videoFigure} aria-label="Kelus product walkthrough: upload a lecture PDF, answer a recall question, and see the study plan respond">
       <div className={styles.videoFrame}>
         <button
@@ -132,5 +176,26 @@ export function HeroProductVideo() {
         </button>
       </div>
     </figure>
+    <ol className={styles.chapters} aria-label="Steps in the walkthrough">
+      {CHAPTERS.map((item, index) => (
+        <li key={item.at}>
+          <button
+            type="button"
+            className={styles.chapter}
+            aria-current={index === chapter ? "step" : undefined}
+            aria-label={`Watch step ${index + 1}: ${item.label}`}
+            onClick={() => jumpTo(index)}
+          >
+            <span className={styles.chapterTrack} aria-hidden="true">
+              <span ref={(node) => { fills.current[index] = node; }} className={styles.chapterFill} />
+            </span>
+            <span className={styles.chapterLabel} aria-hidden="true">
+              <b>{index + 1}</b> <span className={styles.chapterLong}>{item.label}</span><span className={styles.chapterShort}>{item.short}</span>
+            </span>
+          </button>
+        </li>
+      ))}
+    </ol>
+    </>
   );
 }

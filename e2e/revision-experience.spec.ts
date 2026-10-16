@@ -16,7 +16,7 @@ test("hero content is visible before hydration", async ({ browser }) => {
   const page = await context.newPage();
   await page.goto("/");
   await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
-  expect(await page.locator("h1").textContent()).toBe("Revise your lessons. Walk into the exam ready.");
+  expect(await page.locator("h1").textContent()).toBe("Questions from your notes. Checked against the page.");
   await expect(page.locator("[class*=notion]")).toHaveCount(0);
   await expect(page.locator(".site-header")).toHaveCSS("box-shadow", "none");
   await expect(page.locator(".booklet-board")).toHaveCount(0);
@@ -26,7 +26,7 @@ test("hero content is visible before hydration", async ({ browser }) => {
 test("hero and revision steps work on a narrow screen", async ({ page }) => {
   await page.setViewportSize({ width: 375, height: 812 });
   await page.goto("/");
-  await expect(page.getByRole("heading", { level: 1 })).toContainText("Revise your lessons");
+  await expect(page.getByRole("heading", { level: 1 })).toContainText("Questions from your notes");
 
   await expect(page.locator(".booklet-board")).toHaveCount(0);
   await expect(page.getByRole("heading", { name: "One line from your notes, followed all the way." })).toBeVisible();

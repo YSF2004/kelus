@@ -38,3 +38,11 @@ test("direction items: the quote is the real sentence, the options are the real 
     assert.ok(!item.prompt.includes(item.modelAnswer + " ") || item.prompt.includes("_____"));
   }
 });
+
+test("a figure caption is asked as its fact, without the figure number", async () => {
+  const { units } = await import("../domain/content-engine.ts");
+  const lines = units("Figure 7.1 Oxygen diffuses from the alveolus into the blood because its concentration is higher in the air.\nTable 2: Enzymes are proteins that speed up reactions in the cell.");
+  assert.ok(lines.some((line) => line.startsWith("Oxygen diffuses from the alveolus")));
+  assert.ok(lines.some((line) => line.startsWith("Enzymes are proteins")));
+  assert.ok(!lines.some((line) => /^(Figure|Table)\b/.test(line)));
+});
