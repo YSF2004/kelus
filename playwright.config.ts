@@ -14,6 +14,8 @@ export default defineConfig({
   webServer: {
     command: "npm run dev -- --hostname 127.0.0.1 --port 3100",
     url: "http://127.0.0.1:3100",
+    // Exercise event capture in browser tests without using the production analytics property.
+    env: { NEXT_PUBLIC_GA_MEASUREMENT_ID: "G-TEST" },
     reuseExistingServer: !process.env.CI,
     timeout: 120_000,
   },

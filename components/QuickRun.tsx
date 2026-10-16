@@ -39,8 +39,9 @@ const GRADES: Array<{ value: SelfGrade; label: string; hint: string }> = [
  * One topic as a short run: instant checks that quote the page, then one explanation in your own words.
  * It is the whole loop for a topic: no separate read, use and mark screens.
  */
-export function QuickRun({ run, onRevealSource, onFinish, onChecksDone, context, readFirst = false, known, recalled }: {
+export function QuickRun({ run, onRevealSource, onFinish, onChecksDone, context, readFirst = false, known, recalled, courseType = "real" }: {
   run: Run;
+  courseType?: "real" | "sample";
   /** A topic met for the first time: its lines are read, one at a time, before anything is asked. */
   readFirst?: boolean;
   /** The lines already recalled, and how many of the course's lines that is: the counter in the top bar. */
@@ -154,7 +155,7 @@ export function QuickRun({ run, onRevealSource, onFinish, onChecksDone, context,
   function recordFirstResponse(format: "quick_check" | "own_words") {
     if (firstResponseTracked.current) return;
     firstResponseTracked.current = true;
-    trackEvent({ name: "study_response_recorded", format, read_first: readFirst });
+    trackEvent({ name: "study_response_recorded", format, read_first: readFirst, course_type: courseType });
   }
 
   function finish(self: SelfGrade, at: number) {

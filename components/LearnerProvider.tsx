@@ -1,6 +1,7 @@
 "use client";
 
-import { createContext, useContext, useEffect, useMemo, useRef, useState, useSyncExternalStore, type ReactNode } from "react";
+import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, useSyncExternalStore, type ReactNode } from "react";
+import { usePathname } from "next/navigation";
 import { useAuth } from "@/components/AuthProvider";
 import { toast } from "sonner";
 import { clearUndo, isTypingTarget, offerUndo, takeUndo } from "@/lib/undo";
@@ -43,7 +44,10 @@ import type { SetupInput } from "@/lib/setup";
 import { readLearnerState, writeLearnerState } from "@/lib/learner-sync";
 import { reportPilotMilestones } from "@/lib/pilot-report";
 import { claimGuestMaterials, getMaterialOwner, setMaterialOwner, subscribeMaterials } from "@/lib/material-store";
-import { flushMaterialSyncQueue, initializeMaterialSync, writeRemoteMaterialState } from "@/lib/material-sync";
+import { flushMaterialSyncQueue, hasPendingMaterialSync, initializeMaterialSync, writeRemoteMaterialState } from "@/lib/material-sync";
+
+/** A study session is open: replacing the route under it would lose the answer being written. */
+const inSession = () => typeof window !== "undefined" && window.location.pathname.startsWith("/session");
 
 type Store = {
   state: DemoState;
@@ -89,8 +93,41 @@ export function LearnerProvider({ children }: { children: ReactNode }) {
   const scopeAligned = getDemoStateOwner() === activeUserId && materialOwner === activeUserId;
   const syncedUser = useRef<string | null>(null);
   const lastWritten = useRef("");
-  const [syncMessage, setSyncMessage] = useState<string | null>(null);
+  const writeInFlight = useRef<string | null>(null);
+  const [routeSyncMessage, setRouteSyncMessage] = useState<string | null>(null);
+  const [materialSyncMessage, setMaterialSyncMessage] = useState<string | null>(null);
   const [materialClaim, setMaterialClaim] = useState<{ userId: string; claimGuest: boolean } | null>(null);
+  // A sign-in whose cloud read failed is read again later, never by reloading the page under a student mid-question.
+  const [readAttempt, setReadAttempt] = useState(0);
+  const readFailed = useRef(false);
+  const pathname = usePathname();
+
+  const flushLearnerState = useCallback(async (userId: string) => {
+    if (writeInFlight.current === userId || syncedUser.current !== userId) return;
+    const save = async () => {
+      if (syncedUser.current !== userId) return;
+      const claimed = stateForAuthenticatedUser(getDemoSnapshot(), userId);
+      const serialized = JSON.stringify(claimed);
+      if (serialized === lastWritten.current) {
+        setRouteSyncMessage(null);
+        return;
+      }
+      writeInFlight.current = userId;
+      setRouteSyncMessage("Syncing your learning route…");
+      try {
+        await writeLearnerState(userId, claimed);
+        if (syncedUser.current !== userId) return;
+        lastWritten.current = serialized;
+        if (JSON.stringify(stateForAuthenticatedUser(getDemoSnapshot(), userId)) !== serialized) await save();
+        else setRouteSyncMessage(null);
+      } catch {
+        if (syncedUser.current === userId) setRouteSyncMessage("Saved on this device. Cloud sync will retry when you reconnect or return.");
+      } finally {
+        if (writeInFlight.current === userId) writeInFlight.current = null;
+      }
+    };
+    await save();
+  }, []);
 
   // ⌘Z / Ctrl+Z outside a text field puts back the last removal, the same as the toast's Undo.
   useEffect(() => {
@@ -114,11 +151,14 @@ export function LearnerProvider({ children }: { children: ReactNode }) {
     if (!userId) {
       syncedUser.current = null;
       lastWritten.current = "";
+      writeInFlight.current = null;
       queueMicrotask(() => { if (active) setMaterialClaim(null); });
       return () => { active = false; };
     }
     syncedUser.current = null;
-    queueMicrotask(() => { if (active) setSyncMessage("Syncing your learning route…"); });
+    lastWritten.current = "";
+    readFailed.current = false;
+    queueMicrotask(() => { if (active) setRouteSyncMessage("Syncing your learning route…"); });
     readLearnerState(userId).then((remote) => {
       if (!active) return;
       if (remote) {
@@ -136,38 +176,49 @@ export function LearnerProvider({ children }: { children: ReactNode }) {
         const local = chooseLocalStateForSignIn(readStoredDemoState(userId), guestBeforeSwitch, getDemoSnapshot());
         const claimed = stateForAuthenticatedUser(local.state, userId);
         replaceDemoState(claimed);
-        lastWritten.current = JSON.stringify(claimed);
         if (local.claimGuest) clearStoredDemoState(null);
         setMaterialClaim({ userId, claimGuest: local.claimGuest });
-        void writeLearnerState(userId, claimed).catch(() => setSyncMessage("Saved on this device. Cloud sync will retry."));
       }
       syncedUser.current = userId;
-      setSyncMessage(null);
+      void flushLearnerState(userId);
     }).catch(() => {
       if (!active) return;
-      syncedUser.current = userId;
+      readFailed.current = true;
       setMaterialClaim({ userId, claimGuest: false });
-      setSyncMessage("Saved on this device. Cloud sync is unavailable.");
+      setRouteSyncMessage("Saved on this device. Cloud sync is unavailable; reconnect to retry.");
     });
     return () => { active = false; };
     // Load once when the authenticated account changes; live state writes are
     // handled by the separate debounced effect below.
-  }, [activeUserId]);
+  }, [activeUserId, flushLearnerState, readAttempt]);
 
   useEffect(() => {
     const userId = activeUserId;
     if (!userId || syncedUser.current !== userId) return;
-    const claimed = stateForAuthenticatedUser(state, userId);
-    const serialized = JSON.stringify(claimed);
-    if (serialized === lastWritten.current) return;
-    const timeout = window.setTimeout(() => {
-      writeLearnerState(userId, claimed).then(() => {
-        lastWritten.current = serialized;
-        setSyncMessage(null);
-      }).catch(() => setSyncMessage("Saved on this device. Cloud sync will retry."));
-    }, 500);
+    const timeout = window.setTimeout(() => { void flushLearnerState(userId); }, 500);
     return () => window.clearTimeout(timeout);
-  }, [activeUserId, state]);
+  }, [activeUserId, state, flushLearnerState]);
+
+  useEffect(() => {
+    const userId = activeUserId;
+    if (!userId) return;
+    const retry = (event: Event) => {
+      if (document.visibilityState === "hidden") return;
+      if (syncedUser.current === userId) void flushLearnerState(userId);
+      else if (readFailed.current && event.type === "online" && !inSession()) setReadAttempt((count) => count + 1);
+    };
+    window.addEventListener("online", retry);
+    document.addEventListener("visibilitychange", retry);
+    return () => {
+      window.removeEventListener("online", retry);
+      document.removeEventListener("visibilitychange", retry);
+    };
+  }, [activeUserId, flushLearnerState]);
+
+  // Online again but mid-session: the read waits until the student leaves the session, then runs once.
+  useEffect(() => {
+    if (activeUserId && readFailed.current && syncedUser.current !== activeUserId && navigator.onLine && !inSession()) setReadAttempt((count) => count + 1);
+  }, [activeUserId, pathname]);
 
   useEffect(() => {
     const userId = activeUserId;
@@ -186,16 +237,21 @@ export function LearnerProvider({ children }: { children: ReactNode }) {
         if (materialClaim.claimGuest) await claimGuestMaterials(userId);
         else setMaterialOwner(userId);
         if (!active) return;
-        await initializeMaterialSync(userId);
-        if (active) initialized = true;
+        const synced = await initializeMaterialSync(userId);
+        if (active) {
+          // A deleted source cannot leave its old questions and route behind on another device.
+          for (const materialId of synced.deletedSourceIds) removeMaterialLearning(getDemoSnapshot(), materialId);
+          initialized = true;
+          setMaterialSyncMessage(hasPendingMaterialSync(userId) ? "Materials are saved here. Cloud material sync will retry when you reconnect." : null);
+        }
       } catch {
-        if (active) setSyncMessage("Your route is saved. Material sync needs the Supabase materials migration.");
+        if (active) setMaterialSyncMessage("Materials are saved here. Cloud material sync needs attention; reconnect to retry.");
       }
     })();
 
     const retryPending = () => {
-      void flushMaterialSyncQueue(userId).then((completed) => {
-        if (active && completed > 0) setSyncMessage(null);
+      void flushMaterialSyncQueue(userId).then(() => {
+        if (active) setMaterialSyncMessage(hasPendingMaterialSync(userId) ? "Materials are saved here. Cloud material sync will retry when you reconnect." : null);
       });
     };
     window.addEventListener("online", retryPending);
@@ -204,8 +260,10 @@ export function LearnerProvider({ children }: { children: ReactNode }) {
       if (!initialized) return;
       if (timeout) window.clearTimeout(timeout);
       timeout = window.setTimeout(() => {
-        writeRemoteMaterialState(userId).catch(() => {
-          if (active) setSyncMessage("Saved on this device. Material sync will retry after the next change.");
+        writeRemoteMaterialState(userId).then(() => {
+          if (active) setMaterialSyncMessage(null);
+        }).catch(() => {
+          if (active) setMaterialSyncMessage("Materials are saved here. Cloud material sync will retry when you reconnect.");
         });
       }, 500);
     });
@@ -280,7 +338,7 @@ export function LearnerProvider({ children }: { children: ReactNode }) {
       if (source === "user" && before && before !== name.trim()) offerUndo(`Renamed back to “${before}”`, () => renameCourse(courseId, before, "user"), 30_000);
     },
   }), [state]);
-  return <StoreContext.Provider value={store}>{auth.user && syncMessage ? <p className="learner-sync-status" role="status">{syncMessage}</p> : null}{scopeAligned ? children : <p className="sr-only" role="status">Loading your course…</p>}</StoreContext.Provider>;
+  return <StoreContext.Provider value={store}>{auth.user && (routeSyncMessage || materialSyncMessage) ? <p className="learner-sync-status" role="status">{routeSyncMessage ?? materialSyncMessage}</p> : null}{scopeAligned ? children : <p className="sr-only" role="status">Loading your course…</p>}</StoreContext.Provider>;
 }
 
 export function useLearner() {

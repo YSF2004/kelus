@@ -7,18 +7,18 @@ export type KelusAnalyticsEvent =
   | { name: "waitlist_joined"; source: string }
   | { name: "question_submitted"; source: string; delivery?: "remote" | "local" | "needs_activation" }
   | { name: "material_confirmed"; concept_count: number }
-  | { name: "material_upload_started"; role: string }
-  | { name: "material_upload_completed"; role: string }
-  | { name: "material_upload_failed"; role: string }
+  | { name: "material_upload_started"; role: string; course_type: "real" }
+  | { name: "material_upload_completed"; role: string; course_type: "real" }
+  | { name: "material_upload_failed"; role: string; course_type: "real" }
   | { name: "concept_review_started"; concept_count: number }
   | { name: "concept_review_updated"; action: "selected" | "removed" }
   | { name: "diagnosis_completed"; retrieval_count: number }
-  | { name: "first_route_ready"; elapsed_ms: number; concept_count: number }
-  | { name: "session_started"; session_number?: number; sample?: boolean }
-  | { name: "study_response_recorded"; format: "quick_check" | "own_words"; read_first: boolean }
+  | { name: "first_route_ready"; elapsed_ms: number; concept_count: number; course_type: "real" | "sample" }
+  | { name: "session_started"; session_number?: number; sample?: boolean; course_type: "real" | "sample" }
+  | { name: "study_response_recorded"; format: "quick_check" | "own_words"; read_first: boolean; course_type: "real" | "sample" }
   | { name: "session_resumed" }
   | { name: "session_abandoned" }
-  | { name: "session_completed"; concept_count: number; planned_minutes: number; session_number?: number; days_since_first?: number; sample?: boolean }
+  | { name: "session_completed"; concept_count: number; planned_minutes: number; session_number?: number; days_since_first?: number; sample?: boolean; course_type: "real" | "sample" }
   | { name: "session_usefulness_rated"; helpful: boolean; session_number?: number }
   | { name: "learner_returned"; day: number; days_since_last: number; session_count: number }
   | { name: "invite_shared"; method: "share" | "copy"; session_number?: number }
@@ -41,8 +41,28 @@ export function analyticsEnabled() {
   return Boolean(GA_MEASUREMENT_ID) && typeof window !== "undefined";
 }
 
+const pendingEvents: KelusAnalyticsEvent[] = [];
+let waitingForBootstrap = false;
+
+function flushPendingEvents() {
+  if (typeof window.gtag !== "function") return;
+  for (const pending of pendingEvents.splice(0)) {
+    const { name, ...parameters } = pending;
+    window.gtag("event", name, parameters);
+  }
+}
+
 export function trackEvent(event: KelusAnalyticsEvent) {
-  if (!analyticsEnabled() || typeof window.gtag !== "function") return;
+  if (!analyticsEnabled()) return;
+  if (typeof window.gtag !== "function") {
+    if (pendingEvents.length < 100) pendingEvents.push(event);
+    if (!waitingForBootstrap) {
+      waitingForBootstrap = true;
+      window.addEventListener("kelus-analytics-ready", flushPendingEvents, { once: true });
+    }
+    return;
+  }
+  flushPendingEvents();
   const { name, ...parameters } = event;
   window.gtag("event", name, parameters);
 }
