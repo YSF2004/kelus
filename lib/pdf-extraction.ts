@@ -151,8 +151,13 @@ function lineText(fragments: Fragment[]) {
   let text = "";
   let right = -Infinity;
   for (const part of sorted) {
+    // A spacer item can stretch across a table's gutter; only real text sets where the line has reached.
+    if (!part.text.trim()) continue;
     const gap = part.x - right;
-    text += text && !(gap < part.fontSize * 0.1) ? ` ${part.text}` : part.text;
+    // A wide gutter after a short first cell is a table row ("Température    Au-delà de 40 °C…"): keep the cells
+    // apart as "term: what it says", the way a student would write the row out.
+    const cell = text && gap > part.fontSize * 1.8 && !text.includes(":") && text.trim().split(/\s+/).length <= 5 && /^\p{Lu}/u.test(part.text.trim());
+    text += !text ? part.text : cell ? `: ${part.text}` : gap < part.fontSize * 0.1 ? part.text : ` ${part.text}`;
     right = Math.max(right, part.x + part.width);
   }
   return text.replace(/\s+/g, " ").trim();

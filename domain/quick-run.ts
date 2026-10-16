@@ -1,5 +1,6 @@
 import { buildPractice, splitSentences } from "./content-engine";
 import { isDrillable } from "./practice-check";
+import { inNotesLanguage, noteLanguage } from "./note-language";
 import type { LearningActivity, PracticeItem, RetrievalOutcome } from "./types";
 
 export type SelfGrade = "nailed" | "partly" | "missed";
@@ -19,6 +20,11 @@ export type QuickRun = {
 const norm = (text: string) => text.toLocaleLowerCase().replace(/[^\p{L}\p{N}]+/gu, " ").trim();
 const overlaps = (a: string, b: string) => { const x = norm(a); const y = norm(b); return Boolean(x && y) && (x.includes(y) || y.includes(x)); };
 const hasWord = (text: string, word: string) => new RegExp(`(?:^| )${norm(word)}(?: |$)`).test(norm(text));
+
+/** "Which idea does this describe?": its answer is the topic's name, so the screen must not show that name while it is asked. */
+export function asksForTheTopic(item: PracticeItem) {
+  return /^(?:Which idea|Quelle notion)\b/.test(item.prompt);
+}
 
 /** The words around a gap: "In a _____ solution" twice is the same question twice, whatever the answer. */
 function gapFrame(item: PracticeItem) {
@@ -92,7 +98,7 @@ export function buildQuickRun(input: { activity: LearningActivity; name: string;
   // "Which idea does this describe?" is answered by the topic name at the top of the screen, so it is a last resort.
   // A fill-in gap on a line shown seconds ago tests recognition, not recall. Save it for a return visit.
   const anyDrillable = own.filter((item) => isDrillable(item) && (!input.readFirst || item.kind !== "cloze"));
-  const drillable = anyDrillable.filter((item) => !/^Which idea\b/.test(item.prompt));
+  const drillable = anyDrillable.filter((item) => !asksForTheTopic(item));
   // The explanation at the end asks for this sentence, so a check that shows it first would spoil it.
   const fresh = drillable.filter((item) => !overlaps(item.sourceQuote, explainAnswer));
   // A very short page may have nothing else to ask; then a check on the main sentence beats no quick run at all.
@@ -108,7 +114,7 @@ export function buildQuickRun(input: { activity: LearningActivity; name: string;
   const extraFact = sentences.find((sentence) => sentence.length >= 40 && !used.some((quote) => overlaps(quote, sentence)));
   return {
     checks: usable,
-    explainPrompt: round % 2 === 1 ? `Close the page. What would you tell a friend about ${name}?` : activity.retrieve.prompt,
+    explainPrompt: round % 2 === 1 ? inNotesLanguage(`Close the page. What would you tell a friend about ${name}?`, noteLanguage(sentences.join(" ")), name) : activity.retrieve.prompt,
     explainAnswer,
     explainQuote: explainAnswer,
     sentences,

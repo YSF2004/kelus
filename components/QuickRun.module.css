@@ -589,7 +589,7 @@
 .grades button:active { transform: scale(0.985); }
 
 /* The topic caption sits after the bar; the streak keeps the far end. */
-.top > :global(.study-topic-kicker) { margin: 0 auto 0 0 !important; }
+.top :global(.study-topic-kicker) { margin: 0 auto 0 0 !important; }
 
 /* Flag this question: quiet under the feedback, never competing with Next. */
 .flag { margin-top: 2px; font-size: var(--text-body-sm); color: var(--color-slate); }
@@ -620,3 +620,8 @@
 .hideLine:hover { background: var(--color-mist); color: var(--color-midnight-ink); }
 .hideLine:focus-visible { outline: 2px solid var(--color-kelus); outline-offset: -2px; }
 @media (hover: none) { .hideLine { opacity: 0.6; } }
+
+/* The caption beside the progress bar sits in the header's flow as if unwrapped. While a question's answer is the
+   topic's name, the name steps out and only "Topic 2 of 4" stays. */
+.context { display: contents; }
+.context[data-topic-hidden] b { display: none; }

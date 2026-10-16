@@ -35,6 +35,10 @@ export function lastEvidenceLine(concept: Concept, evidence: RouteEvidence): str
   const when = daysAgo(last.createdAt, evidence.nowIso);
   const head = when === "today" ? "Earlier today" : `Last time, ${when}`;
   const tail = last.outcome === "success" ? ", so this checks it stays" : "";
+  // A checkpoint is named as one: "you knew it" reads oddly for a mixed review you just passed.
+  if (last.promptId?.startsWith("checkpoint-")) {
+    return `${head}, ${last.outcome === "success" ? "every line came back in a checkpoint" : last.outcome === "partial" ? "some lines came back in a checkpoint" : "its lines didn’t come back in a checkpoint"}${tail}.`;
+  }
   const record = answers.length > 1 ? ` (${answers.filter((event) => event.outcome === "success").length} of ${answers.length} tries went well)` : "";
   return `${head}, ${LAST_RESULT[last.outcome]}${record}${tail}.`;
 }

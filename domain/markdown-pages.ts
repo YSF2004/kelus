@@ -1,3 +1,4 @@
+import { noteLanguage } from "./note-language";
 import type { ExtractedMaterialPage } from "./types";
 
 /**
@@ -154,12 +155,15 @@ export function looksLikeMarkdownHeadings(markdown: string) {
  * Those become "# Title" so the usual import finds the topics. With no such lines the whole paste is one topic,
  * named from its first words, so nobody is sent back to add "#" by hand.
  */
-function titleCase(value: string) {
-  return value.replace(/[A-Za-z][A-Za-z'/&-]*/g, (word, offset) => (offset > 0 && /^(?:a|an|and|of|the|to|in|on|for|or|vs)$/i.test(word) ? word.toLowerCase() : word[0].toUpperCase() + word.slice(1)));
+function titleCase(value: string, french = false) {
+  // French headings are not title-cased: "La photosynthèse" stays as written, never "La Photosynthèse".
+  if (french) return value.replace(/^\p{Ll}/u, (letter) => letter.toLocaleUpperCase());
+  return value.replace(/\p{L}[\p{L}'’/&-]*/gu, (word, offset) => (offset > 0 && /^(?:a|an|and|of|the|to|in|on|for|or|vs)$/i.test(word) ? word.toLowerCase() : word[0].toUpperCase() + word.slice(1)));
 }
 
 export function structurePastedText(raw: string) {
   const text = raw.replace(/\r\n?/g, "\n").trim();
+  const french = noteLanguage(text) === "fr";
   if (looksLikeMarkdownHeadings(text)) return text;
   const lines = text.split("\n");
   const isTitle = (line: string, next: string | undefined) => {
@@ -169,12 +173,12 @@ export function structurePastedText(raw: string) {
   let titles = 0;
   const out = lines.map((line, index) => {
     const alone = index === 0 || !lines[index - 1].trim();
-    if (alone && isTitle(line, lines[index + 1]) && !/^[•\-*\d]/.test(line.trim())) { titles += 1; return `# ${titleCase(line.trim().replace(/:$/, ""))}`; }
+    if (alone && isTitle(line, lines[index + 1]) && !/^[•\-*\d]/.test(line.trim())) { titles += 1; return `# ${titleCase(line.trim().replace(/:$/, ""), french)}`; }
     return line;
   });
   if (titles > 0) return out.join("\n");
   const first = text.replace(/^[•\-*\s]+/, "").split(/\s+/).slice(0, 4).join(" ").replace(/[^\p{L}\p{N}]+$/u, "");
-  return `# ${titleCase(first) || "My Notes"}\n${text}`;
+  return `# ${titleCase(first, french) || "My Notes"}\n${text}`;
 }
 
 /**

@@ -115,3 +115,10 @@ test("a short title line standing alone at the top names the course; a topic wit
   assert.equal(pastedTitle("Water moves across a membrane from dilute to concentrated solutions.\n\nMore text."), null);
   assert.equal(pastedTitle(""), null);
 });
+
+test("French headings keep their own casing, and accents never split a word", () => {
+  const french = structurePastedText("La photosynthèse\nLa photosynthèse est la réaction par laquelle les plantes fabriquent du glucose.\n\nLes enzymes\nLes enzymes sont des protéines qui accélèrent les réactions.");
+  assert.match(french, /^# La photosynthèse\n/);
+  assert.match(french, /\n# Les enzymes\n/);
+  assert.match(structurePastedText("café economics\nCafés set prices above marginal cost because each one is a little different."), /^# Café Economics\n/);
+});

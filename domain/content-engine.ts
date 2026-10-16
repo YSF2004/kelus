@@ -1,3 +1,4 @@
+import { hintInNotesLanguage, inNotesLanguage, noteLanguage } from "./note-language";
 import type { PracticeItem } from "./types";
 import { lintQuestion, standsAlone } from "./question-lint";
 import { contrastChoices, effectQuestions, framePairs, notMatching, termFromMeaning, whyChoices } from "./question-types";
@@ -9,6 +10,8 @@ import { contrastChoices, effectQuestions, framePairs, notMatching, termFromMean
 
 const STOP = new Set([
   "about", "above", "after", "again", "also", "among", "because", "before", "being", "between", "both", "could", "does", "each", "from", "have", "into", "more", "most", "much", "only", "other", "over", "same", "should", "some", "such", "than", "that", "their", "them", "then", "there", "these", "they", "this", "those", "through", "under", "until", "very", "when", "where", "which", "while", "with", "within", "would", "will", "than", "unit",
+  // French, so a sheet in French gets its gaps on ideas too, not on its small words.
+  "avec", "dans", "pour", "sans", "sous", "entre", "vers", "chez", "plus", "moins", "très", "aussi", "comme", "après", "avant", "pendant", "quand", "alors", "donc", "mais", "elle", "elles", "leur", "leurs", "cette", "celui", "celle", "ceux", "autre", "autres", "toute", "toutes", "tous", "même", "laquelle", "lequel", "lesquels", "lesquelles", "partir", "utilisant", "étant", "était", "sont", "être", "avoir", "fait", "faire", "peut", "peuvent", "ainsi", "selon", "contre", "depuis", "lorsque", "parce", "puis", "encore", "chaque", "plusieurs", "certains", "certaines",
 ]);
 
 /**
@@ -118,7 +121,7 @@ export function units(text: string) {
 export function termPairs(text: string) {
   const pairs: Array<{ term: string; meaning: string; line: string }> = [];
   for (const line of units(text)) {
-    const match = line.match(/^([A-Z][A-Za-z0-9 /&'’()-]{1,40}?)\s*(?::|\s[-–—]\s)\s*(.{12,})$/);
+    const match = line.match(/^(\p{Lu}[\p{L}\p{N}₀-₉ /&'’()-]{1,40}?)\s*(?::|\s[-–—]\s)\s*(.{12,})$/u);
     if (!match) continue;
     const term = match[1].trim();
     if (term.split(/\s+/).length > 5) continue;
@@ -154,7 +157,7 @@ function hash(value: string) {
 }
 
 function words(sentence: string) {
-  return sentence.match(/[A-Za-z][A-Za-z'-]+/g) ?? [];
+  return sentence.match(/\p{L}[\p{L}'’-]+/gu) ?? [];
 }
 
 function stripEnd(sentence: string) {
@@ -195,7 +198,7 @@ function pickGapWord(sentence: string, name: string, page: string, relaxed = fal
   const counts = new Map<string, number>();
   for (const w of words(page)) counts.set(w.toLocaleLowerCase(), (counts.get(w.toLocaleLowerCase()) ?? 0) + 1);
   // A comma inside a number ("17,000") belongs to it; one after it ("than 1, demand") does not.
-  const tokens = [...sentence.matchAll(/\d+(?:,\d{3})*(?:\.\d+)?|[A-Za-z][A-Za-z0-9'-]*/g)];
+  const tokens = [...sentence.matchAll(/\d+(?:,\d{3})*(?:\.\d+)?|\p{L}[\p{L}\p{N}'’-]*/gu)];
   let best: { word: string; score: number } | null = null;
   tokens.forEach((match, index) => {
     const word = match[0];
@@ -224,8 +227,8 @@ function pickGapWord(sentence: string, name: string, page: string, relaxed = fal
     // A word that appears twice in the sentence would need two blanks, and one inside a hyphenated compound
     // ("competitive" in "non-competitive") cannot be blanked cleanly. Pick a different word instead.
     const escaped = word.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-    if ((sentence.match(new RegExp(`(?<![\\w-])${escaped}(?![\\w-])`, "gi")) ?? []).length !== 1) return;
-    if (new RegExp(`[\\w]-${escaped}(?![\\w])|(?<![\\w])${escaped}-[\\w]`, "i").test(sentence)) return;
+    if ((sentence.match(new RegExp(`(?<![\\p{L}\\p{N}_-])${escaped}(?![\\p{L}\\p{N}_-])`, "giu")) ?? []).length !== 1) return;
+    if (new RegExp(`[\\p{L}\\p{N}_]-${escaped}(?![\\p{L}\\p{N}_])|(?<![\\p{L}\\p{N}_])${escaped}-[\\p{L}\\p{N}_]`, "iu").test(sentence)) return;
     // The comma in "17,000" is part of the number, so the gap is the whole figure.
     if (isNumber && (/^\s*(?:to|-|–|or)\s*\d/.test(after) || /\d\s*(?:to|-|–|or)\s*$/.test(before))) return;
     if (!isNumber && !isAcronym && word.length < (relaxed ? 6 : 5)) return;
@@ -254,7 +257,7 @@ function pickGapWord(sentence: string, name: string, page: string, relaxed = fal
 }
 
 const GLUE_WORDS = new Set(["and", "or", "but", "is", "are", "was", "were", "be", "to", "of", "in", "on", "at", "by", "for", "with", "from", "as", "than", "that", "which"]);
-const GLUE = new Set(["a", "an", "the", "of", "to", "in", "on", "at", "by", "for", "with", "from", "and", "or", "but", "is", "are", "was", "were", "be", "been", "has", "have", "had", "it", "its", "this", "that", "these", "those", "as", "into", "not", "no", "can", "will", "when", "which", "who", "than", "so", "if", "their", "they", "each", "does", "do", "because", "while", "where", "how", "may", "must", "should"]);
+const GLUE = new Set(["a", "an", "the", "of", "to", "in", "on", "at", "by", "for", "with", "from", "and", "or", "but", "is", "are", "was", "were", "be", "been", "has", "have", "had", "it", "its", "this", "that", "these", "those", "as", "into", "not", "no", "can", "will", "when", "which", "who", "than", "so", "if", "their", "they", "each", "does", "do", "because", "while", "where", "how", "may", "must", "should", "le", "la", "les", "un", "une", "des", "du", "de", "et", "ou", "mais", "est", "sont", "était", "être", "par", "pour", "dans", "sur", "avec", "sans", "qui", "que", "dont", "en", "au", "aux", "se", "ne", "pas"]);
 
 /**
  * A line a student can fill in: it starts like a sentence and reads like one, with the small words that join a
@@ -279,10 +282,10 @@ export function readsAsSentence(sentence: string) {
  */
 function maskName(sentence: string, name: string) {
   const escaped = name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-  const lead = new RegExp(`^(?:the\\s+)?${escaped}(?![A-Za-z])`, "i");
+  const lead = new RegExp(`^(?:the\\s+)?${escaped}(?![\\p{L}])`, "iu");
   if (!lead.test(sentence)) return null;
   const rest = sentence.replace(lead, "");
-  if (new RegExp(`(?<![A-Za-z])${escaped}(?![A-Za-z])`, "i").test(rest)) return null;
+  if (new RegExp(`(?<![\\p{L}])${escaped}(?![\\p{L}])`, "iu").test(rest)) return null;
   // A plural subject ("Market structures differ...") reads "These ideas", not "This idea differ".
   const plural = /^\s*(?:are|were|have|do|differ|vary|include|share|use|take|make|need|require|form|become|depend|determine)\b/i.test(rest);
   return `${plural ? "These ideas" : "This idea"}${rest}`;
@@ -304,11 +307,13 @@ export function buildPractice(input: {
   const readable = allLines.filter(readsAsSentence);
   const sentences = readable.length ? readable : allLines;
   const items: PracticeItem[] = [];
+  const language = noteLanguage(excerpt);
   // A question with a visible defect is worse than none: the lint decides, not the generator's optimism.
   const add = (item: Omit<PracticeItem, "id" | "origin">) => {
     const candidate: PracticeItem = { level: "recall", ...item, id: `practice-${conceptId}-${items.length + 1}`, origin: "offline" };
     if (lintQuestion(candidate).length) return;
-    items.push(candidate);
+    // Checked in English, asked in the notes' own language.
+    items.push(language === "en" ? candidate : { ...candidate, prompt: inNotesLanguage(candidate.prompt, language, name), hint: hintInNotesLanguage(candidate.hint, language) });
   };
   const definition = sentences.find((s) => s.toLocaleLowerCase().includes(name.toLocaleLowerCase())) ?? sentences[0];
 
@@ -390,7 +395,7 @@ export function buildPractice(input: {
     usedGaps.add(gap.toLocaleLowerCase());
     gapSentences.add(sentence);
     // Every occurrence: a figure or term that appears twice would otherwise give the answer away.
-    const blank = (value: string) => value.replace(new RegExp(`(?<![\\w-])${gap.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}(?![\\w-])`, "g"), "_____").replace(/\b([Aa])n _____/g, "$1/an _____");
+    const blank = (value: string) => value.replace(new RegExp(`(?<![\\p{L}\\p{N}_-])${gap.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}(?![\\p{L}\\p{N}_-])`, "gu"), "_____").replace(/\b([Aa])n _____/g, "$1/an _____");
     const masked = pair && sentence.includes(pair.meaning) ? sentence.replace(pair.meaning, blank(pair.meaning)) : blank(sentence);
     add({
       kind: "cloze",
@@ -457,7 +462,9 @@ export function buildPractice(input: {
   const nameWords = name.toLocaleLowerCase().split(/[^\p{L}]+/u).filter((word) => word.length >= 5 && !/^(?:introduction|overview|basics|model|models)$/.test(word));
   const namesTopic = (fact: string) => nameWords.some((word) => new RegExp(`\\b${word.slice(0, Math.max(5, word.length - 2))}`, "i").test(fact));
   const foreign = (input.siblingFacts ?? []).filter((fact) => fact.length >= 25 && fact.length <= 160 && !excerpt.includes(fact) && !namesTopic(fact) && standsAlone(fact));
-  const statements = sentences.filter((sentence) => sentence.length >= 25 && sentence.length <= 160 && standsAlone(sentence));
+  // And the right one must not name the topic either: when it is the only option that says "cross-price elasticity"
+  // under a question about cross-price elasticity, the question answers itself.
+  const statements = sentences.filter((sentence) => sentence.length >= 25 && sentence.length <= 160 && standsAlone(sentence) && !namesTopic(sentence));
   if (foreign.length >= 3) {
     const start = hash(conceptId) % Math.max(1, statements.length);
     for (let k = 0; k < Math.min(2, statements.length); k += 1) {

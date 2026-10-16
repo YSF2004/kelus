@@ -1,3 +1,4 @@
+import { frenchRecallQuestion, inNotesLanguage, noteLanguage } from "./note-language";
 import { buildPractice, teachingFacts, units } from "./content-engine";
 import { standsAlone } from "./question-lint";
 import type {
@@ -493,6 +494,12 @@ function scoreDifficulty(excerpt: string) {
   return clamp(Number(score.toFixed(3)), 0.3, 0.8);
 }
 
+/** The "Use" step in French: its own translation when there is one, else a plain French version of the same ask. */
+function frenchApply(prompt: string, name: string, claim: string) {
+  const translated = inNotesLanguage(prompt, "fr", name);
+  return translated !== prompt ? translated : `Applique ce que disent tes notes sur « ${name} » à un exemple nouveau, qui ne vient pas de la page : “${claim}”`;
+}
+
 function buildActivity(concept: Concept, proposal: ProposedConcept, siblingNames: string[] = [], siblingFacts: string[] = []): LearningActivity {
   const claim = centralClaim(concept.name, proposal.sourceExcerpt);
   const practice = buildPractice({ conceptId: concept.id, name: concept.name, excerpt: proposal.sourceExcerpt, locator: proposal.locator, siblingNames, siblingFacts });
@@ -509,6 +516,9 @@ function buildActivity(concept: Concept, proposal: ProposedConcept, siblingNames
       : undefined);
   const language = activityLanguage(subjectModeFor(concept.name, proposal.sourceExcerpt), concept.name, claim);
   const application = sourceBackedApplication(concept.name, claim, proposal.locator);
+  // Notes in French are asked about in French: the explanation and the "Use" step too, not only the checks.
+  const french = noteLanguage(proposal.sourceExcerpt) === "fr";
+  const applyPrompt = applyItem?.prompt ?? application?.prompt ?? `${language.applyPrompt} Use ${proposal.locator}: “${claim}” Do not claim a specific outcome the page does not establish.`;
   return {
     id: `activity-${concept.id}`,
     conceptId: concept.id,
@@ -520,14 +530,14 @@ function buildActivity(concept: Concept, proposal: ProposedConcept, siblingNames
     teach: { facts: teachingFacts(concept.name, proposal.sourceExcerpt), pageText: proposal.sourceExcerpt },
     practice,
     retrieve: {
-      prompt: recallQuestion(concept.name, claim, language.retrievePrompt),
+      prompt: french ? frenchRecallQuestion(concept.name, claim) : recallQuestion(concept.name, claim, language.retrievePrompt),
       hint: `Return to ${proposal.locator}. Start from the relationship or definition, not a list of facts.`,
       explanation: claim,
       example: `Restate the source claim about ${concept.name} in one sentence, then add one detail from ${proposal.locator}.`,
       modelAnswer: claim,
     },
     apply: {
-      prompt: applyItem?.prompt ?? application?.prompt ?? `${language.applyPrompt} Use ${proposal.locator}: “${claim}” Do not claim a specific outcome the page does not establish.`,
+      prompt: french ? frenchApply(applyPrompt, concept.name, claim) : applyPrompt,
       hint: applyItem?.hint ?? application?.hint ?? language.applyHint,
       modelAnswer: applyItem?.modelAnswer ?? application?.modelAnswer ?? language.applyAnswer,
     },

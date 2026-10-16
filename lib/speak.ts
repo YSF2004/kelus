@@ -1,3 +1,4 @@
+import { noteLanguage } from "@/domain/note-language";
 /**
  * Listen: a line read aloud by the device's own voice (the Web Speech API). Free, offline once the voice is on the
  * device, and nothing leaves it. Notes in French are read by a French voice.
@@ -7,11 +8,9 @@ export function speakSupported() {
   return typeof window !== "undefined" && "speechSynthesis" in window && typeof SpeechSynthesisUtterance !== "undefined";
 }
 
-/** French notes get a French voice; everything else the device's English one. */
+/** The language of a line, so a French line is read by a French voice. The same guess decides the questions' wording. */
 export function guessLanguage(text: string) {
-  const french = (text.match(/\b(?:le|la|les|des|est|une|du|et|dans|pour|qui|que)\b/gi) ?? []).length + (text.match(/[éèêàçùâîô]/g) ?? []).length;
-  const english = (text.match(/\b(?:the|is|are|of|and|in|to|a|an|that|which)\b/gi) ?? []).length;
-  return french > english ? "fr" : "en";
+  return noteLanguage(text);
 }
 
 let current: SpeechSynthesisUtterance | null = null;
