@@ -1,6 +1,7 @@
 "use client";
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, useSyncExternalStore, type ReactNode } from "react";
+import { usePathname } from "next/navigation";
 import { useAuth } from "@/components/AuthProvider";
 import { toast } from "sonner";
 import { clearUndo, isTypingTarget, offerUndo, takeUndo } from "@/lib/undo";
@@ -43,6 +44,9 @@ import type { SetupInput } from "@/lib/setup";
 import { readLearnerState, writeLearnerState } from "@/lib/learner-sync";
 import { claimGuestMaterials, getMaterialOwner, setMaterialOwner, subscribeMaterials } from "@/lib/material-store";
 import { flushMaterialSyncQueue, hasPendingMaterialSync, initializeMaterialSync, writeRemoteMaterialState } from "@/lib/material-sync";
+
+/** A study session is open: replacing the route under it would lose the answer being written. */
+const inSession = () => typeof window !== "undefined" && window.location.pathname.startsWith("/session");
 
 type Store = {
   state: DemoState;
@@ -90,6 +94,10 @@ export function LearnerProvider({ children }: { children: ReactNode }) {
   const [routeSyncMessage, setRouteSyncMessage] = useState<string | null>(null);
   const [materialSyncMessage, setMaterialSyncMessage] = useState<string | null>(null);
   const [materialClaim, setMaterialClaim] = useState<{ userId: string; claimGuest: boolean } | null>(null);
+  // A sign-in whose cloud read failed is read again later, never by reloading the page under a student mid-question.
+  const [readAttempt, setReadAttempt] = useState(0);
+  const readFailed = useRef(false);
+  const pathname = usePathname();
 
   const flushLearnerState = useCallback(async (userId: string) => {
     if (writeInFlight.current === userId || syncedUser.current !== userId) return;
@@ -146,6 +154,7 @@ export function LearnerProvider({ children }: { children: ReactNode }) {
     }
     syncedUser.current = null;
     lastWritten.current = "";
+    readFailed.current = false;
     queueMicrotask(() => { if (active) setRouteSyncMessage("Syncing your learning route…"); });
     readLearnerState(userId).then((remote) => {
       if (!active) return;
@@ -171,13 +180,14 @@ export function LearnerProvider({ children }: { children: ReactNode }) {
       void flushLearnerState(userId);
     }).catch(() => {
       if (!active) return;
+      readFailed.current = true;
       setMaterialClaim({ userId, claimGuest: false });
       setRouteSyncMessage("Saved on this device. Cloud sync is unavailable; reconnect to retry.");
     });
     return () => { active = false; };
     // Load once when the authenticated account changes; live state writes are
     // handled by the separate debounced effect below.
-  }, [activeUserId, flushLearnerState]);
+  }, [activeUserId, flushLearnerState, readAttempt]);
 
   useEffect(() => {
     const userId = activeUserId;
@@ -192,7 +202,7 @@ export function LearnerProvider({ children }: { children: ReactNode }) {
     const retry = (event: Event) => {
       if (document.visibilityState === "hidden") return;
       if (syncedUser.current === userId) void flushLearnerState(userId);
-      else if (event.type === "online") window.location.reload();
+      else if (readFailed.current && event.type === "online" && !inSession()) setReadAttempt((count) => count + 1);
     };
     window.addEventListener("online", retry);
     document.addEventListener("visibilitychange", retry);
@@ -201,6 +211,11 @@ export function LearnerProvider({ children }: { children: ReactNode }) {
       document.removeEventListener("visibilitychange", retry);
     };
   }, [activeUserId, flushLearnerState]);
+
+  // Online again but mid-session: the read waits until the student leaves the session, then runs once.
+  useEffect(() => {
+    if (activeUserId && readFailed.current && syncedUser.current !== activeUserId && navigator.onLine && !inSession()) setReadAttempt((count) => count + 1);
+  }, [activeUserId, pathname]);
 
   useEffect(() => {
     const userId = activeUserId;

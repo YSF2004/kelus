@@ -94,9 +94,21 @@ function readQueue(): SyncOperation[] {
   }
 }
 
+/**
+ * Deletes are never dropped (a lost one brings a removed source back on another device). Other writes are capped:
+ * each carries a whole material, and a full browser store must not make the next write throw.
+ */
 function writeQueue(queue: SyncOperation[]) {
   if (typeof window === "undefined") return;
-  window.localStorage.setItem(QUEUE_KEY, JSON.stringify(queue));
+  const deletes = queue.filter((item) => item.type === "delete");
+  const others = queue.filter((item) => item.type !== "delete").slice(-50);
+  const kept = queue.filter((item) => deletes.includes(item) || others.includes(item));
+  try {
+    window.localStorage.setItem(QUEUE_KEY, JSON.stringify(kept));
+  } catch {
+    // Storage is full: keep what matters most, the deletes, and let the next full sync carry the rest.
+    try { window.localStorage.setItem(QUEUE_KEY, JSON.stringify(deletes)); } catch { /* nothing more to keep */ }
+  }
 }
 
 function enqueue(operation: SyncOperation) {

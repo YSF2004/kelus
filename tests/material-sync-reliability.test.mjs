@@ -44,3 +44,21 @@ test("a failed deletion remains queued per account for reconnect and blocks resu
     globalThis.window = before;
   }
 });
+
+test("a full browser store never makes a deletion throw for the wrong reason, and the delete is what is kept", async () => {
+  const values = new Map();
+  const before = globalThis.window;
+  globalThis.window = { localStorage: {
+    getItem: (key) => values.get(key) ?? null,
+    // Only a short queue fits: anything carrying more than the deletes overflows, as a full store would.
+    setItem: (key, value) => { if (value.length > 600) throw new Error("QuotaExceededError"); values.set(key, value); },
+  } };
+  try {
+    await assert.rejects(removeRemoteMaterial("user-a", material.id, { ...material, title: "x".repeat(800) }), /Cloud sync is unavailable/);
+    assert.deepEqual([...pendingMaterialDeletes("user-a")], []);
+    await assert.rejects(removeRemoteMaterial("user-a", "lecture-2"), /Cloud sync is unavailable/);
+    assert.deepEqual([...pendingMaterialDeletes("user-a")], ["lecture-2"]);
+  } finally {
+    globalThis.window = before;
+  }
+});
