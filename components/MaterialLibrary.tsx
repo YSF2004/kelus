@@ -460,7 +460,8 @@ export function MaterialLibrary({ embedded = false, incomingFile = null, onIncom
       if (quiet && proposals.length) {
         // A text PDF reads in a blink; the K gets the moment it needs to write itself once (only the remainder is
         // waited, so a slow file is never held up).
-        await holdAtLeast(startedAt, 1300);
+        // The topics found appear one by one on the reading screen: long enough to see they are this course's own.
+        await holdAtLeast(startedAt, Math.min(2600, 900 + Math.min(proposals.length, 8) * 200));
         // The first notes that hold topics name the course: the document's own title ("BIO 101 · Week 4: Cells and
         // transport"), else the file's. Never a file that held no topics, and never on later notes.
         const firstTopics = !state.snapshot.concepts.some((concept) => concept.courseId === course.id);
@@ -656,7 +657,8 @@ export function MaterialLibrary({ embedded = false, incomingFile = null, onIncom
 
   // Quiet mode (first run): nothing to fill in or tick. Show what is happening, or why it failed with one way out.
   if (quiet && embedded) {
-    return <ReadingNotes message={statusMessage ?? "Finding the topics in your notes."} error={hardError} onStartOver={onStartOver} />;
+    const found = analysis?.proposals.map((proposal) => proposal.name) ?? [];
+    return <ReadingNotes message={found.length ? `Found ${found.length} ${found.length === 1 ? "topic" : "topics"} in your notes.` : statusMessage ?? "Finding the topics in your notes."} topics={found} error={hardError} onStartOver={onStartOver} />;
   }
 
   const shelf = (

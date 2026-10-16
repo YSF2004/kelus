@@ -54,8 +54,16 @@ async function maybeNudge() {
   const studiedToday = summary.lastAnswerAt && dayKey(new Date(summary.lastAnswerAt)) === today;
   if (now.getTime() < due || ready === 0 || shown === today || studiedToday) return;
   await put("lastShownDay", today);
-  await self.registration.showNotification("Your 1-minute warm-up is ready", {
-    body: ready === 1 ? "One line you missed is ready to try again." : `${ready} lines you missed are ready to try again.`,
+  // The same words as lib/nudge.ts nudgeText: name the topics that are waiting.
+  const lines = summary.lines || [];
+  const topics = lines.map((at, index) => ({ at, name: (summary.topics || [])[index] || "" })).filter((line) => now.getTime() - line.at >= SPACING_MS).map((line) => line.name);
+  const tally = new Map();
+  for (const name of topics.filter(Boolean)) tally.set(name, (tally.get(name) || 0) + 1);
+  const names = [...tally].sort((a, b) => b[1] - a[1]).map(([name]) => name);
+  const from = names.length === 0 ? "" : names.length === 1 ? ` from ${names[0]}` : names.length === 2 ? ` from ${names[0]} and ${names[1]}` : ` from ${names[0]} and ${names.length - 1} more topics`;
+  const title = ready === 1 ? `One line${from} is ready to come back` : `${ready} lines${from} are ready to come back`;
+  await self.registration.showNotification(title, {
+    body: "Your warm-up takes about a minute, before anything new.",
     tag: "kelus-warmup",
     icon: "/apple-icon.png",
     badge: "/apple-icon.png",

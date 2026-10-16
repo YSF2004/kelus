@@ -12,7 +12,7 @@ const ease = [0.22, 1, 0.36, 1] as const;
  * The only thing on screen while Kelus reads a file: the K writing itself, like a pen going over the page, and the
  * real step underneath. When it could not read the file, why, and one way out.
  */
-export function ReadingNotes({ message, error, onStartOver }: { message: string; error?: string | null; onStartOver?: () => void }) {
+export function ReadingNotes({ message, error, onStartOver, topics = [] }: { message: string; error?: string | null; onStartOver?: () => void; /** The topics found so far: shown one by one, proof that Kelus read these notes. */ topics?: string[] }) {
   const reduce = useReducedMotion() === true;
   const mark = useRef<SVGSVGElement>(null);
   // Its place is noted while it shows and once more as it goes, so the next screen can carry the same K on.
@@ -62,6 +62,16 @@ export function ReadingNotes({ message, error, onStartOver }: { message: string;
           </motion.span>
         </AnimatePresence>
       </h1>
+      {topics.length ? (
+        <ol className={styles.found} aria-label="Topics found">
+          {topics.slice(0, 8).map((topic, index) => (
+            <motion.li key={topic} initial={reduce ? false : { opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3, delay: reduce ? 0 : 0.15 + index * 0.18, ease }}>
+              {topic}
+            </motion.li>
+          ))}
+          {topics.length > 8 ? <motion.li className={styles.more} initial={reduce ? false : { opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: reduce ? 0 : 0.15 + 8 * 0.18 }}>and {topics.length - 8} more</motion.li> : null}
+        </ol>
+      ) : null}
     </section>
   );
 }

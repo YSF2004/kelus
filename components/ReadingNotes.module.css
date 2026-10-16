@@ -74,3 +74,8 @@
 
 
 .shrug { display: block; height: auto; margin: 0 0 8px; }
+
+/* The topics found, one by one: the student's own headings, proof that Kelus read their notes. */
+.found { display: grid; gap: 6px; margin: 18px 0 0; padding: 0; list-style: none; text-align: center; }
+.found li { font-size: 0.9375rem; color: var(--color-midnight-ink); }
+.found .more { color: var(--color-slate); }

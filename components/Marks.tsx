@@ -74,3 +74,13 @@ export function Return({ size = 14, className }: MarkProps) {
     </svg>
   );
 }
+
+/** Listen: a small speaker with one sound wave. */
+export function Speaker({ size = 14, className }: MarkProps) {
+  return (
+    <svg className={className ?? "k-mark"} width={size} height={size} viewBox="0 0 16 16" aria-hidden="true" focusable="false">
+      <path d="M2.5 6.2h2.3L8 3.5v9L4.8 9.8H2.5z" {...line} />
+      <path d="M10.6 5.6a3.4 3.4 0 0 1 0 4.8M12.6 3.8a6 6 0 0 1 0 8.4" {...line} />
+    </svg>
+  );
+}

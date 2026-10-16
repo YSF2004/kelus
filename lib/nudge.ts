@@ -10,7 +10,23 @@ import { SPACING_MS } from "@/domain/return-visit";
 import { dayKey } from "@/domain/habit";
 
 export type NudgeSettings = { on: boolean; time: string };
-export type NudgeSummary = NudgeSettings & { lines: number[]; lastAnswerAt: string | null };
+export type NudgeSummary = NudgeSettings & { lines: number[]; lastAnswerAt: string | null; /** The topic each missed line belongs to, in the same order as `lines`, so the nudge can name them. */ topics?: string[] };
+
+/**
+ * The nudge names what is waiting: "3 lines from Osmosis are ready to come back", not "time to study". The topics
+ * of the ready lines, most lines first. public/sw.js carries the same wording for when no tab is open.
+ */
+export function nudgeText(readyTopics: string[]) {
+  const count = readyTopics.length;
+  const tally = new Map<string, number>();
+  for (const name of readyTopics.filter(Boolean)) tally.set(name, (tally.get(name) ?? 0) + 1);
+  const names = [...tally].sort((a, b) => b[1] - a[1]).map(([name]) => name);
+  const from = names.length === 0 ? "" : names.length === 1 ? ` from ${names[0]}` : names.length === 2 ? ` from ${names[0]} and ${names[1]}` : ` from ${names[0]} and ${names.length - 1} more topics`;
+  return {
+    title: count === 1 ? `One line${from} is ready to come back` : `${count} lines${from} are ready to come back`,
+    body: "Your warm-up takes about a minute, before anything new.",
+  };
+}
 
 const KEY = "kelus-nudge-v1";
 const EVENT = "kelus-nudge";
@@ -166,8 +182,9 @@ export async function maybeNudgeNow(summary: NudgeSummary, now = new Date()) {
   const { due, ready, today } = nudgeDue(summary, now, shown);
   if (!due) return false;
   const reg = await registration();
-  const title = "Your 1-minute warm-up is ready";
-  const options = { body: ready === 1 ? "One line you missed is ready to try again." : `${ready} lines you missed are ready to try again.`, tag: "kelus-warmup", icon: "/apple-icon.png", data: { url: "/today" } };
+  const readyTopics = summary.lines.map((at, index) => ({ at, name: summary.topics?.[index] ?? "" })).filter((line) => now.getTime() - line.at >= SPACING_MS).map((line) => line.name);
+  const { title, body } = nudgeText(readyTopics.length ? readyTopics : Array.from({ length: ready }, () => ""));
+  const options = { body, tag: "kelus-warmup", icon: "/apple-icon.png", data: { url: "/today" } };
   try {
     if (reg) await reg.showNotification(title, options);
     else new Notification(title, options);
