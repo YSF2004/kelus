@@ -600,3 +600,13 @@
 .flagReason { min-height: 44px; padding: 0 14px; border: 1px solid var(--color-frost); border-radius: 8px; background: #fff; color: var(--color-midnight-ink); font: inherit; cursor: pointer; }
 .flagReason:hover { border-color: var(--color-midnight-ink); }
 .flagDone { margin: 0; display: flex; flex-wrap: wrap; align-items: center; gap: 4px 8px; }
+
+/* Listen and "Show it in your notes": small tools under a line, quieter than the main action. */
+.lineTools { display: flex; flex-wrap: wrap; gap: 4px 16px; margin-top: -4px; }
+.listen { display: inline-flex; align-items: center; gap: 6px; min-height: 44px; padding: 0; border: 0; background: none; color: var(--color-slate); font: inherit; font-size: var(--text-body-sm); cursor: pointer; }
+.listen:hover, .listen[aria-pressed="true"] { color: var(--color-kelus); }
+.listen:focus-visible { outline: 2px solid var(--color-kelus); outline-offset: 2px; border-radius: 4px; }
+/* The line in context: its neighbours quiet, the line itself in ink with a marigold rule. */
+.around { display: grid; gap: 6px; margin: 0; padding: 12px 14px; border-radius: 8px; background: #fff; border: 1px solid var(--color-frost); }
+.around p { margin: 0; font-size: 0.9375rem; line-height: 1.5; color: var(--color-slate); }
+.around .aroundLine { color: var(--color-midnight-ink); font-weight: 500; background: color-mix(in srgb, var(--k-marigold, #f3b23e) 22%, transparent); border-radius: 4px; padding: 2px 4px; margin: 0 -4px; }

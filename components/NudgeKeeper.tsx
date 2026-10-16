@@ -17,7 +17,10 @@ export function NudgeKeeper() {
   const missed = useSyncExternalStore(subscribeMissedLines, getMissedLines, getServerMissedLines);
   const settings = useSyncExternalStore(subscribeNudgeSettings, getNudgeSettings, getServerNudgeSettings);
   const lastAnswerAt = useMemo(() => state.snapshot.events.filter((event) => event.kind === "retrieval").reduce<string | null>((latest, event) => (!latest || event.createdAt > latest ? event.createdAt : latest), null), [state.snapshot.events]);
-  const summary: NudgeSummary = useMemo(() => ({ ...settings, lines: missed.map((line) => Date.parse(line.at)).filter(Number.isFinite), lastAnswerAt }), [settings, missed, lastAnswerAt]);
+  const summary: NudgeSummary = useMemo(() => {
+    const dated = missed.filter((line) => Number.isFinite(Date.parse(line.at)));
+    return { ...settings, lines: dated.map((line) => Date.parse(line.at)), topics: dated.map((line) => line.name), lastAnswerAt };
+  }, [settings, missed, lastAnswerAt]);
 
   useEffect(() => { writeNudgeSummary(summary); }, [summary]);
 

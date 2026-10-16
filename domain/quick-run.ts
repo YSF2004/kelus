@@ -220,3 +220,15 @@ export function gapChoices(item: PracticeItem, run: QuickRun) {
   const options = [answer, ...unique.slice(0, 3)];
   return options.map((word, index) => ({ word, key: (index * 7 + seed) % 11 })).sort((a, b) => a.key - b.key || a.word.localeCompare(b.word)).map((entry) => entry.word);
 }
+
+/**
+ * A miss teaches more with its surroundings: the line before and the line after the one asked about, as the notes
+ * give them. Null when the line is not among this topic's sentences or stands alone.
+ */
+export function linesAround(run: QuickRun, quote: string) {
+  const at = run.sentences.findIndex((sentence) => overlaps(sentence, quote));
+  if (at < 0) return null;
+  const before = run.sentences[at - 1] ?? null;
+  const after = run.sentences[at + 1] ?? null;
+  return before || after ? { before, line: run.sentences[at], after } : null;
+}

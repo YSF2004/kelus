@@ -55,7 +55,8 @@ test("two days later, after your time, the nudge fires once with the number of l
   await page.goto("/today");
   const shown = async () => page.evaluate(() => (window as unknown as { __nudges: string[] }).__nudges.filter((call) => call.endsWith("kelus-warmup")));
   await expect.poll(shown, { timeout: 15_000 }).toHaveLength(1);
-  expect((await shown())[0]).toMatch(/^Your 1-minute warm-up is ready \| (One line|\d lines) you missed .* \| kelus-warmup$/);
+  // The nudge names what is waiting: the topic the missed lines come from.
+  expect((await shown())[0]).toMatch(/^(One line|\d lines) from .+ (is|are) ready to come back \| Your warm-up takes about a minute, before anything new\. \| kelus-warmup$/);
 
   // Never twice on the same day: a fresh page load the same evening sends nothing.
   await page.goto("/today");

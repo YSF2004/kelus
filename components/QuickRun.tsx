@@ -7,7 +7,8 @@ import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { checkPracticeAnswer } from "@/domain/practice-check";
 import { explainMatch, looksLikeWords } from "@/domain/answer-evaluation";
 import { PackArt } from "@/components/PackArt";
-import { gapChoices, keyWordsIn, readingLines, whereAnswerBelongs, type QuickRun as Run, type SelfGrade } from "@/domain/quick-run";
+import { ListenButton } from "@/components/ListenButton";
+import { gapChoices, keyWordsIn, linesAround, readingLines, whereAnswerBelongs, type QuickRun as Run, type SelfGrade } from "@/domain/quick-run";
 import { trackEvent } from "@/lib/analytics";
 import { FLAG_REASONS, flagQuestion, sendFlaggedQuestion, type FlagReason } from "@/lib/flags";
 import styles from "./QuickRun.module.css";
@@ -70,6 +71,8 @@ export function QuickRun({ run, onRevealSource, onFinish, onChecksDone, context,
   const [tapped, setTapped] = useState<string | null>(null);
   const [drop, setDrop] = useState(0);
   // Flagging a question: closed, choosing a reason, or flagged (and maybe sent to the Kelus team).
+  // "Show it in your notes": the line asked about, between the lines around it.
+  const [around, setAround] = useState(false);
   const [flag, setFlag] = useState<null | "choosing" | { reason: FlagReason; sent: "no" | "sending" | "yes" | "failed" }>(null);
   const [missed, setMissed] = useState<string[]>([]);
   const [unsure, setUnsure] = useState(0);
@@ -128,7 +131,7 @@ export function QuickRun({ run, onRevealSource, onFinish, onChecksDone, context,
 
   function next() {
     if (onChecksDone && step + 1 >= total) { onChecksDone({ right, total, missed, known: knownNow }); return; }
-    setAnswered(null); setPicked(null); setTyped(""); setTapped(null); setFlag(null);
+    setAnswered(null); setPicked(null); setTyped(""); setTapped(null); setFlag(null); setAround(false);
     setStep((current) => current + 1);
   }
 
@@ -240,6 +243,7 @@ export function QuickRun({ run, onRevealSource, onFinish, onChecksDone, context,
               <button type="button" className={`k-btn ${styles.primary}`} autoFocus key={reading} onClick={() => setReading((current) => (current + 1 < lines.length ? current + 1 : -1))}>
                 {reading + 1 < lines.length ? "Continue" : "Now from memory"}<kbd className={styles.key} aria-hidden="true">↵</kbd>
               </button>
+              <ListenButton key={`listen-${reading}`} text={lines[reading] ?? ""} className={styles.listen} />
               <button type="button" className={styles.link} onClick={() => setReading(-1)}>Skip to the questions<kbd className={styles.linkKey} aria-hidden="true">Esc</kbd></button>
             </div>
           </motion.section>
@@ -303,7 +307,17 @@ export function QuickRun({ run, onRevealSource, onFinish, onChecksDone, context,
             {answered ? (
               <motion.div className={`${styles.feedback} ${answered.right ? styles.ok : styles.no}`} role="status" initial={reduce ? false : { opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.2 }}>
                 <strong>{answered.right ? <PackArt name="check" className={styles.mark} /> : null}{answered.unsure ? (item.kind === "cloze" ? `It was “${item.modelAnswer}”.` : "Here’s the line it comes from.") : answered.right ? (answered.picked ? "Right, picked from four. Type it next time to count it as recalled." : "Right.") : item.kind === "cloze" ? `Not quite. It was “${item.modelAnswer}”.` : "Not quite."}</strong>
-                <p className={styles.quote}>“{item.sourceQuote}”</p>
+                {around && linesAround(run, item.sourceQuote) ? (
+                  <div className={styles.around} aria-label="This line in your notes">
+                    {linesAround(run, item.sourceQuote)!.before ? <p>{linesAround(run, item.sourceQuote)!.before}</p> : null}
+                    <p className={styles.aroundLine}>{linesAround(run, item.sourceQuote)!.line}</p>
+                    {linesAround(run, item.sourceQuote)!.after ? <p>{linesAround(run, item.sourceQuote)!.after}</p> : null}
+                  </div>
+                ) : <p className={styles.quote}>“{item.sourceQuote}”</p>}
+                <div className={styles.lineTools}>
+                  <ListenButton key={`listen-q-${step}`} text={item.sourceQuote} className={styles.listen} />
+                  {!answered.right && !around && linesAround(run, item.sourceQuote) ? <button type="button" className={styles.listen} onClick={() => setAround(true)}>Show it in your notes</button> : null}
+                </div>
                 {answered.elsewhere ? (
                   <div className={styles.elsewhere}>
                     <span>{answered.given && !/\s/.test(answered.given) ? `“${answered.given}” belongs to this line in your notes:` : "That answer belongs to this line in your notes:"}</span>
