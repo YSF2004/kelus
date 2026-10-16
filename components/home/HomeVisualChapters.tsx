@@ -14,8 +14,8 @@ export function StudyMoment() {
           <PackArt name="thinking" className={styles.packArt} size={420} label="A student working through a problem" />
         </Reveal>
         <Reveal className={styles.studyCopy}>
-          <h2 id="study-moment-title">The studying happens here.</h2>
-          <p>Your own notes stay close while you answer, check, and decide what deserves another pass. One focused session, not more tabs to manage.</p>
+          <h2 id="study-moment-title">Your notes stay open beside the question.</h2>
+          <p>Miss one, and “Show it in your notes” opens that line with the lines around it. Listen reads it out. Every question comes from your own pages, so you never have to wonder where an answer came from.</p>
           <Link href="/today" className={styles.textLink}>Set up my course <span aria-hidden="true">↗</span></Link>
         </Reveal>
       </div>

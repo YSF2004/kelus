@@ -105,7 +105,8 @@ export function units(text: string) {
     else lines.push(restoreCapital(line));
   }
   for (const line of lines) {
-    const cleaned = line.replace(BULLET, "").replace(/\s+/g, " ").trim();
+    // A caption keeps its fact and loses its label: "Figure 7.1 Oxygen diffuses…" is asked as "Oxygen diffuses…".
+    const cleaned = line.replace(BULLET, "").replace(/^(?:figure|fig\.?|table|diagram|image|photo)\s*\d+(?:[.:-]\d+)*[.:)]?\s+(?=\p{Lu})/iu, "").replace(/\s+/g, " ").trim();
     if (!cleaned) continue;
     const parts = cleaned.length > 60 ? splitSentences(cleaned) : [cleaned];
     for (const part of parts) if (part.length >= 15) out.push(part);

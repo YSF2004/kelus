@@ -5,7 +5,7 @@
  * headless recording shows neither.
  */
 import { chromium } from "playwright";
-import { mkdirSync, copyFileSync, readFileSync } from "node:fs";
+import { mkdirSync, copyFileSync, readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 
 const output = join(process.cwd(), "public/hero");
@@ -80,6 +80,10 @@ await context.addInitScript(() => {
 });
 
 const page = await context.newPage();
+// When each step starts, in seconds of video: the captions and the hero's chapter strip are written from these.
+const startedAt = Date.now();
+const marks = [];
+const mark = (caption) => marks.push({ at: (Date.now() - startedAt) / 1000, caption });
 const show = async (label, ms = 1800) => {
   console.log(label, page.url());
   await page.waitForTimeout(ms);
@@ -138,13 +142,29 @@ async function dropPdf() {
 try {
   await page.goto(`${process.env.KELUS_URL ?? "http://127.0.0.1:3100"}/today`, { waitUntil: "networkidle" });
   await page.getByRole("heading", { name: "Start with your notes." }).waitFor();
+  mark("A student drags their chapter PDF into Kelus.");
   await show("Start: a student brings their chapter", 1200);
   await dropPdf();
   const start = page.getByRole("button", { name: /^Start$/ });
   await start.waitFor({ timeout: 30000 });
   await show("Kelus reads the chapter and picks the first topic", 2600);
   await point(start);
+  // Read it first: the topic's key lines, one at a time, before any question. Two lines, then on to the checks.
+  const reading = page.getByRole("region", { name: "Read it first" });
+  await reading.or(page.getByLabel(/^Check 1 of \d$/)).first().waitFor({ timeout: 30000 });
+  if (await reading.count()) {
+    mark("Kelus finds the topics and shows the first one's key lines to read.");
+    await show("Read it first", 1600);
+    for (let line = 0; line < 2; line += 1) {
+      const next = reading.locator("button.k-btn").first();
+      if (!(await next.count())) break;
+      await point(next, { ms: 600 });
+      await show("The next line", 1500);
+    }
+    if (await reading.count()) await point(reading.getByRole("button", { name: "Skip to the questions" }));
+  }
   await page.getByLabel(/^Check 1 of \d$/).waitFor({ timeout: 30000 });
+  mark("Quick checks written from lines in the chapter: right, and one slip shown against its line.");
   await show("A real question from the dropped PDF", 2000);
 
   let gaps = 0;
@@ -175,6 +195,7 @@ try {
     await point(page.getByRole("button", { name: /^(Next|Now say it yourself)/ }));
   }
   const explain = page.locator("#run-explain");
+  mark("The student explains it in their own words and compares with the page.");
   await point(explain);
   // The first topic is the chapter's first section; the explanation is about whichever it is.
   const topicName = (await page.locator('[class*="QuickRun"] [class*="topic"], [aria-current="step"]').first().innerText().catch(() => "")).trim();
@@ -191,13 +212,20 @@ try {
   const suggested = page.locator("button", { hasText: "Suggested" });
   await point((await suggested.count()) ? suggested.first() : page.getByRole("button", { name: /Partly/ }));
   await show("The result, from what you showed", 3400);
+  mark("The result, then the plan: the missed line comes back first tomorrow.");
   await point(page.getByRole("button", { name: "Close", exact: true }));
   await page.locator("#today-title").waitFor({ timeout: 20000 });
   await show("The plan, moved by the answer", 4200);
+  mark("end");
   await page.screenshot({ path: join(output, `kelus-product-poster${suffix}.png`) });
 } finally {
   const video = page.video();
   await context.close();
   if (video) copyFileSync(await video.path(), join(output, `kelus-product-walkthrough${suffix}.webm`));
+  // Captions from the marks (the desktop recording's are the shared file), and the times for the chapter strip.
+  const stamp = (seconds) => new Date(Math.max(0, seconds) * 1000).toISOString().slice(11, 23);
+  const cues = marks.filter((item) => item.caption !== "end").map((item, index) => `${stamp(item.at)} --> ${stamp(marks[index + 1]?.at ?? item.at + 5)}\n${item.caption}`);
+  if (!mobile && cues.length) writeFileSync(join(output, "kelus-product-walkthrough.vtt"), `WEBVTT\n\n${cues.join("\n\n")}\n`);
+  console.log("chapters", JSON.stringify(marks.map((item) => Math.round(item.at * 10) / 10)));
   await browser.close();
 }

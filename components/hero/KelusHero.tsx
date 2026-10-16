@@ -5,19 +5,21 @@ import { HeroProductVideo } from "./HeroProductVideo";
 import styles from "./ProductVideoHero.module.css";
 
 /**
- * A recording of the real first-use journey, from upload to revised study plan.
+ * What only Kelus does, said plainly, over a recording of the real first-use journey: the drop, a question from a
+ * line, an answer checked against the page, and the plan moving. Chapters under the recording name each step.
  */
 export function KelusHero() {
   return (
     <section className={`${styles.hero} is-poster`} aria-labelledby="home-hero-title" data-hero="product-video">
       <div className={styles.copy}>
         <h1 id="home-hero-title" className={styles.headline}>
-          Revise your lessons.{" "}
-          <span className={styles.secondLine}>Walk into the exam ready.</span>
+          Questions from your notes.{" "}
+          <span className={styles.secondLine}>Checked against the page.</span>
         </h1>
 
         <p className={styles.lede}>
-          Drop a PDF or paste your notes. Try a question from them. Your answer changes what you study next.
+          Drop in a PDF or paste your notes. Kelus asks you about your own lines, shows you the line when you slip, and
+          brings it back first tomorrow.
         </p>
 
         <div className={styles.actions}>

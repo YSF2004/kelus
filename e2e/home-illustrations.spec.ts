@@ -12,7 +12,7 @@ test("the four steps and the student illustration fit on mobile", async ({ page 
   }
   await steps.first().screenshot({ path: testInfo.outputPath("follow-through-mobile.png"), animations: "disabled" });
 
-  const studying = page.locator("section").filter({ has: page.getByRole("heading", { name: "The studying happens here." }) });
+  const studying = page.locator("section").filter({ has: page.getByRole("heading", { name: "Your notes stay open beside the question." }) });
   await studying.scrollIntoViewIfNeeded();
   await expect(studying.getByRole("img", { name: "A student working through a problem" })).toBeVisible();
   await studying.screenshot({ path: testInfo.outputPath("student-study-mobile.png"), animations: "disabled" });

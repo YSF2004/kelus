@@ -9,8 +9,8 @@ export function HomeFinal() {
     <section className={styles.final} aria-labelledby="home-final-title">
       <PackArt name="target" className={styles.art} size={150} />
       <div className={styles.copy}>
-        <h2 id="home-final-title">Your exam, one topic at a time.</h2>
-        <p>Add your notes now. Your first question is ready in about a minute, and it’s free.</p>
+        <h2 id="home-final-title">Bring the notes for your next exam.</h2>
+        <p>Drop them in tonight. Your first question is ready in about a minute.</p>
         {/* Facts we have checked ourselves, not testimonials: Kelus has no student results to quote yet. */}
         <ul className={styles.facts} aria-label="What we have checked">
           <li>Tested on real course layouts: slides, textbook chapters, two-column handouts, notes in French</li>

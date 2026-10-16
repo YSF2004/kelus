@@ -33,6 +33,7 @@
 .secondLine { display: block; }
 .hero .lede {
   max-width: 52ch;
+  text-wrap: pretty;
   margin: 19px 0 0;
   color: var(--hero-muted);
   font-family: var(--font-marketing-sans), Arial, sans-serif;
@@ -141,8 +142,46 @@
 .desktopVideo { transform: translateY(-9.2%); }
 .mobileVideo { display: none; }
 
+/* Under the recording, inside the window: its five steps, each filling as it plays, each a place to jump to. */
+.chapters {
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 16px;
+  margin: 0;
+  padding: 12px 20px 14px;
+  border-top: 1px solid var(--hero-line);
+  list-style: none;
+  text-align: left;
+}
+.chapter {
+  display: grid;
+  gap: 9px;
+  width: 100%;
+  min-height: 44px;
+  padding: 6px 0;
+  border: 0;
+  background: transparent;
+  color: var(--hero-muted);
+  font: 500 13px/1.3 var(--font-marketing-sans), Arial, sans-serif;
+  text-align: left;
+  cursor: pointer;
+  transition: color 160ms var(--ease-standard);
+}
+.chapter:hover, .chapter[aria-current="step"] { color: var(--hero-ink); }
+.chapter:focus-visible { outline: 2px solid var(--hero-green); outline-offset: 2px; border-radius: 4px; }
+.chapterTrack { display: block; height: 2px; overflow: hidden; border-radius: 2px; background: var(--hero-line); }
+.chapterFill { display: block; height: 100%; background: var(--hero-green); transform: scaleX(0); transform-origin: left center; }
+.chapterLabel { display: flex; align-items: baseline; gap: 6px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.chapterLabel b { font-weight: 600; font-variant-numeric: tabular-nums; color: var(--hero-muted); }
+.chapter[aria-current="step"] .chapterLabel b { color: var(--hero-green); }
+.chapterShort { display: none; }
+
 @media (max-width: 640px) {
-  .hero { padding: 46px 16px 48px; }
+  .chapters { gap: 8px; padding: 8px 12px 10px; }
+  .chapter { font-size: 12px; gap: 7px; }
+  .chapterLong { display: none; }
+  .chapterShort { display: inline; }
+  .hero { padding: 32px 16px 48px; }
   .chrome { height: 32px; }
   .address { min-width: 150px; font-size: 11px; }
   .hero .headline { max-width: 13ch; font-size: clamp(40px, 10.5vw, 56px); }
@@ -155,6 +194,6 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .primary, .primaryArrow { transition: none; }
+  .primary, .primaryArrow, .chapter { transition: none; }
   .primary:hover, .primary:hover .primaryArrow, .primary:active { transform: none; }
 }
