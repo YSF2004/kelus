@@ -25,6 +25,8 @@ In GA4 → Admin → Custom definitions, add:
 | Helpful          | Event | `helpful`            |
 | Sample           | Event | `sample`             |
 | Invite method    | Event | `method`             |
+| Milestone        | Event | `milestone`          |
+| Flag reason      | Event | `reason`             |
 
 Data only shows from the day a definition is added, so add these before the pilot starts.
 
@@ -42,6 +44,34 @@ Filter every report to `Pilot cohort = <your group>` and `Sample ≠ true`.
 A free-form exploration in GA4 (Explore → Funnel exploration) gives the first three as one funnel:
 `session_started (n=1)` → `session_completed (n=1)` → `learner_returned (day ≤ 7)` → `session_completed (n ≥ 2)`.
 
+## The pilot summary in one command
+
+Two events make the week readable at a glance:
+
+- `pilot_milestone`, sent **once per student** for each step: `first_topic`, `back_next_day`, `back_within_7_days`,
+  `studied_3_days`. It counts answers, not visits: opening Kelus and leaving is not coming back to study. Because each
+  student sends each milestone once, "Total users" per milestone is an exact count of students.
+- `question_flagged`: a student tapped **Flag this question** under an answer and chose a reason (`unclear`,
+  `wrong_answer`, `not_in_notes`). The question is not asked again on that device.
+
+GA4 → Explore → Free form. Rows: Event name, Milestone, Flag reason, Helpful, Pilot cohort. Values: Total users, Event
+count. Filter: Event name matches regex `pilot_milestone|question_flagged|session_usefulness_rated`. Then Share →
+Download file → CSV, and run:
+
+```bash
+node scripts/pilot-summary.mjs ~/Downloads/export.csv
+```
+
+Per group it prints: students who studied a first topic; how many came back the next day, within 7 days and on 3
+different days (with percentages); how many said a block was helpful; and flagged questions by reason.
+
+## Flagged questions
+
+A flag sends only its reason and the kind of question. If the student also taps **Send it to the Kelus team**, the
+question, Kelus's answer, their answer and the line from their notes arrive by email at hello@kelus.me (the same
+inbox as the Questions page). That is the only way any words from a student's notes leave their device, and only on
+that tap. Read these first: they are the next thing to fix.
+
 ## Class invites
 
 After a block, a student can tap **Send them Kelus**. On a phone it opens the share sheet (WhatsApp, Discord,
@@ -58,7 +88,8 @@ shared; each classmate adds their own copy of the slides.
 ## What is and is not sent
 
 - Sent: event names above, the session number, day counts, the yes/no usefulness answer, how an invite was sent, and the pilot group name or class code.
-- Never sent: notes, answers, topic names, names or emails.
+- Never sent: notes, answers, topic names, names or emails. The one exception is a flagged question a student chooses
+  to send with **Send it to the Kelus team**; it goes to hello@kelus.me, not to analytics.
 - The built-in sample course is marked `sample: true` and never sends a return.
 
 A return is counted at most once per calendar day, and only on a later day than a finished block.

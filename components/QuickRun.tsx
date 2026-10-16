@@ -9,6 +9,7 @@ import { explainMatch, looksLikeWords } from "@/domain/answer-evaluation";
 import { PackArt } from "@/components/PackArt";
 import { gapChoices, keyWordsIn, readingLines, whereAnswerBelongs, type QuickRun as Run, type SelfGrade } from "@/domain/quick-run";
 import { trackEvent } from "@/lib/analytics";
+import { FLAG_REASONS, flagQuestion, sendFlaggedQuestion, type FlagReason } from "@/lib/flags";
 import styles from "./QuickRun.module.css";
 
 /** `missed` holds the page lines behind the checks that were wrong or not sure, so the result can point back to them. */
@@ -68,6 +69,8 @@ export function QuickRun({ run, onRevealSource, onFinish, onChecksDone, context,
   // A word tapped from four is recognised, not recalled: it earns the check, never a line on the recall count.
   const [tapped, setTapped] = useState<string | null>(null);
   const [drop, setDrop] = useState(0);
+  // Flagging a question: closed, choosing a reason, or flagged (and maybe sent to the Kelus team).
+  const [flag, setFlag] = useState<null | "choosing" | { reason: FlagReason; sent: "no" | "sending" | "yes" | "failed" }>(null);
   const [missed, setMissed] = useState<string[]>([]);
   const [unsure, setUnsure] = useState(0);
   const [right, setRight] = useState(0);
@@ -125,7 +128,7 @@ export function QuickRun({ run, onRevealSource, onFinish, onChecksDone, context,
 
   function next() {
     if (onChecksDone && step + 1 >= total) { onChecksDone({ right, total, missed, known: knownNow }); return; }
-    setAnswered(null); setPicked(null); setTyped(""); setTapped(null);
+    setAnswered(null); setPicked(null); setTyped(""); setTapped(null); setFlag(null);
     setStep((current) => current + 1);
   }
 
@@ -308,6 +311,31 @@ export function QuickRun({ run, onRevealSource, onFinish, onChecksDone, context,
                   </div>
                 ) : null}
                 <button ref={nextRef} type="button" className={`k-btn ${styles.primary}`} onClick={next}>{step + 1 >= total ? (onChecksDone ? "See how it went" : "Now say it yourself") : "Next"} <ArrowRight /></button>
+                {/* A bad question is the student's to call. One tap counts it and drops it from later runs; its words
+                    go to the Kelus team only on a second, explicit tap. */}
+                <div className={styles.flag}>
+                  {flag === null ? (
+                    <button type="button" className={styles.flagLink} onClick={() => setFlag("choosing")}>Flag this question</button>
+                  ) : flag === "choosing" ? (
+                    <div className={styles.flagReasons} role="group" aria-label="What is wrong with this question?">
+                      {FLAG_REASONS.map((reason) => (
+                        <button key={reason.value} type="button" className={styles.flagReason} onClick={() => { flagQuestion(item, reason.value); setFlag({ reason: reason.value, sent: "no" }); }}>{reason.label}</button>
+                      ))}
+                      <button type="button" className={styles.flagLink} onClick={() => setFlag(null)}>Cancel</button>
+                    </div>
+                  ) : (
+                    <p className={styles.flagDone} role="status">
+                      Flagged. Kelus won’t ask it again.{" "}
+                      {flag.sent === "yes" ? "Sent to the Kelus team, thank you." : flag.sent === "sending" ? "Sending…" : (
+                        <button type="button" className={styles.flagLink} onClick={() => {
+                          const reason = flag.reason;
+                          setFlag({ reason, sent: "sending" });
+                          void sendFlaggedQuestion(item, reason, run.topic || "Warm-up", answered.given).then((ok) => setFlag({ reason, sent: ok ? "yes" : "failed" }));
+                        }}>{flag.sent === "failed" ? "Couldn’t send. Try again" : "Send it to the Kelus team"}</button>
+                      )}
+                    </p>
+                  )}
+                </div>
               </motion.div>
             ) : null}
           </motion.section>

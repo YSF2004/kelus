@@ -13,6 +13,7 @@ import type { QuickRun as Run } from "@/domain/quick-run";
 import { addMissedLines, getMissedLines, getServerMissedLines, resolveMissedLines, subscribeMissedLines } from "@/lib/missed-lines";
 import { recordCheckpoint, PASS_SHARE } from "@/lib/checkpoints";
 import { MarkStamp } from "@/components/MarkStamp";
+import { flagKey, flaggedKeys } from "@/lib/flags";
 import { addKnownLines, forgetKnownLines, getKnownLines, getServerKnownLines, knownCount, subscribeKnownLines } from "@/lib/known-lines";
 import { KelusLogoMark } from "@/components/KelusLogoMark";
 import { useEffect } from "react";
@@ -43,7 +44,7 @@ function WarmUp() {
         const activity = state.snapshot.learningActivities.find((item) => item.conceptId === id);
         return { conceptId: id, name: names.get(id) ?? "", lines: [...(activity?.practice ?? []).map((item) => item.sourceQuote), activity?.retrieve.modelAnswer ?? ""] };
       }).filter((topic) => topic.name), state.nowIso, Math.max(1, Number(params.get("each")) || 2)).slice(0, 12)
-    : returnVisit({ events: state.snapshot.events, names, missed, nowMs: Date.parse(state.nowIso) }).warmup));
+    : returnVisit({ events: state.snapshot.events, names, missed, nowMs: Date.parse(state.nowIso) }).warmup).filter((entry) => !flaggedKeys().has(flagKey(entry.item))));
   const [knownAtOpen] = useState(() => {
     const courseId = state.snapshot.concepts.find((concept) => concept.id === plan[0]?.line.conceptId)?.courseId;
     const ids = new Set(state.snapshot.concepts.filter((concept) => concept.courseId === courseId).map((concept) => concept.id));

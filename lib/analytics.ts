@@ -33,7 +33,9 @@ export type KelusAnalyticsEvent =
   | { name: "sample_loaded"; source: string }
   | { name: "pricing_viewed"; source: string }
   | { name: "soft_paywall_shown"; moment: "first_session" | "third_material" }
-  | { name: "subscription_checkout_clicked"; source: string };
+  | { name: "subscription_checkout_clicked"; source: string }
+  | { name: "pilot_milestone"; milestone: "first_topic" | "back_next_day" | "back_within_7_days" | "studied_3_days"; days_since_first: number }
+  | { name: "question_flagged"; reason: "unclear" | "wrong_answer" | "not_in_notes"; kind: string; variant: string; level: string };
 
 export function analyticsEnabled() {
   return Boolean(GA_MEASUREMENT_ID) && typeof window !== "undefined";

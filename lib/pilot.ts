@@ -105,3 +105,37 @@ export function classCode() {
 export function inviteLink(code: string, origin = "https://kelus.me") {
   return `${origin}/?pilot=${encodeURIComponent(code)}&via=invite`;
 }
+
+export type PilotMilestone = "first_topic" | "back_next_day" | "back_within_7_days" | "studied_3_days";
+
+const MILESTONE_KEY = "kelus-pilot-milestones";
+
+/**
+ * Where this student is in the pilot, from their own answers (the sample course never counts): a first topic, an
+ * answer the next day, an answer again within a week, and answers on three different days. Answers, not visits: a
+ * student who opened Kelus and left did not come back to study.
+ */
+export function pilotMilestones(input: { events: Array<{ kind: string; conceptId: string; createdAt: string }>; sampleConceptIds: Set<string> }): PilotMilestone[] {
+  const days = [...new Set(input.events
+    .filter((event) => event.kind === "retrieval" && !input.sampleConceptIds.has(event.conceptId))
+    .map((event) => localDay(event.createdAt)))].sort((a, b) => a - b);
+  if (!days.length) return [];
+  const first = days[0];
+  const reached: PilotMilestone[] = ["first_topic"];
+  if (days.includes(first + 1)) reached.push("back_next_day");
+  if (days.some((day) => day > first && day <= first + 7)) reached.push("back_within_7_days");
+  if (days.length >= 3) reached.push("studied_3_days");
+  return reached;
+}
+
+/** The milestones not reported yet from this browser, marked as reported: each one is sent once per student. */
+export function newMilestones(reached: PilotMilestone[]) {
+  try {
+    const sent = new Set(JSON.parse(localStorage.getItem(MILESTONE_KEY) ?? "[]") as string[]);
+    const fresh = reached.filter((milestone) => !sent.has(milestone));
+    if (fresh.length) localStorage.setItem(MILESTONE_KEY, JSON.stringify([...sent, ...fresh]));
+    return fresh;
+  } catch {
+    return [];
+  }
+}

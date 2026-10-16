@@ -27,6 +27,7 @@ import { markdownToPages } from "@/domain/markdown-pages";
 import type { ExtractedMaterialPage } from "@/domain/types";
 import { QuickRun, type QuickRunResult } from "@/components/QuickRun";
 import { buildQuickRun, quickOutcome, quickSummary } from "@/domain/quick-run";
+import { flagKey, flaggedKeys } from "@/lib/flags";
 import { aiActive, aiConfigured, fetchAiTopicContent, readCachedAi } from "@/lib/ai-client";
 import { mergeAiContent, type AiTopicContent } from "@/domain/ai-content";
 import { CourseSourceReader } from "@/components/CourseSourceReader";
@@ -153,7 +154,13 @@ function SessionBody() {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const round = useMemo(() => concept?.retrievalAttempts ?? 0, [conceptId]);
   const run = useMemo(
-    () => (activity && concept ? buildQuickRun({ activity, name: concept.name, siblingNames, round, readFirst: round === 0 }) : null),
+    () => {
+      if (!activity || !concept) return null;
+      const built = buildQuickRun({ activity, name: concept.name, siblingNames, round, readFirst: round === 0 });
+      // A question the student flagged is never asked again on this device.
+      const flagged = flaggedKeys();
+      return built && flagged.size ? { ...built, checks: built.checks.filter((check) => !flagged.has(flagKey(check))) } : built;
+    },
     // The run is rebuilt only when the topic or its content changes.
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [conceptId, round, activity?.practice?.length, activity?.teach?.aiExplanation],
