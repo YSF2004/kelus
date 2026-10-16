@@ -1,8 +1,8 @@
 "use client";
 
 import { ArrowOut, ArrowRight } from "@/components/Marks";
-import { motion, useReducedMotion } from "motion/react";
-import type { ReactNode } from "react";
+import { animate, motion, useReducedMotion } from "motion/react";
+import { useEffect, useState, type ReactNode } from "react";
 import { MarkStamp } from "@/components/MarkStamp";
 import { PackArt } from "@/components/PackArt";
 import type { RetrievalOutcome } from "@/domain/types";
@@ -21,6 +21,46 @@ const VERDICT: Record<RetrievalOutcome, { title: string }> = {
 
 
 const ease = [0.22, 1, 0.36, 1] as const;
+
+/** "Comes back in 2 days" → "2 days"; "Comes back tomorrow" → "Tomorrow". */
+function backShort(line?: string) {
+  if (!line) return "Soon";
+  const rest = line.replace(/^Comes back\s*/i, "").replace(/^in\s+/i, "").replace(/^your next session$/i, "Next time");
+  return rest.charAt(0).toUpperCase() + rest.slice(1);
+}
+
+/** A number that counts up to itself once, quickly: the score lands rather than appears. */
+function CountUp({ value, reduce }: { value: number; reduce: boolean }) {
+  const [shown, setShown] = useState(reduce ? value : 0);
+  useEffect(() => {
+    if (reduce || value <= 0) { setShown(value); return; }
+    const controls = animate(0, value, { duration: Math.min(0.9, 0.25 + value * 0.08), ease: [0.22, 1, 0.36, 1], delay: 0.25, onUpdate: (latest) => setShown(Math.round(latest)) });
+    return () => controls.stop();
+  }, [value, reduce]);
+  return <>{shown}</>;
+}
+
+/** A solid pass, celebrated the Kelus way: a few paper marks in the brand colours spring out from the seal and settle. */
+function Burst() {
+  const marks = Array.from({ length: 10 }, (_, index) => {
+    const angle = (index / 10) * Math.PI * 2 + 0.3;
+    const reach = 46 + (index % 3) * 12;
+    return { x: Math.cos(angle) * reach, y: Math.sin(angle) * reach, rotate: (index % 2 ? 1 : -1) * (20 + index * 9), tone: index % 3 };
+  });
+  return (
+    <span className={styles.burst} aria-hidden="true">
+      {marks.map((mark, index) => (
+        <motion.i
+          key={index}
+          data-tone={mark.tone}
+          initial={{ x: 0, y: 0, scale: 0.4, opacity: 0, rotate: 0 }}
+          animate={{ x: mark.x, y: mark.y, scale: [0.4, 1, 0.8], opacity: [0, 1, 0], rotate: mark.rotate }}
+          transition={{ duration: 0.9, delay: 0.15 + index * 0.012, ease: [0.22, 1, 0.36, 1], times: [0, 0.35, 1] }}
+        />
+      ))}
+    </span>
+  );
+}
 
 /**
  * The reward moment after a topic: how the checks went as filling dots, how you rated yourself, the one thing to
@@ -60,10 +100,16 @@ export function QuickResult({
   return (
     <div className={styles.card}>
       <div className={styles.head}>
-        <span className={styles.stamp}><MarkStamp outcome={outcome} /></span>
+        <span className={styles.stamp}><MarkStamp outcome={outcome} />{outcome === "success" && !reduce ? <Burst /> : null}</span>
         <motion.h1 {...rise(0.1)} className={styles.title}>{verdict.title}</motion.h1>
       </div>
-      <motion.p {...rise(0.16)} className={styles.line}>{topic} · {attempts === 1 ? "first try" : `try ${attempts}`}. {verdictReason(outcome, stats, comesBack)}</motion.p>
+      {/* The sentence for screen readers; the eye gets the same facts as three tiles. */}
+      <p className="sr-only">{topic} · {attempts === 1 ? "first try" : `try ${attempts}`}. {verdictReason(outcome, stats, comesBack)}</p>
+      <motion.ul {...rise(0.16)} className={styles.tiles} aria-hidden="true">
+        {stats && stats.total > 0 ? <li><PackArt name="double-check" className={styles.tileIcon} /><b><CountUp value={stats.right} reduce={reduce} />/{stats.total}</b><span>{stats.total === 1 ? "check right" : "checks right"}</span></li> : null}
+        {stats?.coverage && stats.coverage.keys >= 3 ? <li><PackArt name="pencil" className={styles.tileIcon} /><b><CountUp value={stats.coverage.hits} reduce={reduce} />/{stats.coverage.keys}</b><span>key ideas said</span></li> : null}
+        <li><PackArt name="calendar-check" className={styles.tileIcon} /><b>{backShort(comesBack)}</b><span>comes back</span></li>
+      </motion.ul>
 
 
       <motion.blockquote {...rise(0.42)} className={styles.remember}>

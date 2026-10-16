@@ -20,19 +20,17 @@ async function playQuickRun(page: Page) {
 
 test("answering a topic starts a streak and moves today's goal", async ({ page }) => {
   await page.goto("/today?sample=1");
-  const strip = page.getByRole("region", { name: "Your study habit" });
-  await expect(strip).toContainText("0 of 3 topics");
+  const stats = page.getByRole("group", { name: "Your path through the course" });
+  await expect(stats).toContainText("0/3today");
   // The sample comes with earlier practice and one day off: a rest day keeps its streak alive, and today keeps it.
-  await expect(strip).toContainText(/One topic today keeps your \d+-day streak\.|Answer one topic today to start a new streak\./);
-  const before = Number((await strip.innerText()).match(/(\d+)-day streak/)?.[1] ?? 0);
+  await expect(page.getByRole("status").filter({ hasText: /One topic today keeps your \d+-day streak\./ })).toBeVisible();
+  const before = Number((await stats.innerText()).match(/(\d+)\s*day streak/)?.[1] ?? 0);
 
   await page.getByRole("button", { name: /Start this topic/ }).click();
   await playQuickRun(page);
 
   await page.goto("/today");
-  await expect(strip).toContainText(`${before + 1}-day streak`);
-  await expect(strip).toContainText("1 of 3 topics");
-  await expect(strip).toContainText("2 more to reach today’s goal.");
-  await expect(strip.getByRole("progressbar", { name: "Today’s goal" })).toHaveAttribute("aria-valuenow", "1");
-  // Today keeps one quiet line; the full week lives on Progress and the Done page.
+  await expect(stats).toContainText(new RegExp(`${before + 1}\\s*day streak`));
+  await expect(stats).toContainText("1/3today");
+  await expect(stats.getByRole("progressbar", { name: "Today’s goal" })).toHaveAttribute("aria-valuenow", "1");
 });

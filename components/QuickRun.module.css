@@ -286,9 +286,14 @@
 }
 
 .feedback.ok {
-  background: color-mix(in srgb, var(--color-kelus) 6%, var(--k-surface));
-  border-color: color-mix(in srgb, var(--color-kelus) 16%, transparent);
+  background: color-mix(in srgb, var(--color-kelus) 7%, var(--k-surface));
+  border-color: color-mix(in srgb, var(--color-kelus) 22%, transparent);
 }
+.feedback.no {
+  background: var(--k-danger-wash);
+  border-color: color-mix(in srgb, var(--k-danger) 22%, transparent);
+}
+.feedback.no strong { color: var(--k-danger); }
 
 .feedback strong {
   display: flex;
@@ -626,3 +631,26 @@
    topic's name, the name steps out and only "Topic 2 of 4" stays. */
 .context { display: contents; }
 .context[data-topic-hidden] b { display: none; }
+
+/* On a phone the answer's verdict rises from the bottom as a sheet, green or coral, with Next across it at thumb
+   height, the way a language app answers you: the question stays in view above it. */
+@media (max-width: 640px) and (pointer: coarse) {
+  .run:has(.feedback) { padding-bottom: min(62vh, 420px); }
+  .feedback {
+    position: fixed;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 40;
+    max-height: 72vh;
+    overflow-y: auto;
+    padding: 18px 16px calc(14px + env(safe-area-inset-bottom));
+    border-width: 1px 0 0;
+    border-radius: 18px 18px 0 0;
+    box-shadow: 0 -16px 40px -24px rgba(18, 22, 15, 0.45);
+  }
+  .feedback strong { font-size: 1.25rem; }
+  .feedback .primary { order: 10; justify-self: stretch; justify-content: center; width: 100%; min-height: 50px; }
+  .feedback .flag { order: 11; }
+}
+.feedback.unsure { background: var(--k-surface-2); }
