@@ -76,6 +76,6 @@
 }
 
 .success .mark, .current.success .mark { background: var(--color-kelus); color: #fff; }
-.partial .mark, .current.partial .mark { background: var(--k-marigold-wash); color: #9a5b16; }
+.partial .mark, .current.partial .mark { background: var(--k-marigold-wash); color: var(--k-marigold-text); }
 .failure .mark, .current.failure .mark { background: var(--k-danger-wash); color: var(--k-danger); }
 .ahead { color: var(--color-slate); }

@@ -68,8 +68,8 @@
   cursor: pointer;
   transition: background-color 120ms var(--q-ease), border-color 120ms var(--q-ease), box-shadow 120ms var(--q-ease);
 }
-.primary { border: 0; background: var(--q-green); color: #fff; box-shadow: 0 1px 2px rgba(25, 26, 24, 0.12); }
-.primary:hover { background: var(--q-green-hover); }
+.primary { border: 0; background: var(--k-green); color: #fff; box-shadow: 0 1px 2px rgba(25, 26, 24, 0.12); }
+.primary:hover { background: color-mix(in srgb, var(--k-green) 85%, #000); }
 .secondary { border: 1px solid var(--q-line-strong); background: var(--k-surface); color: var(--q-ink); }
 .secondary:hover { background: var(--q-hover); }
 .primary:focus-visible, .secondary:focus-visible { outline: 2px solid color-mix(in srgb, var(--q-green) 45%, transparent); outline-offset: 2px; }

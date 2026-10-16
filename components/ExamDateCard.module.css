@@ -16,4 +16,4 @@
 .row button { min-height: 44px; padding: 0 18px; border: 0; border-radius: 6px; background: var(--color-kelus); color: var(--color-pure-white); font: inherit; font-weight: 600; cursor: pointer; }
 .row button:hover { background: var(--color-kelus-hover); }
 .row input:focus-visible, .row select:focus-visible, .row button:focus-visible { outline: 2px solid var(--color-midnight-ink); outline-offset: 2px; }
-.card .error { color: #8a2b1b; font-weight: 500; }
+.card .error { color: var(--k-danger); font-weight: 500; }

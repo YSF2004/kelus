@@ -168,7 +168,7 @@
 
 .choice.wrong {
   border-color: rgba(161, 53, 43, 0.45);
-  background: var(--k-marigold-wash);
+  background: var(--k-danger-wash);
   color: var(--color-slate);
   text-decoration: line-through;
   text-decoration-thickness: 1px;
@@ -505,7 +505,7 @@
 .miss {
   padding: 0 2px;
   background: var(--k-marigold-wash);
-  box-shadow: 0 0 0 1px #f3d9a6 inset;
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--k-marigold-text) 30%, transparent) inset;
 }
 
 @keyframes markIn {
@@ -558,7 +558,7 @@
   margin: -4px 0 0;
   padding: 10px 12px;
   border-radius: 6px;
-  background: var(--k-danger-wash);
+  background: var(--k-marigold-wash);
   color: var(--color-midnight-ink);
   font-size: var(--text-body-sm);
   line-height: 1.45;

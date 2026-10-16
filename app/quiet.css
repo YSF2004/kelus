@@ -484,12 +484,30 @@ html body.is-course-studio .core-source-remove { display: inline-grid; place-ite
     --paper: var(--k-surface);
     --background: var(--k-surface);
     --hero-paper: var(--k-surface);
+    /* The aliases set on :root resolve there, before the night ink exists: name them again here. */
+    --k-iris: var(--k-ink);
+    --k-iris-edge: #000;
+    --k-iris-wash: var(--q-hover);
+    --color-hero-purple: var(--k-ink);
+    --color-hero-purple-wash: var(--q-hover);
+    --accent: var(--k-green);
+    /* What floats over the page sits a step lighter, with a hairline, and the page behind it dims. */
+    --k-surface-raised: #1e241f;
+    --k-scrim: rgba(0, 0, 0, 0.55);
+    scrollbar-color: color-mix(in srgb, var(--k-ink) 28%, transparent) transparent;
     background: var(--k-surface) !important;
     color: var(--k-ink);
   }
   /* A filled button keeps the deep green under its white label (5.0:1), whatever a screen set as its fill. */
-  :root:not([data-theme="light"]) :is(body.is-course-studio, body.is-session-booklet, body.is-session-complete, body:has(.start-page)) :is(.k-btn, .cta:not(.home-cta)):not(.k-btn--paper):not(:disabled) { --btn-bg: var(--k-green); background: var(--k-green) !important; color: #fff !important; }
+  :root:not([data-theme="light"]) :is(body.is-course-studio, body.is-session-booklet, body.is-session-complete, body:has(.start-page)) :is(.k-btn, .cta:not(.home-cta)):not(.k-btn--paper):not(:disabled):not(:is([class*="ExamDateCard"], [class*="NudgeCard"], [class*="InstallCard"]) *) { --btn-bg: var(--k-green); background: var(--k-green) !important; color: #fff !important; }
   :root:not([data-theme="light"]) :is(body.is-course-studio, body.is-session-booklet, body.is-session-complete, body:has(.start-page)) .k-btn--paper { background: var(--k-surface-2) !important; color: var(--k-ink) !important; }
+  /* The page under the product, and the browser's own bars and overscroll, go dark with it. */
+  :root:not([data-theme="light"]):has(body.is-course-studio, body.is-session-booklet, body.is-session-complete, .start-page) { color-scheme: dark; background: #141815; }
+  /* The quiet extras under Today keep their paper button, as in daylight. */
+  :root:not([data-theme="light"]) :is(body.is-course-studio, body.is-session-booklet, body.is-session-complete, body:has(.start-page)) :is([class*="ExamDateCard"], [class*="NudgeCard"], [class*="InstallCard"]) button { background: var(--k-surface-2) !important; color: var(--k-ink) !important; }
+  :root:not([data-theme="light"]) :is(body.is-course-studio, body.is-session-booklet, body.is-session-complete, body:has(.start-page)) .skip { background: var(--k-green); color: #fff; }
+  :root:not([data-theme="light"]) :is(body.is-course-studio, body.is-session-booklet, body.is-session-complete, body:has(.start-page)) [data-sonner-toast] { background: var(--k-surface-raised) !important; color: var(--k-ink) !important; border: 1px solid var(--k-line-strong) !important; box-shadow: 0 12px 32px rgba(0, 0, 0, 0.5) !important; }
+  :root:not([data-theme="light"]) :is(body.is-course-studio, body.is-session-booklet, body.is-session-complete, body:has(.start-page)) [data-sonner-toast] [data-button] { background: var(--k-green-wash) !important; color: var(--color-kelus) !important; }
   /* The pack's drawings are black line art: at night they turn to light lines, the same drawing. */
   :root:not([data-theme="light"]) :is(body.is-course-studio, body.is-session-booklet, body.is-session-complete, body:has(.start-page)) img[src*="/art/"] { filter: invert(0.92) hue-rotate(180deg); }
   :root:not([data-theme="light"]) :is(body.is-course-studio, body.is-session-booklet, body.is-session-complete, body:has(.start-page)) ::selection { background: color-mix(in srgb, var(--color-kelus) 35%, transparent); }

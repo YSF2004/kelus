@@ -61,7 +61,7 @@
 }
 
 /* Each section keeps its colour role: green to study, marigold for your notes, iris to see where you stand. */
-.green { --tone: var(--k-green); --tone-text: var(--k-green); }
+.green { --tone: var(--k-green); --tone-text: var(--color-kelus, var(--k-green)); }
 .marigold { --tone: var(--k-marigold); --tone-text: var(--k-marigold-text); }
 .iris { --tone: var(--k-iris); --tone-text: var(--k-iris); }
 

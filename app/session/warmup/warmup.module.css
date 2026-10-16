@@ -101,7 +101,7 @@
 
 .still .mark {
   background: var(--k-marigold-wash);
-  color: #9a5b16;
+  color: var(--k-marigold-text);
 }
 
 .actions {

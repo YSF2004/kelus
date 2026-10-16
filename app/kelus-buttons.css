@@ -725,7 +725,7 @@ html body.is-course-studio [class*="ProgressView"][class*="pace"] {
 }
 /* The parts the browser draws carry the palette too: caret and scrollbars. */
 :is(body.is-course-studio, body.is-session-booklet, body.is-session-complete, body:has(.start-page)) :is(input, textarea) { caret-color: var(--color-kelus); }
-:is(body.is-course-studio, body.is-session-booklet, body.is-session-complete) { scrollbar-color: rgba(18, 22, 15, 0.22) transparent; scrollbar-width: thin; }
+:is(body.is-course-studio, body.is-session-booklet, body.is-session-complete) { scrollbar-color: color-mix(in srgb, var(--k-ink) 22%, transparent) transparent; scrollbar-width: thin; }
 /* Progress pace: the drawing keeps its column so text never runs under it. */
 html body.is-course-studio [class*="ProgressView"][class*="pace"] { padding-right: 0 !important; }
 /* Status tags in the Then list fit on one line. */

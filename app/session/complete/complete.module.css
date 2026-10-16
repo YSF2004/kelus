@@ -125,7 +125,7 @@
 }
 
 .success .mark { background: var(--color-kelus); color: #fff; }
-.partial .mark { background: var(--k-marigold-wash); color: #9a5b16; }
+.partial .mark { background: var(--k-marigold-wash); color: var(--k-marigold-text); }
 .failure .mark { background: var(--k-danger-wash); color: var(--k-danger); }
 .success .word { color: var(--color-kelus); }
 
@@ -137,9 +137,9 @@
   gap: 12px;
   align-items: start;
   padding: 18px;
-  border: 1px solid var(--k-line-strong);
+  border: 1px solid color-mix(in srgb, var(--k-marigold-text) 18%, var(--k-surface));
   border-radius: 12px;
-  background: linear-gradient(180deg, var(--k-marigold-wash) 0%, var(--k-surface) 100%);
+  background: linear-gradient(180deg, color-mix(in srgb, var(--k-marigold-wash) 50%, var(--k-surface)) 0%, var(--k-surface) 100%);
 }
 
 .tomorrow > div {

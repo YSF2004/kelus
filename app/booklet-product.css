@@ -422,8 +422,8 @@
 .is-booklet-system .site-header-inner { min-height: 72px; padding-block: 8px; }
 .is-booklet-system .site-footer-mark { color: var(--k-ink); }
 .is-booklet-system .site-nav a { color: var(--color-steel); border-radius: 8px; padding: 10px 12px; border: 0; min-height: 44px; }
-.is-booklet-system .site-nav a:hover { background: var(--k-surface-2); }
-.is-booklet-system .site-nav a.is-active { background: var(--k-surface-2); color: var(--k-ink); box-shadow: none; }
+.is-booklet-system .site-nav a:hover { background: #ebe9e6; }
+.is-booklet-system .site-nav a.is-active { background: #ebe9e6; color: var(--k-ink); box-shadow: none; }
 .is-booklet-system .site-auth-button { border-color: var(--color-frost); border-radius: 8px; color: var(--k-ink); background: var(--k-surface); }
 
 .is-booklet-system .cta,.is-booklet-system .is-booklet-product .cta { background: var(--color-booklet-blue); border-color: var(--color-booklet-blue); min-height: 44px; }

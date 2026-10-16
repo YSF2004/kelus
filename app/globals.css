@@ -5149,7 +5149,7 @@ h1,h2,h3,.pulse .days,.plan b,.map-head strong,.detail dd,.study-feedback > p,.c
 }
 
 .material-status-badge.is-processing {
-  color: #3d4f73;
+  color: var(--k-text-2);
   background: color-mix(in srgb, var(--k-surface-2) 75%, var(--k-surface));
 }
 

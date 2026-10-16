@@ -120,7 +120,7 @@
   font-weight: 700;
 }
 .success { background: var(--color-kelus); color: #fff; }
-.partial { background: var(--k-marigold-wash); color: #9a5b16; }
+.partial { background: var(--k-marigold-wash); color: var(--k-marigold-text); }
 .failure { background: var(--k-danger-wash); color: var(--k-danger); }
 
 .empty {

@@ -5,9 +5,9 @@
   grid-template-columns: minmax(0, 1fr);
   gap: 4px;
   padding: 20px 20px 22px;
-  border: 1px solid var(--k-line-strong);
+  border: 1px solid color-mix(in srgb, var(--k-marigold-text) 18%, var(--k-surface));
   border-radius: 12px;
-  background: linear-gradient(180deg, var(--k-marigold-wash) 0%, var(--k-surface) 100%);
+  background: linear-gradient(180deg, color-mix(in srgb, var(--k-marigold-wash) 50%, var(--k-surface)) 0%, var(--k-surface) 100%);
   overflow: hidden;
 }
 
@@ -38,7 +38,7 @@
 
 .kicker {
   margin: 0;
-  color: #9a5b16;
+  color: var(--k-marigold-text);
   font-size: var(--text-body-sm);
   font-weight: 600;
 }
@@ -93,7 +93,7 @@
   font-size: 0.75rem;
   font-weight: 600;
   letter-spacing: 0.02em;
-  color: #9a5b16;
+  color: var(--k-marigold-text);
 }
 
 .notes span {
