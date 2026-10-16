@@ -107,6 +107,15 @@ export default function PrivacyPage() {
           so jsDelivr can see that your browser asked for it. PDFs with real text never make this request.
         </p>
 
+        <h2>Flagging a question</h2>
+        <p>
+          Under any answer you can flag a question that doesn’t make sense, has the wrong answer or isn’t what your notes
+          say. A flag sends only its reason and the kind of question to our analytics, never its words, and the question
+          is not asked again on this device. If you then tap “Send it to the Kelus team”, that one question, its answer,
+          your answer and the line it came from are emailed to hello@kelus.me (through FormSubmit) so we can fix it.
+          Nothing is sent unless you tap it.
+        </p>
+
         <h2>What we do not do</h2>
         <ul>
           <li>We do not sell personal information.</li>

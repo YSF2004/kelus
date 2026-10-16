@@ -41,6 +41,7 @@ import {
 import type { Concept, ExtractedMaterialPage, ProposedConcept, RetrievalOutcome, SelfRating } from "@/domain/types";
 import type { SetupInput } from "@/lib/setup";
 import { readLearnerState, writeLearnerState } from "@/lib/learner-sync";
+import { reportPilotMilestones } from "@/lib/pilot-report";
 import { claimGuestMaterials, getMaterialOwner, setMaterialOwner, subscribeMaterials } from "@/lib/material-store";
 import { flushMaterialSyncQueue, initializeMaterialSync, writeRemoteMaterialState } from "@/lib/material-sync";
 
@@ -81,6 +82,8 @@ const StoreContext = createContext<Store | null>(null);
 export function LearnerProvider({ children }: { children: ReactNode }) {
   const auth = useAuth();
   const state = useSyncExternalStore(subscribeDemoState, getDemoSnapshot, getServerDemoSnapshot);
+  // Pilot milestones (first topic, back the next day, within a week, three days) follow the answers, wherever they happen.
+  useEffect(() => { reportPilotMilestones(state.snapshot.events, state.snapshot.concepts); }, [state.snapshot.events, state.snapshot.concepts]);
   const activeUserId = auth.user?.id ?? null;
   const materialOwner = useSyncExternalStore(subscribeMaterials, getMaterialOwner, () => null);
   const scopeAligned = getDemoStateOwner() === activeUserId && materialOwner === activeUserId;
