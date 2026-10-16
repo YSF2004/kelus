@@ -9,7 +9,7 @@ import { useLearner } from "@/components/LearnerProvider";
 import { trackEvent } from "@/lib/analytics";
 import styles from "./loading.module.css";
 import { addSourceMaterial, getMaterialsSnapshot, getServerMaterialsSnapshot, removeMaterial, subscribeMaterials } from "@/lib/material-store";
-import { removeRemoteMaterial } from "@/lib/material-sync";
+import { removeRemoteMaterial, uploadMaterialPdf } from "@/lib/material-sync";
 import { useAuth } from "@/components/AuthProvider";
 import { CURRENT_COURSE_ID, type SetupInput } from "@/lib/setup";
 
@@ -81,13 +81,15 @@ function TodayBody() {
     } catch {
       elapsedMs = 0;
     }
-    trackEvent({ name: "first_route_ready", elapsed_ms: elapsedMs, concept_count: state.snapshot.concepts.length });
+    trackEvent({ name: "first_route_ready", elapsed_ms: elapsedMs, concept_count: state.snapshot.concepts.length, course_type: state.snapshot.courses[0]?.id === SAMPLE_COURSE_ID ? "sample" : "real" });
   }
 
   const roleFor = (file: File) => (/syllabus|outline/i.test(file.name) ? "syllabus" : /slides|lecture/i.test(file.name) ? "lecture_slides" : "notes");
 
   /** The very first notes: make the course with sensible defaults and read the file. The exam date is asked after the first run. */
   async function startFromFile(file: File) {
+    const role = roleFor(file);
+    trackEvent({ name: "material_upload_started", role, course_type: "real" });
     try { window.localStorage.setItem("kelus-first-route-started-at", String(Date.now())); } catch { /* Timing analytics are optional. */ }
     const examDate = new Date(Date.now() + 14 * 86_400_000).toISOString().slice(0, 10);
     const input: SetupInput = {
@@ -100,22 +102,31 @@ function TodayBody() {
       availableMinutes: 30,
       examDatePlaceholder: true,
     };
-    await addSourceMaterial({ courseId: CURRENT_COURSE_ID, file, role: roleFor(file) });
+    try {
+      const material = await addSourceMaterial({ courseId: CURRENT_COURSE_ID, file, role });
+      trackEvent({ name: "material_upload_completed", role, course_type: "real" });
+      if (auth.user) void uploadMaterialPdf(auth.user.id, material, file).catch(() => undefined);
+    } catch (error) {
+      trackEvent({ name: "material_upload_failed", role, course_type: "real" });
+      throw error;
+    }
     try { sessionStorage.setItem("kelus-start-first-run", "1"); } catch { /* Without it the learner lands on Today instead. */ }
     completeSetup(input);
   }
 
   async function addNotes(file: File, courseId: string) {
-    await addSourceMaterial({ courseId, file, role: roleFor(file) });
+    const material = await addSourceMaterial({ courseId, file, role: roleFor(file) });
+    if (auth.user) void uploadMaterialPdf(auth.user.id, material, file).catch(() => undefined);
     try { sessionStorage.setItem("kelus-start-first-run", "1"); } catch { /* Without it the learner lands on Today instead. */ }
   }
 
   /** A file with nothing readable in it: remove it (and anything half-made) so the start screen comes back clean. */
   async function startOver(materialIds: string[]) {
     for (const id of materialIds) {
+      const material = materials.find((item) => item.id === id);
       await removeMaterial(id).catch(() => undefined);
       removeMaterialSource(id);
-      if (auth.user) await removeRemoteMaterial(auth.user.id, id).catch(() => undefined);
+      if (auth.user) await removeRemoteMaterial(auth.user.id, id, material).catch(() => undefined);
     }
   }
 

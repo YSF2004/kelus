@@ -5,7 +5,7 @@ type StoredLearnerState = { state: DemoState; updated_at: string };
 
 export async function readLearnerState(userId: string) {
   const client = getSupabaseBrowserClient();
-  if (!client) return null;
+  if (!client) throw new Error("Cloud sync is unavailable.");
   const { data, error } = await client
     .from("learner_states")
     .select("state, updated_at")
@@ -17,7 +17,7 @@ export async function readLearnerState(userId: string) {
 
 export async function writeLearnerState(userId: string, state: DemoState) {
   const client = getSupabaseBrowserClient();
-  if (!client) return;
+  if (!client) throw new Error("Cloud sync is unavailable.");
   const { error } = await client.from("learner_states").upsert({
     user_id: userId,
     state,

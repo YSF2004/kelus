@@ -89,7 +89,7 @@ export function ConceptDetail({ conceptId, embedded = false }: { conceptId?: str
     const open = state.snapshot.sessions.find((item) => item.courseId === course.id && item.status === "in_progress");
     if (open) abandon(open.id);
     const sessionId = start(course.id, exam.id, concept.id);
-    trackEvent({ name: "session_started", session_number: sessionContext({ sessions: state.snapshot.sessions, nowIso: state.nowIso }).session_number, sample: SAMPLE_COURSE_IDS.has(course.id) });
+    trackEvent({ name: "session_started", session_number: sessionContext({ sessions: state.snapshot.sessions, nowIso: state.nowIso }).session_number, sample: SAMPLE_COURSE_IDS.has(course.id), course_type: SAMPLE_COURSE_IDS.has(course.id) ? "sample" : "real" });
     router.push(`/session?id=${sessionId}`);
   }
 

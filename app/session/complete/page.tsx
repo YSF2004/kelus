@@ -80,6 +80,7 @@ function CompleteBody() {
       planned_minutes: session.plannedMinutes,
       ...sessionContext({ sessions: state.snapshot.sessions, sessionId: session.id, nowIso: state.nowIso }),
       sample: SAMPLE_COURSE_IDS.has(session.courseId),
+      course_type: SAMPLE_COURSE_IDS.has(session.courseId) ? "sample" : "real",
     });
   }, [session, summary, state.snapshot.sessions, state.nowIso]);
 

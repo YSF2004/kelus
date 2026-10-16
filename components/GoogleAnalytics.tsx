@@ -22,6 +22,7 @@ window.gtag("config", ${measurementId}, {
   allow_ad_personalization_signals: false,
   anonymize_ip: true
 });
+window.dispatchEvent(new Event("kelus-analytics-ready"));
 `;
 
   return (

@@ -147,7 +147,7 @@ function MaterialRow({
     try {
       await removeMaterial(item.id);
       onRemoved(item);
-      if (userId) await removeRemoteMaterial(userId, item.id).catch(() => undefined);
+      if (userId) await removeRemoteMaterial(userId, item.id, item).catch(() => undefined);
     } catch {
       setDownloadError("This source could not be removed. Try again.");
       setBusy(false);
@@ -517,7 +517,7 @@ export function MaterialLibrary({ embedded = false, incomingFile = null, onIncom
         return;
       }
     }
-    trackEvent({ name: "material_upload_started", role });
+    trackEvent({ name: "material_upload_started", role, course_type: "real" });
     if (file.size > 20 * 1024 * 1024) {
       dispatch({
         type: "SIZE_REJECTED",
@@ -528,7 +528,7 @@ export function MaterialLibrary({ embedded = false, incomingFile = null, onIncom
     dispatch({ type: "WORK_STARTED", step: "saving", message: defaultStepMessage("saving") });
     try {
       const material = await addSourceMaterial({ courseId: course.id, file, role });
-      trackEvent({ name: "material_upload_completed", role });
+      trackEvent({ name: "material_upload_completed", role, course_type: "real" });
       if (auth.user?.id) {
         setSyncStates((current) => ({ ...current, [material.id]: "syncing" }));
         void uploadMaterialPdf(auth.user.id, material, file).then(() => {
@@ -543,7 +543,7 @@ export function MaterialLibrary({ embedded = false, incomingFile = null, onIncom
       }
       await analyzePdf(material, file);
     } catch (caught) {
-      trackEvent({ name: "material_upload_failed", role });
+      trackEvent({ name: "material_upload_failed", role, course_type: "real" });
       dispatch({
         type: "FAIL",
         kind: "generic",

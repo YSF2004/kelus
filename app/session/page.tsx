@@ -753,6 +753,7 @@ function SessionBody() {
               <QuickRun
                 key={`${concept.id}-${runKey}`}
                 run={run}
+                courseType={session?.courseId === "course-microeconomics" ? "sample" : "real"}
                 onRevealSource={() => setSourceRevealed(true)}
                 onFinish={finishQuick}
                 readFirst={round === 0}

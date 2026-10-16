@@ -207,7 +207,7 @@ export function RevisionSurface({ topicId }: { /** A topic's own page, opened in
   function begin() {
     if (anyOpenSession && !openSession) abandon(anyOpenSession.id);
     const sessionId = start(courseId, examId);
-    trackEvent({ name: "session_started", session_number: sessionContext({ sessions: snapshot.sessions, nowIso }).session_number, sample: isSampleCourse });
+    trackEvent({ name: "session_started", session_number: sessionContext({ sessions: snapshot.sessions, nowIso }).session_number, sample: isSampleCourse, course_type: isSampleCourse ? "sample" : "real" });
     try {
       sessionStorage.setItem("kelus-session-before", JSON.stringify(concepts));
     } catch {
@@ -226,11 +226,12 @@ export function RevisionSurface({ topicId }: { /** A topic's own page, opened in
     setRemovingSourceId(materialId);
     setSourceError(null);
     try {
+      const material = materials.find((item) => item.id === materialId);
       await removeMaterial(materialId);
       removeMaterialSource(materialId);
       if (selectedMaterialId === materialId) setSelectedMaterialId(null);
       setConfirmSourceId(null);
-      if (auth.user) await removeRemoteMaterial(auth.user.id, materialId).catch(() => undefined);
+      if (auth.user) await removeRemoteMaterial(auth.user.id, materialId, material).catch(() => undefined);
     } catch {
       setSourceError("This source could not be removed. Try again.");
     } finally {
