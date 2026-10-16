@@ -70,8 +70,9 @@ function pickChecks(all: PracticeItem[], round: number, strict = true) {
 /**
  * A short run for one topic: up to three instant checks, then one explanation in the learner's own words.
  * Everything comes from the topic's page, and each check tests a different fact from the one the explanation asks for.
- * Every topic gets the same run. A page too thin for two checks still gets one check, or none, and the
- * explanation; null only when there is nothing on the page to explain at all.
+ * A page too thin for a fair instant check still gets an own-words explanation. Do not turn a sentence
+ * just read into an immediate fill-in-the-gap or invent a multiple-choice answer from unrelated notes.
+ * Null is reserved for a page with nothing to explain at all.
  */
 export function buildQuickRun(input: { activity: LearningActivity; name: string; siblingNames: string[]; round?: number; readFirst?: boolean }): QuickRun | null {
   const { activity, name, siblingNames } = input;
@@ -155,7 +156,7 @@ export function quickOutcome(input: { right: number; total: number; self: SelfGr
 export function quickSummary(input: { right: number; total: number; self: SelfGrade; unsure?: number }) {
   const rating = input.self === "nailed" ? "nailed it" : input.self === "partly" ? "partly there" : "missed it";
   const unsure = input.unsure ? ` (${input.unsure} marked not sure)` : "";
-  if (input.total === 0) return `You rated your explanation: ${rating}.`;
+  if (input.total === 0) return `No quick check was suitable for these notes. You rated your explanation: ${rating}.`;
   return `${input.right} of ${input.total} quick checks right${unsure}. You rated your explanation: ${rating}.`;
 }
 

@@ -8,6 +8,7 @@ import { checkPracticeAnswer } from "@/domain/practice-check";
 import { explainMatch, looksLikeWords } from "@/domain/answer-evaluation";
 import { PackArt } from "@/components/PackArt";
 import { gapChoices, keyWordsIn, readingLines, whereAnswerBelongs, type QuickRun as Run, type SelfGrade } from "@/domain/quick-run";
+import { trackEvent } from "@/lib/analytics";
 import styles from "./QuickRun.module.css";
 
 /** `missed` holds the page lines behind the checks that were wrong or not sure, so the result can point back to them. */
@@ -58,6 +59,7 @@ export function QuickRun({ run, onRevealSource, onFinish, onChecksDone, context,
   const [change, setChange] = useState<"+1" | "−1">("+1");
   const [bump, setBump] = useState(0);
   const started = useRef(0);
+  const firstResponseTracked = useRef(false);
   const total = run.checks.length;
   const [step, setStep] = useState(0); // 0..total-1 = checks, total = explain
   const [picked, setPicked] = useState<number | null>(null);
@@ -95,6 +97,7 @@ export function QuickRun({ run, onRevealSource, onFinish, onChecksDone, context,
 
   function answer(value: string | number) {
     if (!item || answered) return;
+    recordFirstResponse("quick_check");
     const ok = checkPracticeAnswer(item, value);
     if (typeof value === "number") setPicked(value);
     const given = typeof value === "number" ? item.choices?.[value] ?? "" : value.trim();
@@ -113,6 +116,7 @@ export function QuickRun({ run, onRevealSource, onFinish, onChecksDone, context,
   // "Not sure" earns no credit, shows the answer, and does not break a streak: honesty should never cost more than guessing.
   function notSure() {
     if (!item || answered) return;
+    recordFirstResponse("quick_check");
     setAnswered({ right: false, unsure: true });
     setUnsure((count) => count + 1);
     setMissed((list) => [...list, item.sourceQuote]);
@@ -130,8 +134,15 @@ export function QuickRun({ run, onRevealSource, onFinish, onChecksDone, context,
   function compare() {
     // Key-mashing is neither an answer nor "I don't remember"; ask once, kindly, instead of grading it.
     if (explained.trim() && !looksLikeWords(explained)) { setNudge(true); return; }
+    recordFirstResponse("own_words");
     setCompared(true);
     if (typeof window !== "undefined" && window.matchMedia("(min-width: 768px)").matches) onRevealSource();
+  }
+
+  function recordFirstResponse(format: "quick_check" | "own_words") {
+    if (firstResponseTracked.current) return;
+    firstResponseTracked.current = true;
+    trackEvent({ name: "study_response_recorded", format, read_first: readFirst });
   }
 
   function finish(self: SelfGrade, at: number) {
@@ -309,7 +320,7 @@ export function QuickRun({ run, onRevealSource, onFinish, onChecksDone, context,
             {!compared ? (
               <div className={styles.row}>
                 <button type="button" className={`k-btn ${styles.primary}`} onClick={compare}>Compare with the page<kbd className={styles.key} aria-hidden="true">{modKey}↵</kbd></button>
-                {!explained.trim() || nudge ? <button type="button" className={styles.link} onClick={() => { setExplained(""); setNudge(false); setCompared(true); }}>I don’t remember</button> : null}
+                {!explained.trim() || nudge ? <button type="button" className={styles.link} onClick={() => { recordFirstResponse("own_words"); setExplained(""); setNudge(false); setCompared(true); }}>I don’t remember</button> : null}
               </div>
             ) : (
               <motion.div className={styles.compare} initial={reduce ? false : { opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.25 }}>

@@ -31,7 +31,7 @@ test("a page too thin for checks still gets the same run: just the explanation, 
   assert.equal(quickOutcome({ right: 0, total: 0, self: "nailed" }), "partial", "a rating alone is not evidence");
   assert.equal(quickOutcome({ right: 0, total: 0, self: "nailed", coverage: { hits: 4, keys: 4 } }), "success", "with no checks the explanation decides");
   assert.equal(quickOutcome({ right: 0, total: 0, self: "nailed", coverage: { hits: 0, keys: 4 } }), "failure", "saying you nailed it does not make an empty explanation a pass");
-  assert.equal(quickSummary({ right: 0, total: 0, self: "partly" }), "You rated your explanation: partly there.");
+  assert.equal(quickSummary({ right: 0, total: 0, self: "partly" }), "No quick check was suitable for these notes. You rated your explanation: partly there.");
 });
 
 test("scan noise is not readable text, but slide bullets and notation are", async () => {
@@ -61,6 +61,21 @@ test("a first reading never uses an immediate fill-in gap or declares durable ma
   assert.ok(first.checks.every((check) => check.kind !== "cloze"));
   assert.equal(quickOutcome({ right: first.checks.length, total: first.checks.length, self: "nailed", coverage: { hits: 4, keys: 4 }, readFirst: true }), "partial");
   assert.equal(quickOutcome({ right: 2, total: 2, self: "nailed", readFirst: false }), "success");
+});
+
+test("a first reading with only gap questions goes straight to an explanation", () => {
+  const quote = "Osmosis moves water toward the more concentrated solution through a partially permeable membrane.";
+  const thin = {
+    ...activity,
+    learn: { title: "Osmosis", explanation: quote, keyPoints: [] },
+    retrieve: { ...activity.retrieve, prompt: "Explain osmosis in your own words.", modelAnswer: quote },
+    practice: [{ id: "gap", kind: "cloze", prompt: "Osmosis moves water toward the more _____ solution.", modelAnswer: "concentrated", hint: "", explanation: quote, sourceQuote: quote, origin: "offline" }],
+  };
+  const run = buildQuickRun({ activity: thin, name: "Osmosis", siblingNames: [], readFirst: true });
+  assert.ok(run);
+  assert.equal(run.checks.length, 0);
+  assert.equal(run.explainPrompt, "Explain osmosis in your own words.");
+  assert.equal(quickOutcome({ right: 0, total: 0, self: "nailed", readFirst: true }), "partial", "self-rating alone cannot claim mastery");
 });
 
 test("the summary says exactly what the outcome is based on", () => {

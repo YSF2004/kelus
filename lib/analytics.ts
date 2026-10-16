@@ -15,6 +15,7 @@ export type KelusAnalyticsEvent =
   | { name: "diagnosis_completed"; retrieval_count: number }
   | { name: "first_route_ready"; elapsed_ms: number; concept_count: number }
   | { name: "session_started"; session_number?: number; sample?: boolean }
+  | { name: "study_response_recorded"; format: "quick_check" | "own_words"; read_first: boolean }
   | { name: "session_resumed" }
   | { name: "session_abandoned" }
   | { name: "session_completed"; concept_count: number; planned_minutes: number; session_number?: number; days_since_first?: number; sample?: boolean }

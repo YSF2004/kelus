@@ -142,7 +142,11 @@ export function TodayRoute({
     dependents: firstConcept ? dependentNames(firstConcept.id, relationships, concepts) : [],
   });
   // Opened but not answered yet: "New to you here" would contradict "In progress" above it.
-  const decision = startLabel && !(firstConcept?.retrievalAttempts) ? ["You opened it; pick up with the first check."] : reasons;
+  const decision = startLabel && !(firstConcept?.retrievalAttempts) ? [firstChecks ? "You opened it; pick up with the first check." : "You opened it; pick up with your explanation."] : reasons;
+  const firstSource = firstActivity?.sourceReferences[0];
+  const sourceLine = firstSource?.label
+    ? `From ${firstSource.label}${firstSource.locator ? ` · ${firstSource.locator}` : ""}.`
+    : null;
   // A mixed review is named by what it mixes: answered topics the plan does not already list on their own. With
   // none (day one, or every answered topic is already a row), it is not offered.
   const named = route.allocations.filter((allocation) => allocation.conceptId !== first.conceptId && allocation.conceptId !== "mixed-retrieval").slice(0, 3);
@@ -199,7 +203,7 @@ export function TodayRoute({
         <p className={q.sub} data-block="today-page-folio">
           {startLabel ? "In progress · " : goalDone ? "Today’s goal is done, so this one is extra · " : ""}{first.minutes} min · {runLine}
         </p>
-        <p className={q.why} data-block="today-decision" aria-label="Why this topic is first">{decision.join(" ")}</p>
+        <p className={q.why} data-block="today-decision" aria-label="Why this topic is first">{decision.join(" ")}{sourceLine ? ` ${sourceLine}` : ""}</p>
         <motion.button
           type="button"
           data-action="start-topic"

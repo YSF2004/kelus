@@ -7,6 +7,7 @@ test("you can just type the answer and press Enter, then Enter again for the nex
   await startFromPaste(page, notes);
   for (let i = 0; i < 4; i++) {
     if (await page.locator('input[id^="run-gap"]:not([disabled])').count()) break;
+    if (await page.locator("#run-explain").count()) break;
     await page.getByRole("button", { name: "I’m not sure" }).click();
     await page.getByRole("button", { name: /^(Next|Now say)/ }).click();
     await page.locator('#run-explain, button:has-text("I’m not sure")').first().waitFor();

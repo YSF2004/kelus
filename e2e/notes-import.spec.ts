@@ -1,6 +1,6 @@
 import { readFileSync } from "node:fs";
 import { expect, test } from "@playwright/test";
-import { nudgesAlreadyOn, startBuiltPlan, closeToToday, gotoStart, startFromFile, startFromPaste, topicNames, skipReading } from "./helpers";
+import { nudgesAlreadyOn, startBuiltPlan, closeToToday, expectFirstPrompt, gotoStart, startFromFile, startFromPaste, topicNames, skipReading } from "./helpers";
 
 const notion = readFileSync("tests/fixtures/notion-export.md", "utf8");
 const mdFile = { name: "cell-biology.md", mimeType: "text/markdown", buffer: Buffer.from(notion) };
@@ -108,7 +108,7 @@ test("your own file never mixes into the sample: it starts your own course, and 
   await startBuiltPlan(page);
   await expect(page).toHaveURL(/\/session/, { timeout: 30_000 });
   await skipReading(page);
-  await expect(page.getByLabel(/^Check 1 of \d$/)).toBeVisible();
+  await expectFirstPrompt(page);
   await closeToToday(page);
   await expect(page.getByText("Sample course")).toHaveCount(0);
   await expect(page.locator("#today-title")).not.toHaveText(/Elasticity|Supply|Monetary/);
@@ -141,7 +141,7 @@ test("a course with no topics is one screen with one job, and adding notes there
   await startBuiltPlan(page);
   await expect(page).toHaveURL(/\/session/, { timeout: 30_000 });
   await skipReading(page);
-  await expect(page.getByLabel(/^Check 1 of \d$/)).toBeVisible();
+  await expectFirstPrompt(page);
 });
 
 test("a file with no real topics says so plainly and returns to the start screen", async ({ page }) => {

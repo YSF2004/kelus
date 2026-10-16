@@ -19,8 +19,13 @@ export async function skipReading(page: Page) {
 
 export async function startBuiltPlan(page: Page) {
   const start = page.getByRole("button", { name: /^Start$/ });
-  await start.or(page.getByLabel(/^Check 1 of \d$/)).or(page.getByRole("region", { name: "Read it first" })).first().waitFor({ timeout: 30_000 });
+  await start.or(page.getByLabel(/^Check 1 of \d$/)).or(page.getByRole("region", { name: "Read it first" })).or(page.locator("#run-explain")).first().waitFor({ timeout: 30_000 });
   if (await start.count()) await start.click();
+}
+
+/** Sparse notes can support an own-words explanation but no fair instant check. */
+export async function expectFirstPrompt(page: Page) {
+  await expect(page.getByLabel(/^Check 1 of \d$/).or(page.locator("#run-explain"))).toBeVisible();
 }
 
 export async function startFromFile(page: Page, file: UploadFile) {
@@ -29,7 +34,7 @@ export async function startFromFile(page: Page, file: UploadFile) {
   await startBuiltPlan(page);
   await expect(page).toHaveURL(/\/session/, { timeout: 30_000 });
   await skipReading(page);
-  await expect(page.getByLabel(/^Check 1 of \d$/)).toBeVisible();
+  await expectFirstPrompt(page);
 }
 
 export async function startFromPaste(page: Page, text: string) {
@@ -40,7 +45,7 @@ export async function startFromPaste(page: Page, text: string) {
   await startBuiltPlan(page);
   await expect(page).toHaveURL(/\/session/, { timeout: 30_000 });
   await skipReading(page);
-  await expect(page.getByLabel(/^Check 1 of \d$/)).toBeVisible();
+  await expectFirstPrompt(page);
 }
 
 /** Leaves the first question and lands on Today. */
