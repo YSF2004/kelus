@@ -39,7 +39,7 @@ html {
 
 /* ── Header: always paper on home; compact after hero ── */
 body.is-booklet-system .site-header.is-home {
-  background: rgba(255, 255, 255, 0.92);
+  background: color-mix(in srgb, var(--k-surface) 92%, transparent);
   border-bottom: 1px solid var(--booklet-rule);
   backdrop-filter: blur(12px) saturate(140%);
 }
@@ -47,7 +47,7 @@ body.is-booklet-system .site-header.is-home {
 body.is-booklet-system .site-header.is-home .site-nav a,
 body.is-booklet-system .site-header.is-home .text-btn,
 body.is-booklet-system .site-header.is-home .site-auth-button {
-  color: rgba(18, 22, 15, 0.78);
+  color: color-mix(in srgb, var(--k-ink) 78%, transparent);
 }
 
 
@@ -279,7 +279,7 @@ body.is-booklet-system .is-notebook .booklet-board-steps li,body.is-booklet-syst
 
 body.is-booklet-system .is-notebook .booklet-flow-reveal:hover,
 body.is-booklet-system .booklet-board .booklet-flow-reveal:hover {
-  background: #e3e8df !important;
+  background: var(--k-green-wash) !important;
 }
 
 /* ── First-run: marked page, not SaaS form card ── */
@@ -379,8 +379,8 @@ body.is-booklet-system .is-marked-setup input:not([type="radio"]):not([type="che
 
 /* ── Elevation: sample board as marked notebook craft ── */
 body.is-booklet-system .is-notebook.is-elevated .notebook-sheet {
-  background: #fbfcf9;
-  border-color: #c5cdc0;
+  background: var(--k-surface);
+  border-color: var(--k-line-strong);
   box-shadow:
     0 1px 0 rgba(255, 255, 255, 0.75) inset,
     0 18px 48px -28px rgba(18, 22, 15, 0.28),
@@ -1607,7 +1607,7 @@ body.is-booklet-system .is-booklet-today .cta.today-start:active {
 /* ── Premium craft lock: one ink, no Notion blue leftovers ── */
 body.is-booklet-system .cta,body.is-booklet-system a.cta,body.is-booklet-system button.cta,body.is-booklet-system .today-start,body.is-booklet-system .cta.today-start,body.is-booklet-system .study-shell .cta,body.is-booklet-system .study-ratings button.is-primary {
   background: var(--color-kelus, #1f6b45) !important;
-  border-color: var(--color-kelus, #1f6b45) !important;
+  border-color: var(--color-kelus, var(--color-kelus)) !important;
   color: #fff !important;
 }
 
@@ -1623,8 +1623,8 @@ body.is-booklet-system .study-ratings button.is-primary:hover {
 
 body.is-booklet-system .study-question textarea:focus,
 body.is-booklet-system .study-question textarea:focus-visible {
-  outline-color: var(--color-kelus, #1f6b45);
-  border-color: var(--color-kelus, #1f6b45);
+  outline-color: var(--color-kelus, var(--color-kelus));
+  border-color: var(--color-kelus, var(--color-kelus));
 }
 
 
@@ -1638,5 +1638,5 @@ body.is-booklet-system .study-question textarea:focus-visible {
 
 
 body.is-booklet-system .kelus-space-top {
-  border-bottom-color: color-mix(in srgb, var(--color-rule, #d9d4cc) 55%, transparent);
+  border-bottom-color: color-mix(in srgb, var(--color-rule, var(--k-line-strong)) 55%, transparent);
 }

@@ -68,9 +68,9 @@
   cursor: pointer;
   transition: background-color 120ms var(--q-ease), border-color 120ms var(--q-ease), box-shadow 120ms var(--q-ease);
 }
-.primary { border: 0; background: var(--q-green); color: #fff; box-shadow: 0 1px 2px rgba(25, 26, 24, 0.12); }
-.primary:hover { background: var(--q-green-hover); }
-.secondary { border: 1px solid var(--q-line-strong); background: #fff; color: var(--q-ink); }
+.primary { border: 0; background: var(--k-green); color: #fff; box-shadow: 0 1px 2px rgba(25, 26, 24, 0.12); }
+.primary:hover { background: color-mix(in srgb, var(--k-green) 85%, #000); }
+.secondary { border: 1px solid var(--q-line-strong); background: var(--k-surface); color: var(--q-ink); }
 .secondary:hover { background: var(--q-hover); }
 .primary:focus-visible, .secondary:focus-visible { outline: 2px solid color-mix(in srgb, var(--q-green) 45%, transparent); outline-offset: 2px; }
 .key { font: inherit; font-size: 0.6875rem; opacity: 0.7; }
@@ -105,6 +105,6 @@
 }
 
 /* "After that": a real (small) heading for the list, not a grey label. */
-.thenTitle { margin: 0 0 8px; color: var(--q-ink, #191a18); font-family: var(--font-source-serif), Georgia, serif; font-size: 1.125rem; font-weight: 500; letter-spacing: -0.01em; }
+.thenTitle { margin: 0 0 8px; color: var(--q-ink, var(--k-ink)); font-family: var(--font-source-serif), Georgia, serif; font-size: 1.125rem; font-weight: 500; letter-spacing: -0.01em; }
 
-.tomorrow { margin: 10px 0 0; font-size: var(--text-body-sm); line-height: 1.5; color: var(--q-text-2, #5e625b); }
+.tomorrow { margin: 10px 0 0; font-size: var(--text-body-sm); line-height: 1.5; color: var(--q-text-2, var(--k-text-2)); }

@@ -73,7 +73,7 @@ body.is-booklet-system {
   --page-max-width: 1440px;
   --radius-ledger: var(--radius-buttons);
 
-  color: rgba(18, 22, 15, 0.95);
+  color: color-mix(in srgb, var(--k-ink) 95%, transparent);
   background: var(--color-paper-warmth);
   font-family: var(--font-booklet);
   font-weight: 400;

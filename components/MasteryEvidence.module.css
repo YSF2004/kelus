@@ -1,5 +1,5 @@
 .evidence {
-  border-top: 1px solid color-mix(in srgb, var(--color-rule, #d9d4cc) 80%, transparent);
+  border-top: 1px solid color-mix(in srgb, var(--color-rule, var(--k-line-strong)) 80%, transparent);
   margin-top: 2.5rem;
   padding: 0;
   color: var(--color-steel, var(--k-text-2));
@@ -31,12 +31,12 @@
 }
 
 .evidence > summary:focus-visible {
-  outline: 2px solid var(--color-kelus, #1f6b45);
+  outline: 2px solid var(--color-kelus, var(--color-kelus));
   outline-offset: 3px;
 }
 
 .evidence[open] > summary {
-  color: var(--color-kelus, #1f6b45);
+  color: var(--color-kelus, var(--color-kelus));
 }
 
 .evidence p {
@@ -60,12 +60,12 @@
 }
 
 .topics section {
-  border-top: 1px solid color-mix(in srgb, var(--color-rule, #d9d4cc) 75%, transparent);
+  border-top: 1px solid color-mix(in srgb, var(--color-rule, var(--k-line-strong)) 75%, transparent);
   padding: 0.9rem 0;
 }
 
 .note {
   margin-top: 0.75rem !important;
-  color: var(--color-smoke, #8a9184) !important;
+  color: var(--color-smoke, var(--k-text-2)) !important;
   font-size: 0.8125rem !important;
 }

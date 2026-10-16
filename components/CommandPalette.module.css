@@ -7,7 +7,7 @@
   justify-content: center;
   align-items: flex-start;
   padding: max(12vh, 64px) 16px 16px;
-  background: rgba(18, 22, 15, 0.18);
+  background: var(--k-scrim, rgba(18, 22, 15, 0.18));
 }
 
 .box {
@@ -16,9 +16,9 @@
   width: min(100%, 36rem);
   max-height: min(70vh, 30rem);
   overflow: hidden;
-  border: 1px solid rgba(18, 22, 15, 0.1);
+  border: 1px solid color-mix(in srgb, var(--k-ink) 10%, transparent);
   border-radius: 12px;
-  background: #fff;
+  background: var(--k-surface-raised, var(--k-surface));
   box-shadow: 0 18px 50px rgba(18, 22, 15, 0.18), 0 2px 6px rgba(18, 22, 15, 0.06);
 }
 
@@ -27,7 +27,7 @@
   align-items: center;
   gap: 10px;
   padding: 0 14px;
-  border-bottom: 1px solid rgba(18, 22, 15, 0.08);
+  border-bottom: 1px solid color-mix(in srgb, var(--k-ink) 8%, transparent);
   color: var(--color-slate);
 }
 
@@ -47,11 +47,11 @@
   font-size: 1rem;
 }
 
-.field input::placeholder { color: var(--color-smoke, #8a8f86); }
+.field input::placeholder { color: var(--color-smoke, var(--k-text-2)); }
 
 .esc {
   padding: 2px 6px;
-  border: 1px solid rgba(18, 22, 15, 0.12);
+  border: 1px solid color-mix(in srgb, var(--k-ink) 12%, transparent);
   border-radius: 5px;
   color: var(--color-slate);
   font: inherit;
@@ -82,7 +82,7 @@
   cursor: pointer;
 }
 
-.option[aria-selected="true"] { background: rgba(18, 22, 15, 0.055); }
+.option[aria-selected="true"] { background: color-mix(in srgb, var(--k-ink) 6%, transparent); }
 
 .label {
   flex: 1;

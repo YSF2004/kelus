@@ -33,7 +33,7 @@
 .mark {
   width: 64px;
   height: 64px;
-  color: var(--q-ink, #191a18);
+  color: var(--q-ink, var(--k-ink));
 }
 
 .step {
@@ -45,7 +45,7 @@
   font-weight: 400 !important;
   line-height: 1.5;
   letter-spacing: 0;
-  color: var(--q-text-2, #6b6f68);
+  color: var(--q-text-2, var(--k-text-2));
 }
 
 .step > span {

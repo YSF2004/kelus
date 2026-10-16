@@ -20,7 +20,7 @@
 
 .root .trigger:hover,
 .root .trigger[aria-expanded="true"] {
-  background: rgba(18, 22, 15, 0.06);
+  background: color-mix(in srgb, var(--k-ink) 6%, transparent);
   color: var(--color-midnight-ink);
 }
 
@@ -38,9 +38,9 @@
   display: grid;
   min-width: 15rem;
   padding: 6px;
-  border: 1px solid rgba(18, 22, 15, 0.09);
+  border: 1px solid color-mix(in srgb, var(--k-ink) 9%, transparent);
   border-radius: 8px;
-  background: #fff;
+  background: var(--k-surface);
   box-shadow: 0 1px 2px rgba(18, 22, 15, 0.06), 0 12px 32px rgba(18, 22, 15, 0.12);
   transform-origin: top right;
 }
@@ -64,7 +64,7 @@
 
 .root .item:hover,
 .root .item:focus-visible {
-  background: rgba(18, 22, 15, 0.06);
+  background: color-mix(in srgb, var(--k-ink) 6%, transparent);
   outline: none;
 }
 
@@ -103,8 +103,8 @@
 }
 
 .root .keep {
-  border: 1px solid rgba(18, 22, 15, 0.14);
-  background: #fff;
+  border: 1px solid color-mix(in srgb, var(--k-ink) 14%, transparent);
+  background: var(--k-surface);
   color: var(--color-midnight-ink);
 }
 

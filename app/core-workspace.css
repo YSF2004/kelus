@@ -78,7 +78,7 @@ body.is-course-studio .studio-nav.revision-surface-modes button[data-mode="map"]
 .core-source-item { display: grid; grid-template-columns: minmax(0, 1fr) 40px; align-items: center; }
 .core-source-item .core-source-open { min-width: 0; }
 .core-source-remove { width: 40px; height: 44px; border: 0; border-radius: 6px; background: transparent; color: var(--color-slate); font: inherit; font-size: 1.125rem; cursor: pointer; }
-.core-source-remove:hover { color: var(--k-danger); background: #fbede8; }
+.core-source-remove:hover { color: var(--k-danger); background: var(--k-danger-wash); }
 
 
 

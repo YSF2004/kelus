@@ -63,7 +63,7 @@
   padding: 14px 16px;
   border: 1px solid var(--color-frost);
   border-radius: 8px;
-  background: #fff;
+  background: var(--k-surface);
   font-size: 1.0625rem;
   line-height: 1.55;
   color: var(--color-midnight-ink);
@@ -77,14 +77,14 @@
   padding: 0 16px;
   border: 1px solid var(--color-frost);
   border-radius: 8px;
-  background: #fff;
+  background: var(--k-surface);
   color: var(--color-midnight-ink);
   font: inherit;
   font-size: 1rem;
   cursor: pointer;
 }
 .chip:active { background: var(--color-mist); }
-.chip[aria-pressed="true"] { border-color: var(--color-kelus); background: color-mix(in srgb, var(--color-kelus) 8%, #fff); color: var(--color-kelus); font-weight: 600; }
+.chip[aria-pressed="true"] { border-color: var(--color-kelus); background: color-mix(in srgb, var(--color-kelus) 8%, var(--k-surface)); color: var(--color-kelus); font-weight: 600; }
 .chip:focus-visible { outline: 2px solid var(--color-kelus); outline-offset: 2px; }
 .linkKey { margin-left: 8px; padding: 1px 5px; border: 1px solid var(--color-frost); border-radius: 4px; font: inherit; font-size: 0.6875rem; color: var(--color-slate); text-decoration: none; display: none; }
 @media (hover: hover) and (pointer: fine) { .linkKey { display: inline-block; } }
@@ -117,7 +117,7 @@
   gap: 12px;
   min-height: 52px;
   padding: 10px 14px;
-  border: 1px solid rgba(18, 22, 15, 0.12);
+  border: 1px solid color-mix(in srgb, var(--k-ink) 12%, transparent);
   border-radius: 6px;
   background: var(--color-pure-white);
   box-shadow: 0 1px 1px rgba(18, 22, 15, 0.03);
@@ -143,8 +143,8 @@
 
 /* A soft wash on hover, like a Notion row, instead of a hard outline. */
 .choice:hover:not(:disabled) {
-  border-color: rgba(18, 22, 15, 0.2);
-  background: rgba(18, 22, 15, 0.035);
+  border-color: color-mix(in srgb, var(--k-ink) 20%, transparent);
+  background: color-mix(in srgb, var(--k-ink) 4%, transparent);
 }
 
 .choice:focus-visible {
@@ -154,7 +154,7 @@
 
 .choice.right {
   border-color: var(--color-kelus);
-  background: color-mix(in srgb, var(--color-kelus) 7%, #fff);
+  background: color-mix(in srgb, var(--color-kelus) 7%, var(--k-surface));
   box-shadow: inset 0 0 0 1px var(--color-kelus);
   color: var(--color-kelus);
   font-weight: 600;
@@ -168,7 +168,7 @@
 
 .choice.wrong {
   border-color: rgba(161, 53, 43, 0.45);
-  background: #fbf4f2;
+  background: var(--k-danger-wash);
   color: var(--color-slate);
   text-decoration: line-through;
   text-decoration-thickness: 1px;
@@ -177,7 +177,7 @@
 .choice.wrong kbd {
   border-color: var(--k-danger);
   background: var(--k-danger);
-  color: #fff;
+  color: var(--k-danger-on, #fff);
 }
 
 .choice.dim {
@@ -244,9 +244,9 @@
 
 /* Waiting for an answer: still clearly the button, just not yet pressable. */
 .primary:disabled {
-  border: 1px solid #dededb !important;
-  background: #f3f3f1 !important;
-  color: #70746c !important;
+  border: 1px solid var(--k-line-strong) !important;
+  background: var(--k-surface-2) !important;
+  color: var(--k-text-2) !important;
   box-shadow: none !important;
   cursor: not-allowed;
 }
@@ -280,13 +280,13 @@
   display: grid;
   gap: 10px;
   padding: 16px;
-  border: 1px solid rgba(18, 22, 15, 0.06);
+  border: 1px solid color-mix(in srgb, var(--k-ink) 6%, transparent);
   border-radius: 8px;
-  background: #f7f5f1;
+  background: var(--k-surface-2);
 }
 
 .feedback.ok {
-  background: color-mix(in srgb, var(--color-kelus) 6%, #fff);
+  background: color-mix(in srgb, var(--color-kelus) 6%, var(--k-surface));
   border-color: color-mix(in srgb, var(--color-kelus) 16%, transparent);
 }
 
@@ -316,9 +316,9 @@
 .elsewhere {
   margin: 2px 0 0;
   padding: 10px 12px;
-  border: 1px solid rgba(18, 22, 15, 0.08);
+  border: 1px solid color-mix(in srgb, var(--k-ink) 8%, transparent);
   border-radius: 6px;
-  background: #fff;
+  background: var(--k-surface);
 }
 
 .elsewhere span {
@@ -504,8 +504,8 @@
 
 .miss {
   padding: 0 2px;
-  background: #fbe9c8;
-  box-shadow: 0 0 0 1px #f3d9a6 inset;
+  background: var(--k-marigold-wash);
+  box-shadow: 0 0 0 1px color-mix(in srgb, var(--k-marigold-text) 30%, transparent) inset;
 }
 
 @keyframes markIn {
@@ -546,7 +546,7 @@
   right: 8px;
   padding: 1px 7px;
   border-radius: 999px;
-  background: color-mix(in srgb, var(--color-kelus) 12%, #fff);
+  background: color-mix(in srgb, var(--color-kelus) 12%, var(--k-surface));
   color: var(--color-kelus);
   font-size: 0.75rem;
   font-style: normal;
@@ -558,7 +558,7 @@
   margin: -4px 0 0;
   padding: 10px 12px;
   border-radius: 6px;
-  background: #fbf3e4;
+  background: var(--k-marigold-wash);
   color: var(--color-midnight-ink);
   font-size: var(--text-body-sm);
   line-height: 1.45;
@@ -574,12 +574,12 @@
    form gives one small shake (see QuickRun). Unsure: stays neutral. */
 .field { position: relative; display: flex; flex: 1; min-width: 0; }
 .field input { flex: 1; width: 100%; }
-.field[data-state="right"] input { border-color: var(--color-kelus) !important; background: color-mix(in srgb, var(--color-kelus) 6%, #fff) !important; color: var(--color-midnight-ink); }
-.field[data-state="wrong"] input { border-color: color-mix(in srgb, var(--k-coral, #c2513e) 70%, transparent) !important; background: color-mix(in srgb, var(--k-coral, #c2513e) 5%, #fff) !important; text-decoration: line-through; text-decoration-color: color-mix(in srgb, var(--k-coral, #c2513e) 60%, transparent); }
+.field[data-state="right"] input { border-color: var(--color-kelus) !important; background: color-mix(in srgb, var(--color-kelus) 6%, var(--k-surface)) !important; color: var(--color-midnight-ink); }
+.field[data-state="wrong"] input { border-color: color-mix(in srgb, var(--k-coral, #c2513e) 70%, transparent) !important; background: color-mix(in srgb, var(--k-coral, #c2513e) 5%, var(--k-surface)) !important; text-decoration: line-through; text-decoration-color: color-mix(in srgb, var(--k-coral, #c2513e) 60%, transparent); }
 .fieldMark { position: absolute; top: 50%; right: 14px; display: grid; place-items: center; width: 24px; height: 24px; margin-top: -12px; border-radius: 50%; background: var(--color-kelus); color: #fff; font-size: 0.8125rem; font-weight: 700; }
 
 /* Keyboard hints live inside the button on desktop only; touch screens never show keys they do not have. */
-.key { display: none; margin-left: 10px; padding: 1px 6px; border-radius: 5px; background: rgba(255, 255, 255, 0.18); color: inherit; font: inherit; font-size: 0.75rem; font-weight: 500; line-height: 1.5; }
+.key { display: none; margin-left: 10px; padding: 1px 6px; border-radius: 5px; background: color-mix(in srgb, var(--k-surface) 18%, transparent); color: inherit; font: inherit; font-size: 0.75rem; font-weight: 500; line-height: 1.5; }
 .gradeKey { display: none; position: absolute; bottom: 10px; right: 10px; min-width: 20px; padding: 0 5px; border: 1px solid var(--color-frost); border-radius: 5px; color: var(--color-slate); font: inherit; font-size: 0.75rem; line-height: 18px; text-align: center; }
 @media (hover: hover) and (pointer: fine) {
   .key, .gradeKey { display: inline-block; }
@@ -597,7 +597,7 @@
 .flagLink:hover { color: var(--color-midnight-ink); }
 .flagLink:focus-visible, .flagReason:focus-visible { outline: 2px solid var(--color-kelus); outline-offset: 2px; }
 .flagReasons { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
-.flagReason { min-height: 44px; padding: 0 14px; border: 1px solid var(--color-frost); border-radius: 8px; background: #fff; color: var(--color-midnight-ink); font: inherit; cursor: pointer; }
+.flagReason { min-height: 44px; padding: 0 14px; border: 1px solid var(--color-frost); border-radius: 8px; background: var(--k-surface); color: var(--color-midnight-ink); font: inherit; cursor: pointer; }
 .flagReason:hover { border-color: var(--color-midnight-ink); }
 .flagDone { margin: 0; display: flex; flex-wrap: wrap; align-items: center; gap: 4px 8px; }
 
@@ -607,7 +607,7 @@
 .listen:hover, .listen[aria-pressed="true"] { color: var(--color-kelus); }
 .listen:focus-visible { outline: 2px solid var(--color-kelus); outline-offset: 2px; border-radius: 4px; }
 /* The line in context: its neighbours quiet, the line itself in ink with a marigold rule. */
-.around { display: grid; gap: 6px; margin: 0; padding: 12px 14px; border-radius: 8px; background: #fff; border: 1px solid var(--color-frost); }
+.around { display: grid; gap: 6px; margin: 0; padding: 12px 14px; border-radius: 8px; background: var(--k-surface); border: 1px solid var(--color-frost); }
 .around p { margin: 0; font-size: 0.9375rem; line-height: 1.5; color: var(--color-slate); }
 .around .aroundLine { color: var(--color-midnight-ink); font-weight: 500; background: color-mix(in srgb, var(--k-marigold, #f3b23e) 22%, transparent); border-radius: 4px; padding: 2px 4px; margin: 0 -4px; }
 

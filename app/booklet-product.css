@@ -26,7 +26,7 @@
 
 .is-booklet-product.course-workspace-layout,
 .course-workspace-layout.is-booklet-product {
-  background: var(--color-paper-warmth, #ffffff);
+  background: var(--color-paper-warmth, var(--k-surface));
 }
 
 
@@ -58,7 +58,7 @@
 .is-booklet-product.shell,
 .is-booklet-product .shell,
 .shell.is-booklet-product {
-  background: var(--color-paper-warmth, #ffffff);
+  background: var(--color-paper-warmth, var(--k-surface));
 }
 
 
@@ -67,9 +67,9 @@
 
 .is-booklet-product .materials-empty,
 .is-booklet-product .materials-head {
-  border: 1px solid #e8e8e5;
+  border: 1px solid var(--k-line);
   border-radius: 12px;
-  background: #fff;
+  background: var(--k-surface);
   box-shadow: 0 1px 2px rgba(15, 15, 15, 0.03);
 }
 
@@ -89,9 +89,9 @@
   max-width: 720px;
   margin: 1.5rem auto 3rem;
   padding: 1.5rem 1.35rem 1.75rem;
-  border: 1px solid #e8e8e5;
+  border: 1px solid var(--k-line);
   border-radius: 12px;
-  background: #fff;
+  background: var(--k-surface);
   box-shadow:
     0 1px 0 rgba(255, 255, 255, 0.8) inset,
     0 24px 56px -32px rgba(15, 15, 15, 0.22);
@@ -118,22 +118,22 @@
 
 
 .destination-page.is-booklet-product fieldset {
-  border: 1px solid #ebebea;
+  border: 1px solid var(--k-line);
   border-radius: 10px;
   padding: 1rem 1rem 1.1rem;
-  background: var(--color-paper-warmth, #ffffff);
+  background: var(--color-paper-warmth, var(--k-surface));
 }
 
 .destination-page.is-booklet-product legend {
-  color: #37352f;
+  color: var(--k-ink);
   font-weight: 600;
   padding: 0 0.35rem;
 }
 
 .destination-page.is-booklet-product input:not([type="radio"]):not([type="checkbox"]) {
   border-radius: 8px;
-  border: 1px solid #ebebea;
-  background: #fff;
+  border: 1px solid var(--k-line);
+  background: var(--k-surface);
   box-shadow: none;
 }
 
@@ -148,22 +148,22 @@
 
 
 .pricing-page.is-booklet-product .pricing-plan {
-  border: 1px solid var(--booklet-rule, #d5d9d0);
+  border: 1px solid var(--booklet-rule, var(--k-line-strong));
   border-radius: 4px;
   background: transparent;
   box-shadow: none;
 }
 
 .pricing-page.is-booklet-product .pricing-plan.is-founding {
-  border-color: var(--booklet-kelus, #1f6b45);
+  border-color: var(--booklet-kelus, var(--color-kelus));
   box-shadow: none;
-  background: #f7f8f5;
+  background: var(--k-surface-2);
 }
 
 .pricing-page.is-booklet-product .pricing-plan .cta {
   border-radius: 4px;
   background: #1f6b45;
-  border-color: #1f6b45;
+  border-color: var(--color-kelus);
 }
 
 /* ── Site-wide Booklet accent (header lives outside AppShell) ── */
@@ -183,13 +183,13 @@
 
 .is-booklet-system .site-footer-mark:hover,
 .is-booklet-system .site-auth-button:hover {
-  color: #1f6b45;
+  color: var(--color-kelus);
 }
 
 .is-booklet-system .cta,
 .is-booklet-system .cta:hover {
   background: #1f6b45;
-  border-color: #1f6b45;
+  border-color: var(--color-kelus);
   border-radius: 8px;
 }
 
@@ -201,14 +201,14 @@
 .is-booklet-system .cta:focus-visible,
 .is-booklet-system a:focus-visible,
 .is-booklet-system button:focus-visible {
-  outline-color: #1f6b45;
+  outline-color: var(--color-kelus);
 }
 
 
 
 .is-booklet-product .cta,.is-booklet-product .materials-empty-actions .cta {
   background: #1f6b45;
-  border-color: #1f6b45;
+  border-color: var(--color-kelus);
   border-radius: 8px;
 }
 
@@ -243,7 +243,7 @@
 
 .is-booklet-product .material-drop:hover,
 .is-booklet-product .material-drop.is-dragging {
-  border-color: #1f6b45;
+  border-color: var(--color-kelus);
   background: rgba(31, 107, 69, 0.06);
 }
 
@@ -287,14 +287,14 @@
 
 .destination-page.is-booklet-product input:not([type="radio"]):not([type="checkbox"]) {
   border: 0;
-  border-bottom: 1px solid #ebebea;
+  border-bottom: 1px solid var(--k-line);
   border-radius: 0;
   background: transparent;
   box-shadow: none;
 }
 
 .destination-page.is-booklet-product input:not([type="radio"]):not([type="checkbox"]):focus {
-  border-bottom-color: #1f6b45;
+  border-bottom-color: var(--color-kelus);
   outline: none;
 }
 
@@ -304,8 +304,8 @@
 
 
 .is-booklet-system .site-footer {
-  background: #f3f3f1;
-  border-top: 1px solid #ebebea;
+  background: var(--k-surface-2);
+  border-top: 1px solid var(--k-line);
 }
 
 /* Empty states read as Booklet pages */
@@ -327,19 +327,19 @@
   height: 28px;
   border-radius: 8px;
   background:
-    radial-gradient(circle at 30% 30%, #fff 0 18%, transparent 19%),
+    radial-gradient(circle at 30% 30%, var(--k-surface) 0 18%, transparent 19%),
     linear-gradient(135deg, var(--k-ink), #444);
   box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.12);
 }
 
 .is-booklet-product .materials-empty .text-btn {
-  color: #1f6b45;
+  color: var(--color-kelus);
   font-weight: 600;
 }
 
 /* Pricing as soft workspace band */
 .pricing-page.is-booklet-product {
-  background: var(--color-paper-warmth, #ffffff);
+  background: var(--color-paper-warmth, var(--k-surface));
   padding-bottom: 3rem;
 }
 
@@ -424,7 +424,7 @@
 .is-booklet-system .site-nav a { color: var(--color-steel); border-radius: 8px; padding: 10px 12px; border: 0; min-height: 44px; }
 .is-booklet-system .site-nav a:hover { background: #ebe9e6; }
 .is-booklet-system .site-nav a.is-active { background: #ebe9e6; color: var(--k-ink); box-shadow: none; }
-.is-booklet-system .site-auth-button { border-color: var(--color-frost); border-radius: 8px; color: var(--k-ink); background: white; }
+.is-booklet-system .site-auth-button { border-color: var(--color-frost); border-radius: 8px; color: var(--k-ink); background: var(--k-surface); }
 
 .is-booklet-system .cta,.is-booklet-system .is-booklet-product .cta { background: var(--color-booklet-blue); border-color: var(--color-booklet-blue); min-height: 44px; }
 
@@ -442,7 +442,7 @@
 .site-account-menu summary { display: flex; align-items: center; gap: 8px; min-height: 44px; cursor: pointer; list-style: none; font-size: 14px; }
 .site-account-menu summary::-webkit-details-marker { display: none; }
 .account-initial { display: grid; place-items: center; width: 30px; height: 30px; border-radius: 50%; background: #f6d5b8; color: var(--k-ink); font-weight: 600; }
-.site-account-panel { position: absolute; right: 0; top: calc(100% + 8px); z-index: 60; width: min(280px, 85vw); padding: 16px; border: 1px solid var(--color-frost); border-radius: 12px; background: white; }
+.site-account-panel { position: absolute; right: 0; top: calc(100% + 8px); z-index: 60; width: min(280px, 85vw); padding: 16px; border: 1px solid var(--color-frost); border-radius: 12px; background: var(--k-surface); }
 .site-account-panel p { margin: 0 0 12px; color: var(--color-steel); font-size: 12px; }
 .site-account-panel strong { display: block; margin-top: 4px; color: var(--k-ink); overflow-wrap: anywhere; font-size: 14px; }
 .site-account-panel button { min-height: 44px; width: 100%; text-align: left; border: 0; border-radius: 8px; padding: 10px 12px; background: var(--color-paper-warmth); cursor: pointer; font: inherit; }
@@ -461,7 +461,7 @@
 .board-example-label { margin: 0 0 12px; color: var(--color-steel); font-size: 12px; font-weight: 400; }
 .booklet-board .booklet-flow-reveal { width: 100%; min-height: 44px; cursor: pointer; font: inherit; text-align: left; }
 .booklet-board .booklet-flow-reveal:hover { background: var(--color-sky-tint); }
-.board-answer { margin: 12px 0; padding: 14px; background: #fff7df; border-radius: 8px; font-size: 14px; line-height: 1.6; color: #37352f; }
+.board-answer { margin: 12px 0; padding: 14px; background: var(--k-marigold-wash); border-radius: 8px; font-size: 14px; line-height: 1.6; color: var(--k-ink); }
 .is-booklet-system :is(.folio-product-stage, .folio-chapter, .folio-method, .how-page.is-booklet-product, .pricing-page.is-booklet-product) { background: var(--color-paper-warmth); }
 .is-booklet-system :is(.folio-chapter-art, .how-stage-visual) { box-shadow: none; }
 
@@ -497,7 +497,7 @@
 /* Setup fields should look editable and retain a visible focus ring. */
 .destination-page.is-booklet-product { margin: 32px auto 64px; width: min(720px, calc(100% - 32px)); padding: clamp(24px, 4vw, 40px); box-shadow: none; }
 
-.destination-page.is-booklet-product input:not([type="radio"]):not([type="checkbox"]) { border: 1px solid #bdb9b4; border-radius: 8px; background: #fff; min-height: 48px; padding: 10px 12px; font-size: 16px; }
+.destination-page.is-booklet-product input:not([type="radio"]):not([type="checkbox"]) { border: 1px solid var(--k-input-line); border-radius: 8px; background: var(--k-surface); min-height: 48px; padding: 10px 12px; font-size: 16px; }
 .destination-page.is-booklet-product input:focus-visible { outline: 2px solid var(--color-booklet-blue); outline-offset: 2px; }
 
 
@@ -508,10 +508,10 @@
 /* The study session is the same paper notebook, with room to write. */
 .is-booklet-system .study-shell { max-width: 880px; width: calc(100% - 40px); padding-top: 24px; }
 .is-booklet-system .study-shell.is-source-open { max-width: 1320px; }
-.is-booklet-system .study-question { padding: clamp(20px, 4vw, 40px); background: white; border: 1px solid var(--color-frost); border-radius: 12px; margin-block: 24px; }
+.is-booklet-system .study-question { padding: clamp(20px, 4vw, 40px); background: var(--k-surface); border: 1px solid var(--color-frost); border-radius: 12px; margin-block: 24px; }
 .is-booklet-system .study-question :is(h1, h2) { color: var(--k-ink); font-weight: 600; font-size: clamp(24px, 3vw, 34px); line-height: 1.2; letter-spacing: -.025em; }
 .is-booklet-system .session-explanation { font-size: 18px; line-height: 1.65; }
-.is-booklet-system .study-question textarea { min-height: 180px; width: 100%; padding: 16px; border: 1px solid #bdb9b4; border-radius: 8px; background: #fdfcfb; color: var(--k-ink); font-size: 16px; line-height: 1.6; resize: vertical; }
+.is-booklet-system .study-question textarea { min-height: 180px; width: 100%; padding: 16px; border: 1px solid var(--k-input-line); border-radius: 8px; background: var(--k-surface); color: var(--k-ink); font-size: 16px; line-height: 1.6; resize: vertical; }
 
 .is-booklet-system .answer-evaluation { border-radius: 12px; }
 
@@ -579,7 +579,7 @@
 
 
 
-.is-booklet-product .material-ingest { padding: 24px; border: 1px solid var(--color-frost); border-radius: 12px; background: white; }
+.is-booklet-product .material-ingest { padding: 24px; border: 1px solid var(--color-frost); border-radius: 12px; background: var(--k-surface); }
 .is-booklet-product .material-ingest-title { margin-bottom: 16px; }
 .is-booklet-product .material-ingest-title h2 { font-size: 1.375rem; font-weight: 600; line-height: 1.25; letter-spacing: -.02em; }
 .is-booklet-product .material-role-field { margin-bottom: 20px; }

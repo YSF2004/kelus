@@ -12,8 +12,8 @@
     display: grid;
     grid-template-columns: repeat(4, minmax(0, 1fr));
     padding: 6px 8px calc(6px + env(safe-area-inset-bottom));
-    border-top: 1px solid rgba(18, 22, 15, 0.08);
-    background: rgba(251, 250, 247, 0.9);
+    border-top: 1px solid color-mix(in srgb, var(--k-ink) 8%, transparent);
+    background: color-mix(in srgb, var(--k-surface) 90%, transparent);
     -webkit-backdrop-filter: saturate(160%) blur(16px);
     backdrop-filter: saturate(160%) blur(16px);
   }
@@ -61,7 +61,7 @@
 }
 
 /* Each section keeps its colour role: green to study, marigold for your notes, iris to see where you stand. */
-.green { --tone: var(--k-green); --tone-text: var(--k-green); }
+.green { --tone: var(--k-green); --tone-text: var(--color-kelus, var(--k-green)); }
 .marigold { --tone: var(--k-marigold); --tone-text: var(--k-marigold-text); }
 .iris { --tone: var(--k-iris); --tone-text: var(--k-iris); }
 

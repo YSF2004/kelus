@@ -25,7 +25,7 @@ export function BrandIcon({ brand, size = 16, className, label, tile = false }: 
       viewBox="0 0 24 24"
       width={size}
       height={size}
-      fill={`#${icon.hex}`}
+      fill={icon.hex === "000000" ? "currentColor" : `#${icon.hex}`}
       role={label ? "img" : undefined}
       aria-label={label}
       aria-hidden={label ? undefined : true}

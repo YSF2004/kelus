@@ -42,8 +42,8 @@
   font-size: var(--text-body-sm);
   padding: 10px 12px;
   border-radius: 10px;
-  background: #fbefec;
-  color: #8a2f20;
+  background: var(--k-danger-wash);
+  color: var(--k-danger);
 }
 
 .use {

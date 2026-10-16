@@ -81,8 +81,8 @@
 
 .start.start:hover { background: var(--color-kelus-hover); }
 /* Second in line after a warm-up: outlined, same size, so the order of the visit reads at a glance. */
-.start.start.quiet { background: #fff; color: var(--color-kelus); box-shadow: inset 0 0 0 1.5px var(--color-kelus); }
-.start.start.quiet:hover { background: color-mix(in srgb, var(--color-kelus) 6%, #fff); }
+.start.start.quiet { background: var(--k-surface); color: var(--color-kelus); box-shadow: inset 0 0 0 1.5px var(--color-kelus); }
+.start.start.quiet:hover { background: color-mix(in srgb, var(--color-kelus) 6%, var(--k-surface)); }
 .start.start:focus-visible { outline: 2px solid var(--color-midnight-ink); outline-offset: 3px; }
 
 .source { margin: 0; font-size: var(--text-body-sm); color: var(--color-smoke); }
@@ -157,7 +157,7 @@
 }
 .path { font-size: var(--text-body); color: var(--color-slate); }
 .dots { display: flex; flex-wrap: wrap; gap: 5px; }
-.dots i { width: 12px; height: 12px; border-radius: 50%; border: 1.5px solid rgba(18, 22, 15, 0.22); background: #fff; }
+.dots i { width: 12px; height: 12px; border-radius: 50%; border: 1.5px solid color-mix(in srgb, var(--k-ink) 22%, transparent); background: var(--k-surface); }
 .dots i.dotStarted { border-color: var(--k-marigold-edge); background: var(--k-marigold); }
 .dots i.dotSolid { border-color: var(--k-green-edge); background: var(--k-green); }
 .ahead { color: var(--k-text-2); font-weight: 400; }
