@@ -115,7 +115,7 @@ export function TopicMapPanel() {
   const solid = path.filter((row) => row.label === "Solid").length;
   const recalled = knownCount(known, new Set(path.map((row) => row.concept.id)));
   const start = rows.find((row) => row.concept.id === startConceptId);
-  const startReason = start && startAllocation && start.concept.retrievalAttempts > 0 ? describeRouteChoice(startAllocation, start.concept, { examDateKnown: !state.snapshot.exams.some((item) => item.isActive && item.datePlaceholder) })[0] : null;
+  const startReason = start && startAllocation && start.concept.retrievalAttempts > 0 ? describeRouteChoice(startAllocation, start.concept, { events: state.snapshot.events, nowIso: state.nowIso, examDateKnown: !state.snapshot.exams.some((item) => item.isActive && item.datePlaceholder) })[0] : null;
   // A checkpoint after every three topics: two lines from each, mixed. It opens once those three are practised.
   const GROUP = 3;
   const passedCount = results.filter((result) => passed(result) && result.key.split(",").every((id) => path.some((row) => row.concept.id === id))).length;

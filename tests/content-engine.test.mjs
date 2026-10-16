@@ -46,3 +46,24 @@ test("a figure caption is asked as its fact, without the figure number", async (
   assert.ok(lines.some((line) => line.startsWith("Enzymes are proteins")));
   assert.ok(!lines.some((line) => /^(Figure|Table)\b/.test(line)));
 });
+
+test("French notes are asked about in French, with gaps on their ideas, not on accents or small words", async () => {
+  const { buildPractice } = await import("../domain/content-engine.ts");
+  const { noteLanguage, frenchRecallQuestion, inNotesLanguage } = await import("../domain/note-language.ts");
+  const excerpt = "La photosynthèse est la réaction par laquelle les plantes vertes fabriquent du glucose à partir du dioxyde de carbone et de l'eau, en utilisant l'énergie lumineuse captée par la chlorophylle. Les stomates laissent entrer le dioxyde de carbone, et les racines absorbent l'eau du sol.";
+  assert.equal(noteLanguage(excerpt), "fr");
+  assert.equal(noteLanguage("Osmosis is the movement of water across a membrane."), "en");
+  const items = buildPractice({ conceptId: "p", name: "Photosynthèse", excerpt, locator: "Page 1", siblingNames: ["Respiration", "Facteurs limitants", "Équation bilan"] });
+  assert.ok(items.length >= 2);
+  for (const item of items) assert.doesNotMatch(item.prompt, /\b(?:Which|What|Fill the gap|your notes)\b/, item.prompt);
+  const gaps = items.filter((item) => item.kind === "cloze");
+  assert.ok(gaps.length >= 1);
+  for (const gap of gaps) {
+    assert.match(gap.modelAnswer, /^\p{L}{5,}$/u, "a whole word, accents included");
+    assert.match(gap.prompt, /^Complète cette phrase de la page 1 : “/);
+  }
+  assert.equal(frenchRecallQuestion("Définition", "La photosynthèse est la réaction par laquelle…"), "Qu’est-ce que la photosynthèse, d’après tes notes ?");
+  assert.equal(frenchRecallQuestion("Où a-t-elle lieu ?", "Elle se déroule dans les chloroplastes."), "Où a-t-elle lieu ? Que disent tes notes ?");
+  assert.equal(inNotesLanguage("Which of these does NOT match your notes on Osmose?", "fr", "Osmose"), "Laquelle de ces phrases ne correspond PAS à tes notes sur « Osmose » ?");
+  assert.equal(inNotesLanguage("Which of these does NOT match your notes on Osmosis?", "en", "Osmosis"), "Which of these does NOT match your notes on Osmosis?");
+});

@@ -71,3 +71,13 @@ test("after a topic, the plan line names the topic your answer moved", async () 
   assert.equal(planLine({ next: "Elasticity", orderChanged: false }), "Next: Elasticity.");
   assert.equal(planLine({ orderChanged: false }), "That was the last topic for now.");
 });
+
+test("a passed checkpoint is the latest evidence, so Start here never calls the topic shaky after it", () => {
+  const events = [
+    { conceptId: "c", kind: "retrieval", outcome: "failure", promptId: "quick-c", createdAt: "2026-10-14T10:00:00Z" },
+    { conceptId: "c", kind: "retrieval", outcome: "success", promptId: "checkpoint-c", createdAt: "2026-10-16T09:00:00Z" },
+  ];
+  const [line] = describeRouteChoice({ reasons: ["LOW_MASTERY"] }, { id: "c", retrievalAttempts: 2 }, { events, nowIso: "2026-10-16T12:00:00Z" });
+  assert.doesNotMatch(line, /shaky/);
+  assert.match(line, /^Earlier today, every line came back in a checkpoint/);
+});

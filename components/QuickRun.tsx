@@ -10,7 +10,7 @@ import { PackArt } from "@/components/PackArt";
 import { ListenButton } from "@/components/ListenButton";
 import { play } from "@/lib/sound";
 import { hiddenLines, hideLine } from "@/lib/hidden-lines";
-import { gapChoices, keyWordsIn, linesAround, readingLines, whereAnswerBelongs, type QuickRun as Run, type SelfGrade } from "@/domain/quick-run";
+import { asksForTheTopic, gapChoices, keyWordsIn, linesAround, readingLines, whereAnswerBelongs, type QuickRun as Run, type SelfGrade } from "@/domain/quick-run";
 import { trackEvent } from "@/lib/analytics";
 import { FLAG_REASONS, flagQuestion, sendFlaggedQuestion, type FlagReason } from "@/lib/flags";
 import styles from "./QuickRun.module.css";
@@ -221,7 +221,8 @@ export function QuickRun({ run, onRevealSource, onFinish, onChecksDone, context,
             <li key={index} className={index < at ? styles.done : index === at ? styles.now : undefined} aria-current={index === at ? "step" : undefined} />
           ))}
         </ol>
-        {context}
+        {/* While the question's answer is the topic's own name, the caption keeps only its place in the block. */}
+        <div className={styles.context} data-topic-hidden={item && asksForTheTopic(item) && !answered ? "" : undefined}>{context}</div>
         {/* Nothing to count yet on a first visit: the count appears with the first line recalled. */}
         {count == null || (count === 0 && !drop) ? <span /> : (
           <p className={styles.recall} aria-label={`${count} ${count === 1 ? "line" : "lines"} from your notes you can recall`}>

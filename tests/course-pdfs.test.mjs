@@ -116,3 +116,9 @@ test("headings that continue an earlier line are not topics: 'And assessing trad
   assert.ok(names.includes("Opportunity Cost"));
   assert.ok(!names.some((name) => /^And |\)$/.test(name)), names.join(" / "));
 });
+
+test("a table row keeps its cells apart: the factor, then what it does", async () => {
+  const { text } = await topicsOf("fiche-photosynthese.pdf");
+  assert.match(text, /Température: Au-delà de 40 °C/);
+  assert.match(text, /Concentration en CO₂: Une concentration/);
+});

@@ -352,9 +352,14 @@ html body.is-course-studio .studio-search kbd {
   font-size: 0.875rem;
 }
 .study-topic-kicker b {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
   color: var(--color-midnight-ink);
   font-weight: 600;
 }
+/* The rename button is the name: it stays on one line beside "Topic 1 of 3", trimmed with … if it is very long. */
+.study-topic-kicker b > button { white-space: nowrap; }
 .study-topic-kicker span::before { content: "·"; margin-right: 10px; color: var(--color-frost, #c9ccc4); }
 
 html body.is-session-booklet.is-booklet-system main#main.study-shell[data-phase].is-focus.is-notes-open > .session-workspace-source {
