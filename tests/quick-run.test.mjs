@@ -151,3 +151,25 @@ test("a gap tests the idea, not a describing word, a label, half a name or an ex
   const history = gaps("Nationalism", "Serbia wanted to unite the Slav peoples, and the Black Hand group used violence to achieve it. Necessities such as insulin have inelastic demand. The key concept behind tradeoffs is opportunity cost: every action or inaction has a cost in terms of what could have been done instead.");
   for (const bad of ["Black", "insulin", "terms", "action"]) assert.ok(!history.includes(bad), `${bad} in ${history.join(", ")}`);
 });
+
+test("a typed answer is marked the way a fair marker would, and a different word never passes", async () => {
+  const { checkAnswer } = await import("../domain/practice-check.ts");
+  const gap = (prompt, answer) => ({ kind: "cloze", prompt, modelAnswer: answer });
+  const notes = "In a hypotonic solution a cell gains water. In a hypertonic solution it loses water. Price rises and demand falls.";
+  const item = gap("Fill the gap: “Water moves to a more _____ solution.”", "concentrated");
+  assert.deepEqual(checkAnswer(item, "concentrated"), { right: true, how: "exact" });
+  assert.deepEqual(checkAnswer(item, "more concentrated"), { right: true, how: "words" });
+  assert.deepEqual(checkAnswer(item, "concentrted"), { right: true, how: "spelling" });
+  assert.equal(checkAnswer(item, "dilute").right, false);
+  assert.deepEqual(checkAnswer(gap("“The _____ controls what enters.”", "membrane"), "the membranes"), { right: true, how: "words" });
+  assert.deepEqual(checkAnswer(gap("“Demand _____ when price rises.”", "decreases"), "decreased"), { right: true, how: "form" });
+  assert.deepEqual(checkAnswer(gap("“La _____ fabrique du glucose.”", "photosynthèse"), "photosynthese"), { right: true, how: "spelling" });
+  assert.deepEqual(checkAnswer(gap("“About _____ people.”", "17,000"), "17000"), { right: true, how: "exact" });
+  assert.deepEqual(checkAnswer(gap("“Above _____ enzymes stop.”", "40 °C"), "40"), { right: true, how: "form" });
+  // Opposites and look-alikes are different answers, however close the letters.
+  assert.equal(checkAnswer(gap("“In a _____ solution a cell gains water.”", "hypotonic"), "hypertonic", notes).right, false);
+  assert.equal(checkAnswer(gap("“Demand is _____.”", "elastic"), "inelastic").right, false);
+  assert.equal(checkAnswer(gap("“Demand _____ when price rises.”", "decreases"), "increases").right, false);
+  // A one-letter slip that is itself another word in the notes is that word, not a slip.
+  assert.equal(checkAnswer(gap("“Demand _____.”", "falls"), "fails", "It fails when the price rises.").right, false);
+});

@@ -394,7 +394,7 @@ export function RevisionSurface({ topicId }: { /** A topic's own page, opened in
             ) : null}
             {mode === "materials" ? <div className={`core-workspace-grid is-materials${hasReadableSource ? "" : " is-source-missing"}`}>{hasReadableSource ? <CourseSourceReader key={selectedMaterial.id} material={selectedMaterial} /> : null}<div className="core-workspace-action"><MaterialLibrary embedded incomingFile={incomingSource} onIncomingFileHandled={() => setIncomingSource(null)} interceptFile={isSampleCourse ? (file) => { setSampleFile(file); return true; } : undefined} /></div></div> : null}
             {mode === "map" ? <TopicMapPanel /> : null}
-            {mode === "progress" ? <ProgressView concepts={concepts} events={snapshot.events} nowIso={nowIso} daysToExam={days} targetPercent={exam.targetPercent} examDatePending={examDatePending} /> : null}
+            {mode === "progress" ? <ProgressView concepts={concepts} activities={snapshot.learningActivities} events={snapshot.events} nowIso={nowIso} daysToExam={days} targetPercent={exam.targetPercent} examDatePending={examDatePending} /> : null}
           </motion.div>}
         </main>
         <AppTabBar tabs={MODES} active={mode} onSelect={setMode} />

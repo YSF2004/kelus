@@ -1,0 +1,36 @@
+/* Lines you can recall: one figure, then one mark per line, topic by topic. The marks are the product's own
+   checkpoint squares: small, square-ish, green when known. */
+.map { display: grid; gap: 6px; padding: 4px 0 28px; border-bottom: 1px solid var(--q-line, var(--k-line)); }
+.kicker { margin: 0; color: var(--k-text-2); font-size: 0.8125rem; font-weight: 600; }
+.figure { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 10px; margin: 0; }
+.figure b {
+  /* The page title's serif: Atkinson's figures (with their slab 1) are for reading, not for one big number. */
+  font-family: var(--font-marketing-heading), Georgia, serif;
+  font-size: clamp(2.5rem, 6vw, 3.25rem);
+  font-weight: 500;
+  line-height: 1;
+  letter-spacing: -0.03em;
+  font-variant-numeric: lining-nums tabular-nums;
+  color: var(--k-ink);
+}
+.figure span { color: var(--k-text-2); font-size: 0.9375rem; }
+.sub { margin: 2px 0 14px; max-width: 46ch; color: var(--k-text-2); font-size: 0.875rem; line-height: 1.5; }
+
+.topics { display: grid; gap: 12px; margin: 0; padding: 0; list-style: none; }
+.topic { display: grid; grid-template-columns: minmax(0, 12rem) 2.75rem minmax(0, 1fr); align-items: center; gap: 12px; }
+.name { overflow: hidden; color: var(--k-ink); font-size: 0.875rem; font-weight: 500; white-space: nowrap; text-overflow: ellipsis; }
+.count { color: var(--k-text-3, var(--k-text-2)); font-size: 0.8125rem; font-variant-numeric: tabular-nums; text-align: right; }
+.dots { display: flex; flex-wrap: wrap; gap: 4px; }
+
+.dot { display: inline-block; flex: none; width: 11px; height: 11px; border-radius: 3px; background: color-mix(in srgb, var(--k-ink) 11%, transparent); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--k-ink) 8%, transparent); }
+.dot[data-state="recalled"] { background: var(--k-green); }
+.dot[data-state="back"] { background: var(--k-marigold-wash); box-shadow: inset 0 0 0 1.5px var(--k-marigold-text); }
+
+.legend { display: flex; flex-wrap: wrap; gap: 6px 16px; margin: 14px 0 0; color: var(--k-text-2); font-size: 0.75rem; }
+.legend span { display: inline-flex; align-items: center; gap: 6px; }
+.legend .dot { width: 9px; height: 9px; border-radius: 2.5px; }
+
+@media (max-width: 640px) {
+  .topic { grid-template-columns: minmax(0, 1fr) auto; gap: 6px 10px; }
+  .dots { grid-column: 1 / -1; }
+}
