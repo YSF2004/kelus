@@ -497,7 +497,7 @@
 /* Setup fields should look editable and retain a visible focus ring. */
 .destination-page.is-booklet-product { margin: 32px auto 64px; width: min(720px, calc(100% - 32px)); padding: clamp(24px, 4vw, 40px); box-shadow: none; }
 
-.destination-page.is-booklet-product input:not([type="radio"]):not([type="checkbox"]) { border: 1px solid var(--k-line-strong); border-radius: 8px; background: var(--k-surface); min-height: 48px; padding: 10px 12px; font-size: 16px; }
+.destination-page.is-booklet-product input:not([type="radio"]):not([type="checkbox"]) { border: 1px solid var(--k-input-line); border-radius: 8px; background: var(--k-surface); min-height: 48px; padding: 10px 12px; font-size: 16px; }
 .destination-page.is-booklet-product input:focus-visible { outline: 2px solid var(--color-booklet-blue); outline-offset: 2px; }
 
 
@@ -511,7 +511,7 @@
 .is-booklet-system .study-question { padding: clamp(20px, 4vw, 40px); background: var(--k-surface); border: 1px solid var(--color-frost); border-radius: 12px; margin-block: 24px; }
 .is-booklet-system .study-question :is(h1, h2) { color: var(--k-ink); font-weight: 600; font-size: clamp(24px, 3vw, 34px); line-height: 1.2; letter-spacing: -.025em; }
 .is-booklet-system .session-explanation { font-size: 18px; line-height: 1.65; }
-.is-booklet-system .study-question textarea { min-height: 180px; width: 100%; padding: 16px; border: 1px solid var(--k-line-strong); border-radius: 8px; background: var(--k-surface); color: var(--k-ink); font-size: 16px; line-height: 1.6; resize: vertical; }
+.is-booklet-system .study-question textarea { min-height: 180px; width: 100%; padding: 16px; border: 1px solid var(--k-input-line); border-radius: 8px; background: var(--k-surface); color: var(--k-ink); font-size: 16px; line-height: 1.6; resize: vertical; }
 
 .is-booklet-system .answer-evaluation { border-radius: 12px; }
 

@@ -177,7 +177,7 @@
 .choice.wrong kbd {
   border-color: var(--k-danger);
   background: var(--k-danger);
-  color: #fff;
+  color: var(--k-danger-on, #fff);
 }
 
 .choice.dim {
