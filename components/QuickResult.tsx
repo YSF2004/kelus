@@ -31,13 +31,14 @@ function backShort(line?: string) {
 
 /** A number that counts up to itself once, quickly: the score lands rather than appears. */
 function CountUp({ value, reduce }: { value: number; reduce: boolean }) {
-  const [shown, setShown] = useState(reduce ? value : 0);
+  const [shown, setShown] = useState(0);
+  const still = reduce || value <= 0;
   useEffect(() => {
-    if (reduce || value <= 0) { setShown(value); return; }
+    if (still) return;
     const controls = animate(0, value, { duration: Math.min(0.9, 0.25 + value * 0.08), ease: [0.22, 1, 0.36, 1], delay: 0.25, onUpdate: (latest) => setShown(Math.round(latest)) });
     return () => controls.stop();
-  }, [value, reduce]);
-  return <>{shown}</>;
+  }, [value, still]);
+  return <>{still ? value : shown}</>;
 }
 
 /** A solid pass, celebrated the Kelus way: a few paper marks in the brand colours spring out from the seal and settle. */
