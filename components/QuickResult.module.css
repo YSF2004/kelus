@@ -67,6 +67,6 @@
 .path { display: grid; gap: 8px; margin: 2px 0 0; font-size: var(--text-body-sm); color: var(--color-slate); }
 .pathSteps { display: flex; gap: 4px; }
 .pathSteps i { flex: 1 1 0; max-width: 28px; height: 4px; border-radius: 2px; background: var(--color-frost); }
-.pathSteps i[data-done] { background: color-mix(in srgb, var(--color-kelus) 55%, #fff); }
+.pathSteps i[data-done] { background: color-mix(in srgb, var(--color-kelus) 55%, var(--k-surface)); }
 .pathSteps i[data-here] { height: 6px; margin-top: -1px; background: var(--color-kelus); }
 .pathFill { flex: 1 1 auto; max-width: none !important; background: linear-gradient(90deg, var(--color-kelus) calc(var(--share) * 100%), var(--color-frost) 0) !important; }

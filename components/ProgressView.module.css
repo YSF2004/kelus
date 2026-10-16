@@ -27,7 +27,7 @@
 }
 
 .caveat, .thin { margin: 0; font-size: var(--text-body-sm); line-height: 1.5; color: var(--color-slate); }
-.thin { padding: 0; color: var(--q-text-2, #6b6f68); }
+.thin { padding: 0; color: var(--q-text-2, var(--k-text-2)); }
 
 .chart { display: block; width: 100%; height: auto; margin-top: 4px; }
 .area { fill: var(--color-periwinkle-wash); }

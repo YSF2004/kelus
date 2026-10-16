@@ -80,7 +80,7 @@
   align-items: start;
   gap: 8px 12px;
   padding: 14px 18px;
-  background: #fff;
+  background: var(--k-surface);
 }
 
 .dot {

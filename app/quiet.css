@@ -23,7 +23,7 @@
   --k-iris-wash: var(--q-hover);
 }
 
-body.is-course-studio { font-size: 14px; color: var(--q-ink); background: #fff; }
+body.is-course-studio { font-size: 14px; color: var(--q-ink); background: var(--k-surface); }
 
 /* Sidebar */
 html body.is-course-studio .studio-rail {
@@ -94,7 +94,7 @@ html body.is-course-studio [class*="ExamDateCard"] button,
 html body.is-course-studio [class*="NudgeCard"] button,
 html body.is-course-studio [class*="InstallCard"] button.k-btn {
   min-height: 34px !important; height: 34px !important; padding: 0 14px !important; border-radius: 7px !important;
-  background: #fff !important; color: var(--q-ink) !important; border: 1px solid var(--q-line-strong) !important;
+  background: var(--k-surface) !important; color: var(--q-ink) !important; border: 1px solid var(--q-line-strong) !important;
   box-shadow: none !important; font-size: 0.875rem !important; font-weight: 500 !important;
 }
 html body.is-course-studio [class*="ExamDateCard"] button:hover,
@@ -189,7 +189,7 @@ html body.is-session-complete [class*="complete"][class*="changed"] { background
     align-items: center !important;
     border-right: 0 !important;
     border-bottom: 1px solid var(--q-line) !important;
-    background: #fff !important;
+    background: var(--k-surface) !important;
   }
   /* A row, not the desktop sidebar's column: in a column, centring the items put the logo in the middle of the bar. */
   html body.is-course-studio .studio-rail { flex-direction: row !important; justify-content: flex-start !important; }
@@ -244,7 +244,7 @@ html body :is(.legal-panel > h1, .pricing-page.is-monthly-pricing h1) {
 }
 html body .pricing-page.is-monthly-pricing :is(.pricing-offer.is-free, .pricing-offer.is-pass) {
   border-color: var(--q-line-strong) !important;
-  background: #fff !important;
+  background: var(--k-surface) !important;
 }
 html body .pricing-page.is-monthly-pricing .pricing-offer.is-pass { background: var(--q-rail) !important; }
 html body .pricing-page.is-monthly-pricing .pricing-offer-head .kicker,
@@ -394,11 +394,11 @@ html body .pricing-page.is-monthly-pricing .pricing-offer.is-pass .founding-cta 
 ::selection { background: rgba(31, 107, 69, 0.18); color: inherit; }
 html { caret-color: #1f6b45; scrollbar-color: #d4d3ce transparent; accent-color: #1f6b45; }
 :where(a, button, input, select, textarea, summary, [tabindex]):focus-visible {
-  outline: 2px solid #1f6b45;
+  outline: 2px solid var(--color-kelus);
   outline-offset: 2px;
 }
 :where(a) { text-underline-offset: 0.18em; text-decoration-thickness: 1px; }
-html body :is(.legal-page, .pricing-page, [data-marketing="editorial"]) ::placeholder { color: #70746c; opacity: 1; }
+html body :is(.legal-page, .pricing-page, [data-marketing="editorial"]) ::placeholder { color: var(--k-text-2); opacity: 1; }
 
 /* ── Literata + Atkinson Hyperlegible Next ───────────────────────────────────────────────────────────
    Literata is wider than the old display face: headings get room and lighter tracking. Atkinson's zero is slashed
@@ -439,3 +439,58 @@ html body section[aria-labelledby="reading-title"] .k-btn { box-shadow: none !im
 .k-mark { display: inline-block; flex: none; vertical-align: -0.15em; }
 html body.is-course-studio :is(.studio-home-link, .core-add-source) { display: inline-flex; align-items: center; gap: 6px; }
 html body.is-course-studio .core-source-remove { display: inline-grid; place-items: center; }
+
+/* ── Dark: the same paper and ink, at night ──────────────────────────────────────────────────────────────
+   For students revising late. It follows the device's setting and only covers the product (the plan, sessions,
+   topics, progress, materials, the start screen), where tokens carry every colour. A deep green-black paper, warm
+   light ink, and the Kelus green lifted so it reads on dark; filled buttons keep their deep green with white text. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) :is(body.is-course-studio, body.is-session-booklet, body.is-session-complete, body:has(.start-page)) {
+    color-scheme: dark;
+    --k-ink: #e7eae3;
+    --k-text-2: #a9b0a5;
+    --k-text-3: #8f968b;
+    --k-line: #2a302b;
+    --k-line-strong: #39403a;
+    --k-surface: #141815;
+    --k-surface-2: #1b201c;
+    --k-selected: #24302a;
+    --k-danger: #f08a74;
+    --k-danger-wash: #3a1f1a;
+    --k-green: #237a4c;
+    --k-green-edge: #134630;
+    --k-green-wash: #16291f;
+    --k-marigold-text: #f2c06b;
+    --k-marigold-wash: #2f2512;
+    --k-coral: #e88a75;
+    --k-paper-edge: rgba(0, 0, 0, 0.5);
+    --q-ink: #e7eae3;
+    --q-text-2: #a9b0a5;
+    --q-text-3: #8f968b;
+    --q-line: #2a302b;
+    --q-line-strong: #39403a;
+    --q-hover: #20261f;
+    --q-selected: #262d27;
+    --q-rail: #101311;
+    --q-green: #3f9e6b;
+    --q-green-hover: #4cad78;
+    /* One green for text, lines and small fills on dark: 5.2:1 on the paper, and a white tick on it is 3.4:1. */
+    --color-kelus: #3f9e6b;
+    --color-kelus-hover: #4cad78;
+    --color-pure-white: var(--k-surface);
+    /* The older paper names that page shells still paint with. */
+    --booklet-paper: var(--k-surface);
+    --color-paper-warmth: var(--k-surface);
+    --paper: var(--k-surface);
+    --background: var(--k-surface);
+    --hero-paper: var(--k-surface);
+    background: var(--k-surface) !important;
+    color: var(--k-ink);
+  }
+  /* A filled button keeps the deep green under its white label (5.0:1), whatever a screen set as its fill. */
+  :root:not([data-theme="light"]) :is(body.is-course-studio, body.is-session-booklet, body.is-session-complete, body:has(.start-page)) :is(.k-btn, .cta:not(.home-cta)):not(.k-btn--paper):not(:disabled) { --btn-bg: var(--k-green); background: var(--k-green) !important; color: #fff !important; }
+  :root:not([data-theme="light"]) :is(body.is-course-studio, body.is-session-booklet, body.is-session-complete, body:has(.start-page)) .k-btn--paper { background: var(--k-surface-2) !important; color: var(--k-ink) !important; }
+  /* The pack's drawings are black line art: at night they turn to light lines, the same drawing. */
+  :root:not([data-theme="light"]) :is(body.is-course-studio, body.is-session-booklet, body.is-session-complete, body:has(.start-page)) img[src*="/art/"] { filter: invert(0.92) hue-rotate(180deg); }
+  :root:not([data-theme="light"]) :is(body.is-course-studio, body.is-session-booklet, body.is-session-complete, body:has(.start-page)) ::selection { background: color-mix(in srgb, var(--color-kelus) 35%, transparent); }
+}

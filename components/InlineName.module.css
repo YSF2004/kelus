@@ -14,7 +14,7 @@
   cursor: text;
   transition: background-color 120ms;
 }
-.name:hover { background: rgba(18, 22, 15, 0.06); }
+.name:hover { background: color-mix(in srgb, var(--k-ink) 6%, transparent); }
 .name:focus-visible { outline: 2px solid var(--color-kelus); outline-offset: 1px; }
 
 .input,
@@ -30,7 +30,7 @@
   margin: 0 -4px;
   padding: 0 4px;
   border-radius: 5px;
-  background: #fff;
+  background: var(--k-surface);
   color: inherit;
   font: inherit;
   letter-spacing: inherit;

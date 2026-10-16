@@ -43,10 +43,10 @@
 .seal { display: block; width: 44px; height: 44px; flex: none; overflow: visible; }
 .seal .disc { stroke: none; }
 .seal .glyph { fill: none; stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; }
-.seal.success .disc { fill: #1f6b45; }
+.seal.success .disc { fill: var(--k-green, #1f6b45); }
 .seal.success .glyph { stroke: #fff; }
-.seal.partial .disc { fill: #f3f3f1; }
-.seal.partial .glyph { stroke: #191a18; stroke-width: 2.5; }
-.seal.partial .halfFill { fill: #191a18; }
-.seal.failure .disc { fill: #f3f3f1; }
-.seal.failure .glyph { stroke: #191a18; }
+.seal.partial .disc { fill: var(--k-surface-2, #f3f3f1); }
+.seal.partial .glyph { stroke: var(--k-ink, #191a18); stroke-width: 2.5; }
+.seal.partial .halfFill { fill: var(--k-ink, #191a18); }
+.seal.failure .disc { fill: var(--k-surface-2, #f3f3f1); }
+.seal.failure .glyph { stroke: var(--k-ink, #191a18); }

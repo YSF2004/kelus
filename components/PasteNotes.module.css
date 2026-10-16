@@ -42,7 +42,7 @@
   font-size: var(--text-body-sm);
   padding: 10px 12px;
   border-radius: 10px;
-  background: #fbefec;
+  background: var(--k-danger-wash);
   color: #8a2f20;
 }
 
