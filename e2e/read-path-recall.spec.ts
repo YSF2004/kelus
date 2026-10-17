@@ -55,8 +55,9 @@ test("Topics is a path in the order of the notes, with an exam check that opens 
   const path = page.getByRole("list", { name: "Topics, in the order of your notes" });
   await expect(path.locator(".index-toc-name")).toHaveText(["Osmosis", "Enzymes", "Diffusion"]);
   await expect(page.getByRole("group", { name: "Where you are" })).toContainText("0 of 3 topics practised");
+  await expect(page.getByRole("group", { name: "Where you are" })).toContainText("0/3practised");
   await expect(path.getByText("Exam check")).toBeVisible();
-  await expect(path.getByText(/Opens after 3 more topics/)).toBeVisible();
+  await expect(path.getByText(/Unlocks after 3 more topics/)).toBeVisible();
   if (shots) await page.screenshot({ path: `${shots}/path.png`, fullPage: true });
 });
 
