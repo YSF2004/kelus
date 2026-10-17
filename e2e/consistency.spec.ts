@@ -25,7 +25,7 @@ test("the result card, Today and Topics all name the same next topic, and a past
 
   await page.goto("/today");
   await expect(page.locator("#today-title")).toHaveText(next!);
-  await expect(page.locator(".studio-topbar-course")).toHaveText("Cell biology");
+  await expect(page.locator('[data-block="course-title"]')).toHaveText("Cell biology");
   await expect(page.getByLabel("Why this topic is first")).not.toContainText("exam is close");
 
   await page.goto("/today?section=map");
@@ -47,7 +47,7 @@ test("a file with no study topics never names the course; the first real notes d
   await startBuiltPlan(page);
   await expect(page).toHaveURL(/\/session/, { timeout: 30_000 });
   await page.goto("/today");
-  await expect(page.locator(".studio-topbar-course")).toHaveText("Cell biology");
+  await expect(page.locator('[data-block="course-title"]')).toHaveText("Cell biology");
 });
 
 test("a course still named after a file with no topics takes the name of the notes its topics come from", async ({ page }) => {
@@ -65,5 +65,5 @@ test("a course still named after a file with no topics takes the name of the not
     }
   });
   await page.goto("/today");
-  await expect(page.locator(".studio-topbar-course")).toHaveText("Cell biology");
+  await expect(page.locator('[data-block="course-title"]')).toHaveText("Cell biology");
 });

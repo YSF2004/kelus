@@ -21,6 +21,7 @@ import { trackEvent } from "@/lib/analytics";
 import { firstTimeToday, returnVisit } from "@/lib/pilot";
 import { CourseFolderIcon } from "@/components/CourseFolderIcon";
 import { Octicon } from "@/components/Octicon";
+import { InlineName } from "@/components/InlineName";
 import q from "./TodayQuiet.module.css";
 
 const pressSpring = { type: "spring", bounce: 0, duration: 0.28 } as const;
@@ -58,6 +59,7 @@ export function TodayRoute({
   onSetExamDate,
   focus,
   relationships = [],
+  onRenameCourse,
 }: {
   route: RoutePlan;
   concepts: Concept[];
@@ -76,6 +78,8 @@ export function TodayRoute({
   onSetExamDate?: (date: string, targetPercent?: number) => void;
   focus?: RoutePlan["allocations"][number];
   relationships?: ConceptRelationship[];
+  /** The course is renamed from its title here: the top bar carries no name of its own. */
+  onRenameCourse?: (name: string) => void;
 }) {
   const reduceMotion = useReducedMotion();
   // The topic this card is about: the open block's current topic when there is one, else the route's first.
@@ -207,9 +211,11 @@ export function TodayRoute({
 
       {/* The course, then three things a student checks at a glance: the streak, today's goal, how far through. */}
       <motion.header className={q.head} {...settle(0)}>
-        <h1 className={q.title}>{hasCoursePdf ? <CourseFolderIcon /> : null}<span>{courseName}</span></h1>
+        <h1 className={q.title} data-block="course-title">{hasCoursePdf ? <CourseFolderIcon /> : null}{onRenameCourse ? <InlineName value={courseName} label="Rename course" onSave={onRenameCourse} /> : <span>{courseName}</span>}</h1>
         {warmupFirst ? null : (
           <ul className={q.stats} role="group" aria-label="Your path through the course">
+            {/* A sample says so on the page itself, now the top bar carries no labels. */}
+            {isSampleCourse ? <li className={q.sample}>Sample course</li> : null}
             <li className={habit.streak > 0 ? q.statOn : undefined} title={habit.restUsed ? "One missed day a week doesn’t break a streak." : undefined}>
               <Octicon name="flame" className={q.ico} />
               <strong>{habit.streak}</strong><span>day streak</span>
@@ -223,9 +229,9 @@ export function TodayRoute({
               <strong>{path.started}/{path.total}</strong><span>topics</span>
             </li>
             {/* The pace, short: the full sentence is its tooltip. */}
-            <li title={pathLine.charAt(0).toUpperCase() + pathLine.slice(1)}>
+            <li title={!examDatePending && daysToExam > 0 ? `${paceShort} · ${pathLine}` : pathLine.charAt(0).toUpperCase() + pathLine.slice(1)}>
               <Octicon name="calendar" className={q.ico} />
-              <span>{paceShort}</span>
+              <span>{!examDatePending && daysToExam > 0 ? `${daysToExam} ${daysToExam === 1 ? "day" : "days"} to exam` : paceShort}</span>
             </li>
           </ul>
         )}

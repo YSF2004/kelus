@@ -40,7 +40,7 @@ test("the course and a topic are renamed where they stand, and a removed topic c
   await page.getByRole("button", { name: /Rename course/ }).click();
   await page.getByRole("textbox", { name: "Rename course" }).fill("Biology mock exam");
   await page.keyboard.press("Enter");
-  await expect(page.locator(".studio-topbar-course")).toHaveText("Biology mock exam");
+  await expect(page.locator('[data-block="course-title"]')).toHaveText("Biology mock exam");
 
   await page.goto("/today?section=map");
   await page.locator(".index-toc-row").filter({ hasText: "Diffusion" }).click();
@@ -113,15 +113,15 @@ test("a section is on screen at once: no waiting for the old one to fade out", a
 test("⌘Z also takes back a rename, and a topic's page keeps the course sidebar", async ({ page }) => {
   await startFromPaste(page, notes);
   await page.goto("/today");
-  const before = await page.locator(".studio-topbar-course").innerText();
+  const before = await page.locator('[data-block="course-title"]').innerText();
   await page.getByRole("button", { name: /Rename course/ }).click();
   await page.getByRole("textbox", { name: "Rename course" }).fill("Biology mock exam");
   await page.keyboard.press("Enter");
-  await expect(page.locator(".studio-topbar-course")).toHaveText("Biology mock exam");
+  await expect(page.locator('[data-block="course-title"]')).toHaveText("Biology mock exam");
   // Leave the field, as a student clicking elsewhere would, without landing on whatever control sits at a fixed point.
   await page.evaluate(() => (document.activeElement as HTMLElement | null)?.blur());
   await page.keyboard.press("ControlOrMeta+z");
-  await expect(page.locator(".studio-topbar-course")).toHaveText(before);
+  await expect(page.locator('[data-block="course-title"]')).toHaveText(before);
 
   await page.goto("/today?section=map");
   await page.locator(".index-toc-row").first().click();
@@ -136,13 +136,14 @@ test("⌘Z also takes back a rename, and a topic's page keeps the course sidebar
 test("⌘Z takes back a newly set exam date", async ({ page }) => {
   await startFromPaste(page, notes);
   await page.goto("/today");
-  await expect(page.locator(".studio-topbar-status")).toContainText("Add your exam date");
+  const pace = page.getByRole("group", { name: "Your path through the course" });
+  await expect(page.getByRole("region", { name: "When is your exam?" })).toBeVisible();
   await saveExamDate(page, 9);
-  await expect(page.locator(".studio-topbar-status")).toContainText("days to exam");
+  await expect(pace).toContainText(/\d+ days? to exam/);
   await page.locator("body").click({ position: { x: 600, y: 760 } });
   await page.keyboard.press("ControlOrMeta+z");
   await expect(page.getByText("Exam date removed")).toBeVisible();
-  await expect(page.locator(".studio-topbar-status")).toContainText("Add your exam date");
+  await expect(page.getByRole("region", { name: "When is your exam?" })).toBeVisible();
 });
 
 test("the sidebar folds away smoothly and comes back; a topic removed from Topics glides out and Undo returns it", async ({ page }) => {

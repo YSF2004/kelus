@@ -78,7 +78,7 @@ test("the course workspace stays legible across its sections and returns home", 
   await page.goto("/today/?sample=1");
   await expect(page.locator("#today-title")).toHaveText("Elasticity");
   await expect(page.locator(".studio-main")).toHaveCSS("background-color", "rgb(255, 255, 255)");
-  await expect(page.locator(".studio-topbar-course")).toHaveText("Microeconomics");
+  await expect(page.locator('[data-block="course-title"]')).toHaveText("Microeconomics");
 
   const sections = sectionsNav(page);
   await sections.getByRole("button", { name: "Materials" }).click();

@@ -196,3 +196,4 @@
   .stats li { height: 32px; padding: 0 10px 0 8px; gap: 5px; font-size: 0.75rem; }
   .stats strong { font-size: 0.875rem; }
 }
+.stats li.sample { border-style: dashed; color: var(--q-text-2); font-weight: 500; }

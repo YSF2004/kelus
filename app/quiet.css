@@ -543,3 +543,8 @@ html body.is-course-studio .studio-theme > div { display: flex; width: 100%; }
 html body.is-course-studio .studio-theme button { flex: 1; }
 html body.is-course-studio .studio-topbar-theme { display: none; }
 @media (max-width: 650px) { html body.is-course-studio .studio-topbar-theme { display: inline-flex; margin-left: auto; } }
+
+/* The top bar is controls only once a subject is in: the page's own title names the course. Sign in rides here only
+   on a phone, where the sidebar's foot (which has it) is hidden. */
+html body.is-course-studio .studio-topbar-signin { display: none; }
+@media (max-width: 650px) { html body.is-course-studio .studio-topbar-signin { display: inline-flex; } }
