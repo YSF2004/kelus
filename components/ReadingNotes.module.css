@@ -75,7 +75,18 @@
 
 .shrug { display: block; height: auto; margin: 0 0 8px; }
 
-/* The topics found, one by one: the student's own headings, proof that Kelus read their notes. */
-.found { display: grid; gap: 6px; margin: 18px 0 0; padding: 0; list-style: none; text-align: center; }
-.found li { font-size: 0.9375rem; color: var(--color-midnight-ink); }
-.found .more { color: var(--color-slate); }
+/* The work, as three steps that tick off; the topics found pop in as chips under the second. */
+.steps { display: grid; gap: 14px; width: 100%; margin: 6px 0 0; padding: 0; list-style: none; text-align: left; }
+.steps > li { display: grid; grid-template-columns: 22px minmax(0, 1fr); align-items: center; gap: 4px 12px; color: var(--k-text-3, var(--k-text-2)); font-size: 0.9375rem; }
+.steps > li[data-state="done"] { color: var(--k-text-2); }
+.steps > li[data-state="now"] { color: var(--k-ink); font-weight: 500; }
+.tick { display: grid; place-items: center; width: 22px; height: 22px; color: var(--color-kelus, var(--k-green)); }
+.tick > span { display: grid; }
+.idle { width: 10px; height: 10px; border: 1.5px solid color-mix(in srgb, var(--k-ink) 22%, transparent); border-radius: 50%; }
+.pulse { position: relative; width: 10px; height: 10px; border-radius: 50%; background: var(--color-kelus, var(--k-green)); }
+.pulse::after { content: ""; position: absolute; inset: -5px; border-radius: 50%; background: var(--color-kelus, var(--k-green)); opacity: 0.25; animation: kelusPulse 1.4s ease-out infinite; }
+@keyframes kelusPulse { from { transform: scale(0.5); opacity: 0.35; } to { transform: scale(1.4); opacity: 0; } }
+@media (prefers-reduced-motion: reduce) { .pulse::after { animation: none; } }
+.found { grid-column: 2; display: flex; flex-wrap: wrap; gap: 6px; margin: 6px 0 0; padding: 0; list-style: none; }
+.found li { padding: 4px 10px; border-radius: 999px; background: var(--k-green-wash, #e8f3ec); color: var(--k-ink); font-size: 0.8125rem; font-weight: 500; }
+.found .more { background: var(--q-hover, #f3f3f1); color: var(--k-text-2); }

@@ -8,7 +8,7 @@ import { checkAnswer, type CheckVerdict } from "@/domain/practice-check";
 import { explainMatch, looksLikeWords } from "@/domain/answer-evaluation";
 import { PackArt } from "@/components/PackArt";
 import { ListenButton } from "@/components/ListenButton";
-import { play } from "@/lib/sound";
+import { play, setSounds, soundsOn, subscribeSounds } from "@/lib/sound";
 import { hiddenLines, hideLine } from "@/lib/hidden-lines";
 import { asksForTheTopic, gapChoices, keyWordsIn, linesAround, readingLines, whereAnswerBelongs, type QuickRun as Run, type SelfGrade } from "@/domain/quick-run";
 import { trackEvent } from "@/lib/analytics";
@@ -65,6 +65,7 @@ export function QuickRun({ run, onRevealSource, onFinish, onChecksDone, context,
   const reduce = useReducedMotion() === true;
   const modKey = useSyncExternalStore(noSubscribe, modKeyNow, () => "⌘");
   const touch = useSyncExternalStore(noSubscribe, touchNow, () => false);
+  const soundOn = useSyncExternalStore(subscribeSounds, soundsOn, () => false);
   // Lines a student hid as not worth reading stay out of the reading for good, on this device.
   const [lines, setLines] = useState(() => (readFirst ? readingLines(run).filter((line) => !hiddenLines().has(line)) : []));
   // -1 once reading is over (or there is nothing to read); otherwise the last line shown so far.
@@ -243,6 +244,10 @@ export function QuickRun({ run, onRevealSource, onFinish, onChecksDone, context,
             <span aria-hidden="true"><span className={styles.recallLong}>{count === 1 ? "line" : "lines"} you can recall</span><span className={styles.recallShort}>recalled</span></span>
           </p>
         )}
+        {/* Sounds are on by default, the way a study app answers you; one tap here silences them for good. */}
+        <button type="button" className={styles.mute} onClick={() => setSounds(!soundOn)} aria-pressed={!soundOn} aria-label={soundOn ? "Mute sounds" : "Turn sounds on"} title={soundOn ? "Mute sounds" : "Turn sounds on"}>
+          <Octicon name={soundOn ? "unmute" : "mute"} size={16} />
+        </button>
       </header>
 
       <AnimatePresence mode="wait" initial={false}>
@@ -290,12 +295,13 @@ export function QuickRun({ run, onRevealSource, onFinish, onChecksDone, context,
                       disabled={Boolean(answered)}
                       onClick={() => answer(index)}
                       initial={reduce ? false : { opacity: 0, y: 6 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={reduce ? { duration: 0 } : { duration: 0.22, ease: [0.22, 1, 0.36, 1], delay: 0.03 + index * 0.03 }}
+                      // The picked answer answers back: a right one lifts for a beat, a wrong one shakes its head.
+                      animate={reduce || !answered || picked !== index ? { opacity: 1, y: 0, scale: 1, x: 0 } : answered.right ? { opacity: 1, y: 0, scale: [1, 1.025, 1], x: 0 } : { opacity: 1, y: 0, scale: 1, x: [0, -5, 5, -3, 3, 0] }}
+                      transition={reduce ? { duration: 0 } : answered && picked === index ? { duration: 0.34, ease: "easeOut" } : { duration: 0.22, ease: [0.22, 1, 0.36, 1], delay: 0.03 + index * 0.03 }}
                       whileTap={reduce || answered ? undefined : { scale: 0.985 }}
                     >
                       {/* The number becomes the verdict in place, so the eye does not have to travel. */}
-                      <kbd aria-hidden="true">{isRight ? <Tick size={12} /> : isWrong ? <Cross size={12} /> : index + 1}</kbd>
+                      <kbd aria-hidden="true">{isRight ? <motion.span className={styles.kbdMark} initial={reduce ? false : { scale: 0, rotate: -30 }} animate={{ scale: 1, rotate: 0 }} transition={{ type: "spring", bounce: 0.4, duration: 0.4 }}><Tick size={12} /></motion.span> : isWrong ? <Cross size={12} /> : index + 1}</kbd>
                       <span>{choice}</span>
                     </motion.button>
                   );

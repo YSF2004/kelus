@@ -4,9 +4,11 @@ import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { useEffect, useRef } from "react";
 import { rememberReadingMark } from "@/lib/reading-mark";
 import { PackArt } from "@/components/PackArt";
+import { Octicon } from "@/components/Octicon";
 import styles from "./ReadingNotes.module.css";
 
 const ease = [0.22, 1, 0.36, 1] as const;
+const STEPS = ["Reading your pages", "Finding the topics", "Writing your first questions"] as const;
 
 /**
  * The only thing on screen while Kelus reads a file: the K writing itself, like a pen going over the page, and the
@@ -33,6 +35,8 @@ export function ReadingNotes({ message, error, onStartOver, topics = [] }: { mes
       </section>
     );
   }
+  // Where the work is: the file being opened and read, its topics being found, or the first questions being written.
+  const stage = topics.length ? 2 : /open|read|scan|export|file|page/i.test(message) ? 0 : 1;
   // One stroke, then the other, then a breath, and again: slow enough to feel calm, never a spinner.
   const draw = (delay: number) => (reduce
     ? { initial: false as const, animate: { pathLength: 1, opacity: 1 } }
@@ -62,16 +66,32 @@ export function ReadingNotes({ message, error, onStartOver, topics = [] }: { mes
           </motion.span>
         </AnimatePresence>
       </h1>
-      {topics.length ? (
-        <ol className={styles.found} aria-label="Topics found">
-          {topics.slice(0, 8).map((topic, index) => (
-            <motion.li key={topic} initial={reduce ? false : { opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3, delay: reduce ? 0 : 0.15 + index * 0.18, ease }}>
-              {topic}
+      {/* Three steps that tick off as they happen, the way a good tool shows its work: reading, finding, writing. */}
+      <ol className={styles.steps} aria-label="What Kelus is doing">
+        {STEPS.map((label, index) => {
+          const state = index < stage ? "done" : index === stage ? "now" : "next";
+          return (
+            <motion.li key={label} data-state={state} initial={reduce ? false : { opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3, delay: reduce ? 0 : index * 0.08, ease }}>
+              <span className={styles.tick} aria-hidden="true">
+                {state === "done" ? (
+                  <motion.span initial={reduce ? false : { scale: 0.4 }} animate={{ scale: 1 }} transition={{ type: "spring", bounce: 0.35, duration: 0.4 }}><Octicon name="check-circle" size={18} /></motion.span>
+                ) : state === "now" ? <i className={styles.pulse} /> : <i className={styles.idle} />}
+              </span>
+              <span className={styles.stepText}>{label}<span className="sr-only">{state === "done" ? " (done)" : state === "now" ? " (now)" : ""}</span></span>
+              {index === 1 && topics.length ? (
+                <ul className={styles.found} aria-label="Topics found">
+                  {topics.slice(0, 8).map((topic, at) => (
+                    <motion.li key={topic} initial={reduce ? false : { opacity: 0, scale: 0.85 }} animate={{ opacity: 1, scale: 1 }} transition={{ type: "spring", bounce: 0.25, duration: 0.35, delay: reduce ? 0 : 0.1 + at * 0.12 }}>
+                      {topic}
+                    </motion.li>
+                  ))}
+                  {topics.length > 8 ? <li className={styles.more}>+{topics.length - 8}</li> : null}
+                </ul>
+              ) : null}
             </motion.li>
-          ))}
-          {topics.length > 8 ? <motion.li className={styles.more} initial={reduce ? false : { opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: reduce ? 0 : 0.15 + 8 * 0.18 }}>and {topics.length - 8} more</motion.li> : null}
-        </ol>
-      ) : null}
+          );
+        })}
+      </ol>
     </section>
   );
 }

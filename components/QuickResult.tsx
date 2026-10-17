@@ -5,6 +5,8 @@ import { animate, motion, useReducedMotion } from "motion/react";
 import { useEffect, useState, type ReactNode } from "react";
 import { MarkStamp } from "@/components/MarkStamp";
 import { PackArt } from "@/components/PackArt";
+import { GoalMoment, goalMomentDue } from "@/components/GoalMoment";
+import { useRouter } from "next/navigation";
 import type { RetrievalOutcome } from "@/domain/types";
 import type { SelfGrade } from "@/domain/quick-run";
 import { verdictReason } from "@/lib/verdict";
@@ -69,7 +71,7 @@ function Burst() {
  * remember (quoted from your notes), today's goal filling up, and a single next step. Detail is one tap away.
  */
 export function QuickResult({
-  outcome, topic, attempts, stats, comesBack, remember, rememberLabel = "Worth remembering", locator, goalDone, goal, routeLine, nextName, details, onRetry, onContinue, onSource, path,
+  outcome, topic, attempts, stats, comesBack, remember, rememberLabel = "Worth remembering", locator, goalDone, goal, routeLine, nextName, details, onRetry, onContinue, onSource, path, habit,
 }: {
   outcome: RetrievalOutcome;
   topic: string;
@@ -90,6 +92,8 @@ export function QuickResult({
   onRetry: () => void;
   onContinue: () => void;
   onSource?: () => void;
+  /** The day so far, for the moment today's goal closes: shown once a day, on the topic that completes it. */
+  habit?: { today: string; streak: number; week: Array<{ key: string; label: string; studied: boolean; today: boolean }>; backTomorrow: number };
   /** Where this topic leaves you on the course path: topics practised of all, and lines you can recall. */
   path?: { practised: number; total: number; recalled: number; /** This topic's place on the path, from 0. */ here?: number; /** Each topic, in order: practised or not. */ done?: boolean[] };
 }) {
@@ -98,9 +102,25 @@ export function QuickResult({
   // The verdict is readable at once; the rest follows in a short stagger, all settled within about half a second.
   const rise = (delay: number) => (reduce ? {} : { initial: { opacity: 0, y: 8 }, animate: { opacity: 1, y: 0 }, transition: { duration: 0.22, delay: delay * 0.3, ease } });
   const goalMet = goalDone >= goal;
+  const router = useRouter();
+  // Decided once, when the result opens: the moment marks the day as seen, and must not vanish under itself.
+  const [moment, setMoment] = useState(() => Boolean(habit) && goalDone === goal && goalMomentDue(habit!.today));
 
   return (
-    <div className={styles.card}>
+    <>
+    {moment && habit ? (
+      <GoalMoment
+        today={habit.today}
+        streak={habit.streak}
+        goal={goal}
+        week={habit.week}
+        backTomorrow={habit.backTomorrow}
+        nextName={nextName}
+        onContinue={() => { setMoment(false); onContinue(); }}
+        onDone={() => { setMoment(false); router.push("/today"); }}
+      />
+    ) : null}
+    <div className={styles.card} inert={moment || undefined} aria-hidden={moment || undefined}>
       <div className={styles.head}>
         <span className={styles.stamp}><MarkStamp outcome={outcome} />{outcome === "success" && !reduce ? <Burst /> : null}</span>
         <motion.h1 {...rise(0.1)} className={styles.title}>{verdict.title}</motion.h1>
@@ -147,5 +167,6 @@ export function QuickResult({
         {onSource ? <button type="button" className={styles.link} onClick={onSource}>Review the source behind this topic <ArrowOut /></button> : null}
       </details>
     </div>
+    </>
   );
 }
