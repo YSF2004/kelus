@@ -22,7 +22,7 @@ import { LoopSteps } from "@/components/LoopSteps";
 import { MarkStamp } from "@/components/MarkStamp";
 import { QuickResult, type QuickStats } from "@/components/QuickResult";
 import { comesBackLine, planLine } from "@/lib/verdict";
-import { habitSummary } from "@/domain/habit";
+import { dayKey, habitSummary } from "@/domain/habit";
 import { MinuteShift, RouteShift } from "@/components/RouteShift";
 import { PracticeDrill } from "@/components/PracticeDrill";
 import { NotesSection } from "@/components/NotesSection";
@@ -667,6 +667,7 @@ function SessionBody() {
                 locator={activity.sourceReferences[0]?.locator ?? "your notes"}
                 goalDone={goalToday.topicsToday}
                 goal={goalToday.goal}
+                habit={{ today: dayKey(new Date(Date.parse(state.nowIso))), streak: goalToday.streak, week: goalToday.week, backTomorrow: goalToday.backTomorrow }}
                 comesBack={comesBackLine(concept.nextReviewAt, state.nowIso)}
                 routeLine={planLine({ next: nextConceptName, movedUp: movedUpName, orderChanged: routeOrderChanged })}
                 nextName={nextConceptName}
