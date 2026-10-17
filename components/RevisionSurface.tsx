@@ -1,5 +1,6 @@
 "use client";
 
+import { ThemeSwitch, ThemeToggle } from "@/components/ThemeSwitch";
 import { ArrowLeft, ArrowOut, Cross, Page, Plus } from "@/components/Marks";
 import { motion, useReducedMotion } from "motion/react";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -316,6 +317,7 @@ export function RevisionSurface({ topicId }: { /** A topic's own page, opened in
           <button type="button" className="core-add-source" onClick={() => sourcePickerRef.current?.click()}><Plus /> Add source</button>
         </div>
         <div className="studio-rail-bottom">
+          <div className="studio-theme"><ThemeSwitch /></div>
           <Link href="/" className="studio-home-link"><ArrowLeft /> Back</Link>
           {auth.user ? (
             <button type="button" className="studio-account-action" onClick={() => auth.signOut()}>Sign out</button>
@@ -343,6 +345,8 @@ export function RevisionSurface({ topicId }: { /** A topic's own page, opened in
         <header className="studio-topbar">
           <span className="studio-topbar-leading">{railHidden ? <button type="button" className="studio-rail-reopen" onClick={(event) => { setRailHidden(false); if (event.detail === 0) requestAnimationFrame(() => document.querySelector<HTMLButtonElement>(".studio-rail-toggle")?.focus({ preventScroll: true })); }} aria-label="Show workspace sidebar" title="Show sidebar"><RailChevrons open /></button> : null}<span className="studio-topbar-course" title={course.name}>{hasCoursePdf ? <CourseFolderIcon /> : null}{isSampleCourse ? course.name : <InlineName value={course.name} label="Rename course" onSave={(next) => renameCourse(course.id, next, "user")} />}</span></span>
           {!auth.user && auth.configured ? <button type="button" className="studio-topbar-signin" onClick={auth.openDialog}>Sign in</button> : null}
+          {/* On a phone the sidebar's foot is hidden, so the appearance switch rides in the top bar instead. */}
+          <span className="studio-topbar-theme"><ThemeToggle /></span>
           <span className="studio-topbar-status">{isSampleCourse ? <><span className="studio-topbar-kind">Sample course</span><span className="studio-topbar-divider" aria-hidden="true">·</span></> : null}<span>{examDatePending ? "Add your exam date" : `${days} day${days === 1 ? "" : "s"} to exam`}</span></span>
         </header>
         <main id="main" className="studio-page kelus-space-stage">
