@@ -119,3 +119,7 @@
   outline: 2px solid var(--color-kelus);
   outline-offset: 2px;
 }
+
+/* Under the items: appearance, as one quiet row. */
+.footer { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 4px; padding: 8px 8px 4px; border-top: 1px solid var(--q-line, var(--k-line)); }
+.footer::before { content: "Appearance"; color: var(--k-text-2); font-size: 0.8125rem; }

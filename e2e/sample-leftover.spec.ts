@@ -4,7 +4,9 @@ test("the built-in sample shows only in the session that opened it; a later visi
   const first = await context.newPage();
   await first.goto("/today?sample=1");
   await expect(first.locator("#today-title")).toBeVisible();
-  await expect(first.locator(".studio-topbar-course")).toHaveText("Microeconomics");
+  await expect(first.locator('[data-block="course-title"]')).toHaveText("Microeconomics");
+  // The top bar is controls only: the course is named by the page title, not again above it.
+  await expect(first.locator(".studio-topbar")).not.toContainText("Microeconomics");
   await first.close();
 
   // A new tab is a new session: the sample saved on this device is not your course.

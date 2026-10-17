@@ -2,6 +2,7 @@
 
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { useEffect, useId, useRef, useState } from "react";
+import type { ReactNode } from "react";
 import styles from "./SessionMenu.module.css";
 
 export type SessionMenuItem = {
@@ -17,7 +18,7 @@ export type SessionMenuItem = {
  * the block. It opens from the button it belongs to, closes on Escape or a click outside, and asks before anything
  * that cannot be undone.
  */
-export function SessionMenu({ items }: { items: SessionMenuItem[] }) {
+export function SessionMenu({ items, footer }: { items: SessionMenuItem[]; /** Something set under the items, such as the appearance switch. */ footer?: ReactNode }) {
   const reduce = useReducedMotion() === true;
   const [open, setOpen] = useState(false);
   const [asking, setAsking] = useState<SessionMenuItem | null>(null);
@@ -82,6 +83,7 @@ export function SessionMenu({ items }: { items: SessionMenuItem[] }) {
                 </button>
               ))
             )}
+            {!asking && footer ? <div className={styles.footer}>{footer}</div> : null}
           </motion.div>
         ) : null}
       </AnimatePresence>

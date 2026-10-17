@@ -99,7 +99,8 @@ test("your own file never mixes into the sample: it starts your own course, and 
   // Keeping the sample changes nothing.
   await dialog.getByRole("button", { name: "Keep the sample" }).click();
   await expect(dialog).toHaveCount(0);
-  await expect(page.getByText("Sample course")).toBeVisible();
+  // Still the sample, and still named as one: by its source in the sidebar on every section.
+  await expect(page.getByText(/Built-in Microeconomics example/).first()).toBeVisible();
 
   await page.locator('input[aria-label="Choose a course PDF"]').setInputFiles({ name: "my-notes.md", mimeType: "text/markdown", buffer: Buffer.from(notion) });
   await page.getByRole("dialog", { name: "Start your own course?" }).getByRole("button", { name: "Start my own course" }).click();
@@ -187,8 +188,7 @@ test("the exam date is asked after the first run, not before, and a real date tu
   const exam = new Date(Date.now() + 6 * 86_400_000).toISOString().slice(0, 10);
   await ask.getByLabel("Exam date").fill(exam);
   await ask.getByRole("button", { name: "Save date" }).click();
-  await expect(page.getByRole("group", { name: "Your path through the course" })).toContainText(/Ready by|study days? left/);
-  await expect(page.getByText(/days? to exam/).first()).toBeVisible();
+  await expect(page.getByRole("group", { name: "Your path through the course" })).toContainText(/\d+ days? to exam/);
 });
 
 test("a leftover built-in sample never names the start screen or receives your notes", async ({ page }) => {

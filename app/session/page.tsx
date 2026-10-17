@@ -1,5 +1,6 @@
 "use client";
 
+import { ThemeSwitch } from "@/components/ThemeSwitch";
 import { ArrowOut, ArrowRight } from "@/components/Marks";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { kelusDuration, kelusEase } from "@/components/motion";
@@ -482,6 +483,7 @@ function SessionBody() {
         </span>
         <div className="study-folio-actions">
           <SessionMenu
+            footer={<ThemeSwitch compact />}
             items={[
               {
                 label: soundsEnabled ? "Turn sounds off" : "Turn sounds on",

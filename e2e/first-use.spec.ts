@@ -133,7 +133,7 @@ test("course workspace fills the viewport without a blank footer band", async ({
   // Where the course stands, as a path: topics started and the days still ahead.
   const pulse = page.getByRole("group", { name: "Your path through the course" });
   await expect(pulse).toContainText(/\d+\/\d+topics/);
-  await expect(pulse).toContainText(/study days? left|Ready by|All solid/);
+  await expect(pulse).toContainText(/days? to exam|study days? left|Ready by|All solid/);
   await page.setViewportSize({ width: 390, height: 844 });
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
 });

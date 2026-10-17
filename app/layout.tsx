@@ -1,3 +1,4 @@
+import { THEME_BOOT } from "@/lib/theme";
 import { CommandPalette } from "@/components/CommandPalette";
 import type { Metadata, Viewport } from "next";
 import { Suspense } from "react";
@@ -87,7 +88,11 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`${atkinson.variable} ${literata.variable}`} data-scroll-behavior="smooth">
+    <html lang="en" className={`${atkinson.variable} ${literata.variable}`} data-scroll-behavior="smooth" suppressHydrationWarning>
+      <head>
+        {/* The chosen theme, set before the first paint so the page never flashes the other paper. */}
+        <script dangerouslySetInnerHTML={{ __html: THEME_BOOT }} />
+      </head>
       <body className={`${atkinson.variable} ${literata.variable} is-booklet-system`}>
         <GoogleAnalytics />
         <a className="skip" href="#main">Skip to content</a>
