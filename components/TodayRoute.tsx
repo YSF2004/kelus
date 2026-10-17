@@ -19,7 +19,7 @@ import { buildQuickRun } from "@/domain/quick-run";
 import { dependentNames, describeRouteChoice } from "@/lib/today-reason";
 import { trackEvent } from "@/lib/analytics";
 import { firstTimeToday, returnVisit } from "@/lib/pilot";
-import { HabitStrip } from "@/components/HabitStrip";
+import { PackArt } from "@/components/PackArt";
 import { CourseFolderIcon } from "@/components/CourseFolderIcon";
 import q from "./TodayQuiet.module.css";
 
@@ -29,6 +29,17 @@ const pressSpring = { type: "spring", bounce: 0, duration: 0.28 } as const;
  * Today is one page: the next topic is the title.
  * Presence comes from type, paper, and interruptible motion — not chrome.
  */
+/** Today's goal as a small ring that closes as topics are done: the one count a student wants to finish. */
+function GoalRing({ done, goal, reduce }: { done: number; goal: number; reduce: boolean }) {
+  const share = goal ? Math.min(1, done / goal) : 0;
+  return (
+    <svg className={q.ring} viewBox="0 0 20 20" role="progressbar" aria-label="Today’s goal" aria-valuemin={0} aria-valuemax={goal} aria-valuenow={done}>
+      <circle cx="10" cy="10" r="8" className={q.ringTrack} />
+      <motion.circle cx="10" cy="10" r="8" className={q.ringFill} pathLength={1} initial={reduce ? false : { pathLength: 0 }} animate={{ pathLength: Math.max(share, 0.0001) }} transition={{ type: "spring", bounce: 0, duration: 0.8 }} />
+    </svg>
+  );
+}
+
 export function TodayRoute({
   route,
   concepts,
@@ -144,9 +155,6 @@ export function TodayRoute({
   // Opened but not answered yet: "New to you here" would contradict "In progress" above it.
   const decision = startLabel && !(firstConcept?.retrievalAttempts) ? [firstChecks ? "You opened it; pick up with the first check." : "You opened it; pick up with your explanation."] : reasons;
   const firstSource = firstActivity?.sourceReferences[0];
-  const sourceLine = firstSource?.label
-    ? `From ${firstSource.label}${firstSource.locator ? ` · ${firstSource.locator}` : ""}.`
-    : null;
   // A mixed review is named by what it mixes: answered topics the plan does not already list on their own. With
   // none (day one, or every answered topic is already a row), it is not offered.
   const named = route.allocations.filter((allocation) => allocation.conceptId !== first.conceptId && allocation.conceptId !== "mixed-retrieval").slice(0, 3);
@@ -183,6 +191,11 @@ export function TodayRoute({
       : path.aheadOfExam !== null && path.aheadOfExam >= 0
         ? `ready by ${new Date(path.readyByMs).toLocaleDateString([], { weekday: "short", day: "numeric", month: "short" })} at this pace, ${path.aheadOfExam === 0 ? "just in time" : `${path.aheadOfExam} day${path.aheadOfExam === 1 ? "" : "s"} before your exam`}`
         : `about ${path.daysLeft} study days left and ${daysToExam} until your exam`;
+  const paceShort = path.daysLeft === 0
+    ? "All solid"
+    : !examDatePending && path.readyByMs !== null && path.aheadOfExam !== null && path.aheadOfExam >= 0
+      ? `Ready by ${new Date(path.readyByMs).toLocaleDateString([], { weekday: "short", day: "numeric", month: "short" })}`
+      : `${path.daysLeft} study ${path.daysLeft === 1 ? "day" : "days"} left`;
   const ease = [0.22, 1, 0.36, 1] as const;
   // One soft settle for the whole page, in order, all done by about a quarter of a second.
   const settle = (index: number) => (reduceMotion ? {} : { initial: { opacity: 0, y: 4 }, animate: { opacity: 1, y: 0 }, transition: { duration: 0.18, delay: index * 0.03, ease } });
@@ -192,28 +205,47 @@ export function TodayRoute({
     <div className={q.page}>
       {!isSampleCourse ? <WelcomeBack visit={visit} nowIso={nowIso} nextName={firstName} /> : null}
 
-      {/* The page is titled like a document: the course, then one grey line on where it stands. */}
+      {/* The course, then three things a student checks at a glance: the streak, today's goal, how far through. */}
       <motion.header className={q.head} {...settle(0)}>
         <h1 className={q.title}>{hasCoursePdf ? <CourseFolderIcon /> : null}<span>{courseName}</span></h1>
         {warmupFirst ? null : (
-          <p className={q.meta} role="group" aria-label="Your path through the course">
-            <strong>{path.started} of {path.total}</strong> topics started{path.solid ? <> · <strong>{path.solid}</strong> solid</> : null} · {pathLine}
-          </p>
+          <ul className={q.stats} role="group" aria-label="Your path through the course">
+            <li className={habit.streak > 0 ? q.statOn : undefined} title={habit.restUsed ? "One missed day a week doesn’t break a streak." : undefined}>
+              <PackArt name="rocket" className={q.ico} />
+              <strong>{habit.streak}</strong><span>day streak</span>
+            </li>
+            <li className={habit.goalMet ? q.statOn : undefined}>
+              <GoalRing done={Math.min(habit.topicsToday, habit.goal)} goal={habit.goal} reduce={reduceMotion === true} />
+              <strong>{Math.min(habit.topicsToday, habit.goal)}/{habit.goal}</strong><span>today</span>
+            </li>
+            <li title={`${path.started} of ${path.total} topics started`}>
+              <PackArt name="list-check" className={q.ico} />
+              <strong>{path.started}/{path.total}</strong><span>topics</span>
+            </li>
+            {/* The pace, short: the full sentence is its tooltip. */}
+            <li title={pathLine.charAt(0).toUpperCase() + pathLine.slice(1)}>
+              <PackArt name="calendar-check" className={q.ico} />
+              <span>{paceShort}</span>
+            </li>
+          </ul>
         )}
       </motion.header>
 
       <motion.section className={q.next} data-block="today-lead" aria-labelledby="today-title" {...settle(1)}>
-        {/* No label above the topic: the name leads, and what is special about it (half done, or an extra after
-            today's goal) is said in the line under it. */}
+        <p className={q.eyebrow}>{startLabel ? "In progress" : goalDone ? "Extra for today" : "Up next"}</p>
         <h2 id="today-title" className={q.topic}>{firstName}</h2>
-        <p className={q.sub} data-block="today-page-folio">
-          {startLabel ? "In progress · " : goalDone ? "Today’s goal is done, so this one is extra · " : ""}{first.minutes} min · {runLine}
-        </p>
-        <p className={q.why} data-block="today-decision" aria-label="Why this topic is first">{decision.join(" ")}{sourceLine ? ` ${sourceLine}` : ""}</p>
+        {/* What the run holds, as marks a student reads in a glance: time, checks, the explanation, the page. */}
+        <ul className={q.chips} data-block="today-page-folio" aria-label="What this topic holds">
+          <li><PackArt name="gauge" className={q.ico} />{first.minutes} min</li>
+          {firstChecks ? <li><PackArt name="double-check" className={q.ico} />{firstChecks} {firstChecks === 1 ? "check" : "checks"}</li> : null}
+          <li><PackArt name="pencil" className={q.ico} />Explain it</li>
+          {firstSource?.locator && !/^Section\b/.test(firstSource.locator) ? <li><PackArt name="file-text" className={q.ico} />{firstSource.locator}</li> : null}
+        </ul>
+        <p className={q.why} data-block="today-decision" aria-label="Why this topic is first">{decision[0]}</p>
         <motion.button
           type="button"
           data-action="start-topic"
-          className={quietStart ? q.secondary : q.primary}
+          className={`k-btn ${quietStart ? `k-btn--paper ${q.go}` : q.go}`}
           onClick={onStart}
           whileTap={reduceMotion ? undefined : { scale: 0.98 }}
           transition={pressSpring}
@@ -223,9 +255,16 @@ export function TodayRoute({
         </motion.button>
       </motion.section>
 
-      <motion.div {...settle(2)}><HabitStrip events={events} concepts={concepts} link={false} line /></motion.div>
       {/* Day two, shown on day one: what you missed today is what tomorrow opens with, so the plan says so now. */}
-      {tomorrowLine ? <motion.p className={q.tomorrow} data-block="today-tomorrow" {...settle(2)}>{tomorrowLine}</motion.p> : null}
+      {tomorrowLine ? (
+        <motion.p className={q.tomorrow} data-block="today-tomorrow" {...settle(2)}>
+          <PackArt name="calendar-check" className={q.ico} /><span><b>Tomorrow</b> {tomorrowLine.replace(/^Tomorrow: /, "")}</span>
+        </motion.p>
+      ) : !habit.goalMet && habit.streak > 0 && !habit.studiedToday ? (
+        <motion.p className={`${q.tomorrow} ${q.keep}`} role="status" {...settle(2)}>
+          <PackArt name="rocket" className={q.ico} /><span>One topic today keeps your {habit.streak}-day streak.</span>
+        </motion.p>
+      ) : null}
 
       {nextStops.length ? (
         <motion.section className={q.then} data-block="today-next" aria-label="Planned next topics" {...settle(3)}>
@@ -241,8 +280,9 @@ export function TodayRoute({
                 exit={reduceMotion ? { opacity: 0 } : { opacity: 0, x: -8, transition: { duration: 0.16 } }}
                 transition={{ duration: 0.18, ease, layout: { type: "spring", stiffness: 420, damping: 38 } }}
               >
+                <i className={q.num} aria-hidden="true">{stop.conceptId === "mixed-retrieval" ? <PackArt name="recycle" className={q.ico} /> : index + 2}</i>
                 <strong>{stop.name}</strong>
-                <span>{stop.conceptId === "mixed-retrieval" ? "Review" : level(stop.mastery, stop.tried)}</span>
+                <span className={q.pill} data-level={stop.conceptId === "mixed-retrieval" ? "review" : stop.tried ? level(stop.mastery, stop.tried).toLowerCase().replace(/\s+/g, "-") : "new"}>{stop.conceptId === "mixed-retrieval" ? "Review" : level(stop.mastery, stop.tried)}</span>
                 <em>{stop.minutes} min</em>
               </motion.li>
             ))}

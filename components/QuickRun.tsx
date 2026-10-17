@@ -4,7 +4,7 @@ import { ArrowRight, Cross, Tick } from "@/components/Marks";
 import type { ReactNode } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { useEffect, useRef, useState, useSyncExternalStore } from "react";
-import { checkPracticeAnswer } from "@/domain/practice-check";
+import { checkAnswer, type CheckVerdict } from "@/domain/practice-check";
 import { explainMatch, looksLikeWords } from "@/domain/answer-evaluation";
 import { PackArt } from "@/components/PackArt";
 import { ListenButton } from "@/components/ListenButton";
@@ -39,6 +39,13 @@ const GRADES: Array<{ value: SelfGrade; label: string; hint: string }> = [
  * One topic as a short run: instant checks that quote the page, then one explanation in your own words.
  * It is the whole loop for a topic: no separate read, use and mark screens.
  */
+/** Why a typed answer that was not word for word still counts. */
+function acceptedNote(how: NonNullable<CheckVerdict["how"]>, word: string) {
+  if (how === "spelling") return `Counted. Your notes spell it “${word}”.`;
+  if (how === "form") return `Counted. Your notes say “${word}”.`;
+  return `Counted. The gap was just “${word}”.`;
+}
+
 export function QuickRun({ run, onRevealSource, onFinish, onChecksDone, context, readFirst = false, known, recalled, courseType = "real" }: {
   run: Run;
   courseType?: "real" | "sample";
@@ -70,7 +77,7 @@ export function QuickRun({ run, onRevealSource, onFinish, onChecksDone, context,
   const [step, setStep] = useState(0); // 0..total-1 = checks, total = explain
   const [picked, setPicked] = useState<number | null>(null);
   const [typed, setTyped] = useState("");
-  const [answered, setAnswered] = useState<null | { right: boolean; unsure?: boolean; elsewhere?: string | null; given?: string; picked?: boolean; firstEver?: boolean }>(null);
+  const [answered, setAnswered] = useState<null | { right: boolean; how?: CheckVerdict["how"]; unsure?: boolean; elsewhere?: string | null; given?: string; picked?: boolean; firstEver?: boolean }>(null);
   // A word tapped from four is recognised, not recalled: it earns the check, never a line on the recall count.
   const [tapped, setTapped] = useState<string | null>(null);
   const [drop, setDrop] = useState(0);
@@ -108,13 +115,14 @@ export function QuickRun({ run, onRevealSource, onFinish, onChecksDone, context,
   function answer(value: string | number) {
     if (!item || answered) return;
     recordFirstResponse("quick_check");
-    const ok = checkPracticeAnswer(item, value);
+    const verdict = checkAnswer(item, value, run.sentences.join(" "));
+    const ok = verdict.right;
     if (typeof value === "number") setPicked(value);
     const given = typeof value === "number" ? item.choices?.[value] ?? "" : value.trim();
     const fromChips = typeof value === "string" && tapped !== null && tapped === value;
     // The very first line a student ever recalls: the moment to say what Kelus does with it.
     const firstEver = ok && !fromChips && known !== undefined && known.size === 0 && knownNow.length === 0;
-    setAnswered({ right: ok, given, picked: fromChips, firstEver, elsewhere: ok ? null : whereAnswerBelongs(item, given, run.sentences) });
+    setAnswered({ right: ok, how: verdict.how, given, picked: fromChips, firstEver, elsewhere: ok ? null : whereAnswerBelongs(item, given, run.sentences) });
     if (ok) {
       setRight((count) => count + 1);
       if (!fromChips) { setKnownNow((list) => [...list, item.sourceQuote]); if (!known?.has(item.sourceQuote)) { setBump((count) => count + 1); setChange("+1"); } }
@@ -321,7 +329,7 @@ export function QuickRun({ run, onRevealSource, onFinish, onChecksDone, context,
             {!answered ? <button type="button" className={styles.unsure} onClick={notSure}>I’m not sure</button> : null}
 
             {answered ? (
-              <motion.div className={`${styles.feedback} ${answered.right ? styles.ok : styles.no}`} role="status" initial={reduce ? false : { opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.2 }}>
+              <motion.div className={`${styles.feedback} ${answered.right ? styles.ok : answered.unsure ? styles.unsure : styles.no}`} role="status" initial={reduce ? false : touch ? { opacity: 1, y: "100%" } : { opacity: 0, y: 8, scale: 0.98 }} animate={{ opacity: 1, y: 0, scale: 1 }} transition={touch ? { type: "spring", bounce: 0, duration: 0.38 } : { type: "spring", bounce: 0, duration: 0.28 }}>
                 <strong>{answered.right ? <PackArt name="check" className={styles.mark} /> : null}{answered.unsure ? (item.kind === "cloze" ? `It was “${item.modelAnswer}”.` : "Here’s the line it comes from.") : answered.right ? (answered.picked ? "Right, picked from four. Type it next time to count it as recalled." : answered.firstEver ? "Right. That’s your first line recalled." : "Right.") : item.kind === "cloze" ? `Not quite. It was “${item.modelAnswer}”.` : "Not quite."}</strong>
                 {around && linesAround(run, item.sourceQuote) ? (
                   <div className={styles.around} aria-label="This line in your notes">
@@ -330,6 +338,8 @@ export function QuickRun({ run, onRevealSource, onFinish, onChecksDone, context,
                     {linesAround(run, item.sourceQuote)!.after ? <p>{linesAround(run, item.sourceQuote)!.after}</p> : null}
                   </div>
                 ) : <p className={styles.quote}>“{item.sourceQuote}”</p>}
+                {/* Accepted on purpose, and said so: the student sees the notes' own word, not a silent pass. */}
+                {answered.right && item.kind === "cloze" && answered.how && answered.how !== "exact" ? <p className={styles.accepted}>{acceptedNote(answered.how, item.modelAnswer)}</p> : null}
                 {answered.firstEver ? <p className={styles.firstNote}>Kelus brings it back in a few days, just before you’d forget it, so it sticks for the exam.</p> : null}
                 <div className={styles.lineTools}>
                   <ListenButton key={`listen-q-${step}`} text={item.sourceQuote} className={styles.listen} />

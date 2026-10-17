@@ -179,7 +179,7 @@ test("a topic that is not real can be removed from the question screen, and undo
 test("the exam date is asked after the first run, not before, and a real date turns on the countdown", async ({ page }) => {
   await startFromFile(page, mdFile);
   await closeToToday(page);
-  await expect(page.getByText(/study days? to cover it all/)).toBeVisible();
+  await expect(page.getByRole("group", { name: "Your path through the course" })).toContainText(/study days? left/);
   await expect(page.getByText(/days? to exam/)).toHaveCount(0);
   const ask = page.getByRole("region", { name: "When is your exam?" });
   await ask.getByRole("button", { name: "Save date" }).click();
@@ -187,7 +187,7 @@ test("the exam date is asked after the first run, not before, and a real date tu
   const exam = new Date(Date.now() + 6 * 86_400_000).toISOString().slice(0, 10);
   await ask.getByLabel("Exam date").fill(exam);
   await ask.getByRole("button", { name: "Save date" }).click();
-  await expect(page.getByText(/ready by|just in time|study days left/)).toBeVisible();
+  await expect(page.getByRole("group", { name: "Your path through the course" })).toContainText(/Ready by|study days? left/);
   await expect(page.getByText(/days? to exam/).first()).toBeVisible();
 });
 

@@ -442,43 +442,47 @@ html body.is-course-studio .core-source-remove { display: inline-grid; place-ite
 
 /* ── Dark: the same paper and ink, at night ──────────────────────────────────────────────────────────────
    For students revising late. It follows the device's setting and only covers the product (the plan, sessions,
-   topics, progress, materials, the start screen), where tokens carry every colour. A deep green-black paper, warm
-   light ink, and the Kelus green lifted so it reads on dark; filled buttons keep their deep green with white text. */
+   topics, progress, materials, the start screen), where tokens carry every colour. A neutral graphite paper in clear
+   steps (rail, page, card, floating), warm light ink, and the Kelus green lifted for text; fills keep a deep green. */
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) :is(body.is-course-studio, body.is-session-booklet, body.is-session-complete, body:has(.start-page)) {
     color-scheme: dark;
-    --k-ink: #e7eae3;
-    --k-text-2: #a9b0a5;
-    --k-text-3: #8f968b;
-    --k-line: #2a302b;
-    --k-line-strong: #39403a;
-    --k-surface: #141815;
-    --k-surface-2: #1b201c;
-    --k-selected: #24302a;
+    --k-ink: #ecebe6;
+    --k-text-2: #a9a8a1;
+    --k-text-3: #898881;
+    --k-line: #2c2d2a;
+    --k-line-strong: #3b3c38;
+    --k-surface: #161715;
+    --k-surface-2: #1f201e;
+    --k-selected: #2a2c28;
     --k-danger: #f08a74;
-    --k-danger-wash: #3a1f1a;
+    --k-danger-wash: #34211d;
     /* The × on the lifted coral is dark ink: white on it was 2.4:1. */
     --k-danger-on: #1d0f0b;
-    --k-green: #237a4c;
+    --k-green: #2a8051;
     --k-green-edge: #134630;
-    --k-green-wash: #16291f;
-    --k-marigold-text: #f2c06b;
-    --k-marigold-wash: #2f2512;
+    --k-green-wash: #1a2a21;
+    --k-marigold-text: #ecbd6a;
+    --k-marigold-wash: #2a2419;
+    /* Marigold at night is a warm light on dark, never an olive film: thin edges, a soft mark under key words. */
+    --k-marigold-line: rgba(236, 189, 106, 0.3);
+    --k-mark: rgba(236, 189, 106, 0.18);
+    --k-mark-ink: #f4dca8;
     --k-coral: #e88a75;
     --k-paper-edge: rgba(0, 0, 0, 0.5);
-    --q-ink: #e7eae3;
-    --q-text-2: #a9b0a5;
-    --q-text-3: #8f968b;
-    --q-line: #2a302b;
-    --q-line-strong: #39403a;
-    --q-hover: #20261f;
-    --q-selected: #262d27;
-    --q-rail: #101311;
-    --q-green: #3f9e6b;
-    --q-green-hover: #4cad78;
-    /* One green for text, lines and small fills on dark: 5.2:1 on the paper, and a white tick on it is 3.4:1. */
-    --color-kelus: #3f9e6b;
-    --color-kelus-hover: #4cad78;
+    --q-ink: #ecebe6;
+    --q-text-2: #a9a8a1;
+    --q-text-3: #898881;
+    --q-line: #2c2d2a;
+    --q-line-strong: #3b3c38;
+    --q-hover: #232421;
+    --q-selected: #2a2c28;
+    --q-rail: #121311;
+    --q-green: #56b07f;
+    --q-green-hover: #66bd8d;
+    /* One green for text, lines and small marks on dark: 7:1 on the paper. Fills keep the deeper --k-green. */
+    --color-kelus: #56b07f;
+    --color-kelus-hover: #66bd8d;
     --color-pure-white: var(--k-surface);
     /* The older paper names that page shells still paint with. */
     --booklet-paper: var(--k-surface);
@@ -496,14 +500,16 @@ html body.is-course-studio .core-source-remove { display: inline-grid; place-ite
     /* Focus rings, input edges and floating surfaces named by the older sheets, at night. */
     --color-booklet-blue: var(--color-kelus);
     --ring: var(--color-kelus);
-    --k-input-line: #4f5850;
-    --input: #4f5850;
-    --input-line: #4f5850;
+    --k-input-line: #4d4e49;
+    --input: #4d4e49;
+    --input-line: #4d4e49;
     --card: var(--k-surface-2);
     --popover: var(--k-surface-raised);
     --surface: var(--k-surface-2);
     /* What floats over the page sits a step lighter, with a hairline, and the page behind it dims. */
-    --k-surface-raised: #1e241f;
+    --k-surface-raised: #242522;
+    /* A card sits one step above the page, so answers and lines read as things you can touch. */
+    --k-card: #1f201e;
     --k-scrim: rgba(0, 0, 0, 0.55);
     scrollbar-color: color-mix(in srgb, var(--k-ink) 28%, transparent) transparent;
     background: var(--k-surface) !important;
@@ -513,7 +519,7 @@ html body.is-course-studio .core-source-remove { display: inline-grid; place-ite
   :root:not([data-theme="light"]) :is(body.is-course-studio, body.is-session-booklet, body.is-session-complete, body:has(.start-page)) :is(.k-btn, .cta:not(.home-cta)):not(.k-btn--paper):not(:disabled):not(:is([class*="ExamDateCard"], [class*="NudgeCard"], [class*="InstallCard"]) *) { --btn-bg: var(--k-green); background: var(--k-green) !important; color: #fff !important; }
   :root:not([data-theme="light"]) :is(body.is-course-studio, body.is-session-booklet, body.is-session-complete, body:has(.start-page)) .k-btn--paper { background: var(--k-surface-2) !important; color: var(--k-ink) !important; }
   /* The page under the product, and the browser's own bars and overscroll, go dark with it. */
-  :root:not([data-theme="light"]):has(body.is-course-studio, body.is-session-booklet, body.is-session-complete, .start-page) { color-scheme: dark; background: #141815; }
+  :root:not([data-theme="light"]):has(body.is-course-studio, body.is-session-booklet, body.is-session-complete, .start-page) { color-scheme: dark; background: #161715; }
   /* The quiet extras under Today keep their paper button, as in daylight. */
   :root:not([data-theme="light"]) :is(body.is-course-studio, body.is-session-booklet, body.is-session-complete, body:has(.start-page)) :is([class*="ExamDateCard"], [class*="NudgeCard"], [class*="InstallCard"]) button { background: var(--k-surface-2) !important; color: var(--k-ink) !important; }
   :root:not([data-theme="light"]) :is(body.is-course-studio, body.is-session-booklet, body.is-session-complete, body:has(.start-page)) .skip { background: var(--k-green); color: #fff; }

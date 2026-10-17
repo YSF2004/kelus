@@ -1,0 +1,72 @@
+"use client";
+
+import { motion, useReducedMotion } from "motion/react";
+import { useSyncExternalStore } from "react";
+import { recallMap } from "@/domain/recall-map";
+import type { Concept, LearningActivity } from "@/domain/types";
+import { getKnownLines, getServerKnownLines, subscribeKnownLines } from "@/lib/known-lines";
+import { getMissedLines, getServerMissedLines, subscribeMissedLines } from "@/lib/missed-lines";
+import styles from "./RecallMap.module.css";
+
+const STATE_LABEL = { recalled: "recalled", back: "coming back first", new: "not asked yet" } as const;
+
+/**
+ * How ready you are, counted rather than estimated: every line Kelus can ask you, one mark each, topic by topic in the
+ * order of your notes. Green is a line you can recall, marigold one that comes back first, pale one not asked yet.
+ * Hovering a mark shows its line.
+ */
+export function RecallMap({ concepts, activities, nowIso }: { concepts: Concept[]; activities: LearningActivity[]; nowIso: string }) {
+  const reduce = useReducedMotion() === true;
+  const known = useSyncExternalStore(subscribeKnownLines, getKnownLines, getServerKnownLines);
+  const missed = useSyncExternalStore(subscribeMissedLines, getMissedLines, getServerMissedLines);
+  const map = recallMap({ concepts, activities, known, missed, nowIso });
+  if (!map.total) return null;
+  const share = Math.round((map.recalled / map.total) * 100);
+  let order = 0;
+
+  return (
+    <section className={styles.map} aria-labelledby="recall-map-title">
+      <p className={styles.kicker} id="recall-map-title">Lines you can recall</p>
+      <p className={styles.figure}>
+        <b>{map.recalled}</b>
+        <span>of {map.total} lines in your notes{map.recalled ? ` · ${share}%` : ""}</span>
+      </p>
+      <p className={styles.sub}>
+        {map.recalled === 0
+          ? "Every line Kelus can ask you about. Each one turns green when you recall it."
+          : [map.thisWeek ? `${map.thisWeek} recalled this week` : null, map.back ? `${map.back} ${map.back === 1 ? "comes" : "come"} back first in your next warm-up` : null].filter(Boolean).join(" · ") || "A miss turns a line back; a right answer brings it home."}
+      </p>
+
+      <ol className={styles.topics} aria-label="Lines by topic, in the order of your notes">
+        {map.topics.map((topic) => (
+          <li key={topic.id} className={styles.topic} aria-label={`${topic.name}: ${topic.recalled} of ${topic.lines.length} lines recalled`}>
+            <span className={styles.name}>{topic.name}</span>
+            <span className={styles.count} aria-hidden="true">{topic.recalled}/{topic.lines.length}</span>
+            <span className={styles.dots} aria-hidden="true">
+              {topic.lines.map((line) => {
+                const at = order++;
+                return (
+                  <motion.i
+                    key={line.quote}
+                    className={styles.dot}
+                    data-state={line.state}
+                    title={`${line.quote} (${STATE_LABEL[line.state]})`}
+                    initial={reduce ? false : { opacity: 0, scale: 0.6 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ type: "spring", bounce: 0, duration: 0.4, delay: reduce ? 0 : Math.min(0.5, at * 0.012) }}
+                  />
+                );
+              })}
+            </span>
+          </li>
+        ))}
+      </ol>
+
+      <p className={styles.legend} aria-hidden="true">
+        <span><i className={styles.dot} data-state="recalled" /> Recalled</span>
+        <span><i className={styles.dot} data-state="back" /> Comes back first</span>
+        <span><i className={styles.dot} data-state="new" /> Not asked yet</span>
+      </p>
+    </section>
+  );
+}

@@ -63,12 +63,12 @@
   padding: 14px 16px;
   border: 1px solid var(--color-frost);
   border-radius: 8px;
-  background: var(--k-surface);
+  background: var(--k-card, var(--k-surface));
   font-size: 1.0625rem;
   line-height: 1.55;
   color: var(--color-midnight-ink);
 }
-.readLines mark { padding: 0 2px; border-radius: 3px; background: color-mix(in srgb, var(--k-marigold, #f3b23e) 32%, transparent); color: inherit; }
+.readLines mark { padding: 0 2px; border-radius: 3px; background: var(--k-mark, color-mix(in srgb, var(--k-marigold, #f3b23e) 32%, transparent)); color: var(--k-mark-ink, inherit); }
 
 /* Tap a word, on a phone. */
 .chips { display: flex; flex-wrap: wrap; gap: 8px; margin: 0; }
@@ -119,7 +119,7 @@
   padding: 10px 14px;
   border: 1px solid color-mix(in srgb, var(--k-ink) 12%, transparent);
   border-radius: 6px;
-  background: var(--color-pure-white);
+  background: var(--k-card, var(--color-pure-white));
   box-shadow: 0 1px 1px rgba(18, 22, 15, 0.03);
   color: var(--color-midnight-ink);
   text-align: left;
@@ -286,9 +286,14 @@
 }
 
 .feedback.ok {
-  background: color-mix(in srgb, var(--color-kelus) 6%, var(--k-surface));
-  border-color: color-mix(in srgb, var(--color-kelus) 16%, transparent);
+  background: color-mix(in srgb, var(--color-kelus) 7%, var(--k-surface));
+  border-color: color-mix(in srgb, var(--color-kelus) 22%, transparent);
 }
+.feedback.no {
+  background: var(--k-danger-wash);
+  border-color: color-mix(in srgb, var(--k-danger) 22%, transparent);
+}
+.feedback.no strong { color: var(--k-danger); }
 
 .feedback strong {
   display: flex;
@@ -611,6 +616,7 @@
 .around p { margin: 0; font-size: 0.9375rem; line-height: 1.5; color: var(--color-slate); }
 .around .aroundLine { color: var(--color-midnight-ink); font-weight: 500; background: color-mix(in srgb, var(--k-marigold, #f3b23e) 22%, transparent); border-radius: 4px; padding: 2px 4px; margin: 0 -4px; }
 
+.accepted { margin: -4px 0 0; font-size: var(--text-body-sm); line-height: 1.5; color: var(--color-slate); }
 .firstNote { margin: -4px 0 0; font-size: var(--text-body-sm); line-height: 1.5; color: var(--color-kelus); }
 
 /* Hide a line not worth reading: a small × in the card's corner, shown on hover or focus (always on touch). */
@@ -625,3 +631,26 @@
    topic's name, the name steps out and only "Topic 2 of 4" stays. */
 .context { display: contents; }
 .context[data-topic-hidden] b { display: none; }
+
+/* On a phone the answer's verdict rises from the bottom as a sheet, green or coral, with Next across it at thumb
+   height, the way a language app answers you: the question stays in view above it. */
+@media (max-width: 640px) and (pointer: coarse) {
+  .run:has(.feedback) { padding-bottom: min(62vh, 420px); }
+  .feedback {
+    position: fixed;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    z-index: 40;
+    max-height: 72vh;
+    overflow-y: auto;
+    padding: 18px 16px calc(14px + env(safe-area-inset-bottom));
+    border-width: 1px 0 0;
+    border-radius: 18px 18px 0 0;
+    box-shadow: 0 -16px 40px -24px rgba(18, 22, 15, 0.45);
+  }
+  .feedback strong { font-size: 1.25rem; }
+  .feedback .primary { order: 10; justify-self: stretch; justify-content: center; width: 100%; min-height: 50px; }
+  .feedback .flag { order: 11; }
+}
+.feedback.unsure { background: var(--k-surface-2); }

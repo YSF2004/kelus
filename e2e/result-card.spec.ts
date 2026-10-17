@@ -12,8 +12,10 @@ test("the result is one card: verdict with its evidence, what to remember, one n
   await playQuickRun(page, "It moves water toward more solute.", "Nailed it");
 
   await expect(page.getByRole("heading", { level: 1 })).toHaveText(/^(Solid pass|Partly there|Needs another attempt)\.$/);
-  // The evidence is said once, in the verdict line; no second copy as dots and labels.
-  await expect(page.getByText(/\d of \d checks? right|\d of \d key ideas in your explanation|not enough in your answer to measure yet/)).toBeVisible();
+  // The evidence is said once: as tiles to the eye, as one sentence to a screen reader.
+  await expect(page.locator(".sr-only", { hasText: /\d of \d checks? right|\d of \d key ideas in your explanation|not enough in your answer to measure yet/ })).toHaveCount(1);
+  await expect(page.getByText(/^checks? right$|^key ideas said$/).first()).toBeVisible();
+  await expect(page.getByText("comes back", { exact: true })).toBeVisible();
   await expect(page.getByText("Quick checks", { exact: true })).toHaveCount(0);
   await expect(page.getByText(/^(?:Worth remembering|The line you missed|A line you missed|One more line from your notes)/)).toBeVisible();
 
