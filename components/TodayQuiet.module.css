@@ -131,7 +131,10 @@
 
 /* ── Glanceable marks ─────────────────────────────────────────────────────────────────────────────────
    The pack's line icons at text size, centred in their box whatever the drawing's own proportions. */
-.ico { display: inline-block; flex: none; width: 16px; height: 16px; object-fit: contain; }
+.ico { display: inline-block; flex: none; width: 16px; height: 16px; color: var(--q-text-2, var(--k-text-2)); }
+.stats li.statOn .ico { color: var(--k-marigold-text); }
+.tomorrow .ico { color: var(--color-kelus, var(--k-green)); }
+.keep .ico { color: var(--k-marigold-text); }
 
 /* Three stats under the course name: a number you can read across the room, a word under it. */
 .stats { display: flex; flex-wrap: wrap; gap: 8px; margin: 14px 0 0; padding: 0; list-style: none; }

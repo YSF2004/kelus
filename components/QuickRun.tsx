@@ -13,6 +13,7 @@ import { hiddenLines, hideLine } from "@/lib/hidden-lines";
 import { asksForTheTopic, gapChoices, keyWordsIn, linesAround, readingLines, whereAnswerBelongs, type QuickRun as Run, type SelfGrade } from "@/domain/quick-run";
 import { trackEvent } from "@/lib/analytics";
 import { FLAG_REASONS, flagQuestion, sendFlaggedQuestion, type FlagReason } from "@/lib/flags";
+import { Octicon } from "@/components/Octicon";
 import styles from "./QuickRun.module.css";
 
 /** `missed` holds the page lines behind the checks that were wrong or not sure, so the result can point back to them. */
@@ -263,7 +264,7 @@ export function QuickRun({ run, onRevealSource, onFinish, onChecksDone, context,
                 </motion.li>
               ))}
             </ol>
-            <div className={styles.row}>
+            <div className={`${styles.row} ${styles.readRow}`}>
               <button type="button" className={`k-btn ${styles.primary}`} autoFocus key={reading} onClick={() => setReading((current) => (current + 1 < lines.length ? current + 1 : -1))}>
                 {reading + 1 < lines.length ? "Continue" : "Now from memory"}<kbd className={styles.key} aria-hidden="true">↵</kbd>
               </button>
@@ -406,16 +407,27 @@ export function QuickRun({ run, onRevealSource, onFinish, onChecksDone, context,
                   </p>
                 </div>
                 {useful ? (
-                  <p className={styles.coverage} role="status">
-                    You used <strong>{useful.hits} of {useful.keys}</strong> key words.
-                    {useful.missed.length ? <> Left out: <b>{useful.missed.slice(0, 3).join(", ")}</b>.</> : useful.flipped.length ? null : " Nothing important left out."}
-                    {useful.flipped.length ? <> Check the direction: you wrote <b>{useful.flipped[0].said}</b> where your notes say <b>{useful.flipped[0].page}</b>.</> : null}
-                  </p>
+                  // How much of the page's idea you said, as a meter and the words you left out as chips: no sentence.
+                  <div className={styles.coverage} role="status" aria-label={`You used ${useful.hits} of ${useful.keys} key words.${useful.missed.length ? ` Left out: ${useful.missed.slice(0, 3).join(", ")}.` : ""}`}>
+                    <span className={styles.meter} aria-hidden="true">
+                      <b>{useful.hits}<small>/{useful.keys}</small></b>
+                      <span className={styles.meterTrack}><motion.i initial={reduce ? false : { scaleX: 0 }} animate={{ scaleX: useful.keys ? useful.hits / useful.keys : 0 }} transition={{ type: "spring", bounce: 0, duration: 0.7, delay: 0.2 }} /></span>
+                      <span>key words</span>
+                    </span>
+                    {useful.missed.length ? (
+                      <span className={styles.missedWords} aria-hidden="true">
+                        <em>Left out</em>
+                        {useful.missed.slice(0, 3).map((word, index) => <motion.span key={word} initial={reduce ? false : { opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.35 + index * 0.06, duration: 0.2 }}>{word}</motion.span>)}
+                      </span>
+                    ) : useful.flipped.length ? null : <span className={styles.allIn} aria-hidden="true"><Octicon name="check-circle" size={14} /> Nothing important left out</span>}
+                    {useful.flipped.length ? <p className={styles.flipNote}>Check the direction: you wrote <b>{useful.flipped[0].said}</b> where your notes say <b>{useful.flipped[0].page}</b>.</p> : null}
+                  </div>
                 ) : null}
                 <fieldset className={styles.grades}>
                   <legend>How close was it?</legend>
                   {GRADES.map((grade) => (
                     <button key={grade.value} type="button" className={useful?.suggest === grade.value ? styles.suggested : undefined} onClick={(event) => finish(grade.value, event.timeStamp)}>
+                      <span className={styles.gradeMark} data-grade={grade.value} aria-hidden="true">{grade.value === "nailed" ? <Octicon name="check" size={16} /> : grade.value === "missed" ? <Octicon name="x-circle" size={16} /> : <i />}</span>
                       <strong>{grade.label}{useful?.suggest === grade.value ? <em>Suggested</em> : null}</strong>
                       <kbd className={styles.gradeKey} aria-hidden="true">{GRADES.indexOf(grade) + 1}</kbd>
                       <small>{grade.hint}</small>

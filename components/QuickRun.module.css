@@ -350,14 +350,14 @@
   gap: 14px;
 }
 
-.compare > div:not(.grades) {
+.compare > div:not(.grades):not(.coverage) {
   padding: 12px 14px;
   border: 1px solid var(--color-frost);
   border-radius: 4px;
   background: var(--color-mist);
 }
 
-.compare span {
+.compare > div:not(.coverage) > span:first-child {
   display: block;
   margin-bottom: 4px;
   font-size: var(--text-caption);
@@ -392,7 +392,7 @@
 
 .grades button {
   display: grid;
-  gap: 2px;
+  gap: 6px;
   min-height: 64px;
   padding: 10px 12px;
   border: 1px solid var(--color-frost);
@@ -426,10 +426,13 @@
   color: var(--color-smoke);
 }
 
+/* On a phone the three grades stay side by side as tiles: a mark, a word, nothing to read under it. */
 @media (max-width: 560px) {
-  .grades {
-    grid-template-columns: minmax(0, 1fr);
-  }
+  .grades button { justify-items: center; min-height: 84px; padding: 12px 6px; text-align: center; }
+  .grades small, .grades .gradeKey { display: none; }
+  .grades strong { display: grid; justify-items: center; gap: 4px; }
+  .grades strong em { order: -1; }
+  .gradeMark { width: 32px; height: 32px; }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -654,3 +657,38 @@
   .feedback .flag { order: 11; }
 }
 .feedback.unsure { background: var(--k-surface-2); }
+
+/* How much of the idea you said: a number, a bar that fills, the words you left out as chips. */
+.coverage { display: grid; gap: 10px; }
+.meter { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; align-items: center; gap: 12px; }
+.meter b { color: var(--k-ink); font-family: var(--font-marketing-heading), Georgia, serif; font-size: 1.5rem; font-weight: 500; line-height: 1; font-variant-numeric: lining-nums tabular-nums; }
+.meter b small { color: var(--k-text-2); font-size: 0.9375rem; }
+.meter > span:last-child { color: var(--k-text-2); font-size: 0.8125rem; }
+.meterTrack { display: block; height: 8px; border-radius: 999px; background: color-mix(in srgb, var(--k-ink) 9%, transparent); overflow: hidden; }
+.meterTrack i { display: block; height: 100%; border-radius: inherit; background: var(--color-kelus, var(--k-green)); transform-origin: left center; }
+.missedWords { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; }
+.missedWords em { margin-right: 2px; color: var(--k-text-2); font-size: 0.8125rem; font-style: normal; }
+.missedWords span { padding: 3px 10px; border-radius: 999px; background: var(--k-marigold-wash); color: var(--k-marigold-text); font-size: 0.8125rem; font-weight: 600; }
+.allIn { display: inline-flex; align-items: center; gap: 6px; color: var(--color-kelus, var(--k-green)); font-size: 0.8125rem; font-weight: 600; }
+.flipNote { margin: 0; color: var(--k-text-2); font-size: var(--text-body-sm); line-height: 1.5; }
+.flipNote b { color: var(--k-ink); }
+
+/* Each grade carries its mark: a tick, a half, a cross. */
+.gradeMark { display: inline-grid; place-items: center; width: 28px; height: 28px; border-radius: 50%; background: color-mix(in srgb, var(--k-ink) 6%, transparent); color: var(--k-text-2); }
+.gradeMark[data-grade="nailed"] { background: var(--k-green-wash); color: var(--color-kelus, var(--k-green)); }
+.gradeMark[data-grade="missed"] { background: var(--k-danger-wash); color: var(--k-danger); }
+.gradeMark[data-grade="partly"] i { display: block; width: 12px; height: 12px; border: 1.75px solid var(--k-marigold-text); border-radius: 50%; background: linear-gradient(90deg, var(--k-marigold-text) 50%, transparent 50%); }
+.gradeMark[data-grade="partly"] { background: var(--k-marigold-wash); }
+.grades button { background: var(--k-card, var(--color-pure-white)); border-radius: 12px; }
+
+/* Reading on a phone: Continue across the screen at thumb height, Listen and Skip quietly under it. */
+@media (max-width: 560px) {
+  .readRow { gap: 10px 18px; }
+  .readRow > .primary { flex: 1 0 100%; justify-content: center; min-height: 50px; }
+}
+
+/* On wider screens the "Suggested" tag sits in the tile's corner, so the three tiles line up. */
+@media (min-width: 561px) {
+  .grades button { position: relative; }
+  .grades strong em { position: absolute; top: 10px; right: 10px; }
+}

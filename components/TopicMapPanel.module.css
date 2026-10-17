@@ -173,3 +173,26 @@
 /* The "Start here" card: its own tight stack, whatever the studio's start-row styles say. */
 :global(.is-course-studio) :global(.surface-map) a.next { gap: 4px; grid-auto-rows: min-content; align-content: start; min-height: 0; height: auto; }
 :global(.is-course-studio) :global(.surface-map) a.next:focus-visible { outline: 2px solid var(--color-kelus); outline-offset: 2px; }
+
+/* Where you are, at a glance: the same stat chips as the study plan. */
+.stats { display: flex; flex-wrap: wrap; gap: 8px; margin: 0; padding: 0; list-style: none; }
+.stats li { display: inline-flex; align-items: center; gap: 6px; height: 32px; padding: 0 12px 0 10px; border: 1px solid var(--q-line, var(--k-line)); border-radius: 999px; color: var(--k-text-2); font-size: 0.8125rem; font-variant-numeric: tabular-nums; }
+.stats strong { color: var(--k-ink); font-size: 0.9375rem; font-weight: 600; }
+.stats li[data-tone="green"] { background: var(--k-green-wash); border-color: transparent; }
+.stats li[data-tone="green"] strong { color: var(--color-kelus, var(--k-green)); }
+.stats li[data-tone="marigold"] { background: var(--k-marigold-wash); border-color: transparent; }
+.stats li[data-tone="marigold"] strong { color: var(--k-marigold-text); }
+.ico { width: 16px; height: 16px; flex: none; color: var(--k-text-2); }
+.stats li[data-tone="green"] .ico { color: var(--color-kelus, var(--k-green)); }
+.stats li[data-tone="marigold"] .ico { color: var(--k-marigold-text); }
+.icoSm { width: 12px; height: 12px; flex: none; color: currentColor; }
+
+/* Start here: the next thing to do, named large, as the plan's card. */
+.nextName { font-family: var(--font-marketing-heading), Georgia, serif; font-size: 1.375rem !important; font-weight: 500 !important; letter-spacing: -0.015em; }
+
+/* A row's state as a pill; tries and the page as quiet marks after it. */
+.state { display: inline-block; padding: 1px 8px; border-radius: 999px; background: color-mix(in srgb, var(--k-ink) 6%, transparent); color: var(--k-text-2); font-size: 0.75rem; font-weight: 500; }
+.state[data-level="next"] { background: var(--k-green-wash); color: var(--color-kelus, var(--k-green)); font-weight: 600; }
+.state[data-level="needs-work"], .state[data-level="partly-there"] { background: var(--k-marigold-wash); color: var(--k-marigold-text); }
+.state[data-level="solid"] { background: var(--k-green-wash); color: var(--color-kelus, var(--k-green)); }
+.metaSoft { display: inline-flex; align-items: center; gap: 4px; margin-left: 8px; color: var(--k-text-3, var(--k-text-2)); font-size: 0.75rem; font-variant-numeric: tabular-nums; }

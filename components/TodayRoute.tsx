@@ -19,8 +19,8 @@ import { buildQuickRun } from "@/domain/quick-run";
 import { dependentNames, describeRouteChoice } from "@/lib/today-reason";
 import { trackEvent } from "@/lib/analytics";
 import { firstTimeToday, returnVisit } from "@/lib/pilot";
-import { PackArt } from "@/components/PackArt";
 import { CourseFolderIcon } from "@/components/CourseFolderIcon";
+import { Octicon } from "@/components/Octicon";
 import q from "./TodayQuiet.module.css";
 
 const pressSpring = { type: "spring", bounce: 0, duration: 0.28 } as const;
@@ -211,7 +211,7 @@ export function TodayRoute({
         {warmupFirst ? null : (
           <ul className={q.stats} role="group" aria-label="Your path through the course">
             <li className={habit.streak > 0 ? q.statOn : undefined} title={habit.restUsed ? "One missed day a week doesn’t break a streak." : undefined}>
-              <PackArt name="rocket" className={q.ico} />
+              <Octicon name="flame" className={q.ico} />
               <strong>{habit.streak}</strong><span>day streak</span>
             </li>
             <li className={habit.goalMet ? q.statOn : undefined}>
@@ -219,12 +219,12 @@ export function TodayRoute({
               <strong>{Math.min(habit.topicsToday, habit.goal)}/{habit.goal}</strong><span>today</span>
             </li>
             <li title={`${path.started} of ${path.total} topics started`}>
-              <PackArt name="list-check" className={q.ico} />
+              <Octicon name="list-unordered" className={q.ico} />
               <strong>{path.started}/{path.total}</strong><span>topics</span>
             </li>
             {/* The pace, short: the full sentence is its tooltip. */}
             <li title={pathLine.charAt(0).toUpperCase() + pathLine.slice(1)}>
-              <PackArt name="calendar-check" className={q.ico} />
+              <Octicon name="calendar" className={q.ico} />
               <span>{paceShort}</span>
             </li>
           </ul>
@@ -236,10 +236,10 @@ export function TodayRoute({
         <h2 id="today-title" className={q.topic}>{firstName}</h2>
         {/* What the run holds, as marks a student reads in a glance: time, checks, the explanation, the page. */}
         <ul className={q.chips} data-block="today-page-folio" aria-label="What this topic holds">
-          <li><PackArt name="gauge" className={q.ico} />{first.minutes} min</li>
-          {firstChecks ? <li><PackArt name="double-check" className={q.ico} />{firstChecks} {firstChecks === 1 ? "check" : "checks"}</li> : null}
-          <li><PackArt name="pencil" className={q.ico} />Explain it</li>
-          {firstSource?.locator && !/^Section\b/.test(firstSource.locator) ? <li><PackArt name="file-text" className={q.ico} />{firstSource.locator}</li> : null}
+          <li><Octicon name="clock" className={q.ico} />{first.minutes} min</li>
+          {firstChecks ? <li><Octicon name="check-circle" className={q.ico} />{firstChecks} {firstChecks === 1 ? "check" : "checks"}</li> : null}
+          <li><Octicon name="pencil" className={q.ico} />Explain it</li>
+          {firstSource?.locator && !/^Section\b/.test(firstSource.locator) ? <li><Octicon name="file" className={q.ico} />{firstSource.locator}</li> : null}
         </ul>
         <p className={q.why} data-block="today-decision" aria-label="Why this topic is first">{decision[0]}</p>
         <motion.button
@@ -258,11 +258,11 @@ export function TodayRoute({
       {/* Day two, shown on day one: what you missed today is what tomorrow opens with, so the plan says so now. */}
       {tomorrowLine ? (
         <motion.p className={q.tomorrow} data-block="today-tomorrow" {...settle(2)}>
-          <PackArt name="calendar-check" className={q.ico} /><span><b>Tomorrow</b> {tomorrowLine.replace(/^Tomorrow: /, "")}</span>
+          <Octicon name="calendar" className={q.ico} /><span><b>Tomorrow</b> {tomorrowLine.replace(/^Tomorrow: /, "")}</span>
         </motion.p>
       ) : !habit.goalMet && habit.streak > 0 && !habit.studiedToday ? (
         <motion.p className={`${q.tomorrow} ${q.keep}`} role="status" {...settle(2)}>
-          <PackArt name="rocket" className={q.ico} /><span>One topic today keeps your {habit.streak}-day streak.</span>
+          <Octicon name="flame" className={q.ico} /><span>One topic today keeps your {habit.streak}-day streak.</span>
         </motion.p>
       ) : null}
 
@@ -280,7 +280,7 @@ export function TodayRoute({
                 exit={reduceMotion ? { opacity: 0 } : { opacity: 0, x: -8, transition: { duration: 0.16 } }}
                 transition={{ duration: 0.18, ease, layout: { type: "spring", stiffness: 420, damping: 38 } }}
               >
-                <i className={q.num} aria-hidden="true">{stop.conceptId === "mixed-retrieval" ? <PackArt name="recycle" className={q.ico} /> : index + 2}</i>
+                <i className={q.num} aria-hidden="true">{stop.conceptId === "mixed-retrieval" ? <Octicon name="sync" className={q.ico} /> : index + 2}</i>
                 <strong>{stop.name}</strong>
                 <span className={q.pill} data-level={stop.conceptId === "mixed-retrieval" ? "review" : stop.tried ? level(stop.mastery, stop.tried).toLowerCase().replace(/\s+/g, "-") : "new"}>{stop.conceptId === "mixed-retrieval" ? "Review" : level(stop.mastery, stop.tried)}</span>
                 <em>{stop.minutes} min</em>
