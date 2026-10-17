@@ -8,6 +8,7 @@ import { PackArt } from "@/components/PackArt";
 import type { RetrievalOutcome } from "@/domain/types";
 import type { SelfGrade } from "@/domain/quick-run";
 import { verdictReason } from "@/lib/verdict";
+import { Octicon } from "@/components/Octicon";
 import styles from "./QuickResult.module.css";
 
 export type { QuickStats } from "@/lib/verdict";
@@ -107,9 +108,9 @@ export function QuickResult({
       {/* The sentence for screen readers; the eye gets the same facts as three tiles. */}
       <p className="sr-only">{topic} · {attempts === 1 ? "first try" : `try ${attempts}`}. {verdictReason(outcome, stats, comesBack)}</p>
       <motion.ul {...rise(0.16)} className={styles.tiles} aria-hidden="true">
-        {stats && stats.total > 0 ? <li><PackArt name="double-check" className={styles.tileIcon} /><b><CountUp value={stats.right} reduce={reduce} />/{stats.total}</b><span>{stats.total === 1 ? "check right" : "checks right"}</span></li> : null}
-        {stats?.coverage && stats.coverage.keys >= 3 ? <li><PackArt name="pencil" className={styles.tileIcon} /><b><CountUp value={stats.coverage.hits} reduce={reduce} />/{stats.coverage.keys}</b><span>key ideas said</span></li> : null}
-        <li><PackArt name="calendar-check" className={styles.tileIcon} /><b>{backShort(comesBack)}</b><span>comes back</span></li>
+        {stats && stats.total > 0 ? <li><Octicon name="check-circle" className={styles.tileIcon} /><b><CountUp value={stats.right} reduce={reduce} />/{stats.total}</b><span>{stats.total === 1 ? "check right" : "checks right"}</span></li> : null}
+        {stats?.coverage && stats.coverage.keys >= 3 ? <li><Octicon name="pencil" className={styles.tileIcon} /><b><CountUp value={stats.coverage.hits} reduce={reduce} />/{stats.coverage.keys}</b><span>key ideas said</span></li> : null}
+        <li><Octicon name="calendar" className={styles.tileIcon} /><b className={/^\d/.test(backShort(comesBack)) ? undefined : styles.tileWord}>{backShort(comesBack)}</b><span>comes back</span></li>
       </motion.ul>
 
 

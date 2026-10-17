@@ -13,6 +13,7 @@ import { hiddenLines, hideLine } from "@/lib/hidden-lines";
 import { asksForTheTopic, gapChoices, keyWordsIn, linesAround, readingLines, whereAnswerBelongs, type QuickRun as Run, type SelfGrade } from "@/domain/quick-run";
 import { trackEvent } from "@/lib/analytics";
 import { FLAG_REASONS, flagQuestion, sendFlaggedQuestion, type FlagReason } from "@/lib/flags";
+import { Octicon } from "@/components/Octicon";
 import styles from "./QuickRun.module.css";
 
 /** `missed` holds the page lines behind the checks that were wrong or not sure, so the result can point back to them. */
@@ -418,7 +419,7 @@ export function QuickRun({ run, onRevealSource, onFinish, onChecksDone, context,
                         <em>Left out</em>
                         {useful.missed.slice(0, 3).map((word, index) => <motion.span key={word} initial={reduce ? false : { opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.35 + index * 0.06, duration: 0.2 }}>{word}</motion.span>)}
                       </span>
-                    ) : useful.flipped.length ? null : <span className={styles.allIn} aria-hidden="true"><Tick size={12} /> Nothing important left out</span>}
+                    ) : useful.flipped.length ? null : <span className={styles.allIn} aria-hidden="true"><Octicon name="check-circle" size={14} /> Nothing important left out</span>}
                     {useful.flipped.length ? <p className={styles.flipNote}>Check the direction: you wrote <b>{useful.flipped[0].said}</b> where your notes say <b>{useful.flipped[0].page}</b>.</p> : null}
                   </div>
                 ) : null}
@@ -426,7 +427,7 @@ export function QuickRun({ run, onRevealSource, onFinish, onChecksDone, context,
                   <legend>How close was it?</legend>
                   {GRADES.map((grade) => (
                     <button key={grade.value} type="button" className={useful?.suggest === grade.value ? styles.suggested : undefined} onClick={(event) => finish(grade.value, event.timeStamp)}>
-                      <span className={styles.gradeMark} data-grade={grade.value} aria-hidden="true">{grade.value === "nailed" ? <Tick size={16} /> : grade.value === "missed" ? <Cross size={14} /> : <i />}</span>
+                      <span className={styles.gradeMark} data-grade={grade.value} aria-hidden="true">{grade.value === "nailed" ? <Octicon name="check" size={16} /> : grade.value === "missed" ? <Octicon name="x-circle" size={16} /> : <i />}</span>
                       <strong>{grade.label}{useful?.suggest === grade.value ? <em>Suggested</em> : null}</strong>
                       <kbd className={styles.gradeKey} aria-hidden="true">{GRADES.indexOf(grade) + 1}</kbd>
                       <small>{grade.hint}</small>

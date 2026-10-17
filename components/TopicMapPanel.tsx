@@ -22,7 +22,7 @@ function whenAgo(at: string, nowIso: string) {
   const days = Math.round((day(nowIso) - day(at)) / 86_400_000);
   return days <= 0 ? "today" : days === 1 ? "yesterday" : days < 7 ? `${days} days ago` : days < 14 ? "last week" : `${Math.round(days / 7)} weeks ago`;
 }
-import { PackArt } from "@/components/PackArt";
+import { Octicon } from "@/components/Octicon";
 import styles from "./TopicMapPanel.module.css";
 
 
@@ -154,10 +154,10 @@ export function TopicMapPanel() {
       <div className={styles.pathHead} role="group" aria-label="Where you are">
         <p className="sr-only">{practised} of {path.length} topics practised{solid ? `, ${solid} solid` : ""}{recalled ? `, ${recalled} ${recalled === 1 ? "line" : "lines"} you can recall` : ""}{passedCount ? `, ${passedCount} ${passedCount === 1 ? "checkpoint" : "checkpoints"} passed` : ""}.</p>
         <ul className={styles.stats} aria-hidden="true">
-          <li><PackArt name="list-check" className={styles.ico} /><strong>{practised}/{path.length}</strong><span>practised</span></li>
-          {solid ? <li data-tone="green"><PackArt name="check" className={styles.ico} /><strong>{solid}</strong><span>solid</span></li> : null}
-          {recalled ? <li><PackArt name="double-check" className={styles.ico} /><strong>{recalled}</strong><span>{recalled === 1 ? "line" : "lines"} recalled</span></li> : null}
-          {passedCount ? <li data-tone="marigold"><PackArt name="award" className={styles.ico} /><strong>{passedCount}</strong><span>{passedCount === 1 ? "checkpoint" : "checkpoints"}</span></li> : null}
+          <li><Octicon name="list-unordered" className={styles.ico} /><strong>{practised}/{path.length}</strong><span>practised</span></li>
+          {solid ? <li data-tone="green"><Octicon name="check-circle" className={styles.ico} /><strong>{solid}</strong><span>solid</span></li> : null}
+          {recalled ? <li><Octicon name="check-circle" className={styles.ico} /><strong>{recalled}</strong><span>{recalled === 1 ? "line" : "lines"} recalled</span></li> : null}
+          {passedCount ? <li data-tone="marigold"><Octicon name="trophy" className={styles.ico} /><strong>{passedCount}</strong><span>{passedCount === 1 ? "checkpoint" : "checkpoints"}</span></li> : null}
         </ul>
         {/* Two tones: solid topics in green, practised ones lighter. A path is not done while its topics need work. */}
         <span className={styles.pathBar} aria-hidden="true">
@@ -199,7 +199,7 @@ export function TopicMapPanel() {
                 <span className="index-toc-meta">
                   <span className={styles.state} data-level={isStart ? "next" : label.toLocaleLowerCase().replace(/\s+/g, "-")}>{isStart ? "Next" : label}</span>
                   {mastery == null ? null : <span className={styles.metaSoft}>{checks < 3 ? `${checks} ${checks === 1 ? "try" : "tries"}` : percent(mastery)}</span>}
-                  {page ? <span className={styles.metaSoft}><PackArt name="file-text" className={styles.icoSm} />{page}</span> : null}
+                  {page ? <span className={styles.metaSoft}><Octicon name="file" className={styles.icoSm} />{page}</span> : null}
                 </span>
                 {due ? <span className={styles.due}>Review due</span> : null}
               </Link>

@@ -84,10 +84,14 @@
 }
 .tiles b { color: var(--k-ink); font-family: var(--font-marketing-heading), Georgia, serif; font-size: 1.5rem; font-weight: 500; line-height: 1.1; font-variant-numeric: lining-nums tabular-nums; }
 .tiles span { color: var(--k-text-2); font-size: 0.8125rem; }
-.tileIcon { width: 18px; height: 18px; margin-bottom: 4px; object-fit: contain; }
+.tileIcon { width: 18px; height: 18px; margin-bottom: 4px; color: var(--color-kelus, var(--k-green)); }
 
 .stamp { position: relative; }
 .burst { position: absolute; inset: 50% auto auto 50%; width: 0; height: 0; pointer-events: none; }
 .burst i { position: absolute; left: -4px; top: -4px; width: 8px; height: 8px; border-radius: 2px; background: var(--k-green); }
 .burst i[data-tone="1"] { background: var(--k-marigold, #f3b23e); border-radius: 50%; }
 .burst i[data-tone="2"] { width: 10px; height: 4px; background: var(--color-kelus, var(--k-green)); }
+
+/* A word ("Tomorrow", "Next week") instead of a number: smaller, so it fits its tile on a phone. */
+.tiles b.tileWord { font-size: 1.125rem; line-height: 1.33; overflow-wrap: anywhere; }
+.tiles li { min-width: 0; }

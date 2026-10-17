@@ -182,8 +182,10 @@
 .stats li[data-tone="green"] strong { color: var(--color-kelus, var(--k-green)); }
 .stats li[data-tone="marigold"] { background: var(--k-marigold-wash); border-color: transparent; }
 .stats li[data-tone="marigold"] strong { color: var(--k-marigold-text); }
-.ico { width: 16px; height: 16px; flex: none; object-fit: contain; }
-.icoSm { width: 13px; height: 13px; flex: none; object-fit: contain; opacity: 0.8; }
+.ico { width: 16px; height: 16px; flex: none; color: var(--k-text-2); }
+.stats li[data-tone="green"] .ico { color: var(--color-kelus, var(--k-green)); }
+.stats li[data-tone="marigold"] .ico { color: var(--k-marigold-text); }
+.icoSm { width: 12px; height: 12px; flex: none; color: currentColor; }
 
 /* Start here: the next thing to do, named large, as the plan's card. */
 .nextName { font-family: var(--font-marketing-heading), Georgia, serif; font-size: 1.375rem !important; font-weight: 500 !important; letter-spacing: -0.015em; }
