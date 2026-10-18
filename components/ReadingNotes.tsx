@@ -74,14 +74,14 @@ export function ReadingNotes({ message, error, onStartOver, topics = [] }: { mes
             <motion.li key={label} data-state={state} initial={reduce ? false : { opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3, delay: reduce ? 0 : index * 0.08, ease }}>
               <span className={styles.tick} aria-hidden="true">
                 {state === "done" ? (
-                  <motion.span initial={reduce ? false : { scale: 0.4 }} animate={{ scale: 1 }} transition={{ type: "spring", bounce: 0.35, duration: 0.4 }}><Octicon name="check-circle" size={18} /></motion.span>
+                  <motion.span initial={reduce ? false : { scale: 0.4 }} animate={{ scale: 1 }} transition={{ type: "spring", bounce: 0, duration: 0.3 }}><Octicon name="check-circle" size={18} /></motion.span>
                 ) : state === "now" ? <i className={styles.pulse} /> : <i className={styles.idle} />}
               </span>
               <span className={styles.stepText}>{label}<span className="sr-only">{state === "done" ? " (done)" : state === "now" ? " (now)" : ""}</span></span>
               {index === 1 && topics.length ? (
                 <ul className={styles.found} aria-label="Topics found">
                   {topics.slice(0, 8).map((topic, at) => (
-                    <motion.li key={topic} initial={reduce ? false : { opacity: 0, scale: 0.85 }} animate={{ opacity: 1, scale: 1 }} transition={{ type: "spring", bounce: 0.25, duration: 0.35, delay: reduce ? 0 : 0.1 + at * 0.12 }}>
+                    <motion.li key={topic} initial={reduce ? false : { opacity: 0, scale: 0.85 }} animate={{ opacity: 1, scale: 1 }} transition={{ type: "spring", bounce: 0, duration: 0.3, delay: reduce ? 0 : 0.08 + at * 0.08 }}>
                       {topic}
                     </motion.li>
                   ))}

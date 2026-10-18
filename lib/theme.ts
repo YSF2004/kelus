@@ -37,11 +37,8 @@ function apply(theme: "light" | "dark") {
   document.querySelectorAll('meta[name="theme-color"]').forEach((meta) => meta.setAttribute("content", theme === "dark" ? "#161715" : "#fbfaf7"));
 }
 
-/**
- * Switch, smoothly: where the browser can, the new paper spreads out in a circle from the button that was pressed
- * (a view transition); elsewhere the colours ease across for a moment. Reduced motion switches at once.
- */
-export function setTheme(choice: ThemeChoice, from?: { x: number; y: number }) {
+/** A brief whole-page crossfade preserves context without a spotlight sweeping over the student's work. */
+export function setTheme(choice: ThemeChoice) {
   try { localStorage.setItem(KEY, choice); } catch { /* not saved: still applies now */ }
   const next = resolved(choice);
   if (document.documentElement.dataset.theme === next) { window.dispatchEvent(new Event(EVENT)); return; }
@@ -50,24 +47,8 @@ export function setTheme(choice: ThemeChoice, from?: { x: number; y: number }) {
   const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   const doc = document as Document & { startViewTransition?: (update: () => void) => { ready: Promise<void> } };
   if (reduce) { apply(next); done(); return; }
-  if (!doc.startViewTransition) {
-    document.documentElement.classList.add("theme-easing");
-    apply(next);
-    done();
-    window.setTimeout(() => document.documentElement.classList.remove("theme-easing"), 360);
-    return;
-  }
-  const x = from?.x ?? window.innerWidth / 2;
-  const y = from?.y ?? window.innerHeight / 2;
-  const radius = Math.hypot(Math.max(x, window.innerWidth - x), Math.max(y, window.innerHeight - y));
-  document.documentElement.classList.add("theme-switching");
-  const transition = doc.startViewTransition(() => { apply(next); done(); });
-  transition.ready.then(() => {
-    document.documentElement.animate(
-      { clipPath: [`circle(0px at ${x}px ${y}px)`, `circle(${radius}px at ${x}px ${y}px)`] },
-      { duration: 520, easing: "cubic-bezier(0.22, 1, 0.36, 1)", pseudoElement: "::view-transition-new(root)" },
-    ).finished.finally(() => document.documentElement.classList.remove("theme-switching"));
-  }).catch(() => document.documentElement.classList.remove("theme-switching"));
+  if (!doc.startViewTransition) { apply(next); done(); return; }
+  doc.startViewTransition(() => { apply(next); done(); });
 }
 
 /** On Auto, follow the device when it changes (evening, a shortcut), without a reload. */
