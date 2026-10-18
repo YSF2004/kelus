@@ -161,7 +161,7 @@ function TodayBody() {
     }
     return (
       <main id="main" className="destination-page start-page">
-        <MaterialLibrary embedded quiet onStartOver={() => void startOver(local.map((item) => item.id))} />
+        <MaterialLibrary embedded quiet onStartOver={() => void startOver(local.filter((item) => item.processingStatus === "failed").map((item) => item.id))} />
       </main>
     );
   }

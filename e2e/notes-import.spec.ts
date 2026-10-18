@@ -58,6 +58,20 @@ test("a notes source is still there after the page is reloaded", async ({ page }
   await expect(page.locator(".material-card")).toContainText(/topics? from this source/);
 });
 
+test("adding oversized notes to Materials stops at the stated 2 MB limit", async ({ page }) => {
+  await startFromFile(page, mdFile);
+  await closeToToday(page);
+  await page.goto("/today?section=materials");
+  await page.getByText("Add a PDF or notes").click();
+  await page.locator('.material-add-page input[type="file"]').setInputFiles({
+    name: "oversized-notes.md",
+    mimeType: "text/markdown",
+    buffer: Buffer.from(`# Oversized notes\n${"a".repeat(2 * 1024 * 1024)}`),
+  });
+  await expect(page.locator(".material-error[role=alert]")).toContainText("These notes are larger than 2 MB");
+  await expect(page.locator(".material-card")).toHaveCount(1);
+});
+
 test("the original notes stay within reach of the study plan", async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
   await startFromFile(page, mdFile);

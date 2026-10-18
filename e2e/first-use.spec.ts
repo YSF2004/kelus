@@ -1,5 +1,5 @@
 import { expect, test, type Page } from "@playwright/test";
-import { startBuiltPlan, sectionsNav, closeToToday, startFromFile, skipReading } from "./helpers";
+import { startBuiltPlan, sectionsNav, closeToToday, gotoStart, startFromFile, skipReading } from "./helpers";
 
 function biologyPdf() {
   const text = [
@@ -14,6 +14,31 @@ function biologyPdf() {
     "<< /Type /Catalog /Pages 2 0 R >>",
     "<< /Type /Pages /Kids [3 0 R] /Count 1 >>",
     "<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 5 0 R >> >> /Contents 4 0 R >>",
+    `<< /Length ${Buffer.byteLength(text)} >>\nstream\n${text}\nendstream`,
+    "<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>",
+  ];
+  let pdf = "%PDF-1.4\n";
+  const offsets = [0];
+  objects.forEach((object, index) => {
+    offsets.push(Buffer.byteLength(pdf));
+    pdf += `${index + 1} 0 obj\n${object}\nendobj\n`;
+  });
+  const xref = Buffer.byteLength(pdf);
+  pdf += `xref\n0 ${objects.length + 1}\n0000000000 65535 f \n`;
+  for (const offset of offsets.slice(1)) pdf += `${String(offset).padStart(10, "0")} 00000 n \n`;
+  pdf += `trailer\n<< /Size ${objects.length + 1} /Root 1 0 R >>\nstartxref\n${xref}\n%%EOF`;
+  return Buffer.from(pdf);
+}
+
+function longBiologyPdf() {
+  const pageCount = 151;
+  const contentId = pageCount + 3;
+  const fontId = contentId + 1;
+  const text = "BT /F1 20 Tf 72 720 Td (Cell Membranes) Tj ET\nBT /F1 11 Tf 72 690 Td (Cell membranes regulate transport between the cell and its environment.) Tj ET";
+  const objects = [
+    "<< /Type /Catalog /Pages 2 0 R >>",
+    `<< /Type /Pages /Kids [${Array.from({ length: pageCount }, (_, index) => `${index + 3} 0 R`).join(" ")}] /Count ${pageCount} >>`,
+    ...Array.from({ length: pageCount }, () => `<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 ${fontId} 0 R >> >> /Contents ${contentId} 0 R >>`),
     `<< /Length ${Buffer.byteLength(text)} >>\nstream\n${text}\nendstream`,
     "<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>",
   ];
@@ -95,6 +120,15 @@ test("a PDF opens its first question by itself, and is still there after a refre
   await expect(page.getByText(/Cell Membranes/).first()).toBeVisible({ timeout: 15_000 }).catch(() => undefined);
   await closeToToday(page);
   await expect(page.getByText("Cell Membranes").first()).toBeVisible();
+});
+
+test("a PDF past the reading limit is not silently treated as a complete course", async ({ page }) => {
+  await gotoStart(page);
+  await page.locator('input[type="file"]').setInputFiles({ name: "long-biology.pdf", mimeType: "application/pdf", buffer: longBiologyPdf() });
+  await expect(page.getByText(/151 pages, but Kelus can read only the first 150/)).toBeVisible({ timeout: 45_000 });
+  await expect(page).toHaveURL(/\/today\/?$/);
+  await page.getByRole("button", { name: "Try another file" }).click();
+  await expect(page.getByRole("heading", { name: "Start with your notes." })).toBeVisible();
 });
 
 test("homepage points into the real revision flow without a duplicate sample", async ({ page }) => {

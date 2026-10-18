@@ -61,9 +61,10 @@ import {
   type WorkingStep,
 } from "@/lib/material-ingest-machine";
 import type { AnalysisPayload } from "@/lib/material-ingest-machine";
-import { assessPdfTextQuality, ocrPdfPages, pageNeedsOcr } from "@/lib/pdf-extraction";
+import { assessPdfTextQuality, MAX_READ_PAGES, ocrPdfPages, pageNeedsOcr } from "@/lib/pdf-extraction";
 import { extractSourcePages, NotesWithoutHeadingsError } from "@/lib/source-extraction";
 import { SOURCE_FILE_ACCEPT, isNotesFile, isZipFile, sourceNoun } from "@/domain/materials";
+import { MAX_NOTES_BYTES } from "@/domain/markdown-pages";
 import { zipToNotesFile } from "@/lib/zip-notes";
 
 function formatBytes(bytes: number | null) {
@@ -359,6 +360,10 @@ export function MaterialLibrary({ embedded = false, incomingFile = null, onIncom
       dispatch({ type: "WORK_STEP", step: "extracting", message: defaultStepMessage("extracting") });
       const extraction = await extractSourcePages(pdfFile);
       const { isNotes, locatorLabel, totalPages, pagesRead } = extraction;
+      // The first-run path confirms topics automatically. Never make a partial PDF look like a complete course.
+      if (quiet && !isNotes && pagesRead < totalPages) {
+        throw new Error(`This PDF has ${totalPages} pages, but Kelus can read only the first ${MAX_READ_PAGES} in one file. Split it into smaller PDFs and add each part so your route does not miss lessons.`);
+      }
       let pages = extraction.pages;
       let quality = assessPdfTextQuality(pages);
       let usedOcr = false;
@@ -458,10 +463,8 @@ export function MaterialLibrary({ embedded = false, incomingFile = null, onIncom
       trackEvent({ name: "concept_review_started", concept_count: proposals.length });
       // Quiet mode: no checklist first. Every topic found is confirmed, and can be removed later from Topics.
       if (quiet && proposals.length) {
-        // A text PDF reads in a blink; the K gets the moment it needs to write itself once (only the remainder is
-        // waited, so a slow file is never held up).
-        // The topics found appear one by one on the reading screen: long enough to see they are this course's own.
-        await holdAtLeast(startedAt, Math.min(2600, 900 + Math.min(proposals.length, 8) * 200));
+        // A fast local read should not wait for a decorative animation to finish.
+        await holdAtLeast(startedAt, 450);
         // The first notes that hold topics name the course: the document's own title ("BIO 101 · Week 4: Cells and
         // transport"), else the file's. Never a file that held no topics, and never on later notes.
         const firstTopics = !state.snapshot.concepts.some((concept) => concept.courseId === course.id);
@@ -519,7 +522,7 @@ export function MaterialLibrary({ embedded = false, incomingFile = null, onIncom
       }
     }
     trackEvent({ name: "material_upload_started", role, course_type: "real" });
-    if (file.size > 20 * 1024 * 1024) {
+    if (file.size > (isNotesFile(file) ? MAX_NOTES_BYTES : 20 * 1024 * 1024)) {
       dispatch({
         type: "SIZE_REJECTED",
         message: isNotesFile(file) ? "These notes are larger than 2 MB. Split them into smaller files, then try again." : "This PDF is larger than 20 MB. Export a smaller file, or split it, then try again.",

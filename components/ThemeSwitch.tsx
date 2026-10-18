@@ -32,10 +32,7 @@ export function ThemeSwitch({ compact = false }: { compact?: boolean }) {
             aria-label={option.label}
             title={option.value === "auto" ? "Auto: follow this device" : option.label}
             className={styles.option}
-            onClick={(event) => {
-              const box = event.currentTarget.getBoundingClientRect();
-              setTheme(option.value, { x: box.left + box.width / 2, y: box.top + box.height / 2 });
-            }}
+            onClick={() => setTheme(option.value)}
           >
             {on ? <motion.span layoutId={highlight} className={styles.on} transition={reduce ? { duration: 0 } : { type: "spring", bounce: 0, duration: 0.35 }} /> : null}
             <span className={styles.mark}><Octicon name={option.icon} size={14} />{compact ? null : <span>{option.label}</span>}</span>
@@ -57,10 +54,7 @@ export function ThemeToggle() {
       className={styles.toggle}
       aria-label={dark ? "Switch to light" : "Switch to dark"}
       title={`${dark ? "Switch to light" : "Switch to dark"}${choice === "auto" ? " (now following this device)" : ""}`}
-      onClick={(event) => {
-        const box = event.currentTarget.getBoundingClientRect();
-        setTheme(dark ? "light" : "dark", { x: box.left + box.width / 2, y: box.top + box.height / 2 });
-      }}
+      onClick={() => setTheme(dark ? "light" : "dark")}
     >
       <Octicon name={dark ? "sun" : "moon"} size={16} />
     </button>
