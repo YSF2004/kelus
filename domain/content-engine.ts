@@ -51,6 +51,12 @@ const EXAMPLE = /\b(for example|for instance|such as|e\.g\.)\b/i;
 
 const BULLET = /^\s*(?:[•◦▪▫●○■□‣⁃*–—-]|\(?\d{1,2}[.)]|\(?[a-z][.)])\s+/;
 const NUMBERED = /^\s*\(?(\d{1,2})[.)]\s+/;
+/** Navigation, properties and reading reminders belong in the source viewer, never in a study question. */
+function isStudySentence(value: string) {
+  return !/^(?:created|updated|tags|author|status):\s/i.test(value)
+    && !/^(?:see|read|visit|click|open|review|refer to|for more information|learn more)\b/i.test(value)
+    && !/\b(?:see|read|visit|click|open|refer to)\s+(?:the |our |this |a )?(?:textbook|website|link|page|article|chapter|diagram|figure)\b/i.test(value);
+}
 
 /**
  * One idea per unit: a bullet, a numbered step, a "term: meaning" line, or a sentence.
@@ -112,7 +118,7 @@ export function units(text: string) {
     const cleaned = line.replace(BULLET, "").replace(/^(?:figure|fig\.?|table|diagram|image|photo)\s*\d+(?:[.:-]\d+)*[.:)]?\s+(?=\p{Lu})/iu, "").replace(/\s+/g, " ").trim();
     if (!cleaned) continue;
     const parts = cleaned.length > 60 ? splitSentences(cleaned) : [cleaned];
-    for (const part of parts) if (part.length >= 15) out.push(part);
+    for (const part of parts) if (part.length >= 15 && isStudySentence(part)) out.push(part);
   }
   return out;
 }

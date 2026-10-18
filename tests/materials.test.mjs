@@ -18,6 +18,7 @@ test("PDF validation and titles are deterministic", () => {
   assert.equal(isPdfFile({ name: "lecture.PDF", type: "" }), true);
   assert.equal(isPdfFile({ name: "notes.txt", type: "text/plain" }), false);
   assert.equal(materialTitle("", "week_03-elasticity.pdf"), "week 03 elasticity");
+  assert.equal(materialTitle("", "Cell Biology  Week 3.md"), "Cell Biology Week 3");
   assert.equal(materialTitle(" My lecture ", "fallback.pdf"), "My lecture");
 });
 

@@ -8,11 +8,11 @@ import { getKnownLines, getServerKnownLines, subscribeKnownLines } from "@/lib/k
 import { getMissedLines, getServerMissedLines, subscribeMissedLines } from "@/lib/missed-lines";
 import styles from "./RecallMap.module.css";
 
-const STATE_LABEL = { recalled: "recalled", back: "coming back first", new: "not asked yet" } as const;
+const STATE_LABEL = { recalled: "answered correctly", back: "coming back first", new: "not asked yet" } as const;
 
 /**
- * How ready you are, counted rather than estimated: every line Kelus can ask you, one mark each, topic by topic in the
- * order of your notes. Green is a line you can recall, marigold one that comes back first, pale one not asked yet.
+ * Answer evidence, counted rather than estimated: every line Kelus can ask you, one mark each, topic by topic in the
+ * order of your notes. Green has a correct answer, marigold comes back first, pale has not been asked yet.
  * Hovering a mark shows its line.
  */
 export function RecallMap({ concepts, activities, nowIso }: { concepts: Concept[]; activities: LearningActivity[]; nowIso: string }) {
@@ -26,20 +26,20 @@ export function RecallMap({ concepts, activities, nowIso }: { concepts: Concept[
 
   return (
     <section className={styles.map} aria-labelledby="recall-map-title">
-      <p className={styles.kicker} id="recall-map-title">Lines you can recall</p>
+      <p className={styles.kicker} id="recall-map-title">Lines answered correctly</p>
       <p className={styles.figure}>
         <b>{map.recalled}</b>
         <span>of {map.total} lines in your notes{map.recalled ? ` · ${share}%` : ""}</span>
       </p>
       <p className={styles.sub}>
         {map.recalled === 0
-          ? "Every line Kelus can ask you about. Each one turns green when you recall it."
-          : [map.thisWeek ? `${map.thisWeek} recalled this week` : null, map.back ? `${map.back} ${map.back === 1 ? "comes" : "come"} back first in your next warm-up` : null].filter(Boolean).join(" · ") || "A miss turns a line back; a right answer brings it home."}
+          ? "Every line Kelus can ask you about. Each one turns green after a correct answer."
+          : [map.thisWeek ? `${map.thisWeek} answered correctly this week` : null, map.back ? `${map.back} ${map.back === 1 ? "comes" : "come"} back first in your next warm-up` : null].filter(Boolean).join(" · ") || "A miss turns a line back; a right answer brings it home."}
       </p>
 
       <ol className={styles.topics} aria-label="Lines by topic, in the order of your notes">
         {map.topics.map((topic) => (
-          <li key={topic.id} className={styles.topic} aria-label={`${topic.name}: ${topic.recalled} of ${topic.lines.length} lines recalled`}>
+          <li key={topic.id} className={styles.topic} aria-label={`${topic.name}: ${topic.recalled} of ${topic.lines.length} lines answered correctly`}>
             <span className={styles.name}>{topic.name}</span>
             <span className={styles.count} aria-hidden="true">{topic.recalled}/{topic.lines.length}</span>
             <span className={styles.dots} aria-hidden="true">
@@ -63,7 +63,7 @@ export function RecallMap({ concepts, activities, nowIso }: { concepts: Concept[
       </ol>
 
       <p className={styles.legend} aria-hidden="true">
-        <span><i className={styles.dot} data-state="recalled" /> Recalled</span>
+        <span><i className={styles.dot} data-state="recalled" /> Answered correctly</span>
         <span><i className={styles.dot} data-state="back" /> Comes back first</span>
         <span><i className={styles.dot} data-state="new" /> Not asked yet</span>
       </p>

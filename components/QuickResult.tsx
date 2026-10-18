@@ -94,7 +94,7 @@ export function QuickResult({
   onSource?: () => void;
   /** The day so far, for the moment today's goal closes: shown once a day, on the topic that completes it. */
   habit?: { today: string; streak: number; week: Array<{ key: string; label: string; studied: boolean; today: boolean }>; backTomorrow: number };
-  /** Where this topic leaves you on the course path: topics practised of all, and lines you can recall. */
+  /** Where this topic leaves you on the course path: topics practised of all, and lines answered correctly. */
   path?: { practised: number; total: number; recalled: number; /** This topic's place on the path, from 0. */ here?: number; /** Each topic, in order: practised or not. */ done?: boolean[] };
 }) {
   const reduce = useReducedMotion() === true;
@@ -149,7 +149,7 @@ export function QuickResult({
             {/* One step per topic, in the order of the notes; this topic's step is marked. Practised steps fill. */}
             {path.total <= 24 ? Array.from({ length: path.total }, (_, index) => <i key={index} data-here={index === path.here ? "true" : undefined} data-done={(path.done?.[index] ?? index < path.practised) ? "true" : undefined} />) : <i className={styles.pathFill} style={{ ["--share" as string]: path.practised / path.total }} />}
           </span>
-          <span>{path.practised} of {path.total} topics practised{path.recalled ? ` · ${path.recalled} ${path.recalled === 1 ? "line" : "lines"} you can recall` : ""}</span>
+          <span>{path.practised} of {path.total} topics practised{path.recalled ? ` · ${path.recalled} ${path.recalled === 1 ? "line" : "lines"} answered correctly` : ""}</span>
         </motion.div>
       ) : null}
 

@@ -178,6 +178,7 @@ export function QuickRun({ run, onRevealSource, onFinish, onChecksDone, context,
     const onKey = (event: KeyboardEvent) => {
       if (!compared && event.key === "Enter" && (event.metaKey || event.ctrlKey)) { event.preventDefault(); compare(); return; }
       if (compared && !event.metaKey && !event.ctrlKey && !event.altKey && /^[123]$/.test(event.key) && !(event.target instanceof HTMLTextAreaElement)) {
+        if (!explained.trim() && event.key !== "3") return;
         event.preventDefault(); finish(GRADES[Number(event.key) - 1].value, event.timeStamp);
       }
     };
@@ -217,7 +218,7 @@ export function QuickRun({ run, onRevealSource, onFinish, onChecksDone, context,
     // The next card replaces the old one in the same frame and settles from almost visible: nothing to wait for.
     : { initial: { opacity: 0.6, y: 4 }, animate: { opacity: 1, y: 0 }, exit: { opacity: 0, transition: { duration: 0 } }, transition: { duration: 0.18, ease: [0.22, 1, 0.36, 1] as const } };
 
-  // The counter means something: lines of these notes you can recall now. It rises with a right answer to a line
+  // The counter means something: lines of these notes answered correctly. It rises with a right answer to a line
   // you had not shown before, and falls when you miss one you had.
   const count = recalled == null ? null : Math.max(0, recalled + bump - drop);
   const readingNow = reading >= 0;
@@ -234,14 +235,14 @@ export function QuickRun({ run, onRevealSource, onFinish, onChecksDone, context,
         </ol>
         {/* While the question's answer is the topic's own name, the caption keeps only its place in the block. */}
         <div className={styles.context} data-topic-hidden={item && asksForTheTopic(item) && !answered ? "" : undefined}>{context}</div>
-        {/* Nothing to count yet on a first visit: the count appears with the first line recalled. */}
+        {/* Nothing to count yet on a first visit: the count appears with the first correct line. */}
         {count == null || (count === 0 && !drop) ? <span /> : (
-          <p className={styles.recall} aria-label={`${count} ${count === 1 ? "line" : "lines"} from your notes you can recall`}>
+          <p className={styles.recall} aria-label={`${count} ${count === 1 ? "line" : "lines"} from your notes answered correctly`}>
             <span className={styles.recallNumber}>
               <motion.b key={count} initial={reduce || !(bump || drop) ? false : { y: bump ? -6 : 6, opacity: 0.4 }} animate={{ y: 0, opacity: 1 }} transition={{ type: "spring", bounce: 0, duration: 0.35 }}>{count}</motion.b>
               <AnimatePresence>{(bump || drop) && !reduce ? <motion.i key={`${bump}-${drop}`} aria-hidden="true" className={change === "−1" ? styles.minus : undefined} initial={{ opacity: 1, y: 0 }} animate={{ opacity: 0, y: -12 }} transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1] }}>{change}</motion.i> : null}</AnimatePresence>
             </span>
-            <span aria-hidden="true"><span className={styles.recallLong}>{count === 1 ? "line" : "lines"} you can recall</span><span className={styles.recallShort}>recalled</span></span>
+            <span aria-hidden="true"><span className={styles.recallLong}>{count === 1 ? "line" : "lines"} answered correctly</span><span className={styles.recallShort}>correct</span></span>
           </p>
         )}
         {/* Sounds are on by default, the way a study app answers you; one tap here silences them for good. */}
@@ -337,7 +338,7 @@ export function QuickRun({ run, onRevealSource, onFinish, onChecksDone, context,
 
             {answered ? (
               <motion.div className={`${styles.feedback} ${answered.right ? styles.ok : answered.unsure ? styles.unsure : styles.no}`} role="status" initial={reduce ? false : touch ? { opacity: 1, y: "100%" } : { opacity: 0, y: 8, scale: 0.98 }} animate={{ opacity: 1, y: 0, scale: 1 }} transition={touch ? { type: "spring", bounce: 0, duration: 0.38 } : { type: "spring", bounce: 0, duration: 0.28 }}>
-                <strong>{answered.right ? <PackArt name="check" className={styles.mark} /> : null}{answered.unsure ? (item.kind === "cloze" ? `It was “${item.modelAnswer}”.` : "Here’s the line it comes from.") : answered.right ? (answered.picked ? "Right, picked from four. Type it next time to count it as recalled." : answered.firstEver ? "Right. That’s your first line recalled." : "Right.") : item.kind === "cloze" ? `Not quite. It was “${item.modelAnswer}”.` : "Not quite."}</strong>
+                <strong>{answered.right ? <PackArt name="check" className={styles.mark} /> : null}{answered.unsure ? (item.kind === "cloze" ? `It was “${item.modelAnswer}”.` : "Here’s the line it comes from.") : answered.right ? (answered.picked ? "Right, picked from four. Type it next time to count it as a correct answer." : answered.firstEver ? "Right. That’s your first line answered correctly." : "Right.") : item.kind === "cloze" ? `Not quite. It was “${item.modelAnswer}”.` : "Not quite."}</strong>
                 {around && linesAround(run, item.sourceQuote) ? (
                   <div className={styles.around} aria-label="This line in your notes">
                     {linesAround(run, item.sourceQuote)!.before ? <p>{linesAround(run, item.sourceQuote)!.before}</p> : null}
@@ -429,17 +430,24 @@ export function QuickRun({ run, onRevealSource, onFinish, onChecksDone, context,
                     {useful.flipped.length ? <p className={styles.flipNote}>Check the direction: you wrote <b>{useful.flipped[0].said}</b> where your notes say <b>{useful.flipped[0].page}</b>.</p> : null}
                   </div>
                 ) : null}
-                <fieldset className={styles.grades}>
-                  <legend>How close was it?</legend>
-                  {GRADES.map((grade) => (
-                    <button key={grade.value} type="button" className={useful?.suggest === grade.value ? styles.suggested : undefined} onClick={(event) => finish(grade.value, event.timeStamp)}>
-                      <span className={styles.gradeMark} data-grade={grade.value} aria-hidden="true">{grade.value === "nailed" ? <Octicon name="check" size={16} /> : grade.value === "missed" ? <Octicon name="x-circle" size={16} /> : <i />}</span>
-                      <strong>{grade.label}{useful?.suggest === grade.value ? <em>Suggested</em> : null}</strong>
-                      <kbd className={styles.gradeKey} aria-hidden="true">{GRADES.indexOf(grade) + 1}</kbd>
-                      <small>{grade.hint}</small>
-                    </button>
-                  ))}
-                </fieldset>
+                {!explained.trim() ? (
+                  <div className={styles.grades}>
+                    <p>No answer to rate yet. This line will come back.</p>
+                    <button type="button" onClick={(event) => finish("missed", event.timeStamp)}>Continue <kbd className={styles.gradeKey} aria-hidden="true">3</kbd></button>
+                  </div>
+                ) : (
+                  <fieldset className={styles.grades}>
+                    <legend>How close was it?</legend>
+                    {GRADES.map((grade) => (
+                      <button key={grade.value} type="button" className={useful?.suggest === grade.value ? styles.suggested : undefined} onClick={(event) => finish(grade.value, event.timeStamp)}>
+                        <span className={styles.gradeMark} data-grade={grade.value} aria-hidden="true">{grade.value === "nailed" ? <Octicon name="check" size={16} /> : grade.value === "missed" ? <Octicon name="x-circle" size={16} /> : <i />}</span>
+                        <strong>{grade.label}{useful?.suggest === grade.value ? <em>Suggested</em> : null}</strong>
+                        <kbd className={styles.gradeKey} aria-hidden="true">{GRADES.indexOf(grade) + 1}</kbd>
+                        <small>{grade.hint}</small>
+                      </button>
+                    ))}
+                  </fieldset>
+                )}
               </motion.div>
             )}
           </motion.section>

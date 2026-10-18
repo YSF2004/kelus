@@ -50,7 +50,7 @@ export async function startFromPaste(page: Page, text: string) {
 
 /** Leaves the first question and lands on Today. */
 export async function closeToToday(page: Page) {
-  await page.getByRole("button", { name: "Close" }).click();
+  await page.getByRole("button", { name: "Close", exact: true }).click();
   await expect(page.locator("#today-title")).toBeVisible();
 }
 

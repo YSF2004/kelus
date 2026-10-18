@@ -66,6 +66,8 @@ export function parseMarkdownLines(markdown: string): Line[] {
     }
     if (!line.trim()) { flush(); continue; }
     if (/^\s*([-*_])(\s*\1){2,}\s*$/.test(line)) { flush(); continue; }
+    // Notion toggles use a disclosure label as chrome, not part of the lesson sentence beneath it.
+    if (/^\s*<summary(?:\s[^>]*)?>.*<\/summary>\s*$/i.test(line)) { flush(); continue; }
 
     const heading = line.match(/^\s{0,3}(#{1,6})\s+(.+?)\s*#*\s*$/);
     if (heading) {
@@ -130,6 +132,13 @@ export function markdownToPages(markdown: string): ExtractedMaterialPage[] {
   if (first && first[0]?.kind === "heading" && first[0].level < level) {
     const body = first.filter((entry) => entry.kind === "body").map((entry) => entry.text).join(" ");
     if (body.length < 300) sections.shift();
+  }
+  // Pasting notes removes the standalone course title before parsing. A short Notion properties block left above
+  // the first real heading is still document furniture, not a page to study or a topic to name the course from.
+  const preamble = sections[0];
+  if (sections.length > 1 && preamble?.every((entry) => entry.kind === "body")) {
+    const body = preamble.map((entry) => entry.text).join(" ");
+    if (body.length < 300 && preamble.some((entry) => /^(?:created|updated|tags|author|status):\s/i.test(entry.text))) sections.shift();
   }
 
   return sections.slice(0, MAX_SECTIONS).map((section, index) => {

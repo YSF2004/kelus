@@ -133,7 +133,7 @@ export function termFromMeaning(ctx: Ctx): Draft[] {
   }
   const out: Draft[] = [];
   for (const def of defs.slice(0, 2)) {
-    // Wrong options come from this page first (other defined terms, other key words), then the course's other topics.
+    // Distractors must come from this topic's own page. Other topics are not plausible terms for this definition.
     const single = words(def.term) === 1;
     const onPage = [...defs.filter((d) => d !== def).map((d) => d.term), ...ctx.terms.map((t) => (single ? cap(t) : t))];
     const inMeaning = (t: string) => def.meaning.toLocaleLowerCase().includes(t.toLocaleLowerCase());
@@ -142,8 +142,7 @@ export function termFromMeaning(ctx: Ctx): Draft[] {
     const piece = (t: string) => new RegExp(`(?:^|\\s)${t.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}(?:\\s|$)`, "i").test(def.term) || new RegExp(`(?:^|\\s)${def.term.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}(?:\\s|$)`, "i").test(t);
     const eligible = (t: string) => t.toLocaleLowerCase() !== def.term.toLocaleLowerCase() && !inMeaning(t) && !piece(t) && !/\s(?:is|are|was|were)\s/i.test(t) && Math.abs(words(t) - words(def.term)) <= 1;
     const pool = [...new Set(onPage)].filter(eligible);
-    const course = ctx.others.filter(eligible);
-    const wrong = [...shuffle(pool, `${ctx.conceptId}${def.term}`).slice(0, 3), ...shuffle(course, `${ctx.conceptId}k${def.term}`)].slice(0, 3);
+    const wrong = shuffle(pool, `${ctx.conceptId}${def.term}`).slice(0, 3);
     if (wrong.length < 2) continue;
     const choices = shuffle([def.term, ...wrong], `${ctx.conceptId}m${def.term}`);
     out.push({

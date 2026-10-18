@@ -156,8 +156,8 @@ export function TodayRoute({
     nowIso,
     dependents: firstConcept ? dependentNames(firstConcept.id, relationships, concepts) : [],
   });
-  // Opened but not answered yet: "New to you here" would contradict "In progress" above it.
-  const decision = startLabel && !(firstConcept?.retrievalAttempts) ? [firstChecks ? "You opened it; pick up with the first check." : "You opened it; pick up with your explanation."] : reasons;
+  // A saved session may have moved to this topic without the student ever opening it.
+  const decision = startLabel && !(firstConcept?.retrievalAttempts) ? ["Your session is saved. Continue with this topic."] : reasons;
   const firstSource = firstActivity?.sourceReferences[0];
   // A mixed review is named by what it mixes: answered topics the plan does not already list on their own. With
   // none (day one, or every answered topic is already a row), it is not offered.
@@ -197,6 +197,8 @@ export function TodayRoute({
         : `about ${path.daysLeft} study days left and ${daysToExam} until your exam`;
   const paceShort = path.daysLeft === 0
     ? "All solid"
+    : examDatePending
+      ? `About ${path.daysLeft} study ${path.daysLeft === 1 ? "day" : "days"} of work`
     : !examDatePending && path.readyByMs !== null && path.aheadOfExam !== null && path.aheadOfExam >= 0
       ? `Ready by ${new Date(path.readyByMs).toLocaleDateString([], { weekday: "short", day: "numeric", month: "short" })}`
       : `${path.daysLeft} study ${path.daysLeft === 1 ? "day" : "days"} left`;
@@ -238,7 +240,7 @@ export function TodayRoute({
       </motion.header>
 
       <motion.section className={q.next} data-block="today-lead" aria-labelledby="today-title" {...settle(1)}>
-        <p className={q.eyebrow}>{startLabel ? "In progress" : goalDone ? "Extra for today" : "Up next"}</p>
+        <p className={q.eyebrow}>{startLabel ? "Continue your session" : goalDone ? "Extra for today" : "Up next"}</p>
         <h2 id="today-title" className={q.topic}>{firstName}</h2>
         {/* What the run holds, as marks a student reads in a glance: time, checks, the explanation, the page. */}
         <ul className={q.chips} data-block="today-page-folio" aria-label="What this topic holds">

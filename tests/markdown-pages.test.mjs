@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import test from "node:test";
 import { looksLikeMarkdownHeadings, markdownToPages, pastedTitle, plainInline, structurePastedText } from "../domain/markdown-pages.ts";
-import { buildConfirmedMaterialModel, isSourceBackedProposal, proposeConceptsFromPages } from "../domain/material-intelligence.ts";
+import { buildConfirmedMaterialModel, documentTitle, isSourceBackedProposal, proposeConceptsFromPages } from "../domain/material-intelligence.ts";
 import { quoteIsOnPage } from "../domain/content-engine.ts";
 
 const notion = readFileSync(new URL("./fixtures/notion-export.md", import.meta.url), "utf8");
@@ -25,6 +25,8 @@ test("a Notion export becomes one page per section, with headings kept apart fro
 test("tables become term: meaning lines and numbered steps keep their numbers", () => {
   const pages = markdownToPages(notion);
   assert.match(pages[1].text, /Hypotonic: water enters the cell, the cell swells/);
+  assert.match(pages[1].text, /Cells in pure water can burst because water keeps entering/);
+  assert.doesNotMatch(pages[1].text, /Extra Cells|<summary>/);
   assert.doesNotMatch(pages[1].text, /---|Condition: What happens/);
   assert.match(pages[2].text, /1\. Glycolysis occurs[\s\S]*2\. The Krebs cycle[\s\S]*3\. The electron transport chain/);
 });
@@ -38,6 +40,16 @@ test("the topic finder works on notes unchanged, and locators say Section", () =
   assert.ok(!names.includes("Cell Biology: Week 3"), "the document title and its properties are not a study topic");
 });
 
+test("pasting a titled Notion page does not turn its properties into a lesson or course title", () => {
+  const title = pastedTitle(notion);
+  assert.equal(title, "Cell Biology: Week 3");
+  const pasted = notion.replace(/^\s*(?:#\s+)?[^\n]*\n/, "");
+  const pages = markdownToPages(structurePastedText(pasted));
+  assert.deepEqual(pages.map((page) => page.text.split("\n")[0]), ["Cell Membrane", "Osmosis", "Steps of Cellular Respiration", "Active vs Passive Transport"]);
+  assert.equal(documentTitle(pages, { fromLayout: false }), null, "notes keep their explicit file/paste title");
+  assert.doesNotMatch(pages.map((page) => page.text).join("\n"), /Created:|Tags:/);
+});
+
 test("questions from notes quote the notes and use the page's own terms", () => {
   const pages = markdownToPages(notion);
   const proposals = proposeConceptsFromPages({ materialId: "m", sourceLabel: "Cell Biology", pages, locatorLabel: "Section" }).filter(isSourceBackedProposal);
@@ -46,6 +58,9 @@ test("questions from notes quote the notes and use the page's own terms", () => 
   let items = 0;
   for (const activity of model.learningActivities) for (const item of activity.practice ?? []) { items += 1; assert.ok(quoteIsOnPage(item.sourceQuote, all), item.sourceQuote); }
   assert.ok(items >= 8, `expected a decent number of questions, got ${items}`);
+  for (const activity of model.learningActivities) for (const item of activity.practice ?? []) {
+    assert.doesNotMatch(`${item.prompt} ${item.modelAnswer} ${item.sourceQuote}`, /See the textbook|Review the cholesterol diagram/i);
+  }
   const osmosis = model.learningActivities.find((activity) => activity.learn.title === "Osmosis");
   assert.ok(osmosis.practice.some((item) => /Which one matches/.test(item.prompt) && item.choices.every((choice) => /^(Isotonic|Hypotonic|Hypertonic)$/.test(choice))));
 });

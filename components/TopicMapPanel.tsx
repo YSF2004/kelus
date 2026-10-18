@@ -141,7 +141,7 @@ export function TopicMapPanel() {
           <span>
             {last
               ? `${last.right} of ${last.total} from memory, ${whenAgo(last.at, state.nowIso)}${done ? "" : ` · pass at ${need} of ${last.total}`}`
-              : left === 0 ? `${scope}, mixed${lines ? ` · ${lines} ${lines === 1 ? "line" : "lines"} you can recall` : ""}` : `Unlocks after ${left} more ${left === 1 ? "topic" : "topics"}`}
+              : left === 0 ? `${scope}, mixed${lines ? ` · ${lines} ${lines === 1 ? "line" : "lines"} answered correctly` : ""}` : `Unlocks after ${left} more ${left === 1 ? "topic" : "topics"}`}
           </span>
         </span>
         {left === 0 ? <Link className={`k-btn ${done ? "k-btn--paper " : ""}${styles.checkpointGo}`} href={href} aria-label={`${done ? "Run again" : last ? "Try again" : "Start"}: ${label}`}>{done ? "Again" : last ? "Try again" : "Start"} {done ? null : <ArrowRight />}</Link> : null}
@@ -152,7 +152,7 @@ export function TopicMapPanel() {
   return (
     <div className="surface-map is-toc">
       <div className={styles.pathHead} role="group" aria-label="Where you are">
-        <p className="sr-only">{practised} of {path.length} topics practised{solid ? `, ${solid} solid` : ""}{recalled ? `, ${recalled} ${recalled === 1 ? "line" : "lines"} you can recall` : ""}{passedCount ? `, ${passedCount} ${passedCount === 1 ? "checkpoint" : "checkpoints"} passed` : ""}.</p>
+        <p className="sr-only">{practised} of {path.length} topics practised{solid ? `, ${solid} solid` : ""}{recalled ? `, ${recalled} ${recalled === 1 ? "line" : "lines"} answered correctly` : ""}{passedCount ? `, ${passedCount} ${passedCount === 1 ? "checkpoint" : "checkpoints"} passed` : ""}.</p>
         <ul className={styles.stats} aria-hidden="true">
           <li><Octicon name="list-unordered" className={styles.ico} /><strong>{practised}/{path.length}</strong><span>practised</span></li>
           {solid ? <li data-tone="green"><Octicon name="check-circle" className={styles.ico} /><strong>{solid}</strong><span>solid</span></li> : null}

@@ -21,12 +21,14 @@ export function isDocumentTitle(value: string) {
 
 /** The document's own title, from the first lines of the first page: it names the course instead of becoming a topic. */
 export function documentTitle(pages: ExtractedMaterialPage[], options: { fromLayout?: boolean } = {}) {
+  // Notes already have a filename or pasted title. A "Week 3" in their properties/intro is not a course name.
+  if (options.fromLayout === false) return null;
   const first = [...pages].filter((page) => page.pageNumber > 0).sort((a, b) => a.pageNumber - b.pageNumber)[0];
   const line = first?.text.split(/\n+/).slice(0, 6).map((entry) => entry.trim()).find((entry) => entry.length >= 4 && entry.length <= 90 && isDocumentTitle(entry));
   // "1.1 Lecture 1: …" carries the handout's section number in front of its own; "Lecture 1: …" says it once.
   if (line) return line.replace(/\s+/g, " ").replace(/^\d+(?:\.\d+)*\s+(?=(?:week|lecture|lesson|unit|module|chapter|session|seminar|tutorial|class)\s*\d)/i, "");
   // Only a PDF's first page is a title page; notes are sections, each opening on its own topic heading.
-  return options.fromLayout === false ? null : layoutTitle(first);
+  return layoutTitle(first);
 }
 
 /**

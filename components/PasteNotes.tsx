@@ -22,7 +22,7 @@ export function PasteNotes({ onFile, disabled = false }: { onFile: (file: File) 
     if (new Blob([value]).size > MAX_NOTES_BYTES) return setError("These notes are over 2 MB. Paste a smaller part.");
     setError("");
     // A title line at the top names the file, and so the course: "Cell biology", not "My course".
-    const title = heading?.replace(/[\\/:*?"<>|]+/g, " ").trim();
+    const title = heading?.replace(/[\\/:*?"<>|]+/g, " ").replace(/\s+/g, " ").trim();
     onFile(new File([value], `${title || "Pasted notes"}.md`, { type: "text/markdown" }));
   }
 

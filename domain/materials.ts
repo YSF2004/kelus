@@ -38,7 +38,7 @@ export function parseMaterialUrl(value: string): { url: string; kind: MaterialKi
 
 export function materialTitle(input: string, fallback: string) {
   const title = input.trim();
-  return title || fallback.replace(/\.(pdf|md|markdown|txt)$/i, "").replace(/[-_]+/g, " ").replace(/\s+[0-9a-f]{32}$/i, "").trim();
+  return title || fallback.replace(/\.(pdf|md|markdown|txt)$/i, "").replace(/[-_]+/g, " ").replace(/\s+[0-9a-f]{32}$/i, "").replace(/\s+/g, " ").trim();
 }
 
 export function isPdfFile(file: Pick<File, "name" | "type">) {

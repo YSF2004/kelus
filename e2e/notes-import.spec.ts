@@ -18,6 +18,18 @@ test("pasted notes work the same way, and the first question quotes the notes", 
   await page.getByRole("button", { name: "More session options" }).click();
   await page.getByRole("button", { name: "Peek at the notes" }).click();
   await expect(page.locator('article[aria-label^="Section"]')).toBeVisible();
+  await closeToToday(page);
+  await expect(page.getByRole("heading", { name: /Cell Biology Week 3/ })).toBeVisible();
+  await expect(page.getByText(/study days left/i)).toHaveCount(0);
+});
+
+test("skipping a memory answer cannot be marked as mastered", async ({ page }) => {
+  await startFromPaste(page, notion);
+  await page.getByRole("button", { name: "I don’t remember" }).click();
+  await expect(page.getByText("No answer to rate yet. This line will come back.")).toBeVisible();
+  await expect(page.getByRole("button", { name: /Nailed it|Partly/ })).toHaveCount(0);
+  await page.getByRole("button", { name: /^Continue/ }).click();
+  await expect(page.getByText(/Needs another attempt/).first()).toBeVisible();
 });
 
 test("notes too short to study from get a plain reason, and nothing is saved", async ({ page }) => {
@@ -180,7 +192,7 @@ test("a topic that is not real can be removed from the question screen, and undo
 test("the exam date is asked after the first run, not before, and a real date turns on the countdown", async ({ page }) => {
   await startFromFile(page, mdFile);
   await closeToToday(page);
-  await expect(page.getByRole("group", { name: "Your path through the course" })).toContainText(/study days? left/);
+  await expect(page.getByRole("group", { name: "Your path through the course" })).toContainText(/About \d+ study days? of work/);
   await expect(page.getByText(/days? to exam/)).toHaveCount(0);
   const ask = page.getByRole("region", { name: "When is your exam?" });
   await ask.getByRole("button", { name: "Save date" }).click();

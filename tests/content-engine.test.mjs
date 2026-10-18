@@ -47,6 +47,15 @@ test("a figure caption is asked as its fact, without the figure number", async (
   assert.ok(!lines.some((line) => /^(Figure|Table)\b/.test(line)));
 });
 
+test("navigation and reading reminders are not converted into teaching facts or questions", async () => {
+  const { units, buildPractice } = await import("../domain/content-engine.ts");
+  const excerpt = "Cell membranes are selectively permeable barriers. See the textbook for diagrams.\nReview the cholesterol diagram.\nCreated: October 2, 2026\nThe bilayer has hydrophilic heads and hydrophobic tails.";
+  assert.deepEqual(units(excerpt), ["Cell membranes are selectively permeable barriers.", "The bilayer has hydrophilic heads and hydrophobic tails."]);
+  const questions = buildPractice({ conceptId: "membrane", name: "Cell Membrane", excerpt, locator: "Section 1", siblingNames: ["Osmosis", "Respiration"] });
+  assert.ok(questions.length > 0);
+  assert.ok(questions.every((item) => !/textbook|cholesterol diagram|Created:/.test(`${item.prompt} ${item.modelAnswer} ${item.sourceQuote}`)));
+});
+
 test("French notes are asked about in French, with gaps on their ideas, not on accents or small words", async () => {
   const { buildPractice } = await import("../domain/content-engine.ts");
   const { noteLanguage, frenchRecallQuestion, inNotesLanguage } = await import("../domain/note-language.ts");
