@@ -19,7 +19,7 @@ test("the result card, Today and Topics all name the same next topic, and a past
     await page.getByRole("button", { name: /^(Next|Now say)/ }).click();
   }
   await page.getByRole("button", { name: "I don’t remember" }).click();
-  await page.getByRole("button", { name: /Missed it/ }).click();
+  await page.getByRole("button", { name: /^Continue/ }).click();
   const next = ((await page.getByRole("button", { name: /^Continue to / }).innerText()).match(/Continue to (.+?)\s*→?$/) ?? [])[1]?.trim();
   expect(next).toBeTruthy();
 

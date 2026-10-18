@@ -17,7 +17,7 @@ test("a whole block runs from the first question to the end with no stop between
       await page.getByRole("button", { name: /^(Next|Now say)/ }).click();
     }
     await page.getByRole("button", { name: "I don’t remember" }).click();
-    await page.getByRole("button", { name: /Partly/ }).click();
+    await page.getByRole("button", { name: /^Continue/ }).click();
     const next = page.getByRole("button", { name: /^Continue to / });
     await next.or(page.getByRole("button", { name: /Finish block/ })).first().waitFor();
     if (!(await next.count())) break;

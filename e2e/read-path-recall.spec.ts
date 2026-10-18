@@ -28,7 +28,7 @@ test("a new topic is read first, one line at a time, then asked; the recall coun
   }
   await expect(page.getByLabel(/^Check 1 of \d$/)).toBeVisible();
   // Nothing recalled yet: no count in the bar until the first line comes back.
-  const counter = page.getByLabel(/lines? from your notes you can recall/);
+  const counter = page.getByLabel(/lines? from your notes answered correctly/);
   await expect(counter).toHaveCount(0);
   // Answer the first check right: the counter goes to 1.
   // Answer the first check: "Which idea…" is the topic itself; a gap gets the word the notes use.
