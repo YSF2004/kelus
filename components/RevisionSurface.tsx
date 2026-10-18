@@ -55,8 +55,13 @@ function modeFromSection(section: string | null): SurfaceMode {
   return "today";
 }
 
-function hrefForMode(mode: SurfaceMode) {
-  return mode === "today" ? "/today" : `/today?section=${mode}`;
+function hrefForMode(mode: SurfaceMode, sourceId?: string | null, notesOpen = false) {
+  const params = new URLSearchParams();
+  if (mode !== "today") params.set("section", mode);
+  if (sourceId) params.set("source", sourceId);
+  if (notesOpen) params.set("notes", "1");
+  const query = params.toString();
+  return query ? `/today?${query}` : "/today";
 }
 
 /**
@@ -82,7 +87,8 @@ export function RevisionSurface({ topicId }: { /** A topic's own page, opened in
   const { state, start, reset, removeMaterialSource, setExamDate, abandon, renameCourse } = useLearner();
   const auth = useAuth();
   const [confirmReset, setConfirmReset] = useState(false);
-  const [selectedMaterialId, setSelectedMaterialId] = useState<string | null>(null);
+  const selectedMaterialId = searchParams.get("source");
+  const sourceBesidePlan = searchParams.get("notes") === "1";
   const [incomingSource, setIncomingSource] = useState<File | null>(null);
   const [sampleFile, setSampleFile] = useState<File | null>(null);
   const [railHidden, setRailHiddenState] = useState(false);
@@ -190,11 +196,15 @@ export function RevisionSurface({ topicId }: { /** A topic's own page, opened in
   const modeMeta = MODES.find((item) => item.id === mode)!;
   const courseMaterials = materials.filter((item) => item.courseId === courseId);
   const hasCoursePdf = courseMaterials.some((item) => item.kind === "pdf" && !item.id.startsWith("material-demo-"));
-  const firstConceptId = route.allocations[0]?.conceptId;
+  const firstConceptId = resumeAllocation?.conceptId ?? route.allocations[0]?.conceptId;
   const firstReference = snapshot.learningActivities.find((item) => item.conceptId === firstConceptId)?.sourceReferences[0];
+  const firstSourcePage = Math.max(1, Number(firstReference?.locator?.match(/\d+/)?.[0] ?? 1));
   const preferredMaterial = courseMaterials.find((item) => item.id === firstReference?.materialId);
-  const selectedMaterial = (mode === "today" ? preferredMaterial : courseMaterials.find((item) => item.id === selectedMaterialId))
-    ?? courseMaterials.find((item) => item.storage === "local")
+  const chosenMaterial = courseMaterials.find((item) => item.id === selectedMaterialId);
+  const localMaterial = courseMaterials.find((item) => item.storage === "local" && !item.id.startsWith("material-demo-"));
+  const selectedMaterial = (mode === "today"
+    ? [chosenMaterial, preferredMaterial, localMaterial].find((item) => item?.storage === "local" && !item.id.startsWith("material-demo-"))
+    : chosenMaterial ?? preferredMaterial ?? localMaterial)
     ?? courseMaterials[0]
     ?? null;
   const hasReadableSource = selectedMaterial?.storage === "local" && !selectedMaterial.id.startsWith("material-demo-");
@@ -202,7 +212,7 @@ export function RevisionSurface({ topicId }: { /** A topic's own page, opened in
   function setMode(next: SurfaceMode) {
     if (next === mode && !topicId) return;
     // A real step in history, so the browser's Back returns to the section you came from.
-    router.push(hrefForMode(next), { scroll: false });
+    router.push(hrefForMode(next, selectedMaterialId, sourceBesidePlan), { scroll: false });
   }
 
   function begin() {
@@ -230,7 +240,7 @@ export function RevisionSurface({ topicId }: { /** A topic's own page, opened in
       const material = materials.find((item) => item.id === materialId);
       await removeMaterial(materialId);
       removeMaterialSource(materialId);
-      if (selectedMaterialId === materialId) setSelectedMaterialId(null);
+      if (selectedMaterialId === materialId) router.replace(hrefForMode(mode, null, sourceBesidePlan), { scroll: false });
       setConfirmSourceId(null);
       if (auth.user) await removeRemoteMaterial(auth.user.id, materialId, material).catch(() => undefined);
     } catch {
@@ -283,7 +293,10 @@ export function RevisionSurface({ topicId }: { /** A topic's own page, opened in
             const title = material.id.startsWith("material-demo-") ? "Built-in Microeconomics example" : material.title;
             const linkedTopics = snapshot.learningActivities.filter((activity) => activity.sourceReferences.some((reference) => reference.materialId === material.id)).length;
             return <div key={material.id} className="core-source-item">
-              <button type="button" className={`core-source-open${selectedMaterial?.id === material.id ? " is-selected" : ""}`} onClick={() => { setSelectedMaterialId(material.id); setMode("materials"); }} title={title}>
+              <button type="button" className={`core-source-open${selectedMaterial?.id === material.id ? " is-selected" : ""}`} onClick={() => {
+                const besidePlan = mode === "today" && material.storage === "local" && !window.matchMedia("(max-width: 1120px)").matches;
+                router.push(hrefForMode(besidePlan ? "today" : "materials", material.id, besidePlan || sourceBesidePlan), { scroll: false });
+              }} title={title}>
                 {brandForFile(material.fileName, material.mimeType) ? <BrandIcon brand={brandForFile(material.fileName, material.mimeType)!} size={14} className="core-source-brand" /> : material.storage === "url" ? <ArrowOut /> : <Page />}<span className="core-source-name">{title}</span>
               </button>
               <button type="button" className="core-source-remove" aria-label={`Remove ${title}`} title={`Remove ${title}`} onClick={() => { setSourceError(null); setConfirmSourceId(material.id); }}><Cross size={12} /></button>
@@ -368,10 +381,15 @@ export function RevisionSurface({ topicId }: { /** A topic's own page, opened in
             transition={{ duration: 0.12, ease: kelusEase }}
           >
             {mode === "today" ? (
-              // Today is one column: what to do next. Your notes live in Materials and slide in beside a question.
-              <div className="core-workspace-grid is-today-single" aria-label="Study plan">
+              // Today starts as one focused column. The original notes open beside it only when requested.
+              <div className={`core-workspace-grid is-today-single${sourceBesidePlan && hasReadableSource ? " is-notes-open" : ""}`} aria-label="Study plan">
                 <div className="core-workspace-action workbench-focus is-ready is-one-next is-booklet-page" aria-labelledby="today-title">
                   {!hasReadableSource ? <p className="core-source-inline">This plan has no original PDF beside it. <Link href="/today?section=materials">Add your course PDF</Link> to study from your own pages.</p> : null}
+                  {hasReadableSource && selectedMaterial ? <div className="today-source-access">
+                    <span><Page /> <span title={selectedMaterial.title}>{selectedMaterial.title}</span></span>
+                    <button type="button" className="today-source-desktop" aria-controls="today-source-reader" aria-expanded={sourceBesidePlan} onClick={() => router.replace(hrefForMode("today", selectedMaterialId, !sourceBesidePlan), { scroll: false })}>{sourceBesidePlan ? "Hide notes" : "See notes beside plan"}</button>
+                    <button type="button" className="today-source-mobile" onClick={() => setMode("materials")}>Open notes</button>
+                  </div> : null}
                   <AutoStart ready={route.allocations.length > 0} plan={builtPlan} showPlan={!snapshot.events.some((event) => event.kind === "retrieval")} onStart={openSession ? resume : begin} />
                   <TodayRoute
                     route={route}
@@ -394,6 +412,7 @@ export function RevisionSurface({ topicId }: { /** A topic's own page, opened in
                     onRenameCourse={isSampleCourse ? undefined : (next) => renameCourse(course.id, next, "user")}
                   />
                 </div>
+                {sourceBesidePlan && hasReadableSource && selectedMaterial ? <CourseSourceReader id="today-source-reader" key={`${selectedMaterial.id}-${selectedMaterial.id === firstReference?.materialId ? firstSourcePage : 1}`} material={selectedMaterial} initialPage={selectedMaterial.id === firstReference?.materialId ? firstSourcePage : 1} /> : null}
               </div>
             ) : null}
             {mode === "materials" ? <div className={`core-workspace-grid is-materials${hasReadableSource ? "" : " is-source-missing"}`}>{hasReadableSource ? <CourseSourceReader key={selectedMaterial.id} material={selectedMaterial} /> : null}<div className="core-workspace-action"><MaterialLibrary embedded incomingFile={incomingSource} onIncomingFileHandled={() => setIncomingSource(null)} interceptFile={isSampleCourse ? (file) => { setSampleFile(file); return true; } : undefined} /></div></div> : null}
