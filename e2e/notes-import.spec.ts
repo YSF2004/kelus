@@ -58,6 +58,38 @@ test("a notes source is still there after the page is reloaded", async ({ page }
   await expect(page.locator(".material-card")).toContainText(/topics? from this source/);
 });
 
+test("the original notes stay within reach of the study plan", async ({ page }) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await startFromFile(page, mdFile);
+  await closeToToday(page);
+  await expect(page.locator(".core-workspace-grid.is-today-single")).toBeVisible();
+  const notesButton = page.getByRole("button", { name: "See notes beside plan" });
+  await expect(notesButton).toBeVisible();
+  await notesButton.click();
+  await expect(page.locator(".core-workspace-grid.is-notes-open .core-source-reader")).toBeVisible();
+  await expect(page.locator(".core-workspace-grid.is-notes-open .core-source-reader")).toContainText("cell biology");
+  await expect.poll(async () => page.locator('[data-block="today-next"]').evaluate((section) => {
+    const edge = section.getBoundingClientRect();
+    return [...section.querySelectorAll("li strong")].every((name) => {
+      const rect = name.getBoundingClientRect();
+      return rect.left >= edge.left - 1 && rect.right <= edge.right + 1;
+    });
+  })).toBe(true);
+  await page.screenshot({ path: "/tmp/kelus-today-with-notes-desktop.png", fullPage: true });
+  await page.getByRole("button", { name: "Materials", exact: true }).first().click();
+  await page.getByRole("button", { name: "Study plan", exact: true }).first().click();
+  await expect(page.locator(".core-workspace-grid.is-notes-open .core-source-reader")).toBeVisible();
+  await page.getByRole("button", { name: "Hide notes" }).click();
+  await expect(page.locator(".core-workspace-grid.is-notes-open")).toHaveCount(0);
+
+  await page.setViewportSize({ width: 390, height: 844 });
+  await expect(page.getByRole("button", { name: "Open notes" })).toBeVisible();
+  await page.getByRole("button", { name: "Open notes" }).click();
+  await expect(page.getByRole("heading", { name: "Materials" })).toBeVisible();
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+  await page.screenshot({ path: "/tmp/kelus-notes-mobile.png", fullPage: true });
+});
+
 test("a Notion zip export becomes topics, with page names free of Notion ids", async ({ page }) => {
   await startFromFile(page, "tests/fixtures/notion-export.zip");
   const names = await topicNames(page);

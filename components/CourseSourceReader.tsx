@@ -11,6 +11,7 @@ import { NotesSection } from "@/components/NotesSection";
 import type { ExtractedMaterialPage } from "@/domain/types";
 
 type Props = {
+  id?: string;
   material: CourseMaterial | null;
   initialPage?: number;
   concealed?: boolean;
@@ -18,7 +19,7 @@ type Props = {
 };
 
 /** The original course page, not a generated facsimile. */
-export function CourseSourceReader({ material, initialPage = 1, concealed = false, onShowSource }: Props) {
+export function CourseSourceReader({ id, material, initialPage = 1, concealed = false, onShowSource }: Props) {
   const auth = useAuth();
   const canvas = useRef<HTMLCanvasElement>(null);
   const viewport = useRef<HTMLDivElement>(null);
@@ -104,7 +105,7 @@ export function CourseSourceReader({ material, initialPage = 1, concealed = fals
   }, [material, page, concealed, auth.user?.id]);
 
   return (
-    <section className="core-source-reader" aria-label="Course source">
+    <section id={id} className="core-source-reader" aria-label="Course source">
       <header className="core-source-toolbar">
         <div className="core-source-title"><strong title={material?.title}>{material?.title ?? "Your material"}</strong></div>
         {material?.storage === "local" && pages > 0 && !concealed ? (
