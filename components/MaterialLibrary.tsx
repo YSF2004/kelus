@@ -13,7 +13,6 @@ import { useLearner } from "@/components/LearnerProvider";
 import { PAYWALL_DISMISS_KEY, SoftUpgradePrompt } from "@/components/SoftUpgradePrompt";
 import { trackEvent } from "@/lib/analytics";
 import type { CourseMaterial, ExtractedMaterialPage, MaterialRole, ProposedConcept } from "@/domain/types";
-import { holdAtLeast } from "@/lib/reading-mark";
 import { ReadingNotes } from "@/components/ReadingNotes";
 import { MATERIAL_ROLES, materialRoleLabel } from "@/domain/materials";
 
@@ -87,7 +86,8 @@ function ReadCoverage({ coverage, found }: { coverage: NonNullable<AnalysisPaylo
   const all = coverage.pagesRead >= coverage.totalPages;
   return (
     <p className="read-coverage" role="status">
-      {all ? `Read all ${plural(coverage.totalPages)}.` : `Read the first ${plural(coverage.pagesRead)} of ${coverage.totalPages}. Add the rest as a separate file to include it.`}
+      {all ? `Processed all ${plural(coverage.totalPages)}.` : `Processed the first ${plural(coverage.pagesRead)} of ${coverage.totalPages}. Add the rest as a separate file to include it.`}
+      {coverage.lowTextPages ? ` ${coverage.lowTextPages} ${unit}${coverage.lowTextPages === 1 ? " has" : "s have"} little readable text; check the original before trusting this topic list.` : ""}
       {coverage.topicCapHit ? ` Showing the first ${found} topics; remove the ones you don’t need, or add the rest as another file.` : ""}
     </p>
   );
@@ -198,12 +198,7 @@ function MaterialRow({
             {[addedLabel(item.addedAt), linkedTopics ? `${linkedTopics} topic${linkedTopics === 1 ? "" : "s"} from this source` : item.processingStatus === "ready" ? "No topics confirmed yet" : null].filter(Boolean).join(" · ")}
           </small>
         ) : null}
-        {quiet && topicNames.length ? (
-          <span className="material-card-chips" aria-label="Topics from this source">
-            {topicNames.slice(0, 3).map((name) => <span key={name}>{name}</span>)}
-            {topicNames.length > 3 ? <span>+{topicNames.length - 3} more</span> : null}
-          </span>
-        ) : null}
+        {quiet && topicNames.length ? <small className="material-card-topics">Topics: {topicNames.slice(0, 3).join(", ")}{topicNames.length > 3 ? `, and ${topicNames.length - 3} more` : ""}</small> : null}
         {statusLabel ? <small className={`material-status-badge is-${item.processingStatus}`}>{statusLabel}</small> : null}
         {syncLabel ? <small className={`material-sync-label is-${syncState ?? "synced"}`}>{syncLabel}</small> : null}
         {downloadError ? <small className="material-download-error" role="alert">{downloadError}</small> : null}
@@ -336,7 +331,6 @@ export function MaterialLibrary({ embedded = false, incomingFile = null, onIncom
   }
 
   async function analyzePdf(material: CourseMaterial, file?: File) {
-    const startedAt = performance.now();
     dispatch({ type: "CLEAR_FEEDBACK" });
     dispatch({ type: "WORK_STARTED", step: "extracting", message: defaultStepMessage("extracting") });
     updateMaterialProcessingStatus(material.id, "processing");
@@ -360,7 +354,7 @@ export function MaterialLibrary({ embedded = false, incomingFile = null, onIncom
       dispatch({ type: "WORK_STEP", step: "extracting", message: defaultStepMessage("extracting") });
       const extraction = await extractSourcePages(pdfFile);
       const { isNotes, locatorLabel, totalPages, pagesRead } = extraction;
-      // The first-run path confirms topics automatically. Never make a partial PDF look like a complete course.
+      // A partial PDF must never look like a complete course.
       if (quiet && !isNotes && pagesRead < totalPages) {
         throw new Error(`This PDF has ${totalPages} pages, but Kelus can read only the first ${MAX_READ_PAGES} in one file. Split it into smaller PDFs and add each part so your route does not miss lessons.`);
       }
@@ -457,26 +451,12 @@ export function MaterialLibrary({ embedded = false, incomingFile = null, onIncom
         material: { ...material, processingStatus: "ready" as const },
         proposals,
         pages,
-        coverage: { totalPages, pagesRead, unit: isNotes ? ("section" as const) : ("page" as const), topicCapHit: proposals.length >= MAX_PROPOSED_TOPICS },
+        coverage: { totalPages, pagesRead, unit: isNotes ? ("section" as const) : ("page" as const), topicCapHit: proposals.length >= MAX_PROPOSED_TOPICS, lowTextPages: isNotes ? 0 : pages.filter((page) => page.text.trim().length < 20).length },
       };
-      dispatch({ type: "REVIEW_READY", analysis: nextAnalysis });
-      trackEvent({ name: "concept_review_started", concept_count: proposals.length });
-      // Quiet mode: no checklist first. Every topic found is confirmed, and can be removed later from Topics.
-      if (quiet && proposals.length) {
-        // A fast local read should not wait for a decorative animation to finish.
-        await holdAtLeast(startedAt, 450);
-        // The first notes that hold topics name the course: the document's own title ("BIO 101 · Week 4: Cells and
-        // transport"), else the file's. Never a file that held no topics, and never on later notes.
-        const firstTopics = !state.snapshot.concepts.some((concept) => concept.courseId === course.id);
-        confirmProposals(proposals, pages);
-        const name = documentTitle(pages, { fromLayout: !isNotes }) ?? (/^pasted notes$/i.test(material.title) ? null : material.title);
-        if (firstTopics && name) renameCourse(course.id, name);
-        // The source is named the way its pages name themselves, so the sidebar and the course say the same thing.
-        const ownTitle = documentTitle(pages, { fromLayout: !isNotes });
-        if (ownTitle) renameMaterial(material.id, ownTitle);
-      }
       setSelectedIds(new Set(proposals.map((proposal) => proposal.id)));
       setDraftNames(Object.fromEntries(proposals.map((proposal) => [proposal.id, proposal.name])));
+      dispatch({ type: "REVIEW_READY", analysis: nextAnalysis });
+      trackEvent({ name: "concept_review_started", concept_count: proposals.length });
       if (courseMaterials.filter((item) => item.storage === "local").length >= 3) {
         try {
           if (window.localStorage.getItem(PAYWALL_DISMISS_KEY) !== "1") {
@@ -618,7 +598,7 @@ export function MaterialLibrary({ embedded = false, incomingFile = null, onIncom
     });
   }
 
-  /** Confirms topics and moves on. Used by the review screen, and automatically in quiet mode. */
+  /** Confirms the student's reviewed topics and moves on. */
   function confirmProposals(selected: ProposedConcept[], pages: ExtractedMaterialPage[]) {
     try {
       const normalizedNames = selected.map((proposal) => proposal.name.toLocaleLowerCase());
@@ -642,11 +622,13 @@ export function MaterialLibrary({ embedded = false, incomingFile = null, onIncom
       });
       // Continue the booklet: diagnosis is next — do not park on a ready interstitial.
       router.replace("/today");
+      return true;
     } catch (caught) {
       dispatch({
         type: "CONFIRM_FAILED",
         message: caught instanceof Error ? caught.message : "Kelus could not build the map. Check concept names and try again.",
       });
+      return false;
     }
   }
 
@@ -655,13 +637,44 @@ export function MaterialLibrary({ embedded = false, incomingFile = null, onIncom
     const selected = analysis.proposals
       .filter((proposal) => selectedIds.has(proposal.id))
       .map((proposal) => ({ ...proposal, name: draftNames[proposal.id]?.trim() || proposal.name }));
-    confirmProposals(selected, analysis.pages);
+    if (!confirmProposals(selected, analysis.pages)) return;
+    if (quiet && selected.length) {
+      const firstTopics = !state.snapshot.concepts.some((concept) => concept.courseId === course.id);
+      const name = documentTitle(analysis.pages, { fromLayout: analysis.material.kind !== "text" }) ?? (/^pasted notes$/i.test(analysis.material.title) ? null : analysis.material.title);
+      if (firstTopics && name) renameCourse(course.id, name);
+      const ownTitle = documentTitle(analysis.pages, { fromLayout: analysis.material.kind !== "text" });
+      if (ownTitle) renameMaterial(analysis.material.id, ownTitle);
+    }
   }
 
-  // Quiet mode (first run): nothing to fill in or tick. Show what is happening, or why it failed with one way out.
+  // First run: show the exact source-backed proposals before any topic changes the route.
   if (quiet && embedded) {
-    const found = analysis?.proposals.map((proposal) => proposal.name) ?? [];
-    return <ReadingNotes message={found.length ? `Found ${found.length} ${found.length === 1 ? "topic" : "topics"} in your notes.` : statusMessage ?? "Finding the topics in your notes."} topics={found} error={hardError} onStartOver={onStartOver} />;
+    if (analysis) return (
+      <section className="first-source-review" aria-labelledby="first-source-review-title">
+        <header>
+          <p className="kicker">Before you study</p>
+          <h2 id="first-source-review-title" tabIndex={-1} ref={focusPhaseHeading}>Check the topics Kelus found.</h2>
+          {analysis.coverage ? <ReadCoverage coverage={analysis.coverage} found={analysis.proposals.length} /> : null}
+          <p>These come from {analysis.material.fileName ?? analysis.material.title}. Remove anything that is not part of your exam.</p>
+        </header>
+        <ol className="first-source-review-list">
+          {analysis.proposals.map((proposal) => (
+            <li key={proposal.id}>
+              <label>
+                <input type="checkbox" checked={selectedIds.has(proposal.id)} onChange={() => toggleProposal(proposal.id)} />
+                <span><strong>{proposal.name}</strong><small>{proposal.locator} · “{proposal.sourceExcerpt.slice(0, 150)}{proposal.sourceExcerpt.length > 150 ? "…" : ""}”</small></span>
+              </label>
+            </li>
+          ))}
+        </ol>
+        <div className="first-source-review-actions">
+          <button type="button" className="cta" disabled={!selectedIds.size} onClick={buildMap}>Use {selectedIds.size} {selectedIds.size === 1 ? "topic" : "topics"} <ArrowRight /></button>
+          {previewUrl ? <a href={previewUrl} target="_blank" rel="noreferrer">Open original PDF ↗</a> : null}
+          {onStartOver ? <button type="button" className="text-btn" onClick={onStartOver}>Choose another file</button> : null}
+        </div>
+      </section>
+    );
+    return <ReadingNotes message={statusMessage ?? "Finding the topics in your notes."} topics={[]} error={hardError} onStartOver={onStartOver} />;
   }
 
   const shelf = (

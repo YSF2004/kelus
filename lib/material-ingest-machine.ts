@@ -45,7 +45,7 @@ export type AnalysisPayload = {
   proposals: ProposedConcept[];
   pages: ExtractedMaterialPage[];
   /** How much of the source was read, so a student is never left thinking a cut-off document was complete. */
-  coverage?: { totalPages: number; pagesRead: number; unit: "page" | "section"; topicCapHit: boolean };
+  coverage?: { totalPages: number; pagesRead: number; unit: "page" | "section"; topicCapHit: boolean; lowTextPages?: number };
 };
 
 export type IngestPhase =

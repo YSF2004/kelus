@@ -51,7 +51,7 @@ function MasteryRing({ value }: { value: number | null }) {
 
 /**
  * Topics as a path in the order of your notes: each topic a step with how it stands, a checkpoint after every three,
- * and an exam check at the end. The next topic is named first, with why.
+ * and an exam check at the end. The next topic is marked in its own row, never duplicated above the list.
  */
 export function TopicMapPanel() {
   const { state, removeTopic } = useLearner();
@@ -106,9 +106,6 @@ export function TopicMapPanel() {
       due,
     };
   });
-  // Route new topics in source order, exactly as Today does. Weight still decides revisits.
-  rows.sort((a, b) => Number(b.concept.id === startConceptId) - Number(a.concept.id === startConceptId));
-
   // The path follows the notes: the order the topics were read from, not their estimated weight.
   const order = new Map(state.snapshot.concepts.map((concept, position) => [concept.id, position]));
   const path = [...rows].sort((x, y) => (order.get(x.concept.id) ?? 0) - (order.get(y.concept.id) ?? 0));
@@ -166,15 +163,6 @@ export function TopicMapPanel() {
         </span>
       </div>
 
-      {start ? (
-        <Link href={`/concept?id=${encodeURIComponent(start.concept.id)}`} className={`index-toc-row topic-card is-start ${styles.next}`}>
-          <span className={styles.nextLabel}>Start here</span>
-          <strong className={styles.nextName}>{start.concept.name}</strong>
-          {startReason ? <span className={styles.why}>{startReason}</span> : null}
-          <ArrowRight className={`k-mark ${styles.nextArrow}`} />
-        </Link>
-      ) : null}
-
       <ol className={`index-toc ${styles.path}`} aria-label="Topics, in the order of your notes">
         <AnimatePresence initial={false} mode="popLayout">
         {path.flatMap(({ concept, mastery, label, page, due }, index) => {
@@ -197,10 +185,11 @@ export function TopicMapPanel() {
                   <strong className="index-toc-name">{concept.name}</strong>
                 </ConceptTitleTransition>
                 <span className="index-toc-meta">
-                  <span className={styles.state} data-level={isStart ? "next" : label.toLocaleLowerCase().replace(/\s+/g, "-")}>{isStart ? "Next" : label}</span>
+                  <span className={styles.state} data-level={isStart ? "next" : label.toLocaleLowerCase().replace(/\s+/g, "-")}>{isStart ? "Start here" : label}</span>
                   {mastery == null ? null : <span className={styles.metaSoft}>{checks < 3 ? `${checks} ${checks === 1 ? "try" : "tries"}` : percent(mastery)}</span>}
                   {page ? <span className={styles.metaSoft}><Octicon name="file" className={styles.icoSm} />{page}</span> : null}
                 </span>
+                {isStart && startReason ? <span className={styles.why}>{startReason}</span> : null}
                 {due ? <span className={styles.due}>Review due</span> : null}
               </Link>
               <button type="button" className={styles.remove} onClick={() => removeTopic(concept.id)} aria-label={`Remove ${concept.name}`} title="Remove topic (you can undo)">

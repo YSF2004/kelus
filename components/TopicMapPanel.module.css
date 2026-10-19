@@ -62,26 +62,6 @@
 .pathPractised { background: color-mix(in srgb, var(--color-kelus) 38%, var(--k-surface)); }
 .pathSolid { background: var(--color-kelus); }
 
-.next {
-  position: relative;
-  display: grid;
-  gap: 2px;
-  max-width: 664px;
-  margin: 12px 24px 4px;
-  padding: 14px 44px 14px 16px;
-  border: 1px solid var(--color-frost);
-  border-radius: 8px;
-  background: var(--k-surface);
-  color: inherit;
-  text-decoration: none;
-  transition: border-color 120ms, transform 120ms;
-}
-.next:hover { border-color: var(--color-midnight-ink); }
-.next:active { transform: scale(0.99); }
-.next strong { font-size: 1.0625rem; font-weight: 600; color: var(--color-midnight-ink); }
-.nextLabel { font-size: var(--text-caption); font-weight: 600; color: var(--color-kelus); }
-.nextArrow { position: absolute; right: 16px; top: 50%; transform: translateY(-50%); }
-
 .path { position: relative; display: grid; max-width: 712px; margin: 8px 0 24px; padding: 0 24px; list-style: none; }
 
 .step, .checkpoint {
@@ -128,7 +108,6 @@
 
 @media (max-width: 640px) {
   .pathHead, .path { padding-inline: 16px; }
-  .next { margin-inline: 16px; }
   .step .remove { opacity: 1; }
 }
 
@@ -145,14 +124,6 @@
   background: none;
 }
 :global(.is-course-studio) .path a.stepLink :global(.index-toc-name) { max-width: none; white-space: normal; overflow: visible; }
-:global(.is-course-studio) :global(.surface-map) a.next {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr);
-  min-height: 0;
-  padding: 14px 44px 14px 16px;
-  background: var(--k-surface);
-}
-:global(.is-course-studio) :global(.surface-map) a.next:hover { background: var(--k-surface); border-color: var(--color-midnight-ink); }
 .node .ringDot { display: none; }
 
 /* A checkpoint remembers how it went: passed is a filled diamond with a tick, tried is outlined in marigold. */
@@ -170,9 +141,6 @@
 .step .remove:focus-visible { outline: 2px solid var(--color-kelus); outline-offset: -2px; opacity: 1; }
 @media (hover: none) { .step .remove { opacity: 0.55; } }
 
-/* The "Start here" card: its own tight stack, whatever the studio's start-row styles say. */
-:global(.is-course-studio) :global(.surface-map) a.next { gap: 4px; grid-auto-rows: min-content; align-content: start; min-height: 0; height: auto; }
-:global(.is-course-studio) :global(.surface-map) a.next:focus-visible { outline: 2px solid var(--color-kelus); outline-offset: 2px; }
 
 /* Where you are, at a glance: the same stat chips as the study plan. */
 .stats { display: flex; flex-wrap: wrap; gap: 8px; margin: 0; padding: 0; list-style: none; }
@@ -186,9 +154,6 @@
 .stats li[data-tone="green"] .ico { color: var(--color-kelus, var(--k-green)); }
 .stats li[data-tone="marigold"] .ico { color: var(--k-marigold-text); }
 .icoSm { width: 12px; height: 12px; flex: none; color: currentColor; }
-
-/* Start here: the next thing to do, named large, as the plan's card. */
-.nextName { font-family: var(--font-marketing-heading), Georgia, serif; font-size: 1.375rem !important; font-weight: 500 !important; letter-spacing: -0.015em; }
 
 /* A row's state as a pill; tries and the page as quiet marks after it. */
 .state { display: inline-block; padding: 1px 8px; border-radius: 999px; background: color-mix(in srgb, var(--k-ink) 6%, transparent); color: var(--k-text-2); font-size: 0.75rem; font-weight: 500; }

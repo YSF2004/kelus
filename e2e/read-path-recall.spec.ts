@@ -1,5 +1,5 @@
 import { expect, test, type Page } from "@playwright/test";
-import { gotoStart, playQuickRun, skipReading } from "./helpers";
+import { confirmImportedTopics, gotoStart, playQuickRun, skipReading } from "./helpers";
 
 const notes = "Cell biology\n\nOsmosis\nOsmosis is the movement of water across a partially permeable membrane from a dilute solution to a more concentrated solution. In a hypotonic solution a plant cell gains water and becomes turgid because the cell wall pushes back. In a hypertonic solution the cell loses water and becomes plasmolysed.\n\nEnzymes\nEnzymes are biological catalysts that speed up reactions without being used up. Each enzyme has an active site with a specific shape, so it only binds one substrate. High temperatures denature an enzyme because the active site changes shape.\n\nDiffusion\nDiffusion is the net movement of particles from an area of higher concentration to an area of lower concentration. It is a passive process, so it needs no energy from the cell. The rate of diffusion increases with a steeper concentration gradient.";
 const shots = process.env.RPR_SHOTS;
@@ -9,6 +9,7 @@ async function begin(page: Page) {
   await page.getByText("Or paste your notes").click();
   await page.locator("#paste-notes").fill(notes);
   await page.getByRole("button", { name: "Use these notes" }).click();
+  await confirmImportedTopics(page);
   await page.getByRole("button", { name: /^Start$/ }).click();
   await expect(page).toHaveURL(/\/session/, { timeout: 30_000 });
 }
