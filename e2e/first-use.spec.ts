@@ -1,5 +1,5 @@
 import { expect, test, type Page } from "@playwright/test";
-import { startBuiltPlan, sectionsNav, closeToToday, gotoStart, startFromFile, skipReading } from "./helpers";
+import { confirmImportedTopics, startBuiltPlan, sectionsNav, closeToToday, gotoStart, startFromFile, skipReading } from "./helpers";
 
 function biologyPdf() {
   const text = [
@@ -112,7 +112,7 @@ test("the start screen is one clear screen on phone, tablet and desktop", async 
   }
 });
 
-test("a PDF opens its first question by itself, and is still there after a refresh", async ({ page }) => {
+test("a reviewed PDF opens its first question, and is still there after a refresh", async ({ page }) => {
   await startFromFile(page, { name: "cell-biology-lecture.pdf", mimeType: "application/pdf", buffer: biologyPdf() });
   await page.reload();
   await skipReading(page);
@@ -120,6 +120,27 @@ test("a PDF opens its first question by itself, and is still there after a refre
   await expect(page.getByText(/Cell Membranes/).first()).toBeVisible({ timeout: 15_000 }).catch(() => undefined);
   await closeToToday(page);
   await expect(page.getByText("Cell Membranes").first()).toBeVisible();
+});
+
+test("first import shows source coverage and lets the student reject a topic before routing", async ({ page }) => {
+  await gotoStart(page);
+  await page.locator('input[type="file"]').setInputFiles({ name: "cell-biology-lecture.pdf", mimeType: "application/pdf", buffer: biologyPdf() });
+  const review = page.locator(".first-source-review");
+  await expect(review).toContainText("Processed all 1 page.");
+  await expect(review).toContainText("Cell membranes regulate transport");
+  await page.screenshot({ path: "/tmp/kelus-source-review-desktop.png", fullPage: true });
+  await page.setViewportSize({ width: 390, height: 844 });
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
+  await page.screenshot({ path: "/tmp/kelus-source-review-mobile.png", fullPage: true });
+  await review.getByRole("listitem").filter({ hasText: "Osmosis" }).getByRole("checkbox").uncheck();
+  await expect(review.getByRole("button", { name: "Use 2 topics" })).toBeEnabled();
+  await confirmImportedTopics(page);
+  await startBuiltPlan(page);
+  await expect(page).toHaveURL(/\/session/);
+  await page.goto("/today?section=map");
+  await expect(page.locator(".index-toc-name")).toHaveCount(2);
+  await expect(page.locator(".index-toc-name").filter({ hasText: "Osmosis" })).toHaveCount(0);
+  await expect(page.locator(".surface-map").getByText("Start here", { exact: true })).toHaveCount(1);
 });
 
 test("a PDF past the reading limit is not silently treated as a complete course", async ({ page }) => {
@@ -151,7 +172,8 @@ test("Add source opens the file picker and reads the chosen PDF", async ({ page 
   });
   // The sample is never mixed with your own file: it offers to start your own course with it.
   await page.getByRole("dialog", { name: "Start your own course?" }).getByRole("button", { name: "Start my own course" }).click();
-  // Your file starts your own course: Kelus shows what it built, and one tap opens the first question.
+  // Your file starts your own course: review the topics, then open the first question.
+  await confirmImportedTopics(page);
   await startBuiltPlan(page);
   await expect(page).toHaveURL(/\/session/, { timeout: 30_000 });
   await skipReading(page);

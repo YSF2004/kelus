@@ -231,6 +231,52 @@ html body.is-course-studio .material-card-chips span { border-color: var(--q-lin
 html body.is-course-studio details.material-add-page { border-style: solid !important; border-color: var(--q-line) !important; border-radius: 10px !important; }
 html body.is-course-studio details.material-add-page > summary { min-height: 44px !important; color: var(--q-ink) !important; font-size: 0.875rem !important; font-weight: 500 !important; }
 
+/* One source list, one reader rule. Metadata stays in text instead of a row of mini-cards. */
+html body.is-course-studio .studio-panel .material-shelf.is-binder > ul { gap: 0; }
+html body.is-course-studio .material-card .material-card-topics { color: var(--q-text-2); line-height: 1.5; }
+html body.is-course-studio details.material-add-page {
+  border: 0 !important;
+  border-top: 1px solid var(--q-line) !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+}
+html body.is-course-studio details.material-add-page > summary {
+  justify-content: flex-start;
+  padding-inline: 0 !important;
+}
+html body.is-course-studio .material-binder-stack.is-source-first > .material-add-page { border-top: 0 !important; border-bottom: 1px solid var(--q-line) !important; }
+html body.is-course-studio .surface-map [class*="TopicMapPanel_stats"] li { border: 0; border-radius: 0; padding-inline: 0 14px; background: transparent; }
+html body.is-course-studio .surface-map [class*="TopicMapPanel_state"] { border-radius: 0; background: transparent; padding-inline: 0; }
+html body.is-course-studio .surface-map [class*="TopicMapPanel_here"] [class*="TopicMapPanel_node"] { box-shadow: none; }
+html body.is-course-studio .surface-map ol.index-toc a[class*="TopicMapPanel_stepLink"] { grid-template-columns: minmax(0, 1fr) !important; }
+html body.is-course-studio .surface-map ol.index-toc a[class*="TopicMapPanel_stepLink"] .index-toc-meta {
+  grid-column: 1 !important;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 8px;
+  margin-top: 2px !important;
+}
+
+/* First upload: source evidence is the focal point, not an automatic jump to a generated route. */
+.first-source-review { width: min(100%, 760px); margin: 0 auto; padding: clamp(24px, 5vw, 56px) 24px 64px; color: var(--q-ink); }
+.first-source-review header { display: grid; gap: 12px; margin-bottom: 32px; }
+.first-source-review header > * { margin: 0; }
+.first-source-review .kicker { color: var(--q-text-2); }
+.first-source-review h2 { font-family: var(--font-sans); font-size: clamp(1.65rem, 3vw, 2.5rem); font-weight: 600; letter-spacing: -0.035em; line-height: 1.15; }
+.first-source-review header > p:not(.kicker) { color: var(--q-text-2); line-height: 1.5; }
+.first-source-review .read-coverage { color: var(--q-ink) !important; font-size: 0.875rem; }
+.first-source-review-list { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--q-line); }
+.first-source-review-list li { border-bottom: 1px solid var(--q-line); }
+.first-source-review-list label { display: flex; align-items: flex-start; gap: 16px; padding: 18px 0; cursor: pointer; }
+.first-source-review-list input { flex: none; width: 18px; height: 18px; margin: 3px 0 0; accent-color: var(--color-kelus); }
+.first-source-review-list label span { display: grid; gap: 6px; min-width: 0; }
+.first-source-review-list strong { font-weight: 600; overflow-wrap: anywhere; }
+.first-source-review-list small { color: var(--q-text-2); font-size: 0.875rem; line-height: 1.45; overflow-wrap: anywhere; }
+.first-source-review-actions { display: flex; align-items: center; flex-wrap: wrap; gap: 20px; margin-top: 28px; }
+.first-source-review-actions a { color: var(--q-text-2); font-size: 0.875rem; text-underline-offset: 3px; }
+.first-source-review :focus-visible { outline: 2px solid var(--color-kelus); outline-offset: 3px; }
+
 /* ── Public pages: one voice ─────────────────────────────────────────────────────────────────────────
    Every public page opens the way the homepage does: one Literata heading at the homepage's weight, Atkinson Next for the
    rest. Pricing is two quiet sheets, not a green card and a purple card; the one green is the button. */

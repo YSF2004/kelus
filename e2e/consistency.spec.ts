@@ -9,7 +9,7 @@ test("the result card, Today and Topics all name the same next topic, and a past
   await page.goto("/today");
   const firstTopic = await page.locator("#today-title").innerText();
   await page.goto("/today?section=map");
-  await expect(page.locator(".index-toc-row").first()).toContainText(firstTopic);
+  await expect(page.locator(".index-toc-row").filter({ hasText: "Start here" })).toContainText(firstTopic);
   await page.goto(sessionUrl);
   await skipReading(page);
   for (let i = 0; i < 5; i++) {
@@ -29,8 +29,7 @@ test("the result card, Today and Topics all name the same next topic, and a past
   await expect(page.getByLabel("Why this topic is first")).not.toContainText("exam is close");
 
   await page.goto("/today?section=map");
-  await expect(page.locator(".index-toc-row").first()).toContainText(next!);
-  await expect(page.locator(".index-toc-row").first()).toContainText("Start here");
+  await expect(page.locator(".index-toc-row").filter({ hasText: "Start here" })).toContainText(next!);
 });
 
 test("a file with no study topics never names the course; the first real notes do", async ({ page }) => {

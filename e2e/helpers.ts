@@ -8,7 +8,12 @@ export async function gotoStart(page: Page) {
   await expect(page.getByRole("heading", { name: "Start with your notes." })).toBeVisible();
 }
 
-/** The one-step start: drop a file, and the first question opens by itself. */
+/** After import, the student checks what Kelus read before the first question. */
+export async function confirmImportedTopics(page: Page) {
+  await expect(page.getByRole("heading", { name: "Check the topics Kelus found." })).toBeVisible({ timeout: 45_000 });
+  await page.getByRole("button", { name: /^Use \d+ topics?$/ }).click();
+}
+
 /** After notes are read, Kelus shows what it built; one tap starts the first topic. */
 /** A new topic opens on its lines to read; most tests are about the checks, so they step past the reading. */
 export async function skipReading(page: Page) {
@@ -19,7 +24,9 @@ export async function skipReading(page: Page) {
 
 export async function startBuiltPlan(page: Page) {
   const start = page.getByRole("button", { name: /^Start$/ });
-  await start.or(page.getByLabel(/^Check 1 of \d$/)).or(page.getByRole("region", { name: "Read it first" })).or(page.locator("#run-explain")).first().waitFor({ timeout: 30_000 });
+  const review = page.getByRole("heading", { name: "Check the topics Kelus found." });
+  await review.or(start).or(page.getByLabel(/^Check 1 of \d$/)).or(page.getByRole("region", { name: "Read it first" })).or(page.locator("#run-explain")).first().waitFor({ timeout: 45_000 });
+  if (await review.count()) await confirmImportedTopics(page);
   if (await start.count()) await start.click();
 }
 
@@ -31,6 +38,7 @@ export async function expectFirstPrompt(page: Page) {
 export async function startFromFile(page: Page, file: UploadFile) {
   await gotoStart(page);
   await page.locator('input[type="file"]').setInputFiles(file);
+  await confirmImportedTopics(page);
   await startBuiltPlan(page);
   await expect(page).toHaveURL(/\/session/, { timeout: 30_000 });
   await skipReading(page);
@@ -42,6 +50,7 @@ export async function startFromPaste(page: Page, text: string) {
   await page.getByText("Or paste your notes").click();
   await page.locator("#paste-notes").fill(text);
   await page.getByRole("button", { name: "Use these notes" }).click();
+  await confirmImportedTopics(page);
   await startBuiltPlan(page);
   await expect(page).toHaveURL(/\/session/, { timeout: 30_000 });
   await skipReading(page);
