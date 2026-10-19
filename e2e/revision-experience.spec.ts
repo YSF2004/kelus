@@ -65,8 +65,8 @@ test("a student can follow the study plan into topics and open one", async ({ pa
 
   await page.getByRole("button", { name: "Topics" }).click();
   await expect(page.getByRole("heading", { name: "Topics" })).toBeVisible();
-  // The "Start here" card above the path opens the topic the plan starts with.
-  await page.locator(".index-toc-row").first().click();
+  // The route's first stop is marked in the source-order topic list.
+  await page.locator(".index-toc-row", { hasText: "Start here" }).click();
   await expect(page).toHaveURL(/\/concept\/?\?id=c-elasticity/);
   await expect(page.getByRole("heading", { name: "Elasticity" })).toBeVisible();
   await expect(page.getByTestId("topic-standing")).toContainText("Needs work");
@@ -90,7 +90,7 @@ test("the course workspace stays legible across its sections and returns home", 
   await expect(page.getByRole("heading", { name: "Topics" })).toBeVisible();
   await expect(sections.getByRole("button", { name: "Topics" })).toHaveAttribute("aria-pressed", "true");
   await expect(sections.getByRole("button", { name: "Topics" })).toHaveCSS("box-shadow", "none");
-  await expect(page.locator(".index-toc-row").first()).toContainText("Start here");
+  await expect(page.locator(".index-toc-row", { hasText: "Start here" })).toContainText("Elasticity");
 
   for (const width of [320, 375, 414, 768]) {
     await page.setViewportSize({ width, height: 844 });
