@@ -4,7 +4,7 @@
 .kicker { margin: 0; color: var(--k-text-2); font-size: 0.8125rem; font-weight: 600; }
 .figure { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 10px; margin: 0; }
 .figure b {
-  /* The page title's serif: Atkinson's figures (with their slab 1) are for reading, not for one big number. */
+  /* The page title's serif: a figure this size is a title, not a label. */
   font-family: var(--font-marketing-heading), Georgia, serif;
   font-size: clamp(2.5rem, 6vw, 3.25rem);
   font-weight: 500;
@@ -34,3 +34,7 @@
   .topic { grid-template-columns: minmax(0, 1fr) auto; gap: 6px 10px; }
   .dots { grid-column: 1 / -1; }
 }
+
+/* Editorial notebook: the label is a running head, the topics are named in the book serif. */
+.kicker { font-size: 0.9375rem; font-variant-caps: all-small-caps; letter-spacing: 0.08em; }
+.name { font-family: var(--font-marketing-heading), Georgia, serif; font-size: 1rem; }

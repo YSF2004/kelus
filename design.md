@@ -9,7 +9,7 @@ Kelus is paper, ink, and one pass-mark green. Marketing and product share the sa
 - Accent: one Kelus green (`#1f6b45`) for actions, focus, and route signals. No indigo. No Notion blue.
 - The homepage and core product share a restrained learning vocabulary: muted orange identifies source material and application, muted purple identifies recall, and green identifies the route, feedback, and primary action. The "lines you can recall" count is ink with a green +1 (a right answer) or a coral −1 (a line lost), because it reports feedback, not a recall step. Use color for meaning, not decorative fill.
 - Secondary text: mute green-gray (`#4a5246` / `#5a6358`) for body support and captions — both ≥4.5:1 on paper.
-- Typography, everywhere (marketing and product): Literata (optical sizes) for headings, page titles and large figures; Atkinson Hyperlegible Next for all text and UI (variable `--font-inter`, a legacy name). The zero alone comes from Public Sans (self-hosted, unicode-range U+0030) so it is plain, not slashed; prices, results and percentages use Literata.
+- Typography, everywhere (marketing and product): Literata (optical sizes) for headings, page titles and large figures; Inter for all text and UI (variable `--font-inter`; since 2026-10-20, replacing Atkinson Hyperlegible Next). Prices, results, percentages and every topic name use Literata.
 - Geometry: 8px corners for buttons, cards, inputs and line cards, everywhere; pills only for small status badges ("Passed", "Suggested"). Avoid SaaS twin cards, blue glows, soft multi-shadow stacks, and ALL CAPS kickers.
 - Rhythm: 8px spacing base, hairline booklet rules (`#d5d9d0`), transform/opacity motion only.
 - Tokens live in `tokens.css`. Prefer those variables over hard-coded hex in product UI.
@@ -20,7 +20,7 @@ Kelus is paper, ink, and one pass-mark green. Marketing and product share the sa
 
 `/`, `/route/` and `/pricing/` use the same pair as the product. Major headings use
 `--font-marketing-heading` (Literata, optical sizing, tracking -0.02em); body, nav,
-buttons and footer use `--font-marketing-sans` (Atkinson Hyperlegible Next). Both are
+buttons and footer use `--font-marketing-sans` (Inter). Both are
 self-hosted by next/font with swap.
 
 - Primary actions are Kelus green fills with white labels.

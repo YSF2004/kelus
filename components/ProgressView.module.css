@@ -118,3 +118,7 @@
 }
 
 .rest { margin: 0; padding: 14px 4px 0; border-top: 1px solid var(--color-frost); font-size: var(--text-body-sm); line-height: 1.5; color: var(--color-slate); }
+
+/* Editorial notebook: headings in the book serif, like every other title in the product. */
+.page h2, .page h3 { font-family: var(--font-marketing-heading), Georgia, serif !important; font-weight: 500 !important; letter-spacing: -0.015em !important; }
+.page li strong { font-family: var(--font-marketing-heading), Georgia, serif; font-weight: 500; }

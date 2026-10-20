@@ -509,7 +509,7 @@ html body.is-session-complete main#main.study-shell.is-complete-page {
   box-shadow: none;
 }
 
-/* ── The product: Atkinson Hyperlegible Next for text, Literata for page titles ─────────────────────────
+/* ── The product: Inter for text, Literata for page titles ─────────────────────────
    Questions, answers, lists and buttons are the text face, for legibility. A page's own title is the heading face,
    the same voice as the homepage. Weights: 400 text, 500 labels, 600 buttons and names. */
 :is(body.is-course-studio, body.is-session-booklet, body.is-session-complete, body:has(.start-page)) {

@@ -156,3 +156,15 @@
 .state[data-level="needs-work"], .state[data-level="partly-there"] { color: var(--k-marigold-text); }
 .state[data-level="solid"] { color: var(--color-kelus, var(--k-green)); }
 .metaSoft { display: inline-flex; align-items: center; gap: 4px; margin-left: 8px; color: var(--k-text-3, var(--k-text-2)); font-size: 0.75rem; font-variant-numeric: tabular-nums; }
+
+/* ── Editorial notebook ── the contents of the course: one centred column like the plan, topic names in the book
+   serif, where you are said in words, the state of each in italic, no pills and no page marks. */
+.pathHead { max-width: none; padding: 16px 0 8px; }
+.stats li { height: auto; padding: 0; border: 0; background: transparent !important; font-size: 0.9375rem; }
+.stats li + li::before { content: "·"; margin: 0 10px; color: var(--k-text-3, var(--k-text-2)); }
+.stats .ico { display: none !important; }
+.stats li[data-tone] strong { color: var(--k-ink); }
+.path { max-width: none; padding: 0; }
+.state, .state[data-level] { padding: 0; background: transparent !important; font-size: 0.875rem; font-style: italic; font-weight: 400; }
+.metaSoft .icoSm { display: none !important; }
+.nextName { font-size: 1.75rem !important; }
