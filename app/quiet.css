@@ -227,7 +227,15 @@ html body.is-course-studio .material-card .material-actions { border-top: 0 !imp
 html body.is-course-studio .material-card .material-actions :is(a, button) { font-size: 0.8125rem !important; font-weight: 500 !important; }
 html body.is-course-studio .material-card-art { width: 36px !important; height: 36px !important; }
 html body.is-course-studio .material-card-art svg, html body.is-course-studio .material-card-art img { width: 28px !important; height: 28px !important; }
-html body.is-course-studio .material-card-chips span { border-color: var(--q-line-strong) !important; background: transparent !important; color: var(--q-text-2) !important; font-size: 0.75rem !important; }
+html body.is-course-studio .material-card-chips { gap: 8px 16px !important; }
+html body.is-course-studio .material-card-chips span {
+  padding: 0 !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  color: var(--q-text-2) !important;
+  font-size: 0.75rem !important;
+}
 html body.is-course-studio details.material-add-page { border-style: solid !important; border-color: var(--q-line) !important; border-radius: 10px !important; }
 html body.is-course-studio details.material-add-page > summary { min-height: 44px !important; color: var(--q-ink) !important; font-size: 0.875rem !important; font-weight: 500 !important; }
 
@@ -245,9 +253,10 @@ html body.is-course-studio details.material-add-page > summary {
   padding-inline: 0 !important;
 }
 html body.is-course-studio .material-binder-stack.is-source-first > .material-add-page { border-top: 0 !important; border-bottom: 1px solid var(--q-line) !important; }
-html body.is-course-studio .surface-map [class*="TopicMapPanel_stats"] li { border: 0; border-radius: 0; padding-inline: 0 14px; background: transparent; }
+html body.is-course-studio .surface-map [class*="TopicMapPanel_stats"] li { border: 0; border-radius: 0; padding: 0; background: transparent; }
 html body.is-course-studio .surface-map [class*="TopicMapPanel_state"] { border-radius: 0; background: transparent; padding-inline: 0; }
 html body.is-course-studio .surface-map [class*="TopicMapPanel_here"] [class*="TopicMapPanel_node"] { box-shadow: none; }
+html body.is-course-studio .core-source-inline { padding: 0; border: 0; border-radius: 0; background: transparent; }
 html body.is-course-studio .surface-map ol.index-toc a[class*="TopicMapPanel_stepLink"] { grid-template-columns: minmax(0, 1fr) !important; }
 html body.is-course-studio .surface-map ol.index-toc a[class*="TopicMapPanel_stepLink"] .index-toc-meta {
   grid-column: 1 !important;
