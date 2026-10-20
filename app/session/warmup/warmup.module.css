@@ -179,5 +179,7 @@
 .sub { margin: -6px 0 18px; color: var(--k-text-2); font-size: 0.9375rem; }
 
 /* A checkpoint ends on the same seal as a topic's result: the score, then that it is marked on the path. */
-.seal { display: flex; align-items: center; gap: 14px; }
+.seal { display: flex; flex-wrap: wrap; align-items: center; gap: 14px; }
 .seal h1 { margin: 0; }
+
+.passArt { display: block; flex-basis: 100%; width: auto; height: 140px; margin: 0 0 8px; }

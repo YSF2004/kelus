@@ -8,6 +8,7 @@ import { useLearner } from "@/components/LearnerProvider";
 import { returnVisit, warmupChecks, type ReturnVisit } from "@/domain/return-visit";
 import type { Concept, LearningEvent } from "@/domain/types";
 import { getMissedLines, getServerMissedLines, keepMissedLinesFor, subscribeMissedLines } from "@/lib/missed-lines";
+import { PackArt } from "@/components/PackArt";
 import styles from "./WelcomeBack.module.css";
 
 const ease = [0.22, 1, 0.36, 1] as const;
@@ -60,6 +61,8 @@ export function WelcomeBack({ visit, nowIso, nextName }: { visit: ReturnVisit; n
       transition={reduce ? { duration: 0 } : { duration: 0.22, ease }}
     >
       <div className={styles.body}>
+        {/* Back at the desk: the pack's window over a shelf of books, the morning light outside. */}
+        <PackArt name="window-view" className={styles.view} size={300} />
         <h2 id="welcome-title" className={styles.title}>{greeting(nowIso)}</h2>
         <p className={styles.line}>{leftOff(visit.daysAway, visit.lastDayNames)}</p>
 

@@ -28,7 +28,7 @@
 .kicker,
 .title,
 .line {
-  padding-right: 92px;
+  padding-right: 0;
 }
 
 .body {
@@ -192,3 +192,5 @@
   border-bottom: 2px solid #e9b35f;
   vertical-align: -1px;
 }
+
+.view { display: block; width: min(100%, 300px); height: auto; margin: 0 0 6px; opacity: 0.9; }

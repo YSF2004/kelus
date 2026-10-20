@@ -348,7 +348,7 @@ export function QuickRun({ run, onRevealSource, onFinish, onChecksDone, context,
                 ) : <p className={styles.quote}>“{item.sourceQuote}”</p>}
                 {/* Accepted on purpose, and said so: the student sees the notes' own word, not a silent pass. */}
                 {answered.right && item.kind === "cloze" && answered.how && answered.how !== "exact" ? <p className={styles.accepted}>{acceptedNote(answered.how, item.modelAnswer)}</p> : null}
-                {answered.firstEver ? <p className={styles.firstNote}>Kelus brings it back in a few days, just before you’d forget it, so it sticks for the exam.</p> : null}
+                {answered.firstEver ? <p className={styles.firstNote}><PackArt name="ranking" className={styles.firstArt} size={64} /><span>Kelus brings it back in a few days, just before you’d forget it, so it sticks for the exam.</span></p> : null}
                 <div className={styles.lineTools}>
                   <ListenButton key={`listen-q-${step}`} text={item.sourceQuote} className={styles.listen} />
                   {!answered.right && !around && linesAround(run, item.sourceQuote) ? <button type="button" className={styles.listen} onClick={() => setAround(true)}>Show it in your notes</button> : null}

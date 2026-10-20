@@ -117,6 +117,8 @@ function WarmUp() {
         >
           {checkpoint ? (
             <div className={styles.seal}>
+              {/* A checkpoint passed is the one place a hi-five belongs. */}
+              {result.right >= need ? <PackArt name="hi-five" className={styles.passArt} size={170} /> : null}
               <MarkStamp outcome={result.right >= need ? "success" : result.right > 0 ? "partial" : "failure"} />
               <h1 id="warmup-done-title">
                 {result.right >= need ? `${label} passed.` : `${result.right} of ${result.total} this time.`}
