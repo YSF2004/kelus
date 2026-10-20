@@ -415,7 +415,14 @@ export function RevisionSurface({ topicId }: { /** A topic's own page, opened in
                 {sourceBesidePlan && hasReadableSource && selectedMaterial ? <CourseSourceReader id="today-source-reader" key={`${selectedMaterial.id}-${selectedMaterial.id === firstReference?.materialId ? firstSourcePage : 1}`} material={selectedMaterial} initialPage={selectedMaterial.id === firstReference?.materialId ? firstSourcePage : 1} /> : null}
               </div>
             ) : null}
-            {mode === "materials" ? <div className={`core-workspace-grid is-materials${hasReadableSource ? "" : " is-source-missing"}`}>{hasReadableSource ? <CourseSourceReader key={selectedMaterial.id} material={selectedMaterial} /> : null}<div className="core-workspace-action"><MaterialLibrary embedded incomingFile={incomingSource} onIncomingFileHandled={() => setIncomingSource(null)} interceptFile={isSampleCourse ? (file) => { setSampleFile(file); return true; } : undefined} /></div></div> : null}
+            {mode === "materials" ? <div className={`core-workspace-grid is-materials${hasReadableSource ? "" : " is-source-missing"}`}>
+              {hasReadableSource ? <button type="button" className="materials-mobile-add" onClick={() => {
+                const add = document.querySelector<HTMLDetailsElement>(".material-binder-stack > .material-add-page");
+                if (add) { add.open = true; add.scrollIntoView({ block: "start" }); }
+              }}><Plus /> Add another source</button> : null}
+              {hasReadableSource ? <CourseSourceReader key={selectedMaterial.id} material={selectedMaterial} /> : null}
+              <div className="core-workspace-action"><MaterialLibrary embedded incomingFile={incomingSource} onIncomingFileHandled={() => setIncomingSource(null)} interceptFile={isSampleCourse ? (file) => { setSampleFile(file); return true; } : undefined} /></div>
+            </div> : null}
             {mode === "map" ? <TopicMapPanel /> : null}
             {mode === "progress" ? <ProgressView concepts={concepts} activities={snapshot.learningActivities} events={snapshot.events} nowIso={nowIso} daysToExam={days} targetPercent={exam.targetPercent} examDatePending={examDatePending} /> : null}
           </motion.div>}

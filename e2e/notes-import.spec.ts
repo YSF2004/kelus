@@ -25,11 +25,16 @@ test("pasted notes work the same way, and the first question quotes the notes", 
 
 test("skipping a memory answer cannot be marked as mastered", async ({ page }) => {
   await startFromPaste(page, notion);
+  await expect(page.locator(".study-context")).toContainText("Cell Biology");
   await page.getByRole("button", { name: "I don’t remember" }).click();
   await expect(page.getByText("No answer to rate yet. This line will come back.")).toBeVisible();
   await expect(page.getByRole("button", { name: /Nailed it|Partly/ })).toHaveCount(0);
   await page.getByRole("button", { name: /^Continue/ }).click();
   await expect(page.getByText(/Needs another attempt/).first()).toBeVisible();
+  await expect(page.getByRole("region", { name: "Study plan after this answer" })).toBeVisible();
+  await page.getByRole("link", { name: "View study plan" }).click();
+  await expect(page).toHaveURL(/\/today/);
+  await expect(page.getByRole("heading", { name: /Cell Biology/ })).toBeVisible();
 });
 
 test("notes too short to study from get a plain reason, and nothing is saved", async ({ page }) => {
@@ -100,6 +105,8 @@ test("the original notes stay within reach of the study plan", async ({ page }) 
   await expect(page.getByRole("button", { name: "Open notes" })).toBeVisible();
   await page.getByRole("button", { name: "Open notes" }).click();
   await expect(page.getByRole("heading", { name: "Materials" })).toBeVisible();
+  await page.getByRole("button", { name: "Add another source" }).click();
+  await expect(page.locator(".material-add-page[open] input[type='file']")).toBeVisible();
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
   await page.screenshot({ path: "/tmp/kelus-notes-mobile.png", fullPage: true });
 });
