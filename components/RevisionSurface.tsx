@@ -364,7 +364,7 @@ export function RevisionSurface({ topicId }: { /** A topic's own page, opened in
         <main id="main" className="studio-page kelus-space-stage">
         {topicId ? <ConceptDetail conceptId={topicId} embedded /> : null}
         {!topicId && mode !== "today" ? (
-          <header className="studio-section-head kelus-paper-head kelus-space-top is-section">
+          <header className="studio-section-head kelus-paper-head kelus-space-top is-section" data-section={mode}>
             <div className="kelus-space-identity">
               {/* Sections swap at once, as pages do in Notion: no waiting for the old one to leave. */}
               <h1 id="section-title">{modeMeta.label}</h1>
