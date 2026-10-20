@@ -168,3 +168,10 @@
 .state, .state[data-level] { padding: 0; background: transparent !important; font-size: 0.875rem; font-style: italic; font-weight: 400; }
 .metaSoft .icoSm { display: none !important; }
 .nextName { font-size: 1.75rem !important; }
+
+/* The revision sheet: a contents entry, not a card. */
+.sheetLink { display: flex; align-items: center; justify-content: space-between; gap: 16px; margin-top: 8px; padding: 18px 0; border-top: 1px solid var(--q-line, var(--k-line)); color: var(--k-ink); text-decoration: none; }
+.sheetLink span { display: grid; gap: 2px; }
+.sheetLink strong { font-family: var(--font-marketing-heading), Georgia, serif; font-size: 1.1875rem; font-weight: 500; }
+.sheetLink small { color: var(--k-text-2); font-size: 0.875rem; }
+.sheetLink:hover strong { text-decoration: underline; text-underline-offset: 3px; }

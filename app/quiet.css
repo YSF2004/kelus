@@ -646,3 +646,10 @@ html body .first-source-review .kicker { font-variant-caps: all-small-caps; lett
 html body .first-source-review h2 { font-family: var(--font-marketing-heading), Georgia, serif !important; font-weight: 500 !important; font-size: clamp(1.875rem, 5vw, 2.375rem) !important; letter-spacing: -0.02em !important; }
 html body .first-source-review-list strong { font-family: var(--font-marketing-heading), Georgia, serif; font-size: 1.1875rem; font-weight: 500; }
 html body .first-source-review-list small { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; font-style: italic; }
+
+/* The revision sheet prints as ink on white, whatever the theme on screen; the product's chrome is not on paper. */
+@media print {
+  :root body.is-sheet { color-scheme: light; background: #fff !important; color: #111 !important; --k-surface: #fff !important; --k-ink: #111 !important; --k-text-2: #444 !important; --k-text-3: #666 !important; --k-line: #ddd !important; --k-line-strong: #ccc !important; --k-marigold-text: #8d5410 !important; --color-kelus: #1f6b45 !important; }
+  :root:has(body.is-sheet) { background: #fff !important; }
+  body.is-sheet :is(.site-header, [data-sonner-toaster], .skip) { display: none !important; }
+}

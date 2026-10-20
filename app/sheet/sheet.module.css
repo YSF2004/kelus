@@ -1,0 +1,57 @@
+/* The sheet you wrote: a printed page. One column of text, a margin to its right for the pencil notes, the book serif
+   for the student's own words. On paper it drops the bar and keeps every topic whole on its page. */
+.page { width: min(100% - 32px, 50rem); margin: 0 auto; padding: 20px 0 96px; color: var(--k-ink); }
+
+.bar { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 4px 0 28px; }
+.back { display: inline-flex; align-items: center; gap: 6px; min-height: 44px; color: var(--k-text-2); font-size: 0.875rem; font-weight: 500; text-decoration: none; }
+.back:hover { color: var(--k-ink); }
+.brand { color: var(--k-ink); }
+.brand svg { width: 22px; height: 22px; }
+.print { min-height: 40px; font-size: 0.875rem !important; }
+
+.head { padding-bottom: 28px; border-bottom: 1px solid var(--k-line); }
+.running { margin: 0 0 10px; color: var(--k-text-3, var(--k-text-2)); font-size: 0.9375rem; font-weight: 600; font-variant-caps: all-small-caps; letter-spacing: 0.08em; }
+.head h1 { margin: 0; font-family: var(--font-marketing-heading), Georgia, serif !important; font-size: clamp(2.25rem, 6vw, 3.25rem) !important; font-weight: 500 !important; letter-spacing: -0.025em !important; line-height: 1.05; }
+.lede { max-width: 34rem; margin: 12px 0 0; color: var(--k-text-2); font-family: var(--font-marketing-heading), Georgia, serif; font-size: 1.0625rem; font-style: italic; line-height: 1.5; }
+.meta { display: flex; flex-wrap: wrap; gap: 4px 0; margin: 16px 0 0; color: var(--k-text-2); font-size: 0.875rem; font-variant-numeric: tabular-nums; }
+.meta span + span::before { content: "·"; margin: 0 10px; color: var(--k-text-3, var(--k-text-2)); }
+.meta b { color: var(--k-ink); font-weight: 600; }
+
+.entries { margin: 0; padding: 0; list-style: none; }
+.entry { display: grid; grid-template-columns: minmax(0, 1fr) 13rem; gap: 12px 36px; padding: 28px 0; border-bottom: 1px solid var(--k-line); break-inside: avoid; }
+.text { min-width: 0; }
+.text h2 { display: flex; align-items: baseline; gap: 12px; margin: 0 0 12px; font-family: var(--font-marketing-heading), Georgia, serif !important; font-size: 1.5rem !important; font-weight: 500 !important; letter-spacing: -0.015em !important; }
+.num { color: var(--k-text-3, var(--k-text-2)); font-size: 1rem; font-variant-numeric: lining-nums; }
+.words { margin: 0; }
+.words p { margin: 0; font-family: var(--font-marketing-heading), Georgia, serif; font-size: 1.1875rem; font-style: italic; line-height: 1.55; }
+.words footer { margin-top: 6px; color: var(--k-text-3, var(--k-text-2)); font-size: 0.8125rem; font-variant-caps: all-small-caps; letter-spacing: 0.06em; font-weight: 600; }
+.notes { margin: 14px 0 0; color: var(--k-text-2); font-size: 0.9375rem; line-height: 1.55; }
+.notes span, .margin span { display: block; margin-bottom: 2px; color: var(--k-text-3, var(--k-text-2)); font-size: 0.8125rem; font-weight: 600; font-variant-caps: all-small-caps; letter-spacing: 0.06em; }
+.unwritten { margin: 0; color: var(--k-text-3, var(--k-text-2)); font-family: var(--font-marketing-heading), Georgia, serif; font-style: italic; }
+.unwritten a { margin-left: 6px; color: var(--color-kelus, var(--k-green)); font-family: var(--font-inter), system-ui, sans-serif; font-style: normal; font-weight: 600; }
+
+/* The margin: pencil notes in the marigold of "comes back", never a box. */
+.margin { display: grid; align-content: start; gap: 14px; padding-left: 16px; border-left: 1px solid var(--k-line); color: var(--k-text-2); font-size: 0.875rem; line-height: 1.5; }
+.margin p { margin: 0; }
+.margin span { color: var(--k-marigold-text); }
+.margin i { color: var(--k-ink); }
+.returning p + p { margin-top: 6px; }
+.returning mark { padding: 0; background: transparent; color: var(--k-ink); text-decoration: underline; text-decoration-color: var(--k-marigold, #f3b23e); text-decoration-thickness: 2px; text-underline-offset: 3px; }
+
+.empty { margin: 32px 0 0; color: var(--k-text-2); }
+.foot { margin: 32px 0 0; color: var(--k-text-3, var(--k-text-2)); font-family: var(--font-marketing-heading), Georgia, serif; font-size: 0.9375rem; font-style: italic; }
+
+@media (max-width: 700px) {
+  .meta { gap: 4px 16px; }
+  .meta span + span::before { content: none; }
+  .entry { grid-template-columns: minmax(0, 1fr); gap: 16px; }
+  .margin { padding: 12px 0 0; border-left: 0; border-top: 1px dashed var(--k-line-strong); }
+}
+
+/* On paper: no bar, ink on white, every topic kept whole. */
+@media print {
+  .bar, .unwritten a { display: none !important; }
+  .page { width: 100%; padding: 0; }
+  .entry { padding: 18px 0; grid-template-columns: minmax(0, 1fr) 12rem; }
+  .head h1 { font-size: 2rem !important; }
+}
