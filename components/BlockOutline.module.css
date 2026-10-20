@@ -79,3 +79,8 @@
 .partial .mark, .current.partial .mark { background: var(--k-marigold-wash); color: var(--k-marigold-text); }
 .failure .mark, .current.failure .mark { background: var(--k-danger-wash); color: var(--k-danger); }
 .ahead { color: var(--color-slate); }
+
+/* Each topic of the block in its own colour: its number, and the current one's row. */
+[data-tone] .mark { background: var(--topic-wash) !important; color: var(--topic-ink) !important; }
+.current[data-tone] { background: color-mix(in oklch, var(--topic-wash) 80%, transparent) !important; }
+.current[data-tone] .mark { background: var(--topic) !important; color: #fff !important; }

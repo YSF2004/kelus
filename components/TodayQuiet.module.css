@@ -251,3 +251,32 @@
   .stats, .chips { gap: 4px 16px; }
   .stats li + li::before, .chips li + li::before { content: none; }
 }
+
+/* ── Alive: the next topic glows in its own colour ─────────────────────────────────────────────────────
+   A soft field of the topic's tone behind the card's head, drifting slowly (still with reduced motion); a small tab
+   in that tone before the eyebrow, like a notebook's coloured divider; and each stop after it wears its tone. */
+.next { isolation: isolate; }
+.next::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  inset: -40px -80px auto -80px;
+  height: 340px;
+  /* Two soft lights in the topic's tone, faded out at every edge so the field has no border. */
+  background:
+    radial-gradient(46% 58% at 22% 40%, color-mix(in oklch, var(--topic, transparent) 22%, transparent), transparent 70%),
+    radial-gradient(34% 48% at 74% 18%, color-mix(in oklch, var(--topic, transparent) 12%, transparent), transparent 72%);
+  -webkit-mask-image: radial-gradient(70% 70% at 50% 45%, #000 40%, transparent 80%);
+  mask-image: radial-gradient(70% 70% at 50% 45%, #000 40%, transparent 80%);
+  filter: blur(18px) saturate(1.2);
+  pointer-events: none;
+  animation: kelusDrift 14s ease-in-out infinite alternate;
+}
+@keyframes kelusDrift { from { transform: translate3d(0, 0, 0) scale(1); } to { transform: translate3d(14px, 6px, 0) scale(1.04); } }
+@media (prefers-reduced-motion: reduce) { .next::before { animation: none; } }
+.eyebrow { display: inline-flex; align-items: center; gap: 8px; color: var(--topic-ink, var(--q-text-3)); }
+.eyebrow::before { content: ""; width: 10px; height: 10px; border-radius: 3px; background: var(--topic, var(--k-green)); box-shadow: 0 0 0 3px color-mix(in oklch, var(--topic, transparent) 18%, transparent); }
+.then li[data-tone] .num { width: 1.5rem; height: 1.5rem; border-radius: 50%; background: var(--topic-wash); color: var(--topic-ink); font-family: var(--font-inter), system-ui, sans-serif; font-size: 0.75rem; font-weight: 700; }
+.then li { transition: transform 200ms cubic-bezier(0.22, 1, 0.36, 1); }
+.then li:hover { transform: translateX(3px); }
+.then li[data-tone]:hover strong { color: var(--topic-ink); }

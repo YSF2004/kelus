@@ -702,3 +702,13 @@
 /* The first line a student ever recalls: the pack's figure holding a star, small, beside what it means. */
 .firstNote { display: flex; align-items: center; gap: 12px; }
 .firstArt { flex: none; width: 64px; height: auto; }
+
+/* In a run, the topic's tone marks how far you are: done steps fill in it. */
+:global(main[data-tone]) .steps li.done { background: var(--topic); }
+
+/* The topic's colour carries the run: the topic's name, a choice under the pointer, the reading lines' rule. */
+:global(main[data-tone]) :global(.study-topic-kicker) b { color: var(--topic-ink); }
+:global(main[data-tone]) .choice:not(:disabled):hover { border-color: color-mix(in oklch, var(--topic) 55%, transparent); background: color-mix(in oklch, var(--topic-wash) 70%, var(--k-card, var(--k-surface))); }
+:global(main[data-tone]) .choice:not(:disabled):hover kbd { border-color: var(--topic); color: var(--topic-ink); }
+:global(main[data-tone]) .readLines li { border-left: 3px solid var(--topic); }
+:global(main[data-tone]) .readLines li mark { background: color-mix(in oklch, var(--topic) 26%, transparent); }

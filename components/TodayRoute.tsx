@@ -22,6 +22,7 @@ import { firstTimeToday, returnVisit } from "@/lib/pilot";
 import { CourseFolderIcon } from "@/components/CourseFolderIcon";
 import { Octicon } from "@/components/Octicon";
 import { InlineName } from "@/components/InlineName";
+import { toneOf } from "@/lib/topic-tone";
 import q from "./TodayQuiet.module.css";
 
 const pressSpring = { type: "spring", bounce: 0, duration: 0.28 } as const;
@@ -239,7 +240,7 @@ export function TodayRoute({
         )}
       </motion.header>
 
-      <motion.section className={q.next} data-block="today-lead" aria-labelledby="today-title" {...settle(1)}>
+      <motion.section className={q.next} data-block="today-lead" data-tone={toneOf(first.conceptId, concepts)} aria-labelledby="today-title" {...settle(1)}>
         <p className={q.eyebrow}>{startLabel ? "Continue your session" : goalDone ? "Extra for today" : "Up next"}</p>
         <h2 id="today-title" className={q.topic}>{firstName}</h2>
         {/* What the run holds, as marks a student reads in a glance: time, checks, the explanation, the page. */}
@@ -282,6 +283,7 @@ export function TodayRoute({
             {nextStops.map((stop, index) => (
               <motion.li
                 key={`${stop.conceptId}-${nextStops.slice(0, index).filter((other) => other.conceptId === stop.conceptId).length}`}
+                data-tone={stop.conceptId === "mixed-retrieval" ? undefined : toneOf(stop.conceptId, concepts)}
                 layout={!reduceMotion}
                 initial={reduceMotion ? false : { opacity: 0, y: 4 }}
                 animate={{ opacity: 1, y: 0 }}

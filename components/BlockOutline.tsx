@@ -5,7 +5,7 @@ import type { RetrievalOutcome } from "@/domain/types";
 import { Tick } from "@/components/Marks";
 import styles from "./BlockOutline.module.css";
 
-export type OutlineTopic = { id: string; name: string; outcome: RetrievalOutcome | null; current: boolean };
+export type OutlineTopic = { id: string; name: string; outcome: RetrievalOutcome | null; current: boolean; /** The topic's colour, by its place in the notes. */ tone?: number };
 
 /** Partly there is a half-filled dot everywhere in Kelus, never a minus. */
 const HALF = <svg viewBox="0 0 16 16" width="11" height="11" style={{ display: "block" }}><circle cx="8" cy="8" r="6.25" fill="none" stroke="currentColor" strokeWidth="1.6" /><path d="M8 1.75A6.25 6.25 0 0 0 8 14.25Z" fill="currentColor" /></svg>;
@@ -27,6 +27,7 @@ export function BlockOutline({ course, topics }: { course: string; topics: Outli
         {topics.map((topic, index) => (
           <motion.li
             key={topic.id}
+            data-tone={topic.tone}
             className={[topic.current ? styles.current : null, topic.outcome ? styles[topic.outcome] : null, !topic.current && !topic.outcome ? styles.ahead : null].filter(Boolean).join(" ")}
             aria-current={topic.current ? "step" : undefined}
             initial={reduce ? false : { opacity: 0, x: -4 }}
