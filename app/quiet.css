@@ -712,3 +712,33 @@ html body .first-source-review-list small { display: -webkit-box; -webkit-line-c
   html body.is-course-studio :is(.surface-map.is-toc, [class*="ProgressView"][class*="page"], [class*="TodayQuiet"][class*="page"]) > *:nth-child(n+4) { animation-delay: 150ms; }
   html body.is-course-studio .studio-section-head h1 { animation: kelusRise 380ms cubic-bezier(0.22, 1, 0.36, 1) both; }
 }
+
+/* Materials is a two-pane workspace (the page and its shelf): its title stays on the workspace's edge. */
+html body.is-course-studio .studio-section-head.kelus-space-top[data-section="materials"] { padding: 32px 24px 12px; }
+
+/* ── Alive: the drop zone ──────────────────────────────────────────────────────────────────────────────
+   The first thing a student touches. Its edge is a ring of the six topic colours, faint at rest; it wakes when you
+   come near (hover, focus, a file dragged over) and turns slowly while the file is held over it, as if ready to read. */
+@property --drop-turn { syntax: "<angle>"; inherits: false; initial-value: 0deg; }
+.start-page .setup-first-upload { position: relative; isolation: isolate; border-color: transparent !important; background: var(--k-card, var(--k-surface)) !important; border-radius: 14px !important; transition: transform 240ms cubic-bezier(0.22, 1, 0.36, 1), box-shadow 240ms; }
+.start-page .setup-first-upload::before {
+  content: "";
+  position: absolute;
+  inset: -1.5px;
+  z-index: -1;
+  border-radius: 15px;
+  padding: 1.5px;
+  background: conic-gradient(from var(--drop-turn), var(--tone-1), var(--tone-2), var(--tone-3), var(--tone-4), var(--tone-5), var(--tone-6), var(--tone-1));
+  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0);
+  opacity: 0.35;
+  transition: opacity 240ms;
+  pointer-events: none;
+}
+.start-page .setup-first-upload:is(:hover, :focus-within, .is-dragging) { transform: translateY(-2px); box-shadow: 0 18px 40px -26px color-mix(in oklch, var(--tone-2) 60%, transparent); }
+.start-page .setup-first-upload:is(:hover, :focus-within, .is-dragging)::before { opacity: 1; }
+.start-page .setup-first-upload.is-dragging::before { animation: kelusTurn 2.4s linear infinite; }
+@keyframes kelusTurn { to { --drop-turn: 360deg; } }
+@media (prefers-reduced-motion: reduce) { .start-page .setup-first-upload { transition: none; } .start-page .setup-first-upload.is-dragging::before { animation: none; } }
+.start-page .setup-first-upload strong { color: var(--k-ink) !important; font-family: var(--font-marketing-heading), Georgia, serif !important; font-size: 1.375rem !important; font-weight: 500 !important; letter-spacing: -0.01em; }
