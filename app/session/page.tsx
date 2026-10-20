@@ -479,7 +479,7 @@ function SessionBody() {
         <span className="study-context-title">
           <Link href="/" className="study-brand" aria-label="Kelus home"><KelusLogoMark /><span>kelus</span></Link>
           {/* In a run the topic is named above the question, where the eye already is, not squeezed beside the mark. */}
-          {quickMode ? null : <small><b>{concept.name}</b>{total > 1 ? ` · topic ${index + 1} of ${total}` : ""}</small>}
+          <small><b>{state.snapshot.courses.find((item) => item.id === concept.courseId)?.name ?? "Your course"}</b> · {concept.name}</small>
         </span>
         <div className="study-folio-actions">
           <SessionMenu
@@ -672,6 +672,10 @@ function SessionBody() {
                 habit={{ today: dayKey(new Date(Date.parse(state.nowIso))), streak: goalToday.streak, week: goalToday.week, backTomorrow: goalToday.backTomorrow }}
                 comesBack={comesBackLine(concept.nextReviewAt, state.nowIso)}
                 routeLine={planLine({ next: nextConceptName, movedUp: movedUpName, orderChanged: routeOrderChanged })}
+                changeLine={routeOrderChanged
+                  ? movedUpName ? `${movedUpName} moved earlier in your plan.` : "The remaining topics changed order."
+                  : minuteChanges.length ? `${minuteChanges[0].name}: ${minuteChanges[0].before} → ${minuteChanges[0].after} min.` : "No change to the remaining topic order or time."}
+                sourceTitle={currentMaterial?.title}
                 nextName={nextConceptName}
                 path={{
                   practised: state.snapshot.concepts.filter((item) => item.courseId === concept.courseId && item.retrievalAttempts > 0).length,

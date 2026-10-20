@@ -7,6 +7,7 @@ import { MarkStamp } from "@/components/MarkStamp";
 import { PackArt } from "@/components/PackArt";
 import { GoalMoment, goalMomentDue } from "@/components/GoalMoment";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import type { RetrievalOutcome } from "@/domain/types";
 import type { SelfGrade } from "@/domain/quick-run";
 import { verdictReason } from "@/lib/verdict";
@@ -71,7 +72,7 @@ function Burst() {
  * remember (quoted from your notes), today's goal filling up, and a single next step. Detail is one tap away.
  */
 export function QuickResult({
-  outcome, topic, attempts, stats, comesBack, remember, rememberLabel = "Worth remembering", locator, goalDone, goal, routeLine, nextName, details, onRetry, onContinue, onSource, path, habit,
+  outcome, topic, attempts, stats, comesBack, remember, rememberLabel = "Worth remembering", locator, sourceTitle, goalDone, goal, routeLine, changeLine, nextName, details, onRetry, onContinue, onSource, path, habit,
 }: {
   outcome: RetrievalOutcome;
   topic: string;
@@ -84,9 +85,11 @@ export function QuickResult({
   /** What the quote is: a line to look at again, a new line, or the main idea. */
   rememberLabel?: string;
   locator: string;
+  sourceTitle?: string;
   goalDone: number;
   goal: number;
   routeLine: string;
+  changeLine: string;
   nextName?: string;
   details: ReactNode;
   onRetry: () => void;
@@ -135,7 +138,7 @@ export function QuickResult({
 
 
       <motion.blockquote {...rise(0.42)} className={styles.remember}>
-        <span className={styles.rememberHead}><PackArt name="clipboard-check" className={styles.icon} />{rememberLabel}{/^Section\b/.test(locator) ? "" : ` · ${locator}`}</span>
+        <span className={styles.rememberHead}><PackArt name="clipboard-check" className={styles.icon} />{rememberLabel}{sourceTitle ? ` · ${sourceTitle}` : ""}{/^Section\b/.test(locator) ? "" : ` · ${locator}`}</span>
         <p>“{remember}”</p>
       </motion.blockquote>
 
@@ -154,12 +157,17 @@ export function QuickResult({
       ) : null}
 
       {/* "Next: X." would only repeat the button below it. */}
-      {nextName && routeLine.trim() === `Next: ${nextName}.` ? null : <p className={styles.route} role="status">{routeLine}</p>}
+      <section className={styles.planAfter} aria-label="Study plan after this answer">
+        <strong>Your plan after this answer</strong>
+        <p role="status">{routeLine}</p>
+        <small>{changeLine}</small>
+      </section>
 
       <div className={styles.actions}>
         {outcome !== "success" ? <button type="button" className={`k-btn k-btn--paper ${styles.secondary}`} onClick={onRetry}>Try again</button> : null}
         <button type="button" className={`k-btn ${styles.primary}`} onClick={onContinue}>{nextName ? `Continue to ${nextName}` : "Finish block"} <ArrowRight /></button>
       </div>
+      <Link className={styles.planLink} href="/today">View study plan <ArrowRight /></Link>
 
       <details className={styles.more}>
         <summary>What changed in your plan</summary>
