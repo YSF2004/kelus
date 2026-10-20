@@ -173,3 +173,13 @@ test("a typed answer is marked the way a fair marker would, and a different word
   // A one-letter slip that is itself another word in the notes is that word, not a slip.
   assert.equal(checkAnswer(gap("“Demand _____.”", "falls"), "fails", "It fails when the price rises.").right, false);
 });
+
+test("a picked sentence is never told where it belongs, and a first visit opens on its lightest check", async () => {
+  const { whereAnswerBelongs, readingLoad } = await import("../domain/quick-run.ts");
+  const run = buildQuickRun({ activity: osmosis, name: "Osmosis", siblingNames: ["Active Transport", "Enzymes"], readFirst: true });
+  const item = run.checks[0];
+  assert.equal(whereAnswerBelongs(item, "In a hypotonic solution a plant cell gains water and becomes turgid.", run.sentences), null);
+  const loads = run.checks.map(readingLoad);
+  assert.deepEqual(loads, [...loads].sort((a, b) => a - b), "lightest first on a first visit");
+  if (run.checks.some((check) => check.variant !== "notone")) assert.notEqual(run.checks[0].variant, "notone");
+});
