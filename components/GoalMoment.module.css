@@ -30,3 +30,8 @@
 .done { min-height: 44px; border: 0; background: transparent; color: var(--k-text-2); font: inherit; font-size: 0.875rem; font-weight: 500; cursor: pointer; }
 .done:hover { color: var(--k-ink); }
 .done:focus-visible { outline: 2px solid var(--color-kelus, var(--k-green)); outline-offset: 2px; border-radius: 6px; }
+
+.art { display: block; margin-bottom: 4px; }
+.art img { display: block; width: auto; height: min(26vh, 210px); }
+.count { display: inline-flex; align-items: baseline; gap: 6px; color: var(--k-marigold-text); }
+.count svg { align-self: center; }

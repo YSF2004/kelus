@@ -4,6 +4,7 @@ import { animate, motion, useReducedMotion } from "motion/react";
 import { useEffect, useRef, useState } from "react";
 import { ArrowRight } from "@/components/Marks";
 import { Octicon } from "@/components/Octicon";
+import { PackArt } from "@/components/PackArt";
 import { play } from "@/lib/sound";
 import styles from "./GoalMoment.module.css";
 
@@ -58,18 +59,18 @@ export function GoalMoment({ today, streak, goal, week, backTomorrow, nextName, 
   return (
     <motion.div className={styles.scrim} role="dialog" aria-modal="true" aria-labelledby="goal-moment-title" initial={reduce ? false : { opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.2 }}>
       <div className={styles.sheet}>
+        {/* The day's work is done: the pack's student asleep over her book, the stack of notes beside her. */}
         <motion.span
-          className={styles.flame}
+          className={styles.art}
           aria-hidden="true"
-          initial={reduce ? false : { scale: 0.3, rotate: -12, opacity: 0 }}
-          animate={{ scale: 1, rotate: 0, opacity: 1 }}
-          transition={{ type: "spring", bounce: 0.35, duration: 0.7, delay: 0.1 }}
+          initial={reduce ? false : { opacity: 0, y: 12, scale: 0.96 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          transition={{ type: "spring", bounce: 0, duration: 0.7, delay: 0.05 }}
         >
-          <Octicon name="flame" size={56} />
-          {reduce ? null : <motion.i className={styles.glow} initial={{ scale: 0.6, opacity: 0.7 }} animate={{ scale: 1.8, opacity: 0 }} transition={{ duration: 1.1, delay: 0.35, ease: [0.22, 1, 0.36, 1] }} />}
+          <PackArt name="napping" size={150} />
         </motion.span>
 
-        <motion.p className={styles.count} {...rise(0.3)} aria-hidden="true"><b>{shown}</b> day streak</motion.p>
+        <motion.p className={styles.count} {...rise(0.3)} aria-hidden="true"><Octicon name="flame" size={18} /><b>{shown}</b> day streak</motion.p>
         <motion.h2 id="goal-moment-title" className={styles.title} {...rise(0.4)}>Today’s goal, done.</motion.h2>
         <p className="sr-only">{goal} topics today. {streak}-day streak.</p>
 

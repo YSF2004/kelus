@@ -698,3 +698,7 @@
 .mute:hover { background: var(--q-hover, color-mix(in srgb, var(--k-ink) 6%, transparent)); color: var(--k-ink); }
 .mute:focus-visible { outline: 2px solid var(--color-kelus, var(--k-green)); outline-offset: 1px; }
 @media (pointer: coarse) { .mute { width: 44px; height: 44px; margin-right: -8px; } }
+
+/* The first line a student ever recalls: the pack's figure holding a star, small, beside what it means. */
+.firstNote { display: flex; align-items: center; gap: 12px; }
+.firstArt { flex: none; width: 64px; height: auto; }

@@ -19,6 +19,12 @@ const ART = {
   "taking-note": { src: "/art/notion-pack/art-taking-note.svg", width: 149, height: 156 },
   reviewing: { src: "/art/notion-pack/art-reviewing.svg", width: 579, height: 305 },
   thinking: { src: "/art/notion-pack/art-thinking.svg", width: 347, height: 255 },
+  // Exported 2026-10-20: napping and window-view are the pack's wallpapers, cut out of their paper; hi-five
+  // (Office Club) and ranking (Notion Club) are its regular-style drawings.
+  napping: { src: "/art/notion-pack/art-napping.png", width: 520, height: 732 },
+  "window-view": { src: "/art/notion-pack/art-window-view.png", width: 760, height: 299 },
+  "hi-five": { src: "/art/notion-pack/art-hi-five.svg", width: 309, height: 301 },
+  ranking: { src: "/art/notion-pack/art-ranking.svg", width: 385, height: 302 },
 } as const;
 
 export type PackArtName = keyof typeof ART;
