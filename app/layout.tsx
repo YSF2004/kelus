@@ -2,7 +2,7 @@ import { THEME_BOOT } from "@/lib/theme";
 import { CommandPalette } from "@/components/CommandPalette";
 import type { Metadata, Viewport } from "next";
 import { Suspense } from "react";
-import { Atkinson_Hyperlegible_Next, Literata } from "next/font/google";
+import { Inter, Literata } from "next/font/google";
 import "./globals.css";
 import "./revision-studio.css";
 import "./home-folio.css";
@@ -38,9 +38,9 @@ import { NudgeKeeper } from "@/components/NudgeKeeper";
 import { AppRuntime } from "@/components/AppRuntime";
 import { UpdateWatcher } from "@/components/UpdateWatcher";
 
-/* Two faces, everywhere: Literata for headings (a book serif made for long reading) and Atkinson Hyperlegible Next
-   for text (made by the Braille Institute so I, l and 1 never blur). The CSS variable names are older than the faces:
-   --font-inter is the text face, --font-source-serif the heading face. */
+/* Two faces, everywhere, one voice each: Literata for every title, topic name and large figure (a book serif made for
+   long reading), Inter for text and the interface (quiet, exact, and it keeps I, l and 1 apart). The CSS variable
+   names are older than the faces: --font-inter is the text face, --font-source-serif the heading face. */
 const literata = Literata({
   subsets: ["latin", "latin-ext"],
   variable: "--font-source-serif",
@@ -48,7 +48,7 @@ const literata = Literata({
   display: "swap",
 });
 
-const atkinson = Atkinson_Hyperlegible_Next({ subsets: ["latin", "latin-ext"], variable: "--font-inter", display: "swap" });
+const inter = Inter({ subsets: ["latin", "latin-ext"], variable: "--font-inter", display: "swap" });
 
 // The status bar takes the page's paper colour, so an installed Kelus has no browser-coloured strip on top; the
 // layout reaches into the notch area and pads itself with the safe-area insets instead.
@@ -88,12 +88,12 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`${atkinson.variable} ${literata.variable}`} data-scroll-behavior="smooth" suppressHydrationWarning>
+    <html lang="en" className={`${inter.variable} ${literata.variable}`} data-scroll-behavior="smooth" suppressHydrationWarning>
       <head>
         {/* The chosen theme, set before the first paint so the page never flashes the other paper. */}
         <script dangerouslySetInnerHTML={{ __html: THEME_BOOT }} />
       </head>
-      <body className={`${atkinson.variable} ${literata.variable} is-booklet-system`}>
+      <body className={`${inter.variable} ${literata.variable} is-booklet-system`}>
         <GoogleAnalytics />
         <a className="skip" href="#main">Skip to content</a>
         <AuthProvider>

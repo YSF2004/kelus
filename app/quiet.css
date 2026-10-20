@@ -476,17 +476,9 @@ html body .pricing-page.is-monthly-pricing .pricing-price {
 html body .legal-panel :is(p, li, dd) { max-width: 36em; }
 html body.is-course-studio .material-shelf-count { margin-left: 6px; color: var(--q-text-2); font-size: 0.8125rem; font-weight: 400; letter-spacing: 0; }
 
-/* ── A plain zero ───────────────────────────────────────────────────────────────────────────────────
-   Atkinson Hyperlegible Next draws 0 with a slash ("Ø of 3"). One glyph, the zero only, comes from Public Sans (OFL,
-   self-hosted, 1.7 KB) and sits in front of Atkinson; every other character is still Atkinson. */
-@font-face {
-  font-family: "Kelus Zero";
-  src: url("/fonts/kelus-zero.woff2") format("woff2");
-  font-weight: 300 800;
-  font-display: swap;
-  unicode-range: U+0030;
-}
-html body.is-booklet-system { --font-inter: "Kelus Zero", "Atkinson Hyperlegible Next", "Atkinson Hyperlegible Next Fallback", system-ui, sans-serif; }
+/* Inter for text (set by next/font as --font-inter): its zero is plain and its figures line up; "cv11" gives the
+   single-storey a, which reads a little softer on a page of notes. */
+html body.is-booklet-system { font-feature-settings: "cv11" 1, "tnum" 0; }
 html body .legal-panel .not-found-art { display: block; height: auto; margin: 0 0 20px; }
 html body section[aria-labelledby="reading-title"] .k-btn { box-shadow: none !important; border: 0 !important; border-radius: 8px !important; transform: none; }
 
@@ -494,6 +486,38 @@ html body section[aria-labelledby="reading-title"] .k-btn { box-shadow: none !im
 .k-mark { display: inline-block; flex: none; vertical-align: -0.15em; }
 html body.is-course-studio :is(.studio-home-link, .core-add-source) { display: inline-flex; align-items: center; gap: 6px; }
 html body.is-course-studio .core-source-remove { display: inline-grid; place-items: center; }
+
+/* ── Paper: the editorial notebook, by day ─────────────────────────────────────────────────────────────
+   A warm paper instead of screen white, warm ink, lines the colour of a ruled page. Every older name that still paints
+   a white field reads the paper too, so no screen is left on bright white. Dark (below) replaces all of this at night. */
+:root:not([data-theme="dark"]) :is(body.is-course-studio, body.is-session-booklet, body.is-session-complete, body:has(.start-page)) {
+  --k-ink: #1a1915;
+  --k-text-2: #5e5b53;
+  --k-text-3: #77736a;
+  --k-line: #e8e4db;
+  --k-line-strong: #dad5ca;
+  --k-surface: #fbfaf7;
+  --k-surface-2: #f3f1eb;
+  --k-selected: #ecebe2;
+  --k-card: #fffefb;
+  --q-ink: #1a1915;
+  --q-text-2: #5e5b53;
+  --q-text-3: #77736a;
+  --q-line: #e8e4db;
+  --q-line-strong: #dad5ca;
+  --q-hover: #f1eee7;
+  --q-selected: #ebe8e0;
+  --q-rail: #f6f4ef;
+  --color-pure-white: var(--k-surface);
+  --booklet-paper: var(--k-surface);
+  --color-paper-warmth: var(--k-surface);
+  --paper: var(--k-surface);
+  --background: var(--k-surface);
+  --hero-paper: var(--k-surface);
+  --color-frost: var(--k-line-strong);
+  background: var(--k-surface) !important;
+}
+:root:not([data-theme="dark"]):has(body.is-course-studio, body.is-session-booklet, body.is-session-complete, .start-page) { background: #fbfaf7; }
 
 /* ── Dark: the same paper and ink, at night ──────────────────────────────────────────────────────────────
    For students revising late. Light, Dark or Auto (the device's setting), chosen in the product and set on <html> as
@@ -604,3 +628,21 @@ html body.is-course-studio .studio-topbar-theme { display: none; }
    on a phone, where the sidebar's foot (which has it) is hidden. */
 html body.is-course-studio .studio-topbar-signin { display: none; }
 @media (max-width: 650px) { html body.is-course-studio .studio-topbar-signin { display: inline-flex; } }
+
+/* ── Editorial notebook: one reading column ────────────────────────────────────────────────────────────
+   Every section sits in the plan's column, its title on the column's edge, so moving between sections never moves
+   the page. Topic names read in the book serif everywhere they are listed. */
+html body.is-course-studio .studio-section-head.kelus-space-top { padding: 40px max(24px, calc((100% - 42.5rem) / 2)) 4px; border-bottom: 0; }
+html body.is-course-studio .studio-section-head h1 { font-size: clamp(2rem, 4vw, 2.5rem) !important; letter-spacing: -0.025em !important; }
+html body.is-course-studio .surface-map.is-toc { width: min(100% - 48px, 42.5rem); margin: 0 auto; }
+html body.is-course-studio .surface-map.is-toc .index-toc-name { font-family: var(--font-marketing-heading), Georgia, serif !important; font-size: 1.1875rem !important; font-weight: 500 !important; letter-spacing: -0.01em; }
+html body.is-course-studio [class*="ProgressView"][class*="page"] { margin: 0 auto !important; width: min(100% - 48px, 42.5rem) !important; }
+html body.is-course-studio [class*="AnkiExport"][class*="card"] { grid-template-columns: minmax(0, 1fr) auto; margin-left: 0; padding: 18px 0 0; border: 0; border-top: 1px solid var(--q-line); border-radius: 0; background: transparent; box-shadow: none; }
+html body.is-course-studio [class*="AnkiExport"][class*="logo"] { display: none; }
+
+/* The topic check after an import, as the first page of the notebook: a running head, a serif title, each topic named
+   in the serif with two lines of its own words under it in italic. */
+html body .first-source-review .kicker { font-variant-caps: all-small-caps; letter-spacing: 0.08em; font-weight: 600; font-size: 0.9375rem; color: var(--q-text-3, var(--k-text-3)); }
+html body .first-source-review h2 { font-family: var(--font-marketing-heading), Georgia, serif !important; font-weight: 500 !important; font-size: clamp(1.875rem, 5vw, 2.375rem) !important; letter-spacing: -0.02em !important; }
+html body .first-source-review-list strong { font-family: var(--font-marketing-heading), Georgia, serif; font-size: 1.1875rem; font-weight: 500; }
+html body .first-source-review-list small { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; font-style: italic; }
