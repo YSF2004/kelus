@@ -75,21 +75,6 @@
   background: var(--paper, var(--k-surface));
 }
 
-.barLater {
-  min-height: 40px;
-  padding: 0 10px;
-  border: 0;
-  border-radius: 8px;
-  background: transparent;
-  color: var(--color-slate);
-  font: inherit;
-  font-size: 0.875rem;
-  font-weight: 500;
-  cursor: pointer;
-}
-.barLater:hover { background: color-mix(in srgb, var(--k-ink) 6%, transparent); color: var(--color-midnight-ink); }
-.barLater:focus-visible { outline: 2px solid var(--color-kelus); outline-offset: 2px; }
-
 .summary {
   margin: 0;
   color: var(--color-midnight-ink);
