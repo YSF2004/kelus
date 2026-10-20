@@ -1,6 +1,7 @@
 "use client";
 
 import { ThemeSwitch } from "@/components/ThemeSwitch";
+import { toneOf } from "@/lib/topic-tone";
 import { ArrowOut, ArrowRight } from "@/components/Marks";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { kelusDuration, kelusEase } from "@/components/motion";
@@ -474,7 +475,7 @@ function SessionBody() {
   }
 
   return (
-    <main id="main" data-phase={phase} className={`study-shell${sourcePanel ? " is-source-open" : ""}${hasReadableSource ? "" : " is-source-missing"}${recallWithoutLooking && hasReadableSource ? " is-recalling" : ""}${quickMode ? " is-focus" : ""}${quickMode && notesOpen && hasReadableSource ? " is-notes-open" : ""}`}>
+    <main id="main" data-phase={phase} data-tone={toneOf(concept?.id, state.snapshot.concepts)} className={`study-shell${sourcePanel ? " is-source-open" : ""}${hasReadableSource ? "" : " is-source-missing"}${recallWithoutLooking && hasReadableSource ? " is-recalling" : ""}${quickMode ? " is-focus" : ""}${quickMode && notesOpen && hasReadableSource ? " is-notes-open" : ""}`}>
       <div className="study-context is-folio">
         <span className="study-context-title">
           <Link href="/" className="study-brand" aria-label="Kelus home"><KelusLogoMark /><span>kelus</span></Link>
@@ -534,7 +535,7 @@ function SessionBody() {
             course={state.snapshot.courses.find((item) => item.id === concept.courseId)?.name ?? "Your course"}
             topics={session.plannedConceptIds.map((id) => {
               const last = [...state.snapshot.events].reverse().find((event) => event.sessionId === session.id && event.kind === "retrieval" && event.conceptId === id);
-              return { id, name: state.snapshot.concepts.find((item) => item.id === id)?.name ?? "Topic", outcome: last?.outcome ?? null, current: id === concept.id };
+              return { id, name: state.snapshot.concepts.find((item) => item.id === id)?.name ?? "Topic", outcome: last?.outcome ?? null, current: id === concept.id, tone: toneOf(id, state.snapshot.concepts) };
             })}
           />
         ) : null;

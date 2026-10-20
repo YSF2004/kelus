@@ -109,3 +109,17 @@
 .rememberHead { font-variant-caps: all-small-caps; letter-spacing: 0.06em; font-size: 0.9375rem; }
 .rememberHead .icon { display: none; }
 .remember p { font-family: var(--font-marketing-heading), Georgia, serif; font-style: italic; font-size: 1.25rem; }
+
+/* The verdict sits in a soft light of the topic's colour: stronger for a solid pass, a whisper otherwise. */
+.card { position: relative; isolation: isolate; }
+.head { position: relative; }
+.head::before {
+  content: "";
+  position: absolute;
+  z-index: -1;
+  inset: -60px -90px -50px -70px;
+  background: radial-gradient(50% 60% at 26% 50%, color-mix(in oklch, var(--topic, var(--k-green)) var(--glow, 14%), transparent), transparent 72%);
+  filter: blur(16px);
+  pointer-events: none;
+}
+.card:has([data-outcome="success"]) .head::before, .card[data-outcome="success"] .head::before { --glow: 26%; }

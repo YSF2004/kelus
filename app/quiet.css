@@ -637,7 +637,7 @@ html body.is-course-studio .studio-section-head h1 { font-size: clamp(2rem, 4vw,
 html body.is-course-studio .surface-map.is-toc { width: min(100% - 48px, 42.5rem); margin: 0 auto; }
 html body.is-course-studio .surface-map.is-toc .index-toc-name { font-family: var(--font-marketing-heading), Georgia, serif !important; font-size: 1.1875rem !important; font-weight: 500 !important; letter-spacing: -0.01em; }
 html body.is-course-studio [class*="ProgressView"][class*="page"] { margin: 0 auto !important; width: min(100% - 48px, 42.5rem) !important; }
-html body.is-course-studio [class*="AnkiExport"][class*="card"] { grid-template-columns: minmax(0, 1fr) auto; margin-left: 0; padding: 18px 0 0; border: 0; border-top: 1px solid var(--q-line); border-radius: 0; background: transparent; box-shadow: none; }
+html body.is-course-studio [class*="AnkiExport"][class*="card"] { grid-template-columns: minmax(0, 1fr) auto; margin: 0 !important; padding-inline: 0 !important; padding: 18px 0 0; border: 0; border-top: 1px solid var(--q-line); border-radius: 0; background: transparent; box-shadow: none; }
 html body.is-course-studio [class*="AnkiExport"][class*="logo"] { display: none; }
 
 /* The topic check after an import, as the first page of the notebook: a running head, a serif title, each topic named
@@ -652,4 +652,63 @@ html body .first-source-review-list small { display: -webkit-box; -webkit-line-c
   :root body.is-sheet { color-scheme: light; background: #fff !important; color: #111 !important; --k-surface: #fff !important; --k-ink: #111 !important; --k-text-2: #444 !important; --k-text-3: #666 !important; --k-line: #ddd !important; --k-line-strong: #ccc !important; --k-marigold-text: #8d5410 !important; --color-kelus: #1f6b45 !important; }
   :root:has(body.is-sheet) { background: #fff !important; }
   body.is-sheet :is(.site-header, [data-sonner-toaster], .skip) { display: none !important; }
+}
+
+/* ── Topic tones ───────────────────────────────────────────────────────────────────────────────────────
+   Six colours, one per topic by its place in the notes (lib/topic-tone.ts). Each has a mark (dots, rings, rules), an
+   ink safe for text on paper, and a wash for a soft field behind it. Any element sets data-tone="1…6" and reads
+   --topic, --topic-ink and --topic-wash. Night has its own lighter marks and deeper washes. */
+:root {
+  --tone-1: oklch(0.6 0.12 152); --tone-1-ink: oklch(0.45 0.1 152); --tone-1-wash: oklch(0.955 0.03 152);
+  --tone-2: oklch(0.6 0.12 250); --tone-2-ink: oklch(0.46 0.12 255); --tone-2-wash: oklch(0.955 0.025 250);
+  --tone-3: oklch(0.6 0.13 300); --tone-3-ink: oklch(0.46 0.13 300); --tone-3-wash: oklch(0.955 0.03 300);
+  --tone-4: oklch(0.64 0.14 32); --tone-4-ink: oklch(0.5 0.14 32); --tone-4-wash: oklch(0.955 0.03 32);
+  --tone-5: oklch(0.72 0.13 75); --tone-5-ink: oklch(0.5 0.1 70); --tone-5-wash: oklch(0.96 0.04 80);
+  --tone-6: oklch(0.62 0.1 195); --tone-6-ink: oklch(0.46 0.08 200); --tone-6-wash: oklch(0.955 0.025 195);
+}
+:root[data-theme="dark"] {
+  --tone-1: oklch(0.72 0.12 152); --tone-1-ink: oklch(0.82 0.1 152); --tone-1-wash: oklch(0.27 0.04 152);
+  --tone-2: oklch(0.72 0.11 250); --tone-2-ink: oklch(0.82 0.09 250); --tone-2-wash: oklch(0.27 0.04 250);
+  --tone-3: oklch(0.72 0.12 300); --tone-3-ink: oklch(0.82 0.1 300); --tone-3-wash: oklch(0.27 0.045 300);
+  --tone-4: oklch(0.74 0.13 32); --tone-4-ink: oklch(0.83 0.1 32); --tone-4-wash: oklch(0.28 0.045 32);
+  --tone-5: oklch(0.8 0.12 78); --tone-5-ink: oklch(0.86 0.1 80); --tone-5-wash: oklch(0.29 0.045 75);
+  --tone-6: oklch(0.74 0.09 195); --tone-6-ink: oklch(0.83 0.08 195); --tone-6-wash: oklch(0.27 0.035 195);
+}
+[data-tone="1"] { --topic: var(--tone-1); --topic-ink: var(--tone-1-ink); --topic-wash: var(--tone-1-wash); }
+[data-tone="2"] { --topic: var(--tone-2); --topic-ink: var(--tone-2-ink); --topic-wash: var(--tone-2-wash); }
+[data-tone="3"] { --topic: var(--tone-3); --topic-ink: var(--tone-3-ink); --topic-wash: var(--tone-3-wash); }
+[data-tone="4"] { --topic: var(--tone-4); --topic-ink: var(--tone-4-ink); --topic-wash: var(--tone-4-wash); }
+[data-tone="5"] { --topic: var(--tone-5); --topic-ink: var(--tone-5-ink); --topic-wash: var(--tone-5-wash); }
+[data-tone="6"] { --topic: var(--tone-6); --topic-ink: var(--tone-6-ink); --topic-wash: var(--tone-6-wash); }
+
+/* ── Alive: the primary button ─────────────────────────────────────────────────────────────────────────
+   Light from above (a soft highlight in the top half) and, on hover, one sheen sweeping across, the way a well-made
+   control catches the light. Drawn over the fill, so every screen's own green still shows through. */
+.k-btn:not(.k-btn--paper):not(:disabled) { position: relative; overflow: hidden; isolation: isolate; }
+.k-btn:not(.k-btn--paper):not(:disabled)::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  border-radius: inherit;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.16), rgba(255, 255, 255, 0) 55%),
+    linear-gradient(105deg, transparent 30%, rgba(255, 255, 255, 0.28) 46%, transparent 62%) -160% 0 / 220% 100% no-repeat;
+  pointer-events: none;
+  transition: background-position 0s;
+}
+.k-btn:not(.k-btn--paper):not(:disabled):hover::after { background-position: 0 0, 160% 0; transition: background-position 700ms cubic-bezier(0.22, 1, 0.36, 1); }
+.k-btn:not(.k-btn--paper):not(:disabled):hover { box-shadow: 0 6px 18px -8px color-mix(in oklch, var(--k-green) 70%, transparent) !important; }
+@media (prefers-reduced-motion: reduce) { .k-btn:not(.k-btn--paper):not(:disabled):hover::after { transition: none; } }
+
+/* ── Alive: sections arrive, they don't appear ─────────────────────────────────────────────────────────
+   Each section's column rises a few pixels as it opens, and the rows of its lists follow one after another. Plain CSS,
+   so it costs nothing on a slow phone, runs once per opening, and is off with reduced motion. */
+@keyframes kelusRise { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: no-preference) {
+  html body.is-course-studio :is(.surface-map.is-toc, [class*="ProgressView"][class*="page"], [class*="TodayQuiet"][class*="page"]) > * { animation: kelusRise 420ms cubic-bezier(0.22, 1, 0.36, 1) both; }
+  html body.is-course-studio :is(.surface-map.is-toc, [class*="ProgressView"][class*="page"], [class*="TodayQuiet"][class*="page"]) > *:nth-child(2) { animation-delay: 50ms; }
+  html body.is-course-studio :is(.surface-map.is-toc, [class*="ProgressView"][class*="page"], [class*="TodayQuiet"][class*="page"]) > *:nth-child(3) { animation-delay: 100ms; }
+  html body.is-course-studio :is(.surface-map.is-toc, [class*="ProgressView"][class*="page"], [class*="TodayQuiet"][class*="page"]) > *:nth-child(n+4) { animation-delay: 150ms; }
+  html body.is-course-studio .studio-section-head h1 { animation: kelusRise 380ms cubic-bezier(0.22, 1, 0.36, 1) both; }
 }

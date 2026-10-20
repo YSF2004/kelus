@@ -175,3 +175,16 @@
 .sheetLink strong { font-family: var(--font-marketing-heading), Georgia, serif; font-size: 1.1875rem; font-weight: 500; }
 .sheetLink small { color: var(--k-text-2); font-size: 0.875rem; }
 .sheetLink:hover strong { text-decoration: underline; text-underline-offset: 3px; }
+
+/* Each topic on the path in its own tone: its ring, its number, a wash behind Start here. */
+.step[data-tone] .ringArc { stroke: var(--topic) !important; }
+.step[data-tone] .ringDot { fill: var(--topic) !important; }
+.step[data-tone] .node b { color: var(--topic-ink); }
+.step[data-tone]:hover .index-toc-name, .step[data-tone]:hover :global(.index-toc-name) { color: var(--topic-ink); }
+.next[data-tone] { position: relative; overflow: hidden; isolation: isolate; border-color: color-mix(in oklch, var(--topic) 30%, transparent) !important; }
+.next[data-tone]::before { content: ""; position: absolute; inset: 0; z-index: -1; background: linear-gradient(110deg, var(--topic-wash), transparent 70%); }
+.next[data-tone] .nextLabel { color: var(--topic-ink); }
+.step[data-tone] .ringTrack { stroke: color-mix(in oklch, var(--topic) 28%, transparent) !important; }
+.step[data-tone] .node { border-radius: 50%; background: var(--topic-wash); }
+/* On a phone the path keeps its one column: name, then its state under it (an older rule moved the state up). */
+:global(.is-course-studio) .path a.stepLink :global(.index-toc-meta) { grid-column: 1 !important; margin-top: 0 !important; }

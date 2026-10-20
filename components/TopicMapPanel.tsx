@@ -23,6 +23,7 @@ function whenAgo(at: string, nowIso: string) {
   return days <= 0 ? "today" : days === 1 ? "yesterday" : days < 7 ? `${days} days ago` : days < 14 ? "last week" : `${Math.round(days / 7)} weeks ago`;
 }
 import { Octicon } from "@/components/Octicon";
+import { toneAt } from "@/lib/topic-tone";
 import styles from "./TopicMapPanel.module.css";
 
 
@@ -173,6 +174,7 @@ export function TopicMapPanel() {
               key={concept.id}
               layout={!reduce}
               className={`${styles.step}${isStart ? ` ${styles.here}` : ""}`}
+              data-tone={toneAt(index)}
               data-state={checks === 0 ? "new" : label === "Solid" ? "solid" : "practised"}
               initial={reduce ? false : { opacity: 0, y: 8 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}

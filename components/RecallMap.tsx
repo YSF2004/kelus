@@ -6,6 +6,7 @@ import { recallMap } from "@/domain/recall-map";
 import type { Concept, LearningActivity } from "@/domain/types";
 import { getKnownLines, getServerKnownLines, subscribeKnownLines } from "@/lib/known-lines";
 import { getMissedLines, getServerMissedLines, subscribeMissedLines } from "@/lib/missed-lines";
+import { toneAt } from "@/lib/topic-tone";
 import styles from "./RecallMap.module.css";
 
 const STATE_LABEL = { recalled: "answered correctly", back: "coming back first", new: "not asked yet" } as const;
@@ -33,13 +34,13 @@ export function RecallMap({ concepts, activities, nowIso }: { concepts: Concept[
       </p>
       <p className={styles.sub}>
         {map.recalled === 0
-          ? "Every line Kelus can ask you about. Each one turns green after a correct answer."
+          ? "Every line Kelus can ask you about. Each one fills in, in its topic’s colour, after a correct answer."
           : [map.thisWeek ? `${map.thisWeek} answered correctly this week` : null, map.back ? `${map.back} ${map.back === 1 ? "comes" : "come"} back first in your next warm-up` : null].filter(Boolean).join(" · ") || "A miss turns a line back; a right answer brings it home."}
       </p>
 
       <ol className={styles.topics} aria-label="Lines by topic, in the order of your notes">
-        {map.topics.map((topic) => (
-          <li key={topic.id} className={styles.topic} aria-label={`${topic.name}: ${topic.recalled} of ${topic.lines.length} lines answered correctly`}>
+        {map.topics.map((topic, at) => (
+          <li key={topic.id} className={styles.topic} data-tone={toneAt(concepts.findIndex((concept) => concept.id === topic.id) >= 0 ? concepts.findIndex((concept) => concept.id === topic.id) : at)} aria-label={`${topic.name}: ${topic.recalled} of ${topic.lines.length} lines answered correctly`}>
             <span className={styles.name}>{topic.name}</span>
             <span className={styles.count} aria-hidden="true">{topic.recalled}/{topic.lines.length}</span>
             <span className={styles.dots} aria-hidden="true">

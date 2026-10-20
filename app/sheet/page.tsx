@@ -9,6 +9,7 @@ import { ArrowLeft } from "@/components/Marks";
 import { revisionSheet } from "@/domain/revision-sheet";
 import { getMissedLines, getServerMissedLines, subscribeMissedLines } from "@/lib/missed-lines";
 import { useDocumentTitle } from "@/lib/use-title";
+import { toneAt } from "@/lib/topic-tone";
 import styles from "./sheet.module.css";
 
 const day = (iso: string) => new Date(iso).toLocaleDateString([], { day: "numeric", month: "short" });
@@ -57,7 +58,7 @@ export default function RevisionSheetPage() {
       ) : (
         <ol className={styles.entries} aria-label="Topics, in the order of your notes">
           {sheet.entries.map((entry, index) => (
-            <motion.li key={entry.id} className={styles.entry} data-written={entry.words ? "true" : undefined} {...rise(index)}>
+            <motion.li key={entry.id} className={styles.entry} data-tone={toneAt(index)} data-written={entry.words ? "true" : undefined} {...rise(index)}>
               <div className={styles.text}>
                 <h2><span className={styles.num} aria-hidden="true">{index + 1}</span>{entry.name}</h2>
                 {entry.words ? (

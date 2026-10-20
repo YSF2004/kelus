@@ -38,3 +38,8 @@
 /* Editorial notebook: the label is a running head, the topics are named in the book serif. */
 .kicker { font-size: 0.9375rem; font-variant-caps: all-small-caps; letter-spacing: 0.08em; }
 .name { font-family: var(--font-marketing-heading), Georgia, serif; font-size: 1rem; }
+
+/* A recalled line takes its topic's colour; still coming back stays a marigold ring, not asked stays pale. */
+.topic[data-tone] .dot[data-state="recalled"] { background: var(--topic); }
+.topic[data-tone] .name::before { content: ""; display: inline-block; width: 8px; height: 8px; margin-right: 8px; border-radius: 2px; background: var(--topic); vertical-align: 0.05em; }
+.legend .dot[data-state="recalled"] { background: linear-gradient(135deg, var(--tone-1) 0 33%, var(--tone-2) 33% 66%, var(--tone-3) 66%); }

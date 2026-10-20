@@ -55,3 +55,8 @@
   .entry { padding: 18px 0; grid-template-columns: minmax(0, 1fr) 12rem; }
   .head h1 { font-size: 2rem !important; }
 }
+
+/* Each topic's page wears its tone: the number, and the rule beside the student's own words. */
+.entry[data-tone] .num { color: var(--topic-ink); }
+.entry[data-tone] .words { padding-left: 14px; border-left: 3px solid var(--topic); }
+@media print { .entry[data-tone] .words { border-left-color: #999; } }
