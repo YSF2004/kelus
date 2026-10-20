@@ -107,7 +107,10 @@ export function buildQuickRun(input: { activity: LearningActivity; name: string;
   const fromAll = fromAny.length >= 2 ? fromAny : pickChecks(anyDrillable, round);
   // A one-sentence page (common in slides) can only be asked about that sentence; two angles on it still beat none.
   const checks = fromAll.length >= 2 ? fromAll : pickChecks(anyDrillable, round, false);
-  const usable = checks.length >= 2 ? checks : pickChecks(anyDrillable, round, false).slice(0, 1);
+  const picked = checks.length >= 2 ? checks : pickChecks(anyDrillable, round, false).slice(0, 1);
+  // A topic met for the first time opens on its quickest check to read, so the first answer is an early win; a
+  // "which does NOT match" (four whole sentences to compare) never opens a topic when anything else can.
+  const usable = input.readFirst ? [...picked].sort((a, b) => readingLoad(a) - readingLoad(b)) : picked;
   if (!explainAnswer.trim()) return null;
   const sentences = splitSentences([activity.learn.explanation, ...activity.learn.keyPoints].join("\n"));
   const used = [explainAnswer, ...usable.map((item) => item.sourceQuote)];
@@ -130,8 +133,16 @@ export function buildQuickRun(input: { activity: LearningActivity; name: string;
 export function whereAnswerBelongs(item: PracticeItem, given: string, sentences: string[]) {
   const answer = norm(given);
   if (answer.length < 3 || answer === norm(item.modelAnswer)) return null;
+  // A picked sentence is already a whole line of the notes: pointing at "where it belongs" would only repeat it.
+  if (answer.split(" ").length > 6) return null;
   const single = !answer.includes(" ");
   return sentences.find((sentence) => !overlaps(sentence, item.sourceQuote) && (single ? hasWord(sentence, answer) : norm(sentence).includes(answer))) ?? null;
+}
+
+/** How much a check asks you to read before you can answer: its words and its options' words. */
+export function readingLoad(item: PracticeItem) {
+  const words = (text: string) => text.split(/\s+/).filter(Boolean).length;
+  return words(item.prompt) + (item.choices ?? []).reduce((sum, choice) => sum + words(choice), 0) + (item.variant === "notone" ? 60 : 0);
 }
 
 /**
