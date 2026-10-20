@@ -23,6 +23,8 @@ import { CourseFolderIcon } from "@/components/CourseFolderIcon";
 import { Octicon } from "@/components/Octicon";
 import { InlineName } from "@/components/InlineName";
 import { toneOf } from "@/lib/topic-tone";
+import { recallMap } from "@/domain/recall-map";
+import { getKnownLines, getServerKnownLines, subscribeKnownLines } from "@/lib/known-lines";
 import q from "./TodayQuiet.module.css";
 
 const pressSpring = { type: "spring", bounce: 0, duration: 0.28 } as const;
@@ -94,6 +96,9 @@ export function TodayRoute({
   const warmupFirst = !isSampleCourse && visit.returning && visit.warmup.length > 0;
   // With today's goal done, the next topic is offered as an extra, not pressed on.
   const habit = habitSummary({ events, concepts });
+  const knownLines = useSyncExternalStore(subscribeKnownLines, getKnownLines, getServerKnownLines);
+  const recall = recallMap({ concepts, activities, known: knownLines, missed, nowIso });
+  const eve = !isSampleCourse && !examDatePending && daysToExam > 0 && daysToExam <= 3 && recall.total ? { days: daysToExam, recalled: recall.recalled, total: recall.total, back: recall.back } : null;
   const goalDone = !isSampleCourse && habit.goalMet;
   const goalDoneCount = habit.topicsToday;
   const openedRef = useRef(false);
@@ -239,6 +244,17 @@ export function TodayRoute({
           </ul>
         )}
       </motion.header>
+
+      {/* The last three days: one calm page before the plan, counted from the student's own answers. */}
+      {eve ? (
+        <motion.section className={q.eve} aria-labelledby="exam-eve-title" {...settle(1)}>
+          <p className={q.eveKicker}>{eve.days === 1 ? "Your exam is tomorrow" : `${eve.days} days to your exam`}</p>
+          <h2 id="exam-eve-title" className={q.eveTitle}>You can recall <b>{eve.recalled}</b> of {eve.total} lines.</h2>
+          <p className={q.eveLine}>{eve.back ? `${eve.back} ${eve.back === 1 ? "line still comes" : "lines still come"} back. Read ${eve.back === 1 ? "it" : "them"} tonight, then one exam check.` : "Nothing is coming back. One exam check, then rest."}</p>
+          <span className={q.eveBar} role="img" aria-label={`${eve.recalled} of ${eve.total} lines recalled`}><i style={{ width: `${eve.total ? (eve.recalled / eve.total) * 100 : 0}%` }} /></span>
+          <p className={q.eveLinks}><Link href="/sheet">Read your sheet</Link><Link href="/today?section=map">Exam check</Link></p>
+        </motion.section>
+      ) : null}
 
       <motion.section className={q.next} data-block="today-lead" data-tone={toneOf(first.conceptId, concepts)} aria-labelledby="today-title" {...settle(1)}>
         <p className={q.eyebrow}>{startLabel ? "Continue your session" : goalDone ? "Extra for today" : "Up next"}</p>

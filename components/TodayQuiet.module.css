@@ -280,3 +280,15 @@
 .then li { transition: transform 200ms cubic-bezier(0.22, 1, 0.36, 1); }
 .then li:hover { transform: translateX(3px); }
 .then li[data-tone]:hover strong { color: var(--topic-ink); }
+
+/* Exam eve: the last three days open on one calm page, a countdown in small caps, the count in the serif. */
+.eve { margin: 0 0 8px; padding: 24px 0 28px; border-top: 2px solid var(--k-marigold, #f3b23e); }
+.eveKicker { margin: 0 0 10px; color: var(--k-marigold-text); font-size: 0.9375rem; font-weight: 600; font-variant-caps: all-small-caps; letter-spacing: 0.08em; }
+.eveTitle { margin: 0; color: var(--q-ink); font-family: var(--font-marketing-heading), Georgia, serif !important; font-size: clamp(1.75rem, 4.4vw, 2.375rem) !important; font-weight: 500 !important; letter-spacing: -0.02em !important; line-height: 1.12; }
+.eveTitle b { color: var(--k-marigold-text); font-weight: 500; }
+.eveLine { margin: 10px 0 16px; color: var(--q-text-2); font-family: var(--font-marketing-heading), Georgia, serif; font-size: 1.0625rem; font-style: italic; }
+.eveBar { display: block; height: 6px; overflow: hidden; border-radius: 999px; background: color-mix(in srgb, var(--k-ink) 9%, transparent); }
+.eveBar i { display: block; height: 100%; border-radius: inherit; background: linear-gradient(90deg, var(--tone-1), var(--tone-2), var(--tone-3)); }
+.eveLinks { display: flex; gap: 20px; margin: 16px 0 0; }
+.eveLinks a { color: var(--color-kelus, var(--k-green)); font-size: 0.9375rem; font-weight: 600; text-decoration: none; }
+.eveLinks a:hover { text-decoration: underline; text-underline-offset: 3px; }
