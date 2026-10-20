@@ -1,5 +1,6 @@
 "use client";
 
+import { toneOf } from "@/lib/topic-tone";
 import { ArrowRight } from "@/components/Marks";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { kelusDuration, kelusEase } from "@/components/motion";
@@ -109,6 +110,7 @@ function MaterialRow({
   onRemoved,
   linkedTopics,
   topicNames = [],
+  topicTones = [],
   userId,
   syncState,
   quiet = false,
@@ -118,6 +120,8 @@ function MaterialRow({
   onRemoved: (item: CourseMaterial) => void;
   linkedTopics: number;
   topicNames?: string[];
+  /** Each topic's colour, in the same order as topicNames. */
+  topicTones?: number[];
   userId?: string;
   syncState?: "syncing" | "synced" | "retrying";
   quiet?: boolean;
@@ -198,7 +202,7 @@ function MaterialRow({
             {[addedLabel(item.addedAt), linkedTopics ? `${linkedTopics} topic${linkedTopics === 1 ? "" : "s"} from this source` : item.processingStatus === "ready" ? "No topics confirmed yet" : null].filter(Boolean).join(" · ")}
           </small>
         ) : null}
-        {quiet && topicNames.length ? <small className="material-card-topics">Topics: {topicNames.slice(0, 3).join(", ")}{topicNames.length > 3 ? `, and ${topicNames.length - 3} more` : ""}</small> : null}
+        {quiet && topicNames.length ? <small className="material-card-topics" aria-label={`Topics: ${topicNames.join(", ")}`}>{topicNames.slice(0, 6).map((name, at) => <span key={name} data-tone={topicTones[at] ?? at % 6 + 1}>{name}</span>)}{topicNames.length > 6 ? <span>+{topicNames.length - 6}</span> : null}</small> : null}
         {statusLabel ? <small className={`material-status-badge is-${item.processingStatus}`}>{statusLabel}</small> : null}
         {syncLabel ? <small className={`material-sync-label is-${syncState ?? "synced"}`}>{syncLabel}</small> : null}
         {downloadError ? <small className="material-download-error" role="alert">{downloadError}</small> : null}
@@ -677,6 +681,13 @@ export function MaterialLibrary({ embedded = false, incomingFile = null, onIncom
     return <ReadingNotes message={statusMessage ?? "Finding the topics in your notes."} topics={[]} error={hardError} onStartOver={onStartOver} />;
   }
 
+  // A source's topics in the order of the notes, each with its colour.
+  const sourceTopics = (materialId: string) => {
+    const ids = new Set(state.snapshot.learningActivities.filter((activity) => activity.sourceReferences.some((reference) => reference.materialId === materialId)).map((activity) => activity.conceptId));
+    const topics = state.snapshot.concepts.filter((concept) => ids.has(concept.id));
+    return { topicNames: topics.map((concept) => concept.name), topicTones: topics.map((concept) => toneOf(concept.id, state.snapshot.concepts)) };
+  };
+
   const shelf = (
       <>
       {embedded ? null : (
@@ -959,7 +970,7 @@ export function MaterialLibrary({ embedded = false, incomingFile = null, onIncom
           {embedded ? null : <span>This device</span>}
         </header>
         {courseMaterials.length ? (
-          <ul>{courseMaterials.map((item) => <MaterialRow key={item.id} item={item} userId={auth.user?.id} syncState={syncStates[item.id]} quiet={embedded} onAnalyze={(material) => void analyzePdf(material)} onRemoved={(material) => removeMaterialSource(material.id)} linkedTopics={state.snapshot.learningActivities.filter((activity) => activity.sourceReferences.some((reference) => reference.materialId === item.id)).length} topicNames={[...new Set(state.snapshot.learningActivities.filter((activity) => activity.sourceReferences.some((reference) => reference.materialId === item.id)).map((activity) => state.snapshot.concepts.find((concept) => concept.id === activity.conceptId)?.name).filter((name): name is string => Boolean(name)))]} />)}</ul>
+          <ul>{courseMaterials.map((item) => <MaterialRow key={item.id} item={item} userId={auth.user?.id} syncState={syncStates[item.id]} quiet={embedded} onAnalyze={(material) => void analyzePdf(material)} onRemoved={(material) => removeMaterialSource(material.id)} linkedTopics={state.snapshot.learningActivities.filter((activity) => activity.sourceReferences.some((reference) => reference.materialId === item.id)).length} {...sourceTopics(item.id)} />)}</ul>
         ) : concepts.length ? (
           <div className="material-shelf-empty">
             <p>Sample model is ready. Add your own syllabus when you want Kelus grounded in your files.</p>
