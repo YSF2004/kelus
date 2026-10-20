@@ -1,6 +1,6 @@
 .page {
   display: grid;
-  gap: 28px;
+  gap: 40px;
   width: min(100% - 48px, 45rem);
   /* On the section title's edge, not centred under a left-aligned title. */
   margin: 0 auto 0 24px;
@@ -9,12 +9,10 @@
 
 .lead {
   display: grid;
-  gap: 14px;
-  padding: 28px 32px;
-  border: 1px solid var(--color-frost);
-  border-radius: 14px;
-  background: var(--color-pure-white);
-  box-shadow: 0 1px 0 rgba(18, 22, 15, 0.03), 0 12px 32px -18px rgba(18, 22, 15, 0.18);
+  gap: 18px;
+  padding: 0;
+  border: 0;
+  background: transparent;
 }
 .lead h2 {
   margin: 0;
@@ -37,7 +35,7 @@
 .target { stroke: var(--color-midnight-ink); stroke-width: 1; stroke-dasharray: 4 4; opacity: 0.55; }
 .targetLabel, .axis { fill: var(--color-smoke); font-size: 0.75rem; font-family: inherit; }
 
-.stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; margin: 4px 0 0; padding-top: 16px; border-top: 1px solid var(--color-frost); }
+.stats { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px; margin: 4px 0 0; padding-top: 24px; border-top: 1px solid var(--q-line, var(--color-frost)); }
 .stats div { display: grid; gap: 2px; }
 .stats dt { font-size: var(--text-caption); color: var(--color-smoke); }
 .stats dd { margin: 0; font-family: var(--font-display); font-size: 1.375rem; font-weight: 500; color: var(--color-midnight-ink); }
@@ -89,13 +87,13 @@
 .bar { position: relative; height: 6px; border-radius: 3px; background: var(--color-frost); overflow: hidden; }
 .bar i { position: absolute; inset: 0 auto 0 0; border-radius: 3px; background: var(--color-kelus); }
 
-.pace { padding: 18px 20px; border: 1px solid var(--color-frost); border-radius: 10px; background: var(--color-mist); }
+.pace { padding: 24px 0 0; border: 0; border-top: 1px solid var(--q-line, var(--color-frost)); background: transparent; }
 .pace p { margin: 0; line-height: 1.55; color: var(--color-slate); }
 .pace strong { color: var(--color-midnight-ink); }
 
 @media (max-width: 640px) {
   .page { width: min(100% - 32px, 45rem); margin-left: 16px; gap: 22px; }
-  .lead { padding: 20px; }
+  .lead { padding: 0; }
   .group li { grid-template-columns: minmax(0, 1fr) auto; }
   .group li .bar { display: none; }
 }

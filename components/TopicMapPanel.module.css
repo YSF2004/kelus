@@ -4,12 +4,9 @@
 .due {
   justify-self: start;
   margin-top: 4px;
-  padding: 2px 8px;
-  border: 1px solid var(--color-midnight-ink);
-  border-radius: 999px;
   font-size: var(--text-caption);
-  font-weight: 500;
-  color: var(--color-midnight-ink);
+  font-weight: 600;
+  color: var(--k-marigold-text);
 }
 
 .why {
@@ -89,7 +86,7 @@
 .node .ring { position: absolute; inset: 0; }
 .node b { position: relative; font-size: 0.75rem; font-weight: 600; color: var(--color-slate); font-variant-numeric: tabular-nums; }
 .step[data-state="solid"] .node b { color: var(--color-kelus); }
-.here .node { box-shadow: 0 0 0 4px color-mix(in srgb, var(--color-kelus) 16%, transparent); }
+.here .node { color: var(--color-kelus); }
 
 .stepLink { display: grid; gap: 2px; padding: 10px 0; color: inherit; text-decoration: none; }
 .stepLink:hover .index-toc-name, .stepLink:hover strong { text-decoration: underline; text-underline-offset: 3px; }
@@ -134,7 +131,7 @@
 .checkpoint[data-state="locked"] .diamond { border: 2px dashed var(--color-slate, #5a6358); }
 .checkpoint[data-state="ready"] .diamond { border-color: var(--color-kelus); background: var(--k-surface); }
 .checkpoint[data-state="passed"]::before { background: color-mix(in srgb, var(--color-kelus) 45%, var(--color-frost)); }
-.passed { margin-left: 8px; padding: 1px 8px; border-radius: 999px; background: color-mix(in srgb, var(--color-kelus) 12%, var(--k-surface)); color: var(--color-kelus); font-size: 0.75rem; font-style: normal; font-weight: 600; vertical-align: 2px; }
+.passed { margin-left: 8px; color: var(--color-kelus); font-size: 0.75rem; font-style: normal; font-weight: 600; vertical-align: 2px; }
 
 /* Remove is a 44px target that shows its mark on hover or focus; on touch it stays, quieter. */
 .step .remove { display: grid; place-items: center; width: 44px; height: 44px; margin: -10px -10px -10px 0; border: 0; border-radius: 8px; background: transparent; color: var(--color-slate); cursor: pointer; }
@@ -142,13 +139,11 @@
 @media (hover: none) { .step .remove { opacity: 0.55; } }
 
 
-/* Where you are, at a glance: the same stat chips as the study plan. */
-.stats { display: flex; flex-wrap: wrap; gap: 8px; margin: 0; padding: 0; list-style: none; }
-.stats li { display: inline-flex; align-items: center; gap: 6px; height: 32px; padding: 0 12px 0 10px; border: 1px solid var(--q-line, var(--k-line)); border-radius: 999px; color: var(--k-text-2); font-size: 0.8125rem; font-variant-numeric: tabular-nums; }
+/* The path's counts read as one line of evidence, not a second navigation bar. */
+.stats { display: flex; flex-wrap: wrap; gap: 8px 18px; margin: 0; padding: 0; list-style: none; }
+.stats li { display: inline-flex; align-items: center; gap: 6px; min-height: 28px; color: var(--k-text-2); font-size: 0.8125rem; font-variant-numeric: tabular-nums; }
 .stats strong { color: var(--k-ink); font-size: 0.9375rem; font-weight: 600; }
-.stats li[data-tone="green"] { background: var(--k-green-wash); border-color: transparent; }
 .stats li[data-tone="green"] strong { color: var(--color-kelus, var(--k-green)); }
-.stats li[data-tone="marigold"] { background: var(--k-marigold-wash); border-color: transparent; }
 .stats li[data-tone="marigold"] strong { color: var(--k-marigold-text); }
 .ico { width: 16px; height: 16px; flex: none; color: var(--k-text-2); }
 .stats li[data-tone="green"] .ico { color: var(--color-kelus, var(--k-green)); }
@@ -156,8 +151,8 @@
 .icoSm { width: 12px; height: 12px; flex: none; color: currentColor; }
 
 /* A row's state as a pill; tries and the page as quiet marks after it. */
-.state { display: inline-block; padding: 1px 8px; border-radius: 999px; background: color-mix(in srgb, var(--k-ink) 6%, transparent); color: var(--k-text-2); font-size: 0.75rem; font-weight: 500; }
-.state[data-level="next"] { background: var(--k-green-wash); color: var(--color-kelus, var(--k-green)); font-weight: 600; }
-.state[data-level="needs-work"], .state[data-level="partly-there"] { background: var(--k-marigold-wash); color: var(--k-marigold-text); }
-.state[data-level="solid"] { background: var(--k-green-wash); color: var(--color-kelus, var(--k-green)); }
+.state { display: inline-block; color: var(--k-text-2); font-size: 0.75rem; font-weight: 500; }
+.state[data-level="next"] { color: var(--color-kelus, var(--k-green)); font-weight: 600; }
+.state[data-level="needs-work"], .state[data-level="partly-there"] { color: var(--k-marigold-text); }
+.state[data-level="solid"] { color: var(--color-kelus, var(--k-green)); }
 .metaSoft { display: inline-flex; align-items: center; gap: 4px; margin-left: 8px; color: var(--k-text-3, var(--k-text-2)); font-size: 0.75rem; font-variant-numeric: tabular-nums; }
