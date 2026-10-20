@@ -122,3 +122,6 @@
 /* Editorial notebook: headings in the book serif, like every other title in the product. */
 .page h2, .page h3 { font-family: var(--font-marketing-heading), Georgia, serif !important; font-weight: 500 !important; letter-spacing: -0.015em !important; }
 .page li strong { font-family: var(--font-marketing-heading), Georgia, serif; font-weight: 500; }
+
+.sheetLink { display: inline-flex; align-items: center; gap: 8px; margin-top: -20px; color: var(--color-kelus, var(--k-green)); font-size: 0.9375rem; font-weight: 600; text-decoration: none; }
+.sheetLink:hover { text-decoration: underline; text-underline-offset: 3px; }

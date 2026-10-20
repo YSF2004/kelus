@@ -34,7 +34,8 @@ export function SiteHeader() {
   // different headers (the old "Minified React error #418" on Today and Materials).
   const hydrated = useSyncExternalStore(noop, () => true, () => false);
   const checkingAccount = !hydrated || auth.loading;
-  const inSession = pathname.startsWith("/session");
+  // The revision sheet is a page of its own, like a session: its bar is the only header.
+  const inSession = pathname.startsWith("/session") || pathname.startsWith("/sheet");
   const inProduct = ["/today", "/materials", "/map", "/concept"].some((path) => pathname.startsWith(path));
   const onHome = pathname === "/";
   const accountMenu = useRef<HTMLDetailsElement>(null);

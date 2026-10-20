@@ -204,6 +204,8 @@ export function TopicMapPanel() {
         </AnimatePresence>
         {path.length >= 2 ? checkpoint(path, "Exam check", 1, "exam") : null}
       </ol>
+      {/* Every topic in the student's own words, ready to read the night before or print. */}
+      <Link href="/sheet" className={styles.sheetLink}><span><strong>Your revision sheet</strong><small>Every topic in your own words, ready to print</small></span><ArrowRight className="k-mark" /></Link>
       <AnkiExport course={course.name} concepts={concepts} activities={state.snapshot.learningActivities} />
     </div>
   );
