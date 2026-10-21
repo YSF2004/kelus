@@ -18,7 +18,7 @@ export type SessionMenuItem = {
  * the block. It opens from the button it belongs to, closes on Escape or a click outside, and asks before anything
  * that cannot be undone.
  */
-export function SessionMenu({ items, footer }: { items: SessionMenuItem[]; /** Something set under the items, such as the appearance switch. */ footer?: ReactNode }) {
+export function SessionMenu({ items, footer, label = "More" }: { items: SessionMenuItem[]; /** Something set under the items, such as the appearance switch. */ footer?: ReactNode; /** The trigger's word, in the notes' language. */ label?: string }) {
   const reduce = useReducedMotion() === true;
   const [open, setOpen] = useState(false);
   const [asking, setAsking] = useState<SessionMenuItem | null>(null);
@@ -54,7 +54,7 @@ export function SessionMenu({ items, footer }: { items: SessionMenuItem[]; /** S
         aria-label="More session options"
         onClick={() => (open ? close() : setOpen(true))}
       >
-        More
+        {label}
       </button>
       <AnimatePresence>
         {open ? (

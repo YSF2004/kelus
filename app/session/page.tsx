@@ -2,6 +2,8 @@
 
 import { ThemeSwitch } from "@/components/ThemeSwitch";
 import { toneOf } from "@/lib/topic-tone";
+import { uiWords } from "@/lib/ui-words";
+import { noteLanguage } from "@/domain/note-language";
 import { ArrowOut, ArrowRight } from "@/components/Marks";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { kelusDuration, kelusEase } from "@/components/motion";
@@ -173,6 +175,9 @@ function SessionBody() {
     [conceptId, round, activity?.practice?.length, activity?.teach?.aiExplanation],
   );
   const quickMode = Boolean(run);
+  // The words around the questions follow the notes' language, as the questions do.
+  const notesLanguage = run ? noteLanguage(run.sentences.join(" ")) : "en";
+  const uiw = uiWords(notesLanguage);
   const [runKey, setRunKey] = useState(0);
   const soundsEnabled = useSyncExternalStore(subscribeSounds, soundsOn, () => false);
   const knownLines = useSyncExternalStore(subscribeKnownLines, getKnownLines, getServerKnownLines);
@@ -487,6 +492,7 @@ function SessionBody() {
         </span>
         <div className="study-folio-actions">
           <SessionMenu
+            label={uiw.more}
             footer={<ThemeSwitch compact />}
             items={[
               {
@@ -528,7 +534,7 @@ function SessionBody() {
               router.push("/today");
             }}
           >
-            Close
+            {uiw.close}
           </button>
         </div>
       </div>
@@ -669,7 +675,8 @@ function SessionBody() {
                 // The definition was just compared on the screen before, so end on something else: the line that was
                 // missed, or a line from the page that this run did not use.
                 remember={quickMissed[0] ?? run?.extraFact ?? activity.retrieve.modelAnswer}
-                rememberLabel={quickMissed[0] ? (quickMissed.length > 1 ? "A line you missed" : "The line you missed") : run?.extraFact ? "One more line from your notes" : "Worth remembering"}
+                rememberLabel={quickMissed[0] ? (quickMissed.length > 1 ? uiw.missedSome : uiw.missedOne) : run?.extraFact ? uiw.oneMore : uiw.worth}
+                language={notesLanguage}
                 locator={activity.sourceReferences[0]?.locator ?? "your notes"}
                 goalDone={goalToday.topicsToday}
                 goal={goalToday.goal}
@@ -789,7 +796,7 @@ function SessionBody() {
                 known={knownAtOpen.set}
                 recalled={knownAtOpen.count}
                 // A topic Kelus misnamed is renamed right here, the way the course is: tap the name (⌘Z undoes it).
-                context={<p className="study-topic-kicker"><b><InlineName value={concept.name} onSave={(next) => renameTopic(concept.id, next)} label="Rename this topic" /></b>{total > 1 ? <span>Topic {index + 1} of {total}</span> : null}</p>}
+                context={<p className="study-topic-kicker"><b><InlineName value={concept.name} onSave={(next) => renameTopic(concept.id, next)} label="Rename this topic" /></b>{total > 1 ? <span>{uiw.topicOf(index + 1, total)}</span> : null}</p>}
               />
             ) : null}
 

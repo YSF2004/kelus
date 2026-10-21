@@ -14,6 +14,8 @@ import { asksForTheTopic, gapChoices, keyWordsIn, linesAround, readingLines, whe
 import { trackEvent } from "@/lib/analytics";
 import { FLAG_REASONS, flagQuestion, sendFlaggedQuestion, type FlagReason } from "@/lib/flags";
 import { Octicon } from "@/components/Octicon";
+import { uiWords } from "@/lib/ui-words";
+import { noteLanguage } from "@/domain/note-language";
 import styles from "./QuickRun.module.css";
 
 /** `missed` holds the page lines behind the checks that were wrong or not sure, so the result can point back to them. */
@@ -68,6 +70,8 @@ export function QuickRun({ run, onRevealSource, onShowLine, onFinish, onChecksDo
   const modKey = useSyncExternalStore(noSubscribe, modKeyNow, () => "⌘");
   const touch = useSyncExternalStore(noSubscribe, touchNow, () => false);
   const soundOn = useSyncExternalStore(subscribeSounds, soundsOn, () => false);
+  // The buttons and feedback speak the notes' language, like the questions do.
+  const w = uiWords(noteLanguage(run.sentences.join(" ")));
   // Lines a student hid as not worth reading stay out of the reading for good, on this device.
   const [lines, setLines] = useState(() => (readFirst ? readingLines(run).filter((line) => !hiddenLines().has(line)) : []));
   // -1 once reading is over (or there is nothing to read); otherwise the last line shown so far.
@@ -256,7 +260,7 @@ export function QuickRun({ run, onRevealSource, onShowLine, onFinish, onChecksDo
       <AnimatePresence mode="wait" initial={false}>
         {readingNow ? (
           <motion.section key="read" className={styles.card} {...motionProps} aria-label="Read it first">
-            <h1 className={styles.prompt}>Read it first, then it’s your turn.</h1>
+            <h1 className={styles.prompt}>{w.readTitle}</h1>
             <ol className={styles.readLines} aria-live="polite">
               {lines.slice(0, reading + 1).map((line, index) => (
                 <motion.li key={line} initial={reduce || index === 0 ? false : { opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}>
@@ -274,10 +278,10 @@ export function QuickRun({ run, onRevealSource, onShowLine, onFinish, onChecksDo
             </ol>
             <div className={`${styles.row} ${styles.readRow}`}>
               <button type="button" className={`k-btn ${styles.primary}`} autoFocus key={reading} onClick={() => setReading((current) => (current + 1 < lines.length ? current + 1 : -1))}>
-                {reading + 1 < lines.length ? "Continue" : "Now from memory"}<kbd className={styles.key} aria-hidden="true">↵</kbd>
+                {reading + 1 < lines.length ? w.continue : w.fromMemory}<kbd className={styles.key} aria-hidden="true">↵</kbd>
               </button>
-              <ListenButton key={`listen-${reading}`} text={lines[reading] ?? ""} className={styles.listen} />
-              <button type="button" className={styles.link} onClick={() => setReading(-1)}>Skip to the questions<kbd className={styles.linkKey} aria-hidden="true">Esc</kbd></button>
+              <ListenButton key={`listen-${reading}`} text={lines[reading] ?? ""} className={styles.listen} label={w.listen} stopLabel={w.stop} />
+              <button type="button" className={styles.link} onClick={() => setReading(-1)}>{w.skip}<kbd className={styles.linkKey} aria-hidden="true">Esc</kbd></button>
             </div>
           </motion.section>
         ) : item ? (
@@ -320,10 +324,10 @@ export function QuickRun({ run, onRevealSource, onShowLine, onFinish, onChecksDo
               >
                 <label htmlFor={`run-gap-${step}`} className="sr-only">Your answer, one word</label>
                 <span className={styles.field} data-state={answered ? (answered.right ? "right" : answered.unsure ? "unsure" : "wrong") : undefined}>
-                  <input id={`run-gap-${step}`} value={typed} onChange={(event) => { setTyped(event.target.value); setTapped(null); }} disabled={Boolean(answered)} autoComplete="off" autoFocus={!(touch && chips.length)} placeholder="One word" />
+                  <input id={`run-gap-${step}`} value={typed} onChange={(event) => { setTyped(event.target.value); setTapped(null); }} disabled={Boolean(answered)} autoComplete="off" autoFocus={!(touch && chips.length)} placeholder={w.oneWord} />
                   {answered?.right ? <motion.span className={styles.fieldMark} aria-hidden="true" initial={reduce ? false : { scale: 0.4, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={{ type: "spring", stiffness: 520, damping: 26 }}><Tick size={16} /></motion.span> : null}
                 </span>
-                {!answered ? <button type="submit" className={`k-btn ${styles.primary}`} disabled={!typed.trim()}>Check<kbd className={styles.key} aria-hidden="true">↵</kbd></button> : null}
+                {!answered ? <button type="submit" className={`k-btn ${styles.primary}`} disabled={!typed.trim()}>{w.check}<kbd className={styles.key} aria-hidden="true">↵</kbd></button> : null}
               </motion.form>
             )}
             {/* On a phone, typing one word is the slow part: tap the word instead. On a keyboard, recall it. */}
@@ -336,11 +340,11 @@ export function QuickRun({ run, onRevealSource, onShowLine, onFinish, onChecksDo
               </div>
             ) : null}
 
-            {!answered ? <button type="button" className={styles.unsure} onClick={notSure}>I’m not sure</button> : null}
+            {!answered ? <button type="button" className={styles.unsure} onClick={notSure}>{w.notSure}</button> : null}
 
             {answered ? (
               <motion.div className={`${styles.feedback} ${answered.right ? styles.ok : answered.unsure ? styles.unsure : styles.no}`} role="status" initial={reduce ? false : touch ? { opacity: 1, y: "100%" } : { opacity: 0, y: 8, scale: 0.98 }} animate={{ opacity: 1, y: 0, scale: 1 }} transition={touch ? { type: "spring", bounce: 0, duration: 0.38 } : { type: "spring", bounce: 0, duration: 0.28 }}>
-                <strong>{answered.right ? <PackArt name="check" className={styles.mark} /> : null}{answered.unsure ? (item.kind === "cloze" ? `It was “${item.modelAnswer}”.` : "Here’s the line it comes from.") : answered.right ? (answered.picked ? "Right, picked from four. Type it next time to count it as a correct answer." : answered.firstEver ? "Right. That’s your first line answered correctly." : "Right.") : item.kind === "cloze" ? `Not quite. It was “${item.modelAnswer}”.` : "Not quite."}</strong>
+                <strong>{answered.right ? <PackArt name="check" className={styles.mark} /> : null}{answered.unsure ? (item.kind === "cloze" ? w.itWas(item.modelAnswer) : w.lineFrom) : answered.right ? (answered.picked ? w.picked : answered.firstEver ? w.firstRight : w.right) : item.kind === "cloze" ? w.notQuiteWas(item.modelAnswer) : w.notQuite}</strong>
                 {around && linesAround(run, item.sourceQuote) ? (
                   <div className={styles.around} aria-label="This line in your notes">
                     {linesAround(run, item.sourceQuote)!.before ? <p>{linesAround(run, item.sourceQuote)!.before}</p> : null}
@@ -352,21 +356,21 @@ export function QuickRun({ run, onRevealSource, onShowLine, onFinish, onChecksDo
                 {answered.right && item.kind === "cloze" && answered.how && answered.how !== "exact" ? <p className={styles.accepted}>{acceptedNote(answered.how, item.modelAnswer)}</p> : null}
                 {answered.firstEver ? <p className={styles.firstNote}><PackArt name="ranking" className={styles.firstArt} size={64} /><span>Kelus brings it back in a few days, just before you’d forget it, so it sticks for the exam.</span></p> : null}
                 <div className={styles.lineTools}>
-                  <ListenButton key={`listen-q-${step}`} text={item.sourceQuote} className={styles.listen} />
-                  {!answered.right && onShowLine ? <button type="button" className={styles.listen} onClick={() => onShowLine(item.sourceQuote)}>See it on your page</button> : !answered.right && !around && linesAround(run, item.sourceQuote) ? <button type="button" className={styles.listen} onClick={() => setAround(true)}>Show it in your notes</button> : null}
+                  <ListenButton key={`listen-q-${step}`} text={item.sourceQuote} className={styles.listen} label={w.listen} stopLabel={w.stop} />
+                  {!answered.right && onShowLine ? <button type="button" className={styles.listen} onClick={() => onShowLine(item.sourceQuote)}>{w.seeOnPage}</button> : !answered.right && !around && linesAround(run, item.sourceQuote) ? <button type="button" className={styles.listen} onClick={() => setAround(true)}>{w.showInNotes}</button> : null}
                 </div>
                 {answered.elsewhere ? (
                   <div className={styles.elsewhere}>
-                    <span>{answered.given && !/\s/.test(answered.given) ? `“${answered.given}” belongs to this line in your notes:` : "That answer belongs to this line in your notes:"}</span>
+                    <span>{answered.given && !/\s/.test(answered.given) ? w.belongsWord(answered.given) : w.belongs}</span>
                     <p>“{answered.elsewhere}”</p>
                   </div>
                 ) : null}
-                <button ref={nextRef} type="button" className={`k-btn ${styles.primary}`} onClick={next}>{step + 1 >= total ? (onChecksDone ? "See how it went" : "Now say it yourself") : "Next"} <ArrowRight /></button>
+                <button ref={nextRef} type="button" className={`k-btn ${styles.primary}`} onClick={next}>{step + 1 >= total ? (onChecksDone ? w.seeHow : w.sayIt) : w.next} <ArrowRight /></button>
                 {/* A bad question is the student's to call. One tap counts it and drops it from later runs; its words
                     go to the Kelus team only on a second, explicit tap. */}
                 <div className={styles.flag}>
                   {flag === null ? (
-                    <button type="button" className={styles.flagLink} onClick={() => setFlag("choosing")}>Flag this question</button>
+                    <button type="button" className={styles.flagLink} onClick={() => setFlag("choosing")}>{w.flag}</button>
                   ) : flag === "choosing" ? (
                     <div className={styles.flagReasons} role="group" aria-label="What is wrong with this question?">
                       {FLAG_REASONS.map((reason) => (
@@ -394,21 +398,21 @@ export function QuickRun({ run, onRevealSource, onShowLine, onFinish, onChecksDo
           <motion.section key="explain" className={styles.card} {...motionProps} aria-label="Explain it">
             <h1 className={styles.prompt}>{run.explainPrompt}</h1>
             <label htmlFor="run-explain" className="sr-only">Your explanation</label>
-            {!compared ? <textarea id="run-explain" className={styles.area} rows={4} autoFocus value={explained} onChange={(event) => { setExplained(event.target.value); setNudge(false); }} placeholder="Close the page. Write it from memory." /> : null}
+            {!compared ? <textarea id="run-explain" className={styles.area} rows={4} autoFocus value={explained} onChange={(event) => { setExplained(event.target.value); setNudge(false); }} placeholder={w.writeIt} /> : null}
             {nudge && !compared ? <p className={styles.nudge} role="alert">That doesn’t look like an answer yet. Write a few words from memory, or tap “I don’t remember”.</p> : null}
             {!compared ? (
               <div className={styles.row}>
-                <button type="button" className={`k-btn ${styles.primary}`} onClick={compare}>Compare with the page<kbd className={styles.key} aria-hidden="true">{modKey}↵</kbd></button>
-                {!explained.trim() || nudge ? <button type="button" className={styles.link} onClick={() => { recordFirstResponse("own_words"); setExplained(""); setNudge(false); setCompared(true); }}>I don’t remember</button> : null}
+                <button type="button" className={`k-btn ${styles.primary}`} onClick={compare}>{w.compare}<kbd className={styles.key} aria-hidden="true">{modKey}↵</kbd></button>
+                {!explained.trim() || nudge ? <button type="button" className={styles.link} onClick={() => { recordFirstResponse("own_words"); setExplained(""); setNudge(false); setCompared(true); }}>{w.dontRemember}</button> : null}
               </div>
             ) : (
               <motion.div className={styles.compare} initial={reduce ? false : { opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.25 }}>
                 <div>
-                  <span>Your words</span>
+                  <span>{w.yourWords}</span>
                   <p>{explained.trim() || "Nothing written."}</p>
                 </div>
                 <div>
-                  <span>The page says</span>
+                  <span>{w.pageSays}</span>
                   <p>
                     {useful
                       ? useful.parts.map((part, index) => (part.key ? <mark key={index} className={part.hit ? styles.hit : part.flip ? styles.flip : styles.miss} title={part.flip ? `You wrote “${part.flip}”` : undefined} style={{ animationDelay: `${120 + index * 18}ms` }}>{part.text}</mark> : part.text))
@@ -421,14 +425,14 @@ export function QuickRun({ run, onRevealSource, onShowLine, onFinish, onChecksDo
                     <span className={styles.meter} aria-hidden="true">
                       <b>{useful.hits}<small>/{useful.keys}</small></b>
                       <span className={styles.meterTrack}><motion.i initial={reduce ? false : { scaleX: 0 }} animate={{ scaleX: useful.keys ? useful.hits / useful.keys : 0 }} transition={{ type: "spring", bounce: 0, duration: 0.7, delay: 0.2 }} /></span>
-                      <span>key words</span>
+                      <span>{w.keyWords}</span>
                     </span>
                     {useful.missed.length ? (
                       <span className={styles.missedWords} aria-hidden="true">
-                        <em>Left out</em>
+                        <em>{w.leftOut}</em>
                         {useful.missed.slice(0, 3).map((word, index) => <motion.span key={word} initial={reduce ? false : { opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.35 + index * 0.06, duration: 0.2 }}>{word}</motion.span>)}
                       </span>
-                    ) : useful.flipped.length ? null : <span className={styles.allIn} aria-hidden="true"><Octicon name="check-circle" size={14} /> Nothing important left out</span>}
+                    ) : useful.flipped.length ? null : <span className={styles.allIn} aria-hidden="true"><Octicon name="check-circle" size={14} /> {w.allIn}</span>}
                     {useful.flipped.length ? <p className={styles.flipNote}>Check the direction: you wrote <b>{useful.flipped[0].said}</b> where your notes say <b>{useful.flipped[0].page}</b>.</p> : null}
                   </div>
                 ) : null}
@@ -439,13 +443,13 @@ export function QuickRun({ run, onRevealSource, onShowLine, onFinish, onChecksDo
                   </div>
                 ) : (
                   <fieldset className={styles.grades}>
-                    <legend>How close was it?</legend>
+                    <legend>{w.howClose}</legend>
                     {GRADES.map((grade) => (
                       <button key={grade.value} type="button" className={useful?.suggest === grade.value ? styles.suggested : undefined} onClick={(event) => finish(grade.value, event.timeStamp)}>
                         <span className={styles.gradeMark} data-grade={grade.value} aria-hidden="true">{grade.value === "nailed" ? <Octicon name="check" size={16} /> : grade.value === "missed" ? <Octicon name="x-circle" size={16} /> : <i />}</span>
-                        <strong>{grade.label}{useful?.suggest === grade.value ? <em>Suggested</em> : null}</strong>
+                        <strong>{w[grade.value]}{useful?.suggest === grade.value ? <em>{w.suggested}</em> : null}</strong>
                         <kbd className={styles.gradeKey} aria-hidden="true">{GRADES.indexOf(grade) + 1}</kbd>
-                        <small>{grade.hint}</small>
+                        <small>{w[`${grade.value}Hint` as const]}</small>
                       </button>
                     ))}
                   </fieldset>
