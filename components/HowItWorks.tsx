@@ -30,7 +30,7 @@ function SourceVisual({ visible, reduceMotion }: VisualProps) {
     <figure className={`${styles.visual} ${styles.sourceVisual}`}>
       <div className={styles.art}>
         <div className={sheets.sheet} aria-hidden="true">
-          <p className={sheets.kicker}>Biology · Cell Transport · 3 pages</p>
+          <p className={sheets.kicker}>Cell Transport, 3 pages</p>
           <ul className={sheets.rows}>
             {topics.map(([name, page], index) => (
               <motion.li key={name} {...row(index)}><strong>{name}</strong><span>{page}</span></motion.li>
@@ -38,7 +38,6 @@ function SourceVisual({ visible, reduceMotion }: VisualProps) {
           </ul>
         </div>
       </div>
-      <figcaption className={styles.visualCaption}><span>From your material</span><strong>Three topics, each linked to its page.</strong><small>Rename or remove any of them; nothing to fill in first.</small></figcaption>
     </figure>
   );
 }
@@ -55,7 +54,6 @@ function RecallVisual({ visible, reduceMotion }: VisualProps) {
           <motion.p {...row(2)} className={sheets.source}>That answer belongs to another line in your notes: “In a hypertonic solution the cell loses water.”</motion.p>
         </div>
       </div>
-      <figcaption className={styles.visualCaption}><span>From memory</span><strong>A few quick checks, then your own words.</strong><small>A wrong pick shows the line it came from, so the mix-up is clear.</small></figcaption>
     </figure>
   );
 }
@@ -71,15 +69,10 @@ function RerouteVisual({ visible, reduceMotion }: VisualProps) {
           <p className={sheets.why}>Last time, 3 days ago, it came out partly right. Active transport builds on it.</p>
           <ul className={sheets.rows}>
             <motion.li {...row(0)}><strong>Active transport</strong><span>New</span></motion.li>
-            <motion.li {...row(1)}><strong>Diffusion</strong><span>Solid · in 5 days</span></motion.li>
+            <motion.li {...row(1)}><strong>Diffusion</strong><span>Solid, back in 5 days</span></motion.li>
           </ul>
         </div>
       </div>
-      <figcaption className={styles.visualCaption}>
-        <span>After that answer</span>
-        <strong>The plan says why, in your own results.</strong>
-        <small>A miss brings a topic forward; a pass gives it room.</small>
-      </figcaption>
     </figure>
   );
 }
@@ -99,7 +92,6 @@ function KeepVisual({ visible, reduceMotion }: VisualProps) {
           <motion.p {...row(3)} className={sheets.anki}><BrandIcon brand="anki" size={16} />Export every question to Anki</motion.p>
         </div>
       </div>
-      <figcaption className={styles.visualCaption}><span>At the end</span><strong>What you practised, and what comes back.</strong><small>Your cards go to Anki too, with the line from your notes on the back.</small></figcaption>
     </figure>
   );
 }
@@ -114,12 +106,15 @@ const stages = [
 function Chapter({ stage, reduceMotion }: { stage: (typeof stages)[number]; reduceMotion: boolean }) {
   const chapterRef = useRef<HTMLLIElement>(null);
   const visible = useInView(chapterRef, { once: true, margin: "-12% 0px -12%" });
-  const { title, body, Visual, tone } = stage;
+  const { title, body, Visual, tone, number } = stage;
+  const at = Number(number);
   // <li key={number} /> remains the chapter identity contract for the route test.
 
   return (
     <motion.li ref={chapterRef} className={styles.chapter} data-tone={tone}>
       <div className={styles.chapterText}>
+        {/* Where this step sits in the loop, as the product shows progress: cells that fill from the left. */}
+        <span className={styles.cells} aria-hidden="true">{stages.map((item, index) => <i key={item.number} data-on={index < at ? "" : undefined} />)}</span>
         <h2>{title}</h2>
         <p>{body}</p>
       </div>
@@ -149,7 +144,7 @@ export function HowItWorks() {
         <motion.h1 id="how-title" initial={reduceMotion ? false : { opacity: 0, y: 16, scale: 0.98 }} animate={{ opacity: 1, y: 0, scale: 1 }} transition={{ delay: reduceMotion ? 0 : 0.06, duration: 0.65, ease: kelusEase }}>Your lessons become <br />a better revision habit.</motion.h1>
         <motion.div className={styles.heroBottom} initial={reduceMotion ? false : { opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: reduceMotion ? 0 : 0.14, duration: 0.5, ease: kelusEase }}>
           <p>Bring your course. Recall what you know. Let each answer shape what you practise next.</p>
-          <Link className={styles.primaryAction} href="/today">Set up my course<span className={styles.primaryArrow} aria-hidden="true">→</span></Link>
+          <Link className={styles.primaryAction} href="/today">Set up my course</Link>
         </motion.div>
       </section>
       <section className={styles.story} aria-label="The Kelus revision loop">
@@ -167,7 +162,7 @@ export function HowItWorks() {
       </section>
       <motion.footer ref={finalRef} className={styles.final} initial={reduceMotion ? false : { opacity: 0, y: 14 }} animate={finalVisible ? { opacity: 1, y: 0 } : undefined} transition={{ duration: 0.55, ease: kelusEase }}>
         <p>Ready to revise your own lessons?</p>
-        <Link className={styles.primaryAction} href="/today">Set up my course<span className={styles.primaryArrow} aria-hidden="true">→</span></Link>
+        <Link className={styles.primaryAction} href="/today">Set up my course</Link>
       </motion.footer>
     </div>
   );
