@@ -787,3 +787,72 @@ html body :is(.is-course-studio, .is-session-booklet) :is([class*="TodayQuiet"][
 }
 /* Buttons and links say what they do; an arrow after the words adds nothing. */
 :is(body.is-course-studio, body.is-session-booklet, body.is-session-complete, body.is-sheet, body:has(.start-page)) [data-mark="arrow-right"] { display: none !important; }
+
+/* ── Materials as a list page ──────────────────────────────────────────────────────────────────────────
+   The title with its action on the right, the sources as a table (file, topics, added, actions), and the open source
+   below in a hairline frame. The drop zone and the link form open from "Add source" and stay out of the way. */
+html body.is-course-studio .studio-section-head.is-section { display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+html body.is-course-studio .studio-section-action { display: inline-flex; align-items: center; gap: 6px; min-height: 36px !important; padding: 0 14px !important; font-size: 0.875rem !important; }
+@media (min-width: 651px) {
+  html body.is-course-studio .studio-section-head.kelus-space-top[data-section="materials"] { padding: 32px 40px 20px !important; max-width: calc(60rem + 80px); }
+  html body.is-course-studio .core-workspace-grid.is-materials { display: grid !important; grid-template-columns: minmax(0, 1fr) !important; gap: 24px; max-width: 60rem; margin: 0 40px 48px !important; padding: 0 !important; border: 0 !important; }
+  html body.is-course-studio .core-workspace-grid.is-materials > .core-workspace-action { order: -1; width: auto !important; padding: 0 !important; border: 0 !important; background: transparent !important; position: static !important; max-height: none !important; overflow: visible !important; }
+  html body.is-course-studio .core-workspace-grid.is-materials > .core-source-reader { width: auto !important; height: min(72vh, 820px) !important; border: 1px solid var(--k-line) !important; border-radius: 10px !important; overflow: hidden; }
+  html body.is-course-studio .core-workspace-grid.is-materials .material-binder-stack { display: grid; gap: 12px; width: auto !important; margin: 0 !important; padding: 0 !important; }
+}
+/* The add form is reached from the header's button; its own summary row is not a second way in on a wide screen. */
+@media (min-width: 651px) {
+  html body.is-course-studio .is-materials .material-add-page:not([open]) { display: none !important; }
+}
+html body.is-course-studio .is-materials .material-shelf.is-binder > header { display: none !important; }
+html body.is-course-studio .is-materials .material-binder-note { margin: 0 !important; color: var(--k-text-3) !important; font-size: 0.8125rem !important; }
+/* A source is a table row: its kind, its name over the file, its topics, when it came, and its actions. */
+html body.is-course-studio .is-materials .material-shelf.is-binder ul { margin: 0; padding: 0; border-top: 1px solid var(--k-line); border-bottom: 1px solid var(--k-line); }
+html body.is-course-studio .is-materials li.material-card {
+  display: grid !important;
+  grid-template-columns: 32px minmax(0, 1.4fr) minmax(0, 1.6fr) 6.5rem auto;
+  grid-template-rows: auto auto;
+  column-gap: 16px;
+  row-gap: 2px;
+  align-items: center;
+  margin: 0 !important;
+  padding: 14px 12px !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+html body.is-course-studio .is-materials li.material-card + li.material-card { border-top: 1px solid var(--k-line) !important; }
+html body.is-course-studio .is-materials li.material-card:hover { background: var(--q-hover) !important; }
+html body.is-course-studio .is-materials .material-card-art { grid-column: 1; grid-row: 1 / span 2; width: 32px !important; height: 32px !important; display: grid; place-items: center; }
+html body.is-course-studio .is-materials .material-card-art :is(img, svg) { width: 24px !important; height: 24px !important; }
+html body.is-course-studio .is-materials .material-card .material-name { display: contents !important; }
+html body.is-course-studio .is-materials .material-card .material-name > strong { grid-column: 2; grid-row: 1; font-size: 0.9375rem !important; font-weight: 500 !important; letter-spacing: -0.005em; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+html body.is-course-studio .is-materials .material-card-meta { grid-column: 2; grid-row: 2; margin: 0 !important; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--k-text-3) !important; font-size: 0.8125rem !important; }
+html body.is-course-studio .is-materials .material-card-topics { grid-column: 3; grid-row: 1 / span 2; margin: 0 !important; }
+html body.is-course-studio .is-materials .material-card-topics span { color: var(--k-text-2) !important; font-size: 0.8125rem !important; }
+html body.is-course-studio .is-materials .material-card-facts { grid-column: 4; grid-row: 1 / span 2; margin: 0 !important; color: var(--k-text-3) !important; font-size: 0.8125rem !important; }
+html body.is-course-studio .is-materials .material-card :is(.material-status-badge, .material-sync-label, .material-download-error) { grid-column: 2 / 5; }
+html body.is-course-studio .is-materials .material-card .material-actions { grid-column: 5; grid-row: 1 / span 2; display: flex; gap: 4px; margin: 0 !important; }
+html body.is-course-studio .is-materials .material-card .material-actions > :is(button, a) { min-height: 32px; padding: 0 10px; border: 0; border-radius: 6px; background: transparent; color: var(--k-text-2); font-size: 0.8125rem; font-weight: 500; }
+html body.is-course-studio .is-materials .material-card .material-actions > :is(button, a):hover { background: var(--k-selected); color: var(--k-ink); }
+@media (max-width: 650px) {
+  html body.is-course-studio .is-materials li.material-card { grid-template-columns: 32px minmax(0, 1fr); }
+  html body.is-course-studio .is-materials .material-card :is(.material-card-topics, .material-card-facts, .material-actions) { grid-column: 2 !important; grid-row: auto !important; }
+}
+html body.is-course-studio .core-workspace-grid.is-materials > .core-workspace-action { order: -1; }
+@media (min-width: 651px) { html body.is-course-studio .studio-section-head.kelus-space-top[data-section="materials"] { padding-bottom: 12px !important; } }
+@media (max-width: 650px) {
+  html body.is-course-studio .core-workspace-grid.is-materials { display: flex !important; flex-direction: column; }
+  html body.is-course-studio .studio-section-action { min-height: 36px !important; padding: 0 12px !important; }
+}
+
+/* ── Session chrome ────────────────────────────────────────────────────────────────────────────────────
+   One bar: the mark, then More and Close. The block's topic list does not float in the margin; the run's own line
+   says which topic and how far. */
+html body.is-session-booklet :is(.block-outline-float, .session-workspace-rail) { display: none !important; }
+html body.is-session-booklet main#main.study-shell.is-focus { grid-template-columns: minmax(0, 1fr) !important; }
+html body.is-session-booklet .study-context.is-folio { border-bottom: 1px solid var(--k-line) !important; background: var(--k-surface) !important; }
+html body.is-session-booklet main#main [class*="QuickRun"][class*="run"]:not([class*="runs"]) { max-width: 40rem !important; margin-inline: auto !important; padding-top: 40px !important; }
+html body.is-session-booklet main#main [class*="QuickResult"][class*="card"] { max-width: 40rem !important; margin-inline: auto !important; padding-top: 40px !important; }
+@media (max-width: 650px) { html body.is-session-booklet main#main :is([class*="QuickRun"][class*="run"]:not([class*="runs"]), [class*="QuickResult"][class*="card"]) { padding-top: 16px !important; } }

@@ -117,3 +117,17 @@
 .stamp :global(circle:first-child) { fill: transparent !important; }
 .title { font-size: clamp(1.5rem, 3vw, 1.75rem) !important; font-weight: 600 !important; letter-spacing: -0.022em !important; }
 .tiles b { font-weight: 600; letter-spacing: -0.02em; }
+
+/* The outcome as a details list: each fact a row, its name on the left and its value on the right, on hairlines.
+   The missed line is a quiet panel with its place on the page at the right, not a coloured rule. */
+.tiles { display: grid !important; grid-template-columns: minmax(0, 1fr) !important; gap: 0 !important; margin-top: 20px !important; border-top: 1px solid var(--k-line) !important; border-bottom: 0 !important; }
+.tiles li { display: flex !important; flex-direction: row-reverse !important; align-items: baseline; justify-content: space-between; min-height: 44px; padding: 10px 0 !important; border: 0 !important; border-bottom: 1px solid var(--k-line) !important; }
+.tiles li :global(svg) { display: none !important; }
+.tiles b, .tiles b.tileWord { font-family: var(--font-inter), system-ui, sans-serif !important; font-size: 0.9375rem !important; font-weight: 600 !important; letter-spacing: 0 !important; font-variant-numeric: tabular-nums; }
+.tiles span { font-size: 0.875rem !important; color: var(--k-text-2) !important; }
+.tiles span::first-letter { text-transform: uppercase; }
+.remember { margin-top: 20px !important; padding: 16px 20px !important; border: 1px solid var(--k-line) !important; border-left-width: 1px !important; border-radius: 10px !important; background: var(--k-surface-2) !important; }
+.rememberHead { display: flex !important; justify-content: space-between; color: var(--k-text-3) !important; font-size: 0.8125rem !important; font-weight: 500 !important; }
+.rememberHead .icon { display: none; }
+.locator { color: var(--k-text-3); font-weight: 400; }
+.remember p { font-size: 1rem !important; line-height: 1.55 !important; }

@@ -367,7 +367,10 @@ export function RevisionSurface({ topicId }: { /** A topic's own page, opened in
             <div className="kelus-space-identity">
               {/* Sections swap at once, as pages do in Notion: no waiting for the old one to leave. */}
               <h1 id="section-title">{modeMeta.label}</h1>
-            </div>          </header>
+            </div>
+            {/* A list page's action sits at the title's right, the way a dashboard puts "Add" over its table. */}
+            {mode === "materials" ? <button type="button" className="k-btn studio-section-action" onClick={() => sourcePickerRef.current?.click()}><Plus /> Add source</button> : null}
+          </header>
         ) : null}
 
         {/* The new section is on screen the frame after the click; a short settle of its ink, never an exit to wait for. */}

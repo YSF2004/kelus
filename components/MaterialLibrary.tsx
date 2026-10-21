@@ -197,10 +197,10 @@ function MaterialRow({
       {quiet ? <span className="material-card-art">{brandForFile(item.fileName, item.mimeType) ? <span className="material-card-brand"><BrandIcon brand={brandForFile(item.fileName, item.mimeType)!} size={28} /></span> : <SourceArt role={item.role} isLink={item.storage === "url"} />}</span> : <span className="material-kind">{isBuiltInExample ? "Example" : materialRoleLabel(item.role)}</span>}
       <span className="material-name">
         <strong>{isBuiltInExample ? "Built-in Microeconomics example" : item.title}</strong>
-        {metaBits.length ? <small>{metaBits.join(" · ")}</small> : null}
+        {metaBits.length ? <small className="material-card-meta">{metaBits.join(", ")}</small> : null}
         {quiet && !isBuiltInExample ? (
           <small className="material-card-facts">
-            {[addedLabel(item.addedAt), linkedTopics ? `${linkedTopics} topic${linkedTopics === 1 ? "" : "s"} from this source` : item.processingStatus === "ready" ? "No topics confirmed yet" : null].filter(Boolean).join(" · ")}
+            {addedLabel(item.addedAt)}
           </small>
         ) : null}
         {quiet && topicNames.length ? <small className="material-card-topics" aria-label={`Topics: ${topicNames.join(", ")}`}>{topicNames.slice(0, 6).map((name, at) => <span key={name} data-tone={topicTones[at] ?? at % 6 + 1}>{name}</span>)}{topicNames.length > 6 ? <span>+{topicNames.length - 6}</span> : null}</small> : null}
