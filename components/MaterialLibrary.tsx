@@ -1,5 +1,6 @@
 "use client";
 
+import { KIND_NAME, sourceKind } from "@/domain/source-kind";
 import { toneOf } from "@/lib/topic-tone";
 import { ArrowRight } from "@/components/Marks";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
@@ -279,6 +280,8 @@ export function MaterialLibrary({ embedded = false, incomingFile = null, onIncom
   const [role, setRole] = useState<MaterialRole>("notes");
   const [ingest, setIngest] = useState<IngestState>(INITIAL_INGEST_STATE);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  // The student chose to study a file that does not look like notes: respected, and not asked again for this file.
+  const [useAnyway, setUseAnyway] = useState(false);
   const [draftNames, setDraftNames] = useState<Record<string, string>>({});
   const [showUpgrade, setShowUpgrade] = useState(false);
   const [syncStates, setSyncStates] = useState<Record<string, "syncing" | "synced" | "retrying">>({});
@@ -652,16 +655,31 @@ export function MaterialLibrary({ embedded = false, incomingFile = null, onIncom
   }
 
   // First run: show the exact source-backed proposals before any topic changes the route.
+  const kind = analysis ? sourceKind(analysis.pages.map((page) => page.text).join("\n")) : "notes";
+  const notNotes = kind === "notes" ? null : kind;
+  const asking = Boolean(notNotes && !useAnyway);
   if (quiet && embedded) {
     if (analysis) return (
       <section className="first-source-review" aria-labelledby="first-source-review-title">
         <header>
           <p className="kicker">Before you study</p>
-          <h2 id="first-source-review-title" tabIndex={-1} ref={focusPhaseHeading}>Check the topics Kelus found.</h2>
-          {analysis.coverage ? <ReadCoverage coverage={analysis.coverage} found={analysis.proposals.length} /> : null}
-          <p>These come from {analysis.material.fileName ?? analysis.material.title}. Remove anything that is not part of your exam.</p>
+          <h2 id="first-source-review-title" tabIndex={-1} ref={focusPhaseHeading}>{asking ? "Is this a file to revise?" : "Check the topics Kelus found."}</h2>
+          {asking ? null : <>
+            {analysis.coverage ? <ReadCoverage coverage={analysis.coverage} found={analysis.proposals.length} /> : null}
+            <p>These come from {analysis.material.fileName ?? analysis.material.title}. Remove anything that is not part of your exam.</p>
+          </>}
         </header>
-        <ol className="first-source-review-list">
+        {/* A CV or a letter reads fine and its headings look like topics, but nobody sits an exam on them: ask first. */}
+        {asking && notNotes ? (
+          <div className="first-source-kind" role="status">
+            <p><strong>This looks like {KIND_NAME[notNotes]}, not course notes.</strong> Kelus writes exam questions from what you need to learn, so its headings would become topics like “{analysis.proposals[0]?.name ?? "a job title"}”.</p>
+            <div className="first-source-kind-actions">
+              {onStartOver ? <button type="button" className="cta" onClick={onStartOver}>Choose your course notes</button> : null}
+              <button type="button" className="text-btn" onClick={() => { setUseAnyway(true); requestAnimationFrame(() => document.getElementById("first-source-review-title")?.focus()); }}>Use it anyway</button>
+            </div>
+          </div>
+        ) : null}
+        {asking ? null : <ol className="first-source-review-list">
           {analysis.proposals.map((proposal) => (
             <li key={proposal.id}>
               <label>
@@ -670,8 +688,8 @@ export function MaterialLibrary({ embedded = false, incomingFile = null, onIncom
               </label>
             </li>
           ))}
-        </ol>
-        <div className="first-source-review-actions">
+        </ol>}
+        <div className="first-source-review-actions" hidden={asking}>
           <button type="button" className="cta" disabled={!selectedIds.size} onClick={buildMap}>Use {selectedIds.size} {selectedIds.size === 1 ? "topic" : "topics"} <ArrowRight /></button>
           {previewUrl ? <a href={previewUrl} target="_blank" rel="noreferrer">Open original PDF ↗</a> : null}
           {onStartOver ? <button type="button" className="text-btn" onClick={onStartOver}>Choose another file</button> : null}
