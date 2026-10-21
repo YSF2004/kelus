@@ -804,3 +804,15 @@ html body.is-course-studio [class*="TodayQuiet"][class*="page"] { margin-top: 12
 html body.is-course-studio .today-source-access { margin-bottom: 0 !important; border-bottom-color: transparent !important; }
 html body.is-session-booklet main#main [class*="QuickResult"][class*="card"] { margin-top: 0 !important; max-width: 42rem; }
 html body.is-course-studio [class*="AnkiExport"][class*="card"] { padding-inline: 0 !important; }
+/* The first screens sit on the same sheet: start, the topic check, Let's start. */
+html body .start-page { background: var(--k-desk, #ece7dc); }
+:root:not([data-theme="dark"]) body:has(.start-page) { --k-desk: #ece7dc; --k-sheet: #fdfbf6; --k-rule: rgba(60, 80, 140, 0.07); --k-sheet-edge: rgba(26, 25, 21, 0.08); }
+:root[data-theme="dark"] body:has(.start-page) { --k-desk: #0f100e; --k-sheet: #1b1c1a; --k-rule: rgba(255, 255, 255, 0.035); --k-sheet-edge: rgba(255, 255, 255, 0.06); }
+html body main.start-page { min-height: calc(100dvh - 58px); padding: 32px 16px 64px !important; background: var(--k-desk) !important; }
+html body main.start-page > :is(.destination-form, .first-source-review, [class*="ReadingNotes"]) {
+  width: min(100%, 44rem); margin: 0 auto !important; padding: 44px clamp(20px, 5vw, 56px) 52px !important; border-radius: 6px;
+  background-color: var(--k-sheet) !important; background-image: repeating-linear-gradient(180deg, transparent 0 31px, var(--k-rule) 31px 32px) !important;
+  box-shadow: 0 0 0 1px var(--k-sheet-edge), 0 1px 2px rgba(18, 22, 15, 0.05), 0 18px 40px -28px rgba(18, 22, 15, 0.35);
+}
+:root:not([data-theme="dark"]) body main.start-page, :root:not([data-theme="dark"]) body:has(.start-page) { background: #ece7dc !important; }
+:root[data-theme="dark"] body main.start-page, :root[data-theme="dark"] body:has(.start-page) { background: #0f100e !important; }
