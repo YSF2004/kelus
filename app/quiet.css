@@ -758,3 +758,10 @@ html body.is-course-studio .material-card-topics { display: flex; flex-wrap: wra
 html body.is-course-studio .material-card-topics span { display: inline-flex; align-items: center; gap: 6px; color: var(--topic-ink, var(--k-text-2)); font-size: 0.875rem; font-weight: 500; }
 html body.is-course-studio .material-card-topics span[data-tone]::before { content: ""; width: 7px; height: 7px; border-radius: 2px; background: var(--topic); }
 html body.is-course-studio .material-shelf h2 { font-family: var(--font-marketing-heading), Georgia, serif !important; font-weight: 500 !important; }
+
+/* Not notes: one honest question before a plan is built from a CV or a letter. A marigold rule, the reason in words,
+   the way back as the main action, and the student's own choice kept. */
+html body .first-source-kind { margin: 8px 0 24px; padding: 4px 0 4px 18px; border-left: 3px solid var(--k-marigold, #f3b23e); }
+html body .first-source-kind p { margin: 0; color: var(--k-text-2); font-size: 1rem; line-height: 1.55; }
+html body .first-source-kind strong { display: block; margin-bottom: 4px; color: var(--k-ink); font-family: var(--font-marketing-heading), Georgia, serif; font-size: 1.25rem; font-weight: 500; }
+html body .first-source-kind-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 20px; margin-top: 16px; }
