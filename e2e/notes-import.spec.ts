@@ -29,7 +29,7 @@ test("skipping a memory answer cannot be marked as mastered", async ({ page }) =
   await expect(page.getByText("No answer to rate yet. This line will come back.")).toBeVisible();
   await expect(page.getByRole("button", { name: /Nailed it|Partly/ })).toHaveCount(0);
   await page.getByRole("button", { name: /^Continue/ }).click();
-  await expect(page.getByText(/Needs another attempt/).first()).toBeVisible();
+  await expect(page.getByRole("heading", { name: /Needs another attempt/ })).toBeVisible();
 });
 
 test("notes too short to study from get a plain reason, and nothing is saved", async ({ page }) => {
@@ -55,15 +55,17 @@ test("a notes source is still there after the page is reloaded", async ({ page }
   await page.reload();
   await expect(page.locator(".material-card")).toHaveCount(1);
   await expect(page.locator(".material-card")).toContainText("cell biology");
-  await expect(page.locator(".material-card")).toContainText(/topics? from this source/);
+  // The source's topics are listed by name on its row.
+  await expect(page.locator(".material-card .material-card-topics span").first()).toBeVisible();
 });
 
 test("adding oversized notes to Materials stops at the stated 2 MB limit", async ({ page }) => {
   await startFromFile(page, mdFile);
   await closeToToday(page);
   await page.goto("/today?section=materials");
-  await page.getByText("Add a PDF or notes").click();
-  await page.locator('.material-add-page input[type="file"]').setInputFiles({
+  const chooser = page.waitForEvent("filechooser");
+  await page.getByRole("button", { name: "Add source" }).first().click();
+  await (await chooser).setFiles({
     name: "oversized-notes.md",
     mimeType: "text/markdown",
     buffer: Buffer.from(`# Oversized notes\n${"a".repeat(2 * 1024 * 1024)}`),

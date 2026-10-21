@@ -313,3 +313,6 @@
 .then li .pill { grid-column: 3; font-size: 0.8125rem !important; color: var(--q-text-3); }
 .then li em { grid-column: 4; text-align: right; font-style: normal; color: var(--q-text-3); font-size: 0.8125rem; }
 .eveLine { font-size: 0.9375rem; }
+/* The course name is the page's title, at the size every section's title has. */
+.title, .title :global(*) { font-size: 1.75rem !important; font-weight: 600 !important; letter-spacing: -0.022em !important; line-height: 1.2; }
+.stats { margin-top: 8px; }

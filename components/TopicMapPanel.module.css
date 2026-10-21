@@ -194,3 +194,52 @@
 .node b { font-family: var(--font-inter), system-ui, sans-serif; font-size: 0.8125rem; font-weight: 600; color: var(--k-text-2); }
 .step[data-tone] .node b { color: var(--topic-ink); }
 .step[data-tone] .ringTrack { stroke: var(--k-line-strong) !important; }
+
+/* ── A table, the way a dashboard lists things ─────────────────────────────────────────────────────────
+   Column names over hairline rows. Each topic is a row: its colour as a small dot, its name, then status, tries and
+   page in fixed columns so they line up down the page. No circles, rings or connecting line. */
+.columns, .stepLink { display: grid !important; grid-template-columns: minmax(0, 1fr) 9rem 5rem 4rem !important; column-gap: 16px !important; align-items: center; }
+.columns { padding: 0 12px 8px 28px; border-bottom: 1px solid var(--k-line); color: var(--k-text-3); font-size: 0.8125rem; font-weight: 500; }
+.columns span:nth-child(n+3), .colTries, .colPage { text-align: right; font-variant-numeric: tabular-nums; }
+.path { margin: 0 !important; padding: 0 !important; }
+.path::before, .step::before, .step::after { display: none !important; }
+.step { position: relative; display: block !important; margin: 0 !important; padding: 0 !important; border-bottom: 1px solid var(--k-line); }
+.step .node { position: absolute !important; left: 12px; top: 50%; width: 8px !important; height: 8px !important; margin: -4px 0 0 !important; border: 0 !important; border-radius: 2px !important; background: var(--topic, var(--k-text-3)) !important; box-shadow: none !important; }
+.step .node > * { display: none !important; }
+.stepLink { min-height: 48px; padding: 10px 12px 10px 28px !important; border-radius: 0 !important; }
+.stepLink:hover { background: var(--q-hover, var(--k-surface-2)) !important; }
+.stepLink :global(.index-toc-name) { font-size: 0.9375rem !important; font-weight: 500 !important; letter-spacing: -0.005em !important; }
+.stepLink :global(.index-toc-meta) { display: contents !important; }
+.stepLink > :first-child { grid-column: 1; }
+.state { grid-column: 2 !important; font-size: 0.875rem; font-style: normal !important; font-weight: 500; }
+.colTries { grid-column: 3 !important; }
+.colPage { grid-column: 4 !important; }
+.metaSoft { font-size: 0.875rem; color: var(--k-text-3); }
+.why, .due { grid-column: 1 / -1; font-size: 0.8125rem; color: var(--k-text-3); }
+.remove { top: 50%; transform: translateY(-50%); }
+.checkpoint { margin: 0 !important; padding: 14px 12px 14px 28px !important; border-bottom: 1px solid var(--k-line); }
+.checkpoint .diamond { display: none !important; }
+.checkpoint strong { font-size: 0.9375rem; font-weight: 500; }
+.checkpoint em { font-style: normal; }
+.pathHead { margin-bottom: 24px; }
+.sheetLink { margin-top: 32px; }
+/* Remove sits at the row's end, shown on hover or focus, outside the aligned columns. */
+.columns { padding-right: 52px; }
+.stepLink { padding-right: 52px !important; }
+.step .remove { position: absolute; right: 4px; top: 50%; width: 36px; height: 36px; margin: 0; transform: translateY(-50%); }
+/* A checkpoint is a row too: its name and line on the left, its action on the right. */
+.checkpoint { display: flex !important; align-items: center; justify-content: space-between; gap: 16px; }
+.checkpointText { display: grid; gap: 2px; min-width: 0; flex: 1; }
+.checkpointText > span { font-size: 0.8125rem; color: var(--k-text-3); }
+/* The list keeps a 24px inset from the older sheets; the column names take the same inset so they sit over their values. */
+.columns { margin: 0 24px; }
+.colTries, .colPage { text-align: right !important; justify-self: end; }
+.stepLink { align-content: center; min-height: 52px !important; padding-block: 0 !important; }
+.step .node { top: 26px; }
+/* A phone has room for two columns: the topic and its status. */
+@media (max-width: 650px) {
+  .columns { display: none !important; }
+  .stepLink { grid-template-columns: minmax(0, 1fr) auto !important; }
+  .colTries, .colPage { display: none !important; }
+}
+.step { border-bottom: 1px solid var(--k-line) !important; }

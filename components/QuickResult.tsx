@@ -140,7 +140,7 @@ export function QuickResult({
 
 
       <motion.blockquote {...rise(0.42)} className={styles.remember}>
-        <span className={styles.rememberHead}><PackArt name="clipboard-check" className={styles.icon} />{rememberLabel}{/^Section\b/.test(locator) ? "" : ` · ${locator}`}</span>
+        <span className={styles.rememberHead}><PackArt name="clipboard-check" className={styles.icon} />{rememberLabel}{/^Section\b/.test(locator) ? null : <span className={styles.locator}>{locator}</span>}</span>
         <p>“{remember}”</p>
       </motion.blockquote>
 
