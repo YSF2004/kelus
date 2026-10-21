@@ -86,7 +86,7 @@ test("the course workspace stays legible across its sections and returns home", 
   await expect(page.getByRole("heading", { name: "Materials" })).toBeVisible();
   await expect(sections.getByRole("button", { name: "Materials" })).toHaveAttribute("aria-pressed", "true");
   await expect(sections.getByRole("button", { name: "Materials" })).toHaveCSS("box-shadow", "none");
-  await expect(page.locator(".material-shelf h2")).toHaveCSS("color", "rgb(26, 25, 21)");
+  await expect(page.locator(".material-shelf h2")).toHaveCSS("color", "rgb(23, 32, 27)");
   await sections.getByRole("button", { name: "Topics" }).click();
   await expect(page.getByRole("heading", { name: "Topics" })).toBeVisible();
   await expect(sections.getByRole("button", { name: "Topics" })).toHaveAttribute("aria-pressed", "true");
