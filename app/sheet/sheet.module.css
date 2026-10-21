@@ -60,3 +60,26 @@
 .entry[data-tone] .num { color: var(--topic-ink); }
 .entry[data-tone] .words { padding-left: 14px; border-left: 3px solid var(--topic); }
 @media print { .entry[data-tone] .words { border-left-color: #999; } }
+
+/* ── Minimal ───────────────────────────────────────────────────────────────────────────────────────────
+   One typeface, no italics, no ornament. The course name over the title, the facts in a row, each topic a section with
+   its colour as a small dot, the student's words in a quiet panel, the notes below, and the margin as plain labels. */
+.running { margin-bottom: 6px; font-size: 0.875rem; font-weight: 500; }
+.head h1 { font-size: 1.75rem !important; font-weight: 600 !important; letter-spacing: -0.022em !important; line-height: 1.2; }
+.lede { font-size: 0.9375rem; font-style: normal; color: var(--k-text-2); }
+.meta { gap: 4px 20px; font-size: 0.8125rem; }
+.meta span + span::before { content: none; }
+.text h2 { gap: 10px; align-items: center; font-size: 1.125rem !important; font-weight: 600 !important; letter-spacing: -0.015em !important; }
+.num { width: 8px; height: 8px; flex: none; overflow: hidden; border-radius: 2px; background: var(--topic, var(--k-text-3)); color: transparent !important; font-size: 0; }
+.words { padding: 14px 16px; border: 1px solid color-mix(in oklch, var(--topic, var(--k-line-strong)) 30%, var(--k-line)); border-radius: 10px; background: color-mix(in oklch, var(--topic-wash, var(--k-surface-2)) 45%, var(--k-surface)); }
+.words p { font-size: 1rem; font-style: normal; line-height: 1.6; }
+.words footer { font-weight: 500; }
+.notes { font-size: 0.875rem; }
+.notes span, .margin span { font-weight: 500; }
+.unwritten { font-size: 0.875rem; font-style: normal; }
+.margin span { color: var(--k-text-3); }
+.margin i { font-style: normal; font-weight: 600; }
+.returning mark { text-decoration: none; }
+.foot { font-size: 0.8125rem; font-style: normal; }
+@media print { .words { border-color: #ddd; background: transparent; } .num { background: #999; } }
+.entry[data-tone] .words, .words { border-left-width: 1px !important; border-left-color: color-mix(in oklch, var(--topic, var(--k-line-strong)) 30%, var(--k-line)) !important; padding-left: 16px !important; }

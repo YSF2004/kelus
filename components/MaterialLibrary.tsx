@@ -662,7 +662,6 @@ export function MaterialLibrary({ embedded = false, incomingFile = null, onIncom
     if (analysis) return (
       <section className="first-source-review" aria-labelledby="first-source-review-title">
         <header>
-          <p className="kicker">Before you study</p>
           <h2 id="first-source-review-title" tabIndex={-1} ref={focusPhaseHeading}>{asking ? "Is this a file to revise?" : "Check the topics Kelus found."}</h2>
           {asking ? null : <>
             {analysis.coverage ? <ReadCoverage coverage={analysis.coverage} found={analysis.proposals.length} /> : null}
@@ -684,14 +683,15 @@ export function MaterialLibrary({ embedded = false, incomingFile = null, onIncom
             <li key={proposal.id}>
               <label>
                 <input type="checkbox" checked={selectedIds.has(proposal.id)} onChange={() => toggleProposal(proposal.id)} />
-                <span><strong>{proposal.name}</strong><small>{proposal.locator} · “{proposal.sourceExcerpt.slice(0, 150)}{proposal.sourceExcerpt.length > 150 ? "…" : ""}”</small></span>
+                <span><strong>{proposal.name}</strong><small>“{proposal.sourceExcerpt.slice(0, 150)}{proposal.sourceExcerpt.length > 150 ? "…" : ""}”</small></span>
+                <em className="first-source-review-page">{proposal.locator}</em>
               </label>
             </li>
           ))}
         </ol>}
         <div className="first-source-review-actions" hidden={asking}>
           <button type="button" className="cta" disabled={!selectedIds.size} onClick={buildMap}>Use {selectedIds.size} {selectedIds.size === 1 ? "topic" : "topics"} <ArrowRight /></button>
-          {previewUrl ? <a href={previewUrl} target="_blank" rel="noreferrer">Open original PDF ↗</a> : null}
+          {previewUrl ? <a className="text-btn" href={previewUrl} target="_blank" rel="noreferrer">Open the PDF</a> : null}
           {onStartOver ? <button type="button" className="text-btn" onClick={onStartOver}>Choose another file</button> : null}
         </div>
       </section>
