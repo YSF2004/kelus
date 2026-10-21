@@ -154,7 +154,7 @@ export function QuickResult({
             {/* One step per topic, in the order of the notes; this topic's step is marked. Practised steps fill. */}
             {path.total <= 24 ? Array.from({ length: path.total }, (_, index) => <i key={index} data-here={index === path.here ? "true" : undefined} data-done={(path.done?.[index] ?? index < path.practised) ? "true" : undefined} />) : <i className={styles.pathFill} style={{ ["--share" as string]: path.practised / path.total }} />}
           </span>
-          <span>{w.practised(path.practised, path.total)}{language !== "en" ? "" : path.recalled ? ` · ${path.recalled} ${path.recalled === 1 ? "line" : "lines"} answered correctly` : ""}</span>
+          <span>{w.practised(path.practised, path.total)}{language !== "en" ? "" : path.recalled ? `, ${path.recalled} ${path.recalled === 1 ? "line" : "lines"} answered correctly` : ""}</span>
         </motion.div>
       ) : null}
 
