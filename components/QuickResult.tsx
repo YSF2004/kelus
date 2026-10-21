@@ -11,6 +11,8 @@ import type { RetrievalOutcome } from "@/domain/types";
 import type { SelfGrade } from "@/domain/quick-run";
 import { verdictReason } from "@/lib/verdict";
 import { Octicon } from "@/components/Octicon";
+import { uiWords } from "@/lib/ui-words";
+import type { NoteLanguage } from "@/domain/note-language";
 import styles from "./QuickResult.module.css";
 
 export type { QuickStats } from "@/lib/verdict";
@@ -71,7 +73,7 @@ function Burst() {
  * remember (quoted from your notes), today's goal filling up, and a single next step. Detail is one tap away.
  */
 export function QuickResult({
-  outcome, topic, attempts, stats, comesBack, remember, rememberLabel = "Worth remembering", locator, goalDone, goal, routeLine, nextName, details, onRetry, onContinue, onSource, path, habit,
+  outcome, topic, attempts, stats, comesBack, remember, rememberLabel = "Worth remembering", locator, goalDone, goal, routeLine, nextName, details, onRetry, onContinue, onSource, path, habit, language = "en",
 }: {
   outcome: RetrievalOutcome;
   topic: string;
@@ -94,11 +96,14 @@ export function QuickResult({
   onSource?: () => void;
   /** The day so far, for the moment today's goal closes: shown once a day, on the topic that completes it. */
   habit?: { today: string; streak: number; week: Array<{ key: string; label: string; studied: boolean; today: boolean }>; backTomorrow: number };
+  /** The notes' language: the screen's own words follow it. */
+  language?: NoteLanguage;
   /** Where this topic leaves you on the course path: topics practised of all, and lines answered correctly. */
   path?: { practised: number; total: number; recalled: number; /** This topic's place on the path, from 0. */ here?: number; /** Each topic, in order: practised or not. */ done?: boolean[] };
 }) {
   const reduce = useReducedMotion() === true;
-  const verdict = VERDICT[outcome];
+  const w = uiWords(language);
+  const verdict = { title: outcome === "success" ? w.solid : outcome === "partial" ? w.partlyThere : w.again };
   // The verdict is readable at once; the rest follows in a short stagger, all settled within about half a second.
   const rise = (delay: number) => (reduce ? {} : { initial: { opacity: 0, y: 8 }, animate: { opacity: 1, y: 0 }, transition: { duration: 0.22, delay: delay * 0.3, ease } });
   const goalMet = goalDone >= goal;
@@ -128,9 +133,9 @@ export function QuickResult({
       {/* The sentence for screen readers; the eye gets the same facts as three tiles. */}
       <p className="sr-only">{topic} · {attempts === 1 ? "first try" : `try ${attempts}`}. {verdictReason(outcome, stats, comesBack)}</p>
       <motion.ul {...rise(0.16)} className={styles.tiles} aria-hidden="true">
-        {stats && stats.total > 0 ? <li><Octicon name="check-circle" className={styles.tileIcon} /><b><CountUp value={stats.right} reduce={reduce} />/{stats.total}</b><span>{stats.total === 1 ? "check right" : "checks right"}</span></li> : null}
-        {stats?.coverage && stats.coverage.keys >= 3 ? <li><Octicon name="pencil" className={styles.tileIcon} /><b><CountUp value={stats.coverage.hits} reduce={reduce} />/{stats.coverage.keys}</b><span>key ideas said</span></li> : null}
-        <li><Octicon name="calendar" className={styles.tileIcon} /><b className={/^\d/.test(backShort(comesBack)) ? undefined : styles.tileWord}>{backShort(comesBack)}</b><span>comes back</span></li>
+        {stats && stats.total > 0 ? <li><Octicon name="check-circle" className={styles.tileIcon} /><b><CountUp value={stats.right} reduce={reduce} />/{stats.total}</b><span>{stats.total === 1 ? w.checkRight : w.checksRight}</span></li> : null}
+        {stats?.coverage && stats.coverage.keys >= 3 ? <li><Octicon name="pencil" className={styles.tileIcon} /><b><CountUp value={stats.coverage.hits} reduce={reduce} />/{stats.coverage.keys}</b><span>{w.keyIdeas}</span></li> : null}
+        <li><Octicon name="calendar" className={styles.tileIcon} /><b className={/^\d/.test(backShort(comesBack)) ? undefined : styles.tileWord}>{backShort(comesBack)}</b><span>{w.comesBack}</span></li>
       </motion.ul>
 
 
@@ -149,7 +154,7 @@ export function QuickResult({
             {/* One step per topic, in the order of the notes; this topic's step is marked. Practised steps fill. */}
             {path.total <= 24 ? Array.from({ length: path.total }, (_, index) => <i key={index} data-here={index === path.here ? "true" : undefined} data-done={(path.done?.[index] ?? index < path.practised) ? "true" : undefined} />) : <i className={styles.pathFill} style={{ ["--share" as string]: path.practised / path.total }} />}
           </span>
-          <span>{path.practised} of {path.total} topics practised{path.recalled ? ` · ${path.recalled} ${path.recalled === 1 ? "line" : "lines"} answered correctly` : ""}</span>
+          <span>{w.practised(path.practised, path.total)}{language !== "en" ? "" : path.recalled ? ` · ${path.recalled} ${path.recalled === 1 ? "line" : "lines"} answered correctly` : ""}</span>
         </motion.div>
       ) : null}
 
@@ -157,12 +162,12 @@ export function QuickResult({
       {nextName && routeLine.trim() === `Next: ${nextName}.` ? null : <p className={styles.route} role="status">{routeLine}</p>}
 
       <div className={styles.actions}>
-        {outcome !== "success" ? <button type="button" className={`k-btn k-btn--paper ${styles.secondary}`} onClick={onRetry}>Try again</button> : null}
-        <button type="button" className={`k-btn ${styles.primary}`} onClick={onContinue}>{nextName ? `Continue to ${nextName}` : "Finish block"} <ArrowRight /></button>
+        {outcome !== "success" ? <button type="button" className={`k-btn k-btn--paper ${styles.secondary}`} onClick={onRetry}>{w.tryAgain}</button> : null}
+        <button type="button" className={`k-btn ${styles.primary}`} onClick={onContinue}>{nextName ? w.continueTo(nextName) : w.finish} <ArrowRight /></button>
       </div>
 
       <details className={styles.more}>
-        <summary>What changed in your plan</summary>
+        <summary>{w.changed}</summary>
         <div className={styles.moreBody}>{details}</div>
         {onSource ? <button type="button" className={styles.link} onClick={onSource}>Review the source behind this topic <ArrowOut /></button> : null}
       </details>

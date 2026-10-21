@@ -7,7 +7,7 @@ import { speak, speakSupported, stopSpeaking } from "@/lib/speak";
 const noSubscribe = () => () => {};
 
 /** "Listen": reads a line from the notes aloud; tapped again, stops. Hidden where the device has no voice. */
-export function ListenButton({ text, className, label = "Listen" }: { text: string; className?: string; label?: string }) {
+export function ListenButton({ text, className, label = "Listen", stopLabel = "Stop" }: { text: string; className?: string; label?: string; stopLabel?: string }) {
   const supported = useSyncExternalStore(noSubscribe, speakSupported, () => false);
   const [playing, setPlaying] = useState(false);
   // Leaving the line (next check, closing) stops the voice.
@@ -24,7 +24,7 @@ export function ListenButton({ text, className, label = "Listen" }: { text: stri
         speak(text, () => setPlaying(false));
       }}
     >
-      <Speaker /> {playing ? "Stop" : label}
+      <Speaker /> {playing ? stopLabel : label}
     </button>
   );
 }
