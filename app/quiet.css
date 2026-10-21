@@ -765,3 +765,4 @@ html body .first-source-kind { margin: 8px 0 24px; padding: 4px 0 4px 18px; bord
 html body .first-source-kind p { margin: 0; color: var(--k-text-2); font-size: 1rem; line-height: 1.55; }
 html body .first-source-kind strong { display: block; margin-bottom: 4px; color: var(--k-ink); font-family: var(--font-marketing-heading), Georgia, serif; font-size: 1.25rem; font-weight: 500; }
 html body .first-source-kind-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 20px; margin-top: 16px; }
+html body .first-source-kind-actions :is(.cta, .text-btn) { min-height: 44px; }

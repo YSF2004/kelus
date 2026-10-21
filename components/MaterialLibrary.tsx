@@ -671,11 +671,11 @@ export function MaterialLibrary({ embedded = false, incomingFile = null, onIncom
         </header>
         {/* A CV or a letter reads fine and its headings look like topics, but nobody sits an exam on them: ask first. */}
         {asking && notNotes ? (
-          <div className="first-source-kind" role="alert">
+          <div className="first-source-kind" role="status">
             <p><strong>This looks like {KIND_NAME[notNotes]}, not course notes.</strong> Kelus writes exam questions from what you need to learn, so its headings would become topics like “{analysis.proposals[0]?.name ?? "a job title"}”.</p>
             <div className="first-source-kind-actions">
               {onStartOver ? <button type="button" className="cta" onClick={onStartOver}>Choose your course notes</button> : null}
-              <button type="button" className="text-btn" onClick={() => setUseAnyway(true)}>Use it anyway</button>
+              <button type="button" className="text-btn" onClick={() => { setUseAnyway(true); requestAnimationFrame(() => document.getElementById("first-source-review-title")?.focus()); }}>Use it anyway</button>
             </div>
           </div>
         ) : null}
