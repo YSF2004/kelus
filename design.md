@@ -9,7 +9,7 @@ Kelus is paper, ink, and one pass-mark green. Marketing and product share the sa
 - Accent: one Kelus green (`#1f6b45`) for actions, focus, and route signals. No indigo. No Notion blue.
 - The homepage and core product share a restrained learning vocabulary: muted orange identifies source material and application, muted purple identifies recall, and green identifies the route, feedback, and primary action. The "lines you can recall" count is ink with a green +1 (a right answer) or a coral −1 (a line lost), because it reports feedback, not a recall step. Use color for meaning, not decorative fill.
 - Secondary text: mute green-gray (`#4a5246` / `#5a6358`) for body support and captions — both ≥4.5:1 on paper.
-- Typography: on the marketing pages, Literata for headings and Inter for text. **In the product, Inter only**, titles included (since 2026-10-21); the heading font variables resolve to Inter inside product bodies (`app/quiet.css`, "Minimal: one typeface").
+- Typography: **Inter only, on every page** (since 2026-10-21; Literata is no longer loaded). Product titles are 600 at -0.022em; marketing display headlines 600 at -0.038em (h1) and -0.032em (h2). The older heading variables resolve to Inter (`app/quiet.css`).
 - Geometry: 8px corners for buttons, cards, inputs and line cards, everywhere; pills only for small status badges ("Passed", "Suggested"). Avoid SaaS twin cards, blue glows, soft multi-shadow stacks, and ALL CAPS kickers.
 - Rhythm: 8px spacing base, hairline booklet rules (`#d5d9d0`), transform/opacity motion only.
 - Tokens live in `tokens.css`. Prefer those variables over hard-coded hex in product UI.
@@ -33,12 +33,9 @@ default. References measured live: stripe.com, docs.stripe.com, and Figma's Simp
 
 ## Interaction
 
-### Marketing typography exception
+### Marketing typography
 
-`/`, `/route/` and `/pricing/` use the same pair as the product. Major headings use
-`--font-marketing-heading` (Literata, optical sizing, tracking -0.02em); body, nav,
-buttons and footer use `--font-marketing-sans` (Inter). Both are
-self-hosted by next/font with swap.
+`/`, `/route/` and `/pricing/` use Inter for headings and text, like the product; display headlines are set tight (see Foundation).
 
 - Primary actions are Kelus green fills with white labels.
 - One button shape on every surface: the 8px-corner green fill. Public pages set it 48px tall; in the product it is compact on a mouse and 44px on touch.

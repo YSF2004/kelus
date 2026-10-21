@@ -88,7 +88,6 @@ export function WaitlistForm({ source = "waitlist", compact = false }: { source?
       </div>
       <button className="cta" type="submit" disabled={status === "saving" || !email.trim()}>
         {status === "saving" ? "Joining…" : "Join the waitlist"}
-        <span aria-hidden="true">→</span>
       </button>
       <p
         className={
