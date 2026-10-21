@@ -316,7 +316,21 @@ export function QuickRun({ run, onRevealSource, onShowLine, onFinish, onChecksDo
                     >
                       {/* The number becomes the verdict in place, so the eye does not have to travel. */}
                       <kbd aria-hidden="true">{isRight ? <motion.span className={styles.kbdMark} initial={reduce ? false : { scale: 0, rotate: -30 }} animate={{ scale: 1, rotate: 0 }} transition={{ type: "spring", bounce: 0.4, duration: 0.4 }}><Tick size={12} /></motion.span> : isWrong ? <Cross size={12} /> : index + 1}</kbd>
-                      <span>{choice}</span>
+                      <span className={styles.choiceText}>
+                        {choice}
+                        {/* The verdict is a pencil mark on the page: a ring drawn round the right answer, a stroke through a wrong one. */}
+                        {isRight || isWrong ? (
+                          <svg className={isRight ? styles.ring : styles.strike} viewBox="0 0 200 60" preserveAspectRatio="none" aria-hidden="true">
+                            <motion.path
+                              d={isRight ? "M14 34 C12 14 62 6 112 7 C162 8 196 17 193 33 C190 50 140 56 92 55 C44 54 6 47 9 29 C11 19 30 11 52 9" : "M4 34 C50 30 120 27 196 24"}
+                              vectorEffect="non-scaling-stroke"
+                              initial={reduce ? false : { pathLength: 0 }}
+                              animate={{ pathLength: 1 }}
+                              transition={{ duration: isRight ? 0.5 : 0.28, ease: [0.65, 0, 0.35, 1], delay: isRight && !isWrong && picked !== index ? 0.18 : 0.04 }}
+                            />
+                          </svg>
+                        ) : null}
+                      </span>
                     </motion.button>
                   );
                 })}

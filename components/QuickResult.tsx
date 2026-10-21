@@ -3,7 +3,6 @@
 import { ArrowOut, ArrowRight } from "@/components/Marks";
 import { animate, motion, useReducedMotion } from "motion/react";
 import { useEffect, useState, type ReactNode } from "react";
-import { MarkStamp } from "@/components/MarkStamp";
 import { PackArt } from "@/components/PackArt";
 import { GoalMoment, goalMomentDue } from "@/components/GoalMoment";
 import { useRouter } from "next/navigation";
@@ -127,8 +126,13 @@ export function QuickResult({
     ) : null}
     <div className={styles.card} inert={moment || undefined} aria-hidden={moment || undefined}>
       <div className={styles.head}>
-        <span className={styles.stamp}><MarkStamp outcome={outcome} />{outcome === "success" && !reduce ? <Burst /> : null}</span>
-        <motion.h1 {...rise(0.1)} className={styles.title}>{verdict.title}</motion.h1>
+        <span className={`${styles.stamp} ${styles.pencil}`} data-outcome={outcome}><PencilMark outcome={outcome} reduce={reduce} />{outcome === "success" && !reduce ? <Burst /> : null}</span>
+        <motion.h1 {...rise(0.1)} className={styles.title} data-outcome={outcome}>
+          {verdict.title}
+          <svg className={styles.underline} viewBox="0 0 240 10" preserveAspectRatio="none" aria-hidden="true">
+            <motion.path d="M3 7 C60 3 150 2 236 5" vectorEffect="non-scaling-stroke" initial={reduce ? false : { pathLength: 0 }} animate={{ pathLength: 1 }} transition={{ duration: 0.45, delay: reduce ? 0 : 0.42, ease: [0.65, 0, 0.35, 1] }} />
+          </svg>
+        </motion.h1>
       </div>
       {/* The sentence for screen readers; the eye gets the same facts as three tiles. */}
       <p className="sr-only">{topic} · {attempts === 1 ? "first try" : `try ${attempts}`}. {verdictReason(outcome, stats, comesBack)}</p>
@@ -173,5 +177,28 @@ export function QuickResult({
       </details>
     </div>
     </>
+  );
+}
+
+/** The mark a teacher pencils in the margin: a tick, a short tick, or an arrow that loops back to try again. */
+function PencilMark({ outcome, reduce }: { outcome: "success" | "partial" | "failure"; reduce: boolean }) {
+  const draw = (delay: number, duration: number) => ({ initial: reduce ? false : { pathLength: 0 }, animate: { pathLength: 1 }, transition: reduce ? { duration: 0 } : { duration, delay, ease: [0.65, 0, 0.35, 1] as const } });
+  const label = outcome === "success" ? "Solid" : outcome === "partial" ? "Partly there" : "Try again";
+  return (
+    <svg viewBox="0 0 64 64" role="img" aria-label={label}>
+      {outcome === "success" ? <motion.path d="M11 35 C16 39 20 45 24 51 C31 35 41 20 56 9" {...draw(0.08, 0.42)} /> : null}
+      {outcome === "partial" ? (
+        <>
+          <motion.path d="M12 36 C17 40 21 45 25 50 C30 41 36 33 43 27" {...draw(0.08, 0.34)} />
+          <motion.path d="M44 46 C48 43 52 47 56 44" {...draw(0.42, 0.18)} />
+        </>
+      ) : null}
+      {outcome === "failure" ? (
+        <>
+          <motion.path d="M47 19 C39 8 17 10 12 29 C8 47 31 58 47 46" {...draw(0.08, 0.5)} />
+          <motion.path d="M37 17 L48 20 L49 8" {...draw(0.52, 0.18)} />
+        </>
+      ) : null}
+    </svg>
   );
 }

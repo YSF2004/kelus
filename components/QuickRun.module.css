@@ -751,3 +751,44 @@
 /* Key hints are a quiet suffix, not a second button inside the button. */
 .key { padding: 0; background: transparent; opacity: 0.65; }
 .linkKey { padding: 0; border: 0; color: var(--k-text-3, var(--color-slate)); }
+
+/* ── Circled answers ───────────────────────────────────────────────────────────────────────────────────
+   The choices are written on the ruled sheet, not boxed: a figure in the margin, the answer in the serif. Picking one
+   is a pencil mark: the right answer gets a ring drawn round it, a wrong one a stroke through it. Nothing fills in. */
+.choices { gap: 2px; }
+.choice, .choice.right, .choice.wrong {
+  grid-template-columns: 1.5rem minmax(0, 1fr);
+  min-height: 50px;
+  padding: 8px 12px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  box-shadow: none;
+  text-decoration: none;
+  font-weight: 400;
+}
+.choice kbd { color: var(--k-text-3, var(--color-smoke)); font-family: var(--font-marketing-heading), Georgia, serif; font-size: 0.9375rem; font-style: italic; font-weight: 400; }
+.choiceText {
+  position: relative;
+  justify-self: start;
+  padding: 2px 6px;
+  color: var(--k-ink, var(--color-midnight-ink));
+  font-family: var(--font-marketing-heading), Georgia, serif;
+  font-size: 1.1875rem;
+  line-height: 1.35;
+  letter-spacing: -0.005em;
+}
+.choice:hover:not(:disabled), :global(main[data-tone]) .choice:not(:disabled):hover { border: 0; background: color-mix(in oklch, var(--topic-wash, var(--k-sheet, #fff)) 80%, transparent); }
+.choice:hover:not(:disabled) .choiceText { text-decoration: underline; text-decoration-color: var(--topic, var(--color-kelus)); text-decoration-thickness: 1.5px; text-underline-offset: 5px; }
+.choice.right { color: var(--color-kelus, var(--k-green)); }
+.choice.right .choiceText { color: var(--color-kelus, var(--k-green)); }
+.choice.wrong .choiceText { color: var(--k-text-2, var(--color-slate)); }
+.choice.dim { opacity: 0.38; }
+.ring, .strike { position: absolute; overflow: visible; pointer-events: none; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+.ring { inset: -9px -16px -9px -14px; width: calc(100% + 30px); height: calc(100% + 18px); stroke: var(--color-kelus, var(--k-green)); stroke-width: 2.25px; }
+.strike { inset: 0 -4px; width: calc(100% + 8px); height: 100%; stroke: var(--k-danger); stroke-width: 2px; }
+.choice.right kbd, .choice.wrong kbd { width: 1.375rem; height: 1.375rem; font-style: normal; }
+:root[data-theme="dark"] .ring { stroke: #7fd0a0; }
+:root[data-theme="dark"] .choice.right .choiceText { color: #9fdcb8; }
+/* The animation owns the button's opacity, so the answers not in play fade by their text and figure. */
+.choice.dim .choiceText, .choice.dim kbd { opacity: 0.4; }
