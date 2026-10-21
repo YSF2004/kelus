@@ -681,25 +681,7 @@ html body .first-source-review-list small { display: -webkit-box; -webkit-line-c
 [data-tone="5"] { --topic: var(--tone-5); --topic-ink: var(--tone-5-ink); --topic-wash: var(--tone-5-wash); }
 [data-tone="6"] { --topic: var(--tone-6); --topic-ink: var(--tone-6-ink); --topic-wash: var(--tone-6-wash); }
 
-/* ── Alive: the primary button ─────────────────────────────────────────────────────────────────────────
-   Light from above (a soft highlight in the top half) and, on hover, one sheen sweeping across, the way a well-made
-   control catches the light. Drawn over the fill, so every screen's own green still shows through. */
-.k-btn:not(.k-btn--paper):not(:disabled) { position: relative; overflow: hidden; isolation: isolate; }
-.k-btn:not(.k-btn--paper):not(:disabled)::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  z-index: -1;
-  border-radius: inherit;
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.16), rgba(255, 255, 255, 0) 55%),
-    linear-gradient(105deg, transparent 30%, rgba(255, 255, 255, 0.28) 46%, transparent 62%) -160% 0 / 220% 100% no-repeat;
-  pointer-events: none;
-  transition: background-position 0s;
-}
-.k-btn:not(.k-btn--paper):not(:disabled):hover::after { background-position: 0 0, 160% 0; transition: background-position 700ms cubic-bezier(0.22, 1, 0.36, 1); }
-.k-btn:not(.k-btn--paper):not(:disabled):hover { box-shadow: 0 6px 18px -8px color-mix(in oklch, var(--k-green) 70%, transparent) !important; }
-@media (prefers-reduced-motion: reduce) { .k-btn:not(.k-btn--paper):not(:disabled):hover::after { transition: none; } }
+
 
 /* ── Alive: sections arrive, they don't appear ─────────────────────────────────────────────────────────
    Each section's column rises a few pixels as it opens, and the rows of its lists follow one after another. Plain CSS,
@@ -766,3 +748,27 @@ html body .first-source-kind p { margin: 0; color: var(--k-text-2); font-size: 1
 html body .first-source-kind strong { display: block; margin-bottom: 4px; color: var(--k-ink); font-family: var(--font-marketing-heading), Georgia, serif; font-size: 1.25rem; font-weight: 500; }
 html body .first-source-kind-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 20px; margin-top: 16px; }
 html body .first-source-kind-actions :is(.cta, .text-btn) { min-height: 44px; }
+
+/* ── Crisp controls ────────────────────────────────────────────────────────────────────────────────────
+   The product's buttons are flat and exact: one fill, a hairline of its own darker tone, a 10px corner, and a press
+   that settles rather than drops. No gradient, no card-stock edge. Paper buttons are a hairline on the paper. */
+html body :is(.k-btn, .cta:not(.home-cta)) {
+  min-height: 44px;
+  border-radius: 10px !important;
+  box-shadow: inset 0 0 0 1px color-mix(in oklch, var(--btn-edge, #000) 55%, transparent), 0 1px 2px rgba(18, 22, 15, 0.08) !important;
+  font-weight: 550 !important;
+  letter-spacing: 0 !important;
+  transition: background-color 140ms cubic-bezier(0.22, 1, 0.36, 1), box-shadow 140ms, transform 120ms !important;
+}
+html body :is(.k-btn, .cta:not(.home-cta)):not(.k-btn--paper):hover:not(:disabled) { filter: none; background: color-mix(in oklch, var(--btn-bg) 90%, #000) !important; }
+html body .k-btn--paper:hover:not(:disabled) { filter: none; }
+:root[data-theme="dark"] body .k-btn--paper:hover:not(:disabled) { background: var(--k-surface-raised, #242522) !important; }
+html body :is(.k-btn, .cta:not(.home-cta)):active:not(:disabled) { transform: scale(0.985) !important; box-shadow: inset 0 0 0 1px color-mix(in oklch, var(--btn-edge, #000) 55%, transparent) !important; }
+html body .k-btn--paper { box-shadow: inset 0 0 0 1px var(--k-line-strong) !important; }
+html body .k-btn--paper:hover:not(:disabled) { background: var(--k-surface-2) !important; }
+html body .k-btn--paper:active:not(:disabled) { box-shadow: inset 0 0 0 1px var(--k-line-strong) !important; }
+
+/* The drop zone holds its message, not empty space: the folder beside the words, one compact row. */
+.start-page .setup-first-upload { grid-template-columns: auto minmax(0, 1fr); align-items: center; column-gap: 20px !important; row-gap: 2px !important; padding: 26px 28px !important; }
+.start-page .setup-first-upload .setup-upload-mark { grid-row: 1 / span 2; width: 44px !important; height: 44px !important; margin: 0 !important; }
+.start-page .setup-first-upload { min-height: 0 !important; }

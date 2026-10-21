@@ -286,7 +286,14 @@ export function QuickRun({ run, onRevealSource, onShowLine, onFinish, onChecksDo
           </motion.section>
         ) : item ? (
           <motion.section key={`check-${step}`} className={styles.card} {...motionProps} aria-label={`Check ${step + 1} of ${total}`}>
-            <h1 className={styles.prompt}>{item.prompt}</h1>
+            {/* "Which idea does this describe? “…”": the ask as a small line, the quoted line as the title. */}
+            {(() => {
+              const at = item.prompt.indexOf("“");
+              const ask = at > 0 ? item.prompt.slice(0, at).trim() : "";
+              return ask && item.kind === "choice"
+                ? <h1 className={styles.prompt}><span className={styles.ask}>{ask}</span>{item.prompt.slice(at)}</h1>
+                : <h1 className={styles.prompt}>{item.prompt}</h1>;
+            })()}
 
             {item.kind === "choice" ? (
               <div className={styles.choices} role="group" aria-label="Choose one">

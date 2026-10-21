@@ -141,3 +141,6 @@
   transform-origin: center;
   will-change: transform;
 }
+
+/* The header already carries the K: the page leads with its sentence. */
+.mark { display: none; }

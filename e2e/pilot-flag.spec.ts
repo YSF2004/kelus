@@ -9,7 +9,8 @@ test("a question can be flagged in one tap, is remembered, and its words go to K
   await page.route(/formsubmit\.co/, async (route) => { sent = route.request().postDataJSON(); await route.fulfill({ status: 200, contentType: "application/json", body: '{"success":"true"}' }); });
   await startFromPaste(page, notes);
   const check = page.getByLabel(/^Check 1 of \d$/);
-  const prompt = await check.locator("h1").innerText();
+  // The ask and the quoted line sit on two lines of the heading; the question sent is the one line.
+  const prompt = (await check.locator("h1").textContent() ?? "").replace(/\s+/g, " ").trim();
   await page.getByRole("button", { name: "I’m not sure" }).click();
   await page.getByRole("button", { name: "Flag this question" }).click();
   await page.getByRole("group", { name: "What is wrong with this question?" }).getByRole("button", { name: "Doesn’t make sense" }).click();
@@ -21,7 +22,9 @@ test("a question can be flagged in one tap, is remembered, and its words go to K
   await expect(page.getByText("Sent to the Kelus team, thank you.")).toBeVisible();
   expect(sent).not.toBeNull();
   expect(sent!.message).toContain("Reason: Doesn’t make sense");
-  expect(sent!.message).toContain(`Question: ${prompt}`);
+  // textContent joins the ask and the quote with no space; compare without spaces before the quote.
+  const flat = (text: string) => text.replace(/\s+/g, " ").replace(/\s*“/g, "“");
+  expect(flat(sent!.message)).toContain(flat(`Question: ${prompt}`));
   // Next still works, and Enter still goes to it.
   await expect(page.getByRole("button", { name: /^(Next|Now say it yourself)/ })).toBeVisible();
 });

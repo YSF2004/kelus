@@ -713,3 +713,25 @@
 :global(main[data-tone]) .choice:not(:disabled):hover kbd { border-color: var(--topic); color: var(--topic-ink); }
 :global(main[data-tone]) .readLines li { border-left: 3px solid var(--topic); }
 :global(main[data-tone]) .readLines li mark { background: color-mix(in oklch, var(--topic) 26%, transparent); }
+
+/* ── Crisp run ─────────────────────────────────────────────────────────────────────────────────────────
+   Choices are quiet rows on the paper: a hairline, a 10px corner, the number as a plain figure. The compare step is
+   two quotations, not two grey boxes: your words in the serif beside a rule of the topic's colour, the page beside a
+   hairline. On the page, one mark each: an underline for a key word you used, a highlighter for one you left out. */
+.choice { border-color: var(--k-line-strong); border-radius: 10px; box-shadow: none; transition: border-color 140ms, background-color 140ms; }
+.choice kbd { width: 1.25rem; height: auto; border: 0; color: var(--k-text-3, var(--color-smoke)); font-variant-numeric: tabular-nums; font-weight: 600; }
+.choice.right kbd, .choice.wrong kbd { width: 1.5rem; height: 1.5rem; border-radius: 50%; }
+.compare > div:not(.grades):not(.coverage) { padding: 2px 0 2px 16px; border: 0; border-left: 2px solid var(--k-line-strong); border-radius: 0; background: transparent; }
+.compare > div:not(.grades):not(.coverage):first-child { border-left-color: var(--topic, var(--color-kelus)); }
+.compare > div:not(.grades):not(.coverage):first-child p { font-family: var(--font-marketing-heading), Georgia, serif; font-size: 1.1875rem; font-style: italic; line-height: 1.5; }
+.compare > div:not(.coverage) > span:first-child { color: var(--k-text-3, var(--k-text-2)); font-size: 0.8125rem; font-weight: 600; font-variant-caps: all-small-caps; letter-spacing: 0.06em; }
+.miss { padding: 0; border-radius: 2px; background: linear-gradient(transparent 55%, color-mix(in oklch, var(--k-marigold, #f3b23e) 42%, transparent) 55%); box-shadow: none; }
+.hit { text-decoration-color: var(--topic, var(--color-kelus)); }
+.grades button { border-color: var(--k-line-strong); box-shadow: none; }
+.ask { display: block; margin-bottom: 8px; color: var(--k-text-2); font-family: var(--font-inter), system-ui, sans-serif; font-size: 0.9375rem; font-weight: 500; letter-spacing: 0; }
+
+/* Grades: three plain choices with a mark, a word and one line; the suggestion is a quiet note, not a badge. */
+.grades button { min-height: 0; gap: 4px; padding: 14px 16px; border-radius: 10px; }
+.gradeMark { width: 22px !important; height: 22px !important; background: transparent !important; }
+.grades strong em { padding: 0; background: transparent !important; color: var(--color-kelus, var(--k-green)); font-size: 0.75rem; font-style: normal; font-weight: 600; }
+.grades .gradeKey { opacity: 0.6; }
