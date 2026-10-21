@@ -188,3 +188,9 @@
 .step[data-tone] .node { border-radius: 50%; background: var(--topic-wash); }
 /* On a phone the path keeps its one column: name, then its state under it (an older rule moved the state up). */
 :global(.is-course-studio) .path a.stepLink :global(.index-toc-meta) { grid-column: 1 !important; margin-top: 0 !important; }
+
+/* The path's markers are a ring and a figure: no tinted disc behind them. */
+.step[data-tone] .node { background: var(--k-surface); }
+.node b { font-family: var(--font-inter), system-ui, sans-serif; font-size: 0.8125rem; font-weight: 600; color: var(--k-text-2); }
+.step[data-tone] .node b { color: var(--topic-ink); }
+.step[data-tone] .ringTrack { stroke: var(--k-line-strong) !important; }
