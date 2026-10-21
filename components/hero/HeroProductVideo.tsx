@@ -10,10 +10,10 @@ const WALKTHROUGH_START_SECONDS = 0;
 // The five steps of the recording, from its captions (scripts/record-product-hero.mjs prints the times). Each one is a place to jump to, and fills while it plays.
 const CHAPTERS = [
   { at: 0, label: "Drop your notes", short: "Drop" },
-  { at: 9.3, label: "Read it first", short: "Read" },
-  { at: 16, label: "Answer from a line", short: "Answer" },
-  { at: 30, label: "Explain, checked", short: "Explain" },
-  { at: 45.5, label: "Your plan moves", short: "Plan" },
+  { at: 10.9, label: "Read it first", short: "Read" },
+  { at: 17.6, label: "Answer from a line", short: "Answer" },
+  { at: 27.7, label: "Explain, checked", short: "Explain" },
+  { at: 43, label: "Your plan moves", short: "Plan" },
 ] as const;
 
 /** Actual browser recordings of a fresh PDF upload and revision session. */

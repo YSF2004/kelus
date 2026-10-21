@@ -633,6 +633,7 @@
    topic's name, the name steps out and only "Topic 2 of 4" stays. */
 .context { display: contents; }
 .context[data-topic-hidden] b { display: none; }
+.context[data-topic-hidden] :global(.study-topic-kicker) span::before { content: none; }
 
 /* On a phone the answer's verdict rises from the bottom as a sheet, green or coral, with Next across it at thumb
    height, the way a language app answers you: the question stays in view above it. */

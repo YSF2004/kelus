@@ -75,6 +75,6 @@ test("the walkthrough's steps are named under it, follow the playhead, and jump 
   await expect(steps.first()).toHaveAttribute("aria-current", "step");
   await hero.getByRole("button", { name: "Watch step 5: Your plan moves" }).click();
   const video = hero.locator("video:visible");
-  await expect.poll(() => video.evaluate((element: HTMLVideoElement) => element.currentTime)).toBeGreaterThan(45);
+  await expect.poll(() => video.evaluate((element: HTMLVideoElement) => element.currentTime)).toBeGreaterThan(42);
   await expect(steps.nth(4)).toHaveAttribute("aria-current", "step");
 });
