@@ -487,27 +487,27 @@ html body section[aria-labelledby="reading-title"] .k-btn { box-shadow: none !im
 html body.is-course-studio :is(.studio-home-link, .core-add-source) { display: inline-flex; align-items: center; gap: 6px; }
 html body.is-course-studio .core-source-remove { display: inline-grid; place-items: center; }
 
-/* ── Paper: the editorial notebook, by day ─────────────────────────────────────────────────────────────
-   A warm paper instead of screen white, warm ink, lines the colour of a ruled page. Every older name that still paints
-   a white field reads the paper too, so no screen is left on bright white. Dark (below) replaces all of this at night. */
+/* ── Light: a white page, one ink, hairlines ───────────────────────────────────────────────────────────
+   Plain white, one green-black ink in three steps, and hairlines a shade off the page. Every older name that still
+   paints a field reads the same surface, so no screen keeps an old tint. Dark (below) replaces all of this at night. */
 :root:not([data-theme="dark"]) :is(body.is-course-studio, body.is-session-booklet, body.is-session-complete, body:has(.start-page)) {
-  --k-ink: #1a1915;
-  --k-text-2: #5e5b53;
-  --k-text-3: #77736a;
-  --k-line: #e8e4db;
-  --k-line-strong: #dad5ca;
-  --k-surface: #fbfaf7;
-  --k-surface-2: #f3f1eb;
-  --k-selected: #ecebe2;
-  --k-card: #fffefb;
-  --q-ink: #1a1915;
-  --q-text-2: #5e5b53;
-  --q-text-3: #77736a;
-  --q-line: #e8e4db;
-  --q-line-strong: #dad5ca;
-  --q-hover: #f1eee7;
-  --q-selected: #ebe8e0;
-  --q-rail: #f6f4ef;
+  --k-ink: #17201b;
+  --k-text-2: #59625d;
+  --k-text-3: #7d8681;
+  --k-line: #e9ebea;
+  --k-line-strong: #dadedc;
+  --k-surface: #ffffff;
+  --k-surface-2: #f6f7f6;
+  --k-selected: #eef0ef;
+  --k-card: #ffffff;
+  --q-ink: #17201b;
+  --q-text-2: #59625d;
+  --q-text-3: #7d8681;
+  --q-line: #e9ebea;
+  --q-line-strong: #dadedc;
+  --q-hover: #f4f5f4;
+  --q-selected: #eceeed;
+  --q-rail: #f8f9f8;
   --color-pure-white: var(--k-surface);
   --booklet-paper: var(--k-surface);
   --color-paper-warmth: var(--k-surface);
@@ -517,7 +517,7 @@ html body.is-course-studio .core-source-remove { display: inline-grid; place-ite
   --color-frost: var(--k-line-strong);
   background: var(--k-surface) !important;
 }
-:root:not([data-theme="dark"]):has(body.is-course-studio, body.is-session-booklet, body.is-session-complete, .start-page) { background: #fbfaf7; }
+:root:not([data-theme="dark"]):has(body.is-course-studio, body.is-session-booklet, body.is-session-complete, .start-page) { background: #ffffff; }
 
 /* ── Dark: the same paper and ink, at night ──────────────────────────────────────────────────────────────
    For students revising late. Light, Dark or Auto (the device's setting), chosen in the product and set on <html> as
@@ -526,14 +526,14 @@ html body.is-course-studio .core-source-remove { display: inline-grid; place-ite
    steps (rail, page, card, floating), warm light ink, and the Kelus green lifted for text; fills keep a deep green. */
 :root[data-theme="dark"] :is(body.is-course-studio, body.is-session-booklet, body.is-session-complete, body:has(.start-page)) {
   color-scheme: dark;
-  --k-ink: #ecebe6;
-  --k-text-2: #a9a8a1;
-  --k-text-3: #898881;
-  --k-line: #2c2d2a;
-  --k-line-strong: #3b3c38;
-  --k-surface: #161715;
-  --k-surface-2: #1f201e;
-  --k-selected: #2a2c28;
+  --k-ink: #eceeed;
+  --k-text-2: #a3a9a6;
+  --k-text-3: #848a87;
+  --k-line: #262928;
+  --k-line-strong: #343837;
+  --k-surface: #121413;
+  --k-surface-2: #1a1d1c;
+  --k-selected: #232726;
   --k-danger: #f08a74;
   --k-danger-wash: #34211d;
   /* The × on the lifted coral is dark ink: white on it was 2.4:1. */
@@ -549,14 +549,14 @@ html body.is-course-studio .core-source-remove { display: inline-grid; place-ite
   --k-mark-ink: #f4dca8;
   --k-coral: #e88a75;
   --k-paper-edge: rgba(0, 0, 0, 0.5);
-  --q-ink: #ecebe6;
-  --q-text-2: #a9a8a1;
-  --q-text-3: #898881;
-  --q-line: #2c2d2a;
-  --q-line-strong: #3b3c38;
-  --q-hover: #232421;
-  --q-selected: #2a2c28;
-  --q-rail: #121311;
+  --q-ink: #eceeed;
+  --q-text-2: #a3a9a6;
+  --q-text-3: #848a87;
+  --q-line: #262928;
+  --q-line-strong: #343837;
+  --q-hover: #1c1f1e;
+  --q-selected: #232726;
+  --q-rail: #0f1110;
   --q-green: #56b07f;
   --q-green-hover: #66bd8d;
   /* One green for text, lines and small marks on dark: 7:1 on the paper. Fills keep the deeper --k-green. */
@@ -586,9 +586,9 @@ html body.is-course-studio .core-source-remove { display: inline-grid; place-ite
   --popover: var(--k-surface-raised);
   --surface: var(--k-surface-2);
   /* What floats over the page sits a step lighter, with a hairline, and the page behind it dims. */
-  --k-surface-raised: #242522;
+  --k-surface-raised: #1f2221;
   /* A card sits one step above the page, so answers and lines read as things you can touch. */
-  --k-card: #1f201e;
+  --k-card: #171a19;
   --k-scrim: rgba(0, 0, 0, 0.55);
   scrollbar-color: color-mix(in srgb, var(--k-ink) 28%, transparent) transparent;
   background: var(--k-surface) !important;
@@ -598,7 +598,7 @@ html body.is-course-studio .core-source-remove { display: inline-grid; place-ite
 :root[data-theme="dark"] :is(body.is-course-studio, body.is-session-booklet, body.is-session-complete, body:has(.start-page)) :is(.k-btn, .cta:not(.home-cta)):not(.k-btn--paper):not(:disabled):not(:is([class*="ExamDateCard"], [class*="NudgeCard"], [class*="InstallCard"]) *) { --btn-bg: var(--k-green); background: var(--k-green) !important; color: #fff !important; }
 :root[data-theme="dark"] :is(body.is-course-studio, body.is-session-booklet, body.is-session-complete, body:has(.start-page)) .k-btn--paper { background: var(--k-surface-2) !important; color: var(--k-ink) !important; }
 /* The page under the product, and the browser's own bars and overscroll, go dark with it. */
-:root[data-theme="dark"]:has(body.is-course-studio, body.is-session-booklet, body.is-session-complete, .start-page) { color-scheme: dark; background: #161715; }
+:root[data-theme="dark"]:has(body.is-course-studio, body.is-session-booklet, body.is-session-complete, .start-page) { color-scheme: dark; background: #121413; }
 /* The quiet extras under Today keep their paper button, as in daylight. */
 :root[data-theme="dark"] :is(body.is-course-studio, body.is-session-booklet, body.is-session-complete, body:has(.start-page)) :is([class*="ExamDateCard"], [class*="NudgeCard"], [class*="InstallCard"]) button { background: var(--k-surface-2) !important; color: var(--k-ink) !important; }
 :root[data-theme="dark"] :is(body.is-course-studio, body.is-session-booklet, body.is-session-complete, body:has(.start-page)) .skip { background: var(--k-green); color: #fff; }
@@ -698,32 +698,10 @@ html body .first-source-review-list small { display: -webkit-box; -webkit-line-c
 /* Materials is a two-pane workspace (the page and its shelf): its title stays on the workspace's edge. */
 html body.is-course-studio .studio-section-head.kelus-space-top[data-section="materials"] { padding: 32px 24px 12px; }
 
-/* ── Alive: the drop zone ──────────────────────────────────────────────────────────────────────────────
-   The first thing a student touches. Its edge is a ring of the six topic colours, faint at rest; it wakes when you
-   come near (hover, focus, a file dragged over) and turns slowly while the file is held over it, as if ready to read. */
-@property --drop-turn { syntax: "<angle>"; inherits: false; initial-value: 0deg; }
-.start-page .setup-first-upload { position: relative; isolation: isolate; border-color: transparent !important; background: var(--k-card, var(--k-surface)) !important; border-radius: 14px !important; transition: transform 240ms cubic-bezier(0.22, 1, 0.36, 1), box-shadow 240ms; }
-.start-page .setup-first-upload::before {
-  content: "";
-  position: absolute;
-  inset: -1.5px;
-  z-index: -1;
-  border-radius: 15px;
-  padding: 1.5px;
-  background: conic-gradient(from var(--drop-turn), var(--tone-1), var(--tone-2), var(--tone-3), var(--tone-4), var(--tone-5), var(--tone-6), var(--tone-1));
-  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
-  -webkit-mask-composite: xor;
-  mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0);
-  opacity: 0.35;
-  transition: opacity 240ms;
-  pointer-events: none;
-}
-.start-page .setup-first-upload:is(:hover, :focus-within, .is-dragging) { transform: translateY(-2px); box-shadow: 0 18px 40px -26px color-mix(in oklch, var(--tone-2) 60%, transparent); }
-.start-page .setup-first-upload:is(:hover, :focus-within, .is-dragging)::before { opacity: 1; }
-.start-page .setup-first-upload.is-dragging::before { animation: kelusTurn 2.4s linear infinite; }
-@keyframes kelusTurn { to { --drop-turn: 360deg; } }
-@media (prefers-reduced-motion: reduce) { .start-page .setup-first-upload { transition: none; } .start-page .setup-first-upload.is-dragging::before { animation: none; } }
-.start-page .setup-first-upload strong { color: var(--k-ink) !important; font-family: var(--font-marketing-heading), Georgia, serif !important; font-size: 1.375rem !important; font-weight: 500 !important; letter-spacing: -0.01em; }
+/* The drop zone: a dashed hairline that turns green when a file is near. */
+.start-page .setup-first-upload { border: 1px dashed var(--k-line-strong) !important; border-radius: 10px !important; background: var(--k-surface) !important; box-shadow: none !important; transition: border-color 160ms, background-color 160ms; }
+.start-page .setup-first-upload:is(:hover, :focus-within, .is-dragging) { border-color: var(--color-kelus) !important; background: color-mix(in oklch, var(--color-kelus) 4%, var(--k-surface)) !important; }
+.start-page .setup-first-upload strong { color: var(--k-ink) !important; font-size: 1rem !important; font-weight: 600 !important; letter-spacing: -0.01em; }
 /* ── Margin notes on the student's own page ────────────────────────────────────────────────────────────
    The missed line, on the original PDF: a marigold highlighter under each printed row, multiplied into the ink so the
    print stays sharp, and a soft graphite loop drawn round it by hand. */
@@ -754,16 +732,16 @@ html body .first-source-kind-actions :is(.cta, .text-btn) { min-height: 44px; }
    that settles rather than drops. No gradient, no card-stock edge. Paper buttons are a hairline on the paper. */
 html body :is(.k-btn, .cta:not(.home-cta)) {
   min-height: 44px;
-  border-radius: 10px !important;
-  box-shadow: inset 0 0 0 1px color-mix(in oklch, var(--btn-edge, #000) 55%, transparent), 0 1px 2px rgba(18, 22, 15, 0.08) !important;
-  font-weight: 550 !important;
+  border-radius: 8px !important;
+  box-shadow: none !important;
+  font-weight: 500 !important;
   letter-spacing: 0 !important;
   transition: background-color 140ms cubic-bezier(0.22, 1, 0.36, 1), box-shadow 140ms, transform 120ms !important;
 }
 html body :is(.k-btn, .cta:not(.home-cta)):not(.k-btn--paper):hover:not(:disabled) { filter: none; background: color-mix(in oklch, var(--btn-bg) 90%, #000) !important; }
 html body .k-btn--paper:hover:not(:disabled) { filter: none; }
 :root[data-theme="dark"] body .k-btn--paper:hover:not(:disabled) { background: var(--k-surface-raised, #242522) !important; }
-html body :is(.k-btn, .cta:not(.home-cta)):active:not(:disabled) { transform: scale(0.985) !important; box-shadow: inset 0 0 0 1px color-mix(in oklch, var(--btn-edge, #000) 55%, transparent) !important; }
+html body :is(.k-btn, .cta:not(.home-cta)):active:not(:disabled) { transform: scale(0.985) !important; }
 html body .k-btn--paper { box-shadow: inset 0 0 0 1px var(--k-line-strong) !important; }
 html body .k-btn--paper:hover:not(:disabled) { background: var(--k-surface-2) !important; }
 html body .k-btn--paper:active:not(:disabled) { box-shadow: inset 0 0 0 1px var(--k-line-strong) !important; }
@@ -773,34 +751,28 @@ html body .k-btn--paper:active:not(:disabled) { box-shadow: inset 0 0 0 1px var(
 .start-page .setup-first-upload .setup-upload-mark { grid-row: 1 / span 2; width: 44px !important; height: 44px !important; margin: 0 !important; }
 .start-page .setup-first-upload { min-height: 0 !important; }
 
-/* ── Notebook: a sheet on the desk ─────────────────────────────────────────────────────────────────────
-   The product's pages are sheets of ruled paper lying on a darker desk: the desk is the workspace, the sheet is the
-   page you work on, with a hairline edge, a soft shadow and faint ruled lines. Every section and the session share it. */
-:root:not([data-theme="dark"]) body.is-course-studio, :root:not([data-theme="dark"]) body.is-session-booklet { --k-desk: #ece7dc; --k-sheet: #fdfbf6; --k-rule: rgba(60, 80, 140, 0.07); --k-sheet-edge: rgba(26, 25, 21, 0.08); }
-:root[data-theme="dark"] body.is-course-studio, :root[data-theme="dark"] body.is-session-booklet { --k-desk: #0f100e; --k-sheet: #1b1c1a; --k-rule: rgba(255, 255, 255, 0.035); --k-sheet-edge: rgba(255, 255, 255, 0.06); }
-html body.is-course-studio .studio-page.kelus-space-stage { background: var(--k-desk) !important; }
-html body.is-course-studio :is([class*="TodayQuiet"][class*="page"], .surface-map.is-toc, [class*="ProgressView"][class*="page"]),
-html body.is-session-booklet main#main :is([class*="QuickRun"][class*="run"]:not([class*="runs"]), [class*="QuickResult"][class*="card"]) {
-  position: relative;
-  margin-top: 32px !important;
-  margin-bottom: 48px !important;
-  padding: 44px clamp(20px, 5vw, 56px) 56px !important;
-  border-radius: 6px;
-  background-color: var(--k-sheet) !important;
-  background-image: repeating-linear-gradient(180deg, transparent 0 31px, var(--k-rule) 31px 32px) !important;
-  box-shadow: 0 0 0 1px var(--k-sheet-edge), 0 1px 2px rgba(18, 22, 15, 0.05), 0 18px 40px -28px rgba(18, 22, 15, 0.35);
+
+/* ── Minimal: one typeface ─────────────────────────────────────────────────────────────────────────────
+   Inter for everything in the product: titles, topic names, figures and text. The heading names older sheets use
+   resolve to it here, so no screen falls back to a serif. Titles are set by weight and tracking, not by a second face. */
+:is(body.is-course-studio, body.is-session-booklet, body.is-session-complete, body.is-sheet, body:has(.start-page)) {
+  --font-display: var(--font-inter), system-ui, sans-serif;
+  --font-marketing-heading: var(--font-inter), system-ui, sans-serif;
+  --font-source-serif: var(--font-inter), system-ui, sans-serif;
+  --font-heading: var(--font-inter), system-ui, sans-serif;
+  font-feature-settings: "cv11" 1, "ss03" 1;
 }
-html body.is-course-studio .studio-section-head.kelus-space-top { background: var(--k-desk) !important; }
-html body.is-session-booklet main#main.study-shell { background: var(--k-desk) !important; }
-html body.is-course-studio .today-source-access { margin-top: 20px; }
-@media (max-width: 650px) {
-  html body.is-course-studio :is([class*="TodayQuiet"][class*="page"], .surface-map.is-toc, [class*="ProgressView"][class*="page"]),
-  html body.is-session-booklet main#main :is([class*="QuickRun"][class*="run"]:not([class*="runs"]), [class*="QuickResult"][class*="card"]) { margin: 12px 8px 24px !important; width: auto !important; padding: 28px 18px 36px !important; }
+:is(body.is-course-studio, body.is-session-booklet, body.is-session-complete, body.is-sheet, body:has(.start-page)) :is(h1, h2, h3) {
+  font-family: var(--font-inter), system-ui, sans-serif !important;
+  font-weight: 600 !important;
+  font-style: normal !important;
+  letter-spacing: -0.022em !important;
 }
-html body.is-course-studio .studio-topbar { background: var(--k-desk) !important; border-bottom-color: transparent !important; }
-html body.is-session-booklet main#main [class*="QuickRun"][class*="run"]:not([class*="runs"]) { margin-top: 0 !important; }
-@media (max-width: 650px) { html body.is-course-studio .studio-rail { background: var(--k-desk) !important; border: 0 !important; } }
-html body.is-course-studio [class*="TodayQuiet"][class*="page"] { margin-top: 12px !important; }
-html body.is-course-studio .today-source-access { margin-bottom: 0 !important; border-bottom-color: transparent !important; }
-html body.is-session-booklet main#main [class*="QuickResult"][class*="card"] { margin-top: 0 !important; max-width: 42rem; }
-html body.is-course-studio [class*="AnkiExport"][class*="card"] { padding-inline: 0 !important; }
+:is(body.is-course-studio, body.is-session-booklet, body.is-session-complete, body.is-sheet) h1 { font-size: clamp(1.5rem, 2.6vw, 1.75rem) !important; line-height: 1.25 !important; }
+/* Quotes from the notes read as the student's text, upright: a quotation mark is enough. */
+:is(body.is-course-studio, body.is-session-booklet, body.is-session-complete, body.is-sheet) :is(blockquote, q, em, i, [class*="quote"]) { font-family: var(--font-inter), system-ui, sans-serif !important; font-style: normal !important; }
+/* Labels are sentence case at a small size, not small caps and tracking. */
+:is(body.is-course-studio, body.is-session-booklet, body.is-session-complete, body.is-sheet, body:has(.start-page)) * { font-variant-caps: normal !important; }
+:is(body.is-course-studio, body.is-session-booklet, body.is-session-complete, body.is-sheet, body:has(.start-page)) :is(.kicker, [class*="eyebrow"], [class*="Kicker"], [class*="kicker"]) { text-transform: none !important; letter-spacing: 0 !important; font-size: 0.8125rem !important; font-weight: 500 !important; color: var(--k-text-3) !important; }
+/* No ruled paper, desk or sheet shadow anywhere: the page is the surface. */
+html body :is(.is-course-studio, .is-session-booklet) :is([class*="TodayQuiet"][class*="page"], .surface-map.is-toc, [class*="ProgressView"][class*="page"]) { background-image: none !important; box-shadow: none !important; }
