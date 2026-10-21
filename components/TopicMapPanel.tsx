@@ -164,6 +164,8 @@ export function TopicMapPanel() {
         </span>
       </div>
 
+      {/* Column names for the eye; each row already says what it is to a screen reader. */}
+      <div className={styles.columns} aria-hidden="true"><span>Topic</span><span>Status</span><span>Tries</span><span>Page</span></div>
       <ol className={`index-toc ${styles.path}`} aria-label="Topics, in the order of your notes">
         <AnimatePresence initial={false} mode="popLayout">
         {path.flatMap(({ concept, mastery, label, page, due }, index) => {
@@ -188,8 +190,8 @@ export function TopicMapPanel() {
                 </ConceptTitleTransition>
                 <span className="index-toc-meta">
                   <span className={styles.state} data-level={isStart ? "next" : label.toLocaleLowerCase().replace(/\s+/g, "-")}>{isStart ? "Start here" : label}</span>
-                  {mastery == null ? null : <span className={styles.metaSoft}>{checks < 3 ? `${checks} ${checks === 1 ? "try" : "tries"}` : percent(mastery)}</span>}
-                  {page ? <span className={styles.metaSoft}><Octicon name="file" className={styles.icoSm} />{page}</span> : null}
+                  <span className={`${styles.metaSoft} ${styles.colTries}`}>{mastery == null ? "–" : checks < 3 ? `${checks} ${checks === 1 ? "try" : "tries"}` : percent(mastery)}</span>
+                  <span className={`${styles.metaSoft} ${styles.colPage}`}>{page ? page.replace(/^(?:Page|p\.)\s*/i, "") : "–"}</span>
                 </span>
                 {isStart && startReason ? <span className={styles.why}>{startReason}</span> : null}
                 {due ? <span className={styles.due}>Review due</span> : null}

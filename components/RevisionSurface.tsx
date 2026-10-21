@@ -329,7 +329,7 @@ export function RevisionSurface({ topicId }: { /** A topic's own page, opened in
           <button type="button" className="core-add-source" onClick={() => sourcePickerRef.current?.click()}><Plus /> Add source</button>
         </div>
         <div className="studio-rail-bottom">
-          <div className="studio-theme"><ThemeSwitch /></div>
+          <div className="studio-theme"><ThemeSwitch compact /></div>
           <Link href="/" className="studio-home-link"><ArrowLeft /> Back</Link>
           {auth.user ? (
             <button type="button" className="studio-account-action" onClick={() => auth.signOut()}>Sign out</button>

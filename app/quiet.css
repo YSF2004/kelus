@@ -619,8 +619,7 @@ html body.is-course-studio .core-source-remove { display: inline-grid; place-ite
 
 /* Appearance in the product: at the foot of the sidebar; in the top bar only where the sidebar's foot is hidden. */
 html body.is-course-studio .studio-theme { padding: 4px 4px 8px; }
-html body.is-course-studio .studio-theme > div { display: flex; width: 100%; }
-html body.is-course-studio .studio-theme button { flex: 1; }
+html body.is-course-studio .studio-theme > div { display: inline-flex; }
 html body.is-course-studio .studio-topbar-theme { display: none; }
 @media (max-width: 650px) { html body.is-course-studio .studio-topbar-theme { display: inline-flex; margin-left: auto; } }
 
@@ -635,7 +634,6 @@ html body.is-course-studio .studio-topbar-signin { display: none; }
 html body.is-course-studio .studio-section-head.kelus-space-top { padding: 40px max(24px, calc((100% - 42.5rem) / 2)) 4px; border-bottom: 0; }
 html body.is-course-studio .studio-section-head h1 { font-size: clamp(2rem, 4vw, 2.5rem) !important; letter-spacing: -0.025em !important; }
 html body.is-course-studio .surface-map.is-toc { width: min(100% - 48px, 42.5rem); margin: 0 auto; }
-html body.is-course-studio .surface-map.is-toc .index-toc-name { font-family: var(--font-marketing-heading), Georgia, serif !important; font-size: 1.1875rem !important; font-weight: 500 !important; letter-spacing: -0.01em; }
 html body.is-course-studio [class*="ProgressView"][class*="page"] { margin: 0 auto !important; width: min(100% - 48px, 42.5rem) !important; }
 html body.is-course-studio [class*="AnkiExport"][class*="card"] { grid-template-columns: minmax(0, 1fr) auto; margin: 0 !important; padding-inline: 0 !important; padding: 18px 0 0; border: 0; border-top: 1px solid var(--q-line); border-radius: 0; background: transparent; box-shadow: none; }
 html body.is-course-studio [class*="AnkiExport"][class*="logo"] { display: none; }
@@ -776,3 +774,16 @@ html body .k-btn--paper:active:not(:disabled) { box-shadow: inset 0 0 0 1px var(
 :is(body.is-course-studio, body.is-session-booklet, body.is-session-complete, body.is-sheet, body:has(.start-page)) :is(.kicker, [class*="eyebrow"], [class*="Kicker"], [class*="kicker"]) { text-transform: none !important; letter-spacing: 0 !important; font-size: 0.8125rem !important; font-weight: 500 !important; color: var(--k-text-3) !important; }
 /* No ruled paper, desk or sheet shadow anywhere: the page is the surface. */
 html body :is(.is-course-studio, .is-session-booklet) :is([class*="TodayQuiet"][class*="page"], .surface-map.is-toc, [class*="ProgressView"][class*="page"]) { background-image: none !important; box-shadow: none !important; }
+
+/* ── Dashboard structure ───────────────────────────────────────────────────────────────────────────────
+   Every section is laid out the way a dashboard page is: the title at the content's left edge, then the content at
+   one wide measure beside the sidebar, not a narrow column in the middle of the screen. */
+@media (min-width: 651px) {
+  html body.is-course-studio .studio-section-head.kelus-space-top { padding: 32px 40px 20px !important; }
+  html body.is-course-studio .studio-section-head h1 { font-size: 1.75rem !important; }
+  html body.is-course-studio :is(.surface-map.is-toc, [class*="ProgressView"][class*="page"], [class*="TodayQuiet"][class*="page"]) { width: auto !important; max-width: 60rem !important; margin: 0 40px !important; }
+  html body.is-course-studio .today-source-access { max-width: 60rem; margin-inline: 40px !important; }
+  html body.is-course-studio :is(.core-workspace-grid.is-today-single, .core-workspace-grid.is-today-single > .core-workspace-action) { width: auto !important; max-width: none !important; margin-inline: 0 !important; }
+}
+/* Buttons and links say what they do; an arrow after the words adds nothing. */
+:is(body.is-course-studio, body.is-session-booklet, body.is-session-complete, body.is-sheet, body:has(.start-page)) [data-mark="arrow-right"] { display: none !important; }
