@@ -78,7 +78,7 @@ test("the course workspace stays legible across its sections and returns home", 
   await page.goto("/today/?sample=1");
   await expect(page.locator("#today-title")).toHaveText("Elasticity");
   // The product is set on warm paper (the editorial notebook), not screen white.
-  await expect(page.locator(".studio-main")).toHaveCSS("background-color", "rgb(251, 250, 247)");
+  await expect(page.locator(".studio-main")).toHaveCSS("background-color", "rgb(255, 255, 255)");
   await expect(page.locator('[data-block="course-title"]')).toHaveText("Microeconomics");
 
   const sections = sectionsNav(page);

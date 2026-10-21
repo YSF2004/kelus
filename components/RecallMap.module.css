@@ -36,7 +36,7 @@
 }
 
 /* Editorial notebook: the label is a running head, the topics are named in the book serif. */
-.kicker { font-size: 0.9375rem; font-variant-caps: all-small-caps; letter-spacing: 0.08em; }
+.kicker { font-size: 0.9375rem; font-variant-caps: normal; letter-spacing: 0; }
 .name { font-family: var(--font-marketing-heading), Georgia, serif; font-size: 1rem; }
 
 /* A recalled line takes its topic's colour; still coming back stays a marigold ring, not asked stays pale. */
