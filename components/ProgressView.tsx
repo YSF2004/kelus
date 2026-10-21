@@ -85,7 +85,6 @@ export function ProgressView({ concepts, events, nowIso, daysToExam, targetPerce
         <Link href="/sheet" className={styles.sheetLink}>Read your revision sheet: every topic in your own words <ArrowRight /></Link>
         <section className={styles.group} aria-labelledby="progress-headline">
           <h2 id="progress-headline" className={styles.earlyHeading}>{summary.practised.length} of {concepts.length} topics tried</h2>
-          <p className={styles.note}>A few more answers across your topics will show a useful trend. For now, here is what you tried.</p>
           <ul>
             {summary.practised.map((topic) => (
               <li key={topic.id}>
