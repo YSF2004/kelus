@@ -146,6 +146,14 @@ try {
   await show("Start: a student brings their chapter", 1200);
   await dropPdf();
   const start = page.getByRole("button", { name: /^Start$/ });
+  // The topics Kelus found are checked before studying: a beat to read them, then keep them all.
+  const keep = page.getByRole("button", { name: /^Use \d+ topics?$/ });
+  await keep.or(start).first().waitFor({ timeout: 30000 });
+  if (await keep.count()) {
+    mark("Kelus reads the chapter and shows the topics it found, from the student's own headings.");
+    await show("The topics Kelus found", 2200);
+    await point(keep);
+  }
   await start.waitFor({ timeout: 30000 });
   await show("Kelus reads the chapter and picks the first topic", 2600);
   await point(start);

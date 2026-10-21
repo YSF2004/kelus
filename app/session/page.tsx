@@ -113,6 +113,8 @@ function SessionBody() {
   const [sourceRevealed, setSourceRevealed] = useState(false);
   // The full notes slide in from the side when asked for; the page under the question never rearranges.
   const [notesOpen, setNotesOpen] = useState(false);
+  // A missed line to circle on the original page; cleared when the topic changes.
+  const [markedLine, setMarkedLine] = useState<string | null>(null);
 
   useEffect(() => {
     if (!notesOpen) return;
@@ -296,6 +298,7 @@ function SessionBody() {
     setHelpMode(null);
     setSourceRevealed(false);
     setNotesOpen(false);
+    setMarkedLine(null);
     setPhase("learn");
     startedAt.current = 0;
     responseTimeMs.current = 0;
@@ -564,7 +567,7 @@ function SessionBody() {
       })()}
       {hasReadableSource ? <div className="session-workspace-source" aria-label="Your notes">
         {quickMode ? <button type="button" className="session-notes-close" onClick={() => setNotesOpen(false)} aria-label="Close your notes">Close notes <ArrowRight /></button> : null}
-        <CourseSourceReader key={`${currentMaterial.id}-${sourcePage}`} material={currentMaterial} initialPage={sourcePage} concealed={recallWithoutLooking} onShowSource={() => setSourceRevealed(true)} />
+        <CourseSourceReader key={`${currentMaterial.id}-${sourcePage}`} material={currentMaterial} initialPage={sourcePage} concealed={recallWithoutLooking} onShowSource={() => setSourceRevealed(true)} highlight={markedLine} />
       </div> : null}
       <div className="study-loop-track">
         {quickMode ? null : (
@@ -780,6 +783,7 @@ function SessionBody() {
                 run={run}
                 courseType={session?.courseId === "course-microeconomics" ? "sample" : "real"}
                 onRevealSource={() => setSourceRevealed(true)}
+                onShowLine={hasReadableSource && currentMaterial?.kind !== "text" ? (quote) => { setMarkedLine(quote); setSourceRevealed(true); setNotesOpen(true); } : undefined}
                 onFinish={finishQuick}
                 readFirst={round === 0}
                 known={knownAtOpen.set}

@@ -34,7 +34,7 @@ export function RecallMap({ concepts, activities, nowIso }: { concepts: Concept[
       </p>
       <p className={styles.sub}>
         {map.recalled === 0
-          ? "Every line Kelus can ask you about. Each one fills in, in its topic’s colour, after a correct answer."
+          ? "None yet. Each fills in as you answer it."
           : [map.thisWeek ? `${map.thisWeek} answered correctly this week` : null, map.back ? `${map.back} ${map.back === 1 ? "comes" : "come"} back first in your next warm-up` : null].filter(Boolean).join(" · ") || "A miss turns a line back; a right answer brings it home."}
       </p>
 

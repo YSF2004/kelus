@@ -742,3 +742,19 @@ html body.is-course-studio .studio-section-head.kelus-space-top[data-section="ma
 @keyframes kelusTurn { to { --drop-turn: 360deg; } }
 @media (prefers-reduced-motion: reduce) { .start-page .setup-first-upload { transition: none; } .start-page .setup-first-upload.is-dragging::before { animation: none; } }
 .start-page .setup-first-upload strong { color: var(--k-ink) !important; font-family: var(--font-marketing-heading), Georgia, serif !important; font-size: 1.375rem !important; font-weight: 500 !important; letter-spacing: -0.01em; }
+/* ── Margin notes on the student's own page ────────────────────────────────────────────────────────────
+   The missed line, on the original PDF: a marigold highlighter under each printed row, multiplied into the ink so the
+   print stays sharp, and a soft graphite loop drawn round it by hand. */
+html body .core-source-page { position: relative; display: inline-block; }
+html body .core-source-marks { position: absolute; inset: 0; pointer-events: none; }
+/* The page is printed white in both themes, so its marks keep their daylight colours. */
+html body .core-source-marker { position: absolute; border-radius: 3px 6px 4px 7px; background: rgba(243, 178, 62, 0.55); mix-blend-mode: multiply; transform-origin: left center; }
+html body .core-source-loop { position: absolute; overflow: visible; }
+html body .core-source-loop path { fill: none; stroke: rgba(141, 84, 16, 0.8); stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round; vector-effect: non-scaling-stroke; }
+
+/* Materials, as a library card: the source named in the serif, its topics as coloured words (each in its tone). */
+html body.is-course-studio .material-card .material-name > strong { font-family: var(--font-marketing-heading), Georgia, serif !important; font-size: 1.25rem !important; font-weight: 500 !important; letter-spacing: -0.01em; }
+html body.is-course-studio .material-card-topics { display: flex; flex-wrap: wrap; gap: 6px 14px; margin-top: 6px; }
+html body.is-course-studio .material-card-topics span { display: inline-flex; align-items: center; gap: 6px; color: var(--topic-ink, var(--k-text-2)); font-size: 0.875rem; font-weight: 500; }
+html body.is-course-studio .material-card-topics span[data-tone]::before { content: ""; width: 7px; height: 7px; border-radius: 2px; background: var(--topic); }
+html body.is-course-studio .material-shelf h2 { font-family: var(--font-marketing-heading), Georgia, serif !important; font-weight: 500 !important; }

@@ -12,7 +12,6 @@ import { TodayRoute } from "@/components/TodayRoute";
 import { SampleReplaceConfirm } from "@/components/SampleReplaceConfirm";
 import { setPendingSetupFile } from "@/lib/pending-setup-file";
 import { SOURCE_FILE_ACCEPT } from "@/domain/materials";
-import { ExamPulse } from "@/components/ExamPulse";
 import { estimatedReadiness } from "@/domain/readiness";
 import { TopicMapPanel } from "@/components/TopicMapPanel";
 import { ProgressView } from "@/components/ProgressView";
@@ -368,7 +367,6 @@ export function RevisionSurface({ topicId }: { /** A topic's own page, opened in
             <div className="kelus-space-identity">
               {/* Sections swap at once, as pages do in Notion: no waiting for the old one to leave. */}
               <h1 id="section-title">{modeMeta.label}</h1>
-              {mode !== "progress" ? null : <ExamPulse readiness={estimatedReadiness(concepts)} targetPercent={exam.targetPercent} daysToExam={days} datePending={examDatePending} answered={snapshot.events.filter((event) => event.kind === "retrieval" && concepts.some((concept) => concept.id === event.conceptId)).length} />}
             </div>          </header>
         ) : null}
 

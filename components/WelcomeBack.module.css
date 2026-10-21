@@ -194,3 +194,6 @@
 }
 
 .view { display: block; width: min(100%, 300px); height: auto; margin: 0 0 6px; opacity: 0.9; }
+
+/* The greeting is a title like every other one: the book serif. */
+.title { font-family: var(--font-marketing-heading), Georgia, serif !important; font-weight: 500 !important; letter-spacing: -0.02em !important; }

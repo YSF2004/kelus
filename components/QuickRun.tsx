@@ -47,7 +47,7 @@ function acceptedNote(how: NonNullable<CheckVerdict["how"]>, word: string) {
   return `Counted. The gap was just “${word}”.`;
 }
 
-export function QuickRun({ run, onRevealSource, onFinish, onChecksDone, context, readFirst = false, known, recalled, courseType = "real" }: {
+export function QuickRun({ run, onRevealSource, onShowLine, onFinish, onChecksDone, context, readFirst = false, known, recalled, courseType = "real" }: {
   run: Run;
   courseType?: "real" | "sample";
   /** A topic met for the first time: its lines are read, one at a time, before anything is asked. */
@@ -56,6 +56,8 @@ export function QuickRun({ run, onRevealSource, onFinish, onChecksDone, context,
   known?: Set<string>;
   recalled?: number;
   onRevealSource: () => void;
+  /** Open the original page with this line circled on it. Only when there is an original page to open. */
+  onShowLine?: (quote: string) => void;
   onFinish: (result: QuickRunResult) => void;
   /** A warm-up is checks only: given this, the last Next ends the run instead of opening the explanation. */
   onChecksDone?: (result: { right: number; total: number; missed: string[]; known: string[] }) => void;
@@ -351,7 +353,7 @@ export function QuickRun({ run, onRevealSource, onFinish, onChecksDone, context,
                 {answered.firstEver ? <p className={styles.firstNote}><PackArt name="ranking" className={styles.firstArt} size={64} /><span>Kelus brings it back in a few days, just before you’d forget it, so it sticks for the exam.</span></p> : null}
                 <div className={styles.lineTools}>
                   <ListenButton key={`listen-q-${step}`} text={item.sourceQuote} className={styles.listen} />
-                  {!answered.right && !around && linesAround(run, item.sourceQuote) ? <button type="button" className={styles.listen} onClick={() => setAround(true)}>Show it in your notes</button> : null}
+                  {!answered.right && onShowLine ? <button type="button" className={styles.listen} onClick={() => onShowLine(item.sourceQuote)}>See it on your page</button> : !answered.right && !around && linesAround(run, item.sourceQuote) ? <button type="button" className={styles.listen} onClick={() => setAround(true)}>Show it in your notes</button> : null}
                 </div>
                 {answered.elsewhere ? (
                   <div className={styles.elsewhere}>
