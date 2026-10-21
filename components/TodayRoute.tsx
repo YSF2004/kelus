@@ -258,7 +258,11 @@ export function TodayRoute({
 
       <motion.section className={q.next} data-block="today-lead" data-tone={toneOf(first.conceptId, concepts)} aria-labelledby="today-title" {...settle(1)}>
         <p className={q.eyebrow}>{startLabel ? "Continue your session" : goalDone ? "Extra for today" : "Up next"}</p>
-        <h2 id="today-title" className={q.topic}>{firstName}</h2>
+        {/* The topic's place in the notes, set as a chapter number in its own colour. */}
+        <div className={q.chapter}>
+          <span className={q.chapterNum} aria-hidden="true">{String(Math.max(1, concepts.findIndex((concept) => concept.id === first.conceptId) + 1)).padStart(2, "0")}</span>
+          <h2 id="today-title" className={q.topic}>{firstName}</h2>
+        </div>
         {/* What the run holds, as marks a student reads in a glance: time, checks, the explanation, the page. */}
         <ul className={q.chips} data-block="today-page-folio" aria-label="What this topic holds">
           <li><Octicon name="clock" className={q.ico} />{first.minutes} min</li>

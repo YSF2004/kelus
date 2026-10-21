@@ -735,3 +735,19 @@
 .gradeMark { width: 22px !important; height: 22px !important; background: transparent !important; }
 .grades strong em { padding: 0; background: transparent !important; color: var(--color-kelus, var(--k-green)); font-size: 0.75rem; font-style: normal; font-weight: 600; }
 .grades .gradeKey { opacity: 0.6; }
+
+/* ── Feedback as a margin note ─────────────────────────────────────────────────────────────────────────
+   On a wide screen the verdict is not a filled panel: a rule of its colour down the left, the verdict in the serif,
+   the line it comes from in plain text, the actions in one row. (Phones keep their bottom sheet.) */
+@media (min-width: 641px), (pointer: fine) {
+  .feedback, .feedback.ok, .feedback.no, .feedback.unsure { gap: 8px; padding: 4px 0 4px 20px; border: 0; border-left: 2px solid var(--k-line-strong); border-radius: 0; background: transparent; }
+  .feedback.ok { border-left-color: var(--color-kelus, var(--k-green)); }
+  .feedback.no { border-left-color: var(--k-danger); }
+  .feedback strong { font-family: var(--font-marketing-heading), Georgia, serif; font-size: 1.375rem; font-weight: 500; letter-spacing: -0.01em; }
+  .feedback .quote { font-style: normal; font-size: 0.9375rem; color: var(--k-text-2); }
+  .feedback .primary { margin-top: 6px; }
+}
+
+/* Key hints are a quiet suffix, not a second button inside the button. */
+.key { padding: 0; background: transparent; opacity: 0.65; }
+.linkKey { padding: 0; border: 0; color: var(--k-text-3, var(--color-slate)); }
