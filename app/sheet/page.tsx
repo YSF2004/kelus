@@ -43,9 +43,9 @@ export default function RevisionSheetPage() {
       </nav>
 
       <header className={styles.head}>
-        <p className={styles.running}>{course?.name ?? "Your course"} · revision sheet</p>
+        <p className={styles.running}>{course?.name ?? "Your course"}</p>
         <h1>The sheet you wrote.</h1>
-        <p className={styles.lede}>Every topic in your own words, from the last time you explained it, beside the line of your notes it was checked against.</p>
+        <p className={styles.lede}>Each topic in your own words, beside the line of your notes it was checked against.</p>
         <p className={styles.meta}>
           <span><b>{sheet.written}</b> of {sheet.total} topics in your words</span>
           {sheet.comingBack ? <span><b>{sheet.comingBack}</b> {sheet.comingBack === 1 ? "line" : "lines"} still coming back</span> : null}
@@ -70,7 +70,7 @@ export default function RevisionSheetPage() {
                     {entry.notes ? <p className={styles.notes}><span>Your notes</span> {entry.notes}</p> : null}
                   </>
                 ) : (
-                  <p className={styles.unwritten}>Not in your words yet. <Link href={`/concept?id=${encodeURIComponent(entry.id)}`}>Explain it</Link></p>
+                  <p className={styles.unwritten}>Not explained yet. <Link href={`/concept?id=${encodeURIComponent(entry.id)}`}>Explain it</Link></p>
                 )}
               </div>
               {/* The margin, as a teacher's pencil would use it: what was left out, what was turned around, what comes back. */}

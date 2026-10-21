@@ -493,7 +493,7 @@ html body.is-course-studio .core-source-remove { display: inline-grid; place-ite
 :root:not([data-theme="dark"]) :is(body.is-course-studio, body.is-session-booklet, body.is-session-complete, body:has(.start-page)) {
   --k-ink: #17201b;
   --k-text-2: #59625d;
-  --k-text-3: #7d8681;
+  --k-text-3: #6b736e;
   --k-line: #e9ebea;
   --k-line-strong: #dadedc;
   --k-surface: #ffffff;
@@ -502,7 +502,7 @@ html body.is-course-studio .core-source-remove { display: inline-grid; place-ite
   --k-card: #ffffff;
   --q-ink: #17201b;
   --q-text-2: #59625d;
-  --q-text-3: #7d8681;
+  --q-text-3: #6b736e;
   --q-line: #e9ebea;
   --q-line-strong: #dadedc;
   --q-hover: #f4f5f4;
@@ -856,3 +856,23 @@ html body.is-session-booklet .study-context.is-folio { border-bottom: 1px solid 
 html body.is-session-booklet main#main [class*="QuickRun"][class*="run"]:not([class*="runs"]) { max-width: 40rem !important; margin-inline: auto !important; padding-top: 40px !important; }
 html body.is-session-booklet main#main [class*="QuickResult"][class*="card"] { max-width: 40rem !important; margin-inline: auto !important; padding-top: 40px !important; }
 @media (max-width: 650px) { html body.is-session-booklet main#main :is([class*="QuickRun"][class*="run"]:not([class*="runs"]), [class*="QuickResult"][class*="card"]) { padding-top: 16px !important; } }
+
+/* ── Start and topic check ─────────────────────────────────────────────────────────────────────────────
+   The first screen: the title at product scale, the drop zone, one footnote. The topic check: a list of checkboxes
+   over hairlines, each topic's name with its first line below and its page at the right, plain actions in one row. */
+html body .start-page .destination-page-title { font-size: clamp(1.75rem, 3.2vw, 2.25rem) !important; font-weight: 600 !important; letter-spacing: -0.025em !important; line-height: 1.15 !important; max-width: none !important; }
+html body .start-page .empty-course-art { width: 120px !important; height: auto !important; }
+html body .start-page .setup-file-help { color: var(--k-text-3) !important; font-size: 0.8125rem !important; max-width: 36rem; }
+html body .first-source-review h2 { font-size: clamp(1.5rem, 3vw, 1.75rem) !important; font-weight: 600 !important; letter-spacing: -0.022em !important; }
+html body .first-source-review .read-coverage { margin: 8px 0 0 !important; color: var(--k-text-3) !important; font-size: 0.8125rem !important; font-weight: 400 !important; }
+html body .first-source-review header > p:not(.read-coverage) { color: var(--k-text-2) !important; font-size: 0.9375rem !important; }
+html body .first-source-review-list label { display: grid !important; grid-template-columns: 20px minmax(0, 1fr) auto; align-items: start; gap: 12px 14px; }
+html body .first-source-review-list strong { font-size: 0.9375rem !important; font-weight: 500 !important; }
+html body .first-source-review-list small { font-style: normal !important; color: var(--k-text-3) !important; font-size: 0.8125rem !important; -webkit-line-clamp: 1 !important; }
+html body .first-source-review-page { color: var(--k-text-3); font-size: 0.8125rem; font-style: normal; white-space: nowrap; }
+html body .first-source-review-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 20px; }
+html body .first-source-review-actions :is(.text-btn, a.text-btn) { color: var(--k-text-2) !important; font-size: 0.875rem !important; font-weight: 500 !important; text-decoration: none !important; }
+html body .first-source-review-actions :is(.text-btn, a.text-btn):hover { color: var(--k-ink) !important; }
+html body .first-source-kind { padding: 14px 16px !important; border: 1px solid color-mix(in oklch, var(--k-marigold, #f3b23e) 40%, transparent) !important; border-radius: 10px !important; background: color-mix(in oklch, var(--k-marigold, #f3b23e) 8%, var(--k-surface)) !important; }
+html body .first-source-kind strong { font-size: 1rem !important; font-weight: 600 !important; }
+html body .first-source-review-actions :is(.text-btn, a.text-btn) { display: inline-flex !important; align-items: center; min-height: 44px; margin: 0 !important; padding: 0 !important; }

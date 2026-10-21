@@ -20,7 +20,7 @@ Replaces the "editorial notebook" (warm paper, serif titles, ruled sheets, penci
 default. References measured live: stripe.com, docs.stripe.com, and Figma's Simple Design System (`figma/sds`).
 
 - Surface: white page (`#fff`), sidebar `#f8f9f8`, hairlines `#e9ebea` / `#dadedc`; night is neutral graphite (`#121413`).
-- Ink: one green-black (`#17201b`) in three steps (`#59625d`, `#7d8681`). Accent: Kelus green only, for actions,
+- Ink: one green-black (`#17201b`) in three steps (`#59625d`, `#6b736e`). Accent: Kelus green only, for actions,
   current selection and correct answers. Coral for wrong, marigold for "comes back". Topic colours only as small dots.
 - Type: Inter, titles 600 at -0.022em (page titles 1.75rem), body 15px, labels 13px sentence case. No small caps, no
   ALL-CAPS kickers, no eyebrows above headings, no italics for asides.
