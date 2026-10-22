@@ -16,7 +16,7 @@ export function StudyMoment() {
         <Reveal className={styles.studyCopy}>
           <h2 id="study-moment-title">Your notes stay open beside the question.</h2>
           <p>Miss one, and “Show it in your notes” opens that line with the lines around it. Listen reads it out. Every question comes from your own pages, so you never have to wonder where an answer came from.</p>
-          <Link href="/today" className={styles.textLink}>Set up my course <span aria-hidden="true">↗</span></Link>
+          <Link href="/today" className={styles.textLink}>Set up my course</Link>
         </Reveal>
       </div>
     </section>

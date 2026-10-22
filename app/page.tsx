@@ -38,7 +38,7 @@ export default function Home() {
 
   return (
     <LateralPage>
-      <div className="home" data-marketing="editorial">
+      <div className="home is-leitner-home" data-marketing="editorial">
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }} />
         <main id="main">
           <KelusHero />

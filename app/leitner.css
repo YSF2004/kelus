@@ -221,3 +221,27 @@ html body.is-course-studio .core-source-page { box-shadow: 0 0 0 1px var(--lb-li
 @media (max-width: 650px) {
   html body.is-course-studio .surface-map.is-toc .index-toc-row { min-height: 0 !important; padding-top: 12px !important; padding-bottom: 12px !important; row-gap: 8px !important; }
 }
+
+/* ── The homepage below the hero: the same instrument ─────────────────────────────────────────────────
+   Every heading in Geist (the book serif stays on no product or home surface), the story's four steps as wells on the
+   page, the pack's drawings kept but quieter, and one green action at the close. */
+html body .is-leitner-home { --lb-ink: #0e1512; --lb-text-2: #4a5550; --lb-text-3: #5c6661; --lb-line: #e3e8e5; --lb-well: #f5f7f6; --lb-green: #1f6b45; font-family: var(--font-geist), system-ui, sans-serif !important; background: #fff; }
+html body .is-leitner-home :is(h1, h2, h3, h4, p, li, a, span, strong, small, b, dt, dd) { font-family: var(--font-geist), system-ui, sans-serif !important; font-style: normal !important; }
+html body .is-leitner-home :is(h2, [id$="-title"]):not(#home-hero-title) { font-weight: 600 !important; letter-spacing: -0.035em !important; line-height: 1.06 !important; color: var(--lb-ink) !important; }
+html body .is-leitner-home h2:not(#home-hero-title) { font-size: clamp(32px, 3.6vw, 48px) !important; text-wrap: balance; }
+html body .is-leitner-home h3 { font-weight: 600 !important; letter-spacing: -0.01em !important; }
+html body .is-leitner-home section p:not([class*="LeitnerHero"]) { color: var(--lb-text-2); }
+/* The four steps: each a well with a hairline, its number a small mono figure. */
+html body .is-leitner-home [class*="RevisionLoopVisuals"][class*="sheet"] { border: 0 !important; border-radius: 14px !important; background: var(--lb-well) !important; box-shadow: inset 0 0 0 1px var(--lb-line) !important; }
+html body .is-leitner-home [class*="RevisionLoopVisuals"][class*="step"] h3 span { font-family: var(--font-geist-mono), ui-monospace, monospace !important; border-color: var(--lb-line) !important; }
+html body .is-leitner-home [class*="RevisionLoopVisuals"][class*="moved"] span { color: var(--lb-green) !important; font-weight: 600; }
+/* The pack's drawings stay, as accents beside the words rather than the subject of the section. */
+html body .is-leitner-home img[src*="/art/notion-pack/"] { max-width: min(280px, 100%) !important; height: auto !important; opacity: 0.92; }
+html body .is-leitner-home a:not([class*="primary"]):not([class*="action"]) { text-underline-offset: 4px; text-decoration-thickness: 1px; }
+/* The close: one green key, quiet facts. */
+html body .is-leitner-home [class*="HomeFinal"][class*="action"] { height: 50px; padding: 0 22px !important; border-radius: 11px !important; background: var(--lb-green) !important; font-weight: 600 !important; box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.16), 0 0 0 1px #17573a, 0 6px 16px -6px rgba(31, 107, 69, 0.55) !important; }
+html body .is-leitner-home [class*="HomeFinal"][class*="facts"] li { color: var(--lb-text-3) !important; font-size: 13.5px !important; }
+html body .is-leitner-home :is(section, footer) + :is(section, footer) { border-top-color: var(--lb-line) !important; }
+html body [data-marketing="editorial"].is-leitner-home :is(#revision-loop-title, #study-moment-title, #revision-return-title, #home-final-title, #home-close-title, #poster-sample-title),
+html body [data-marketing="editorial"].is-leitner-home :is(#revision-loop-title, #study-moment-title, #revision-return-title, #home-final-title) * { font-family: var(--font-geist), system-ui, sans-serif !important; font-weight: 600 !important; letter-spacing: -0.035em !important; font-style: normal !important; }
+html body .is-leitner-home [class*="HomeVisualChapters"] img[src*="/art/notion-pack/"] { max-width: min(380px, 100%) !important; }
