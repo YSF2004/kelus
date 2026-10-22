@@ -42,7 +42,9 @@
 .panelFoot { display: flex; justify-content: space-between; gap: 12px; margin-top: 14px; font-size: 13px; color: var(--t2); }
 .panelFoot b { color: var(--green); }
 @keyframes kelusHeroPick { 0%, 18% { box-shadow: 0 0 0 1px var(--line); color: var(--ink); background: #fff; font-weight: 400; } 22%, 100% { box-shadow: 0 0 0 1.5px var(--green); color: var(--green); background: #f1f7f3; font-weight: 600; } }
-@keyframes kelusHeroMove { 0%, 26% { transform: translate(0, 0); background: #fff; color: var(--t2); box-shadow: 0 0 0 1px var(--strong); } 40%, 100% { transform: translate(calc(100% + 28px), 0); background: var(--green); color: #fff; box-shadow: 0 8px 18px -8px rgba(31, 107, 69, 0.6); } }
+/* The slide interpolates; the colour changes in one step as the chip lands, so its text never sits half-faded on a
+   half-green chip (white on pale green fails contrast). */
+@keyframes kelusHeroMove { 0%, 26% { transform: translate(0, 0); } 40%, 100% { transform: translate(calc(100% + 28px), 0); } 0%, 39.9% { background: #fff; color: var(--t2); box-shadow: 0 0 0 1px var(--strong); } 40%, 100% { background: var(--green); color: #fff; box-shadow: 0 8px 18px -8px rgba(31, 107, 69, 0.6); } }
 @media (prefers-reduced-motion: reduce) {
   .options .right { animation: none; box-shadow: 0 0 0 1.5px var(--green); color: var(--green); background: #f1f7f3; font-weight: 600; }
   .mover { animation: none; transform: translate(calc(100% + 28px), 0); background: var(--green); color: #fff; box-shadow: none; }
