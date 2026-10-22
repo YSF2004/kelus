@@ -23,3 +23,4 @@
   .box { min-height: 180px; }
 }
 .mark { display: block; white-space: nowrap !important; text-wrap: nowrap !important; overflow: hidden; text-overflow: ellipsis; }
+.mark[data-moved] { position: relative; z-index: 1; box-shadow: 0 6px 14px -6px rgba(31, 107, 69, 0.55); }
