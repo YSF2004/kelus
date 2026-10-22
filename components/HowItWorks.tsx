@@ -30,7 +30,7 @@ function SourceVisual({ visible, reduceMotion }: VisualProps) {
     <figure className={`${styles.visual} ${styles.sourceVisual}`}>
       <div className={styles.art}>
         <div className={sheets.sheet} aria-hidden="true">
-          <p className={sheets.kicker}>Biology · Cell Transport · 3 pages</p>
+          <p className={sheets.kicker}>Biology, Cell Transport, 3 pages</p>
           <ul className={sheets.rows}>
             {topics.map(([name, page], index) => (
               <motion.li key={name} {...row(index)}><strong>{name}</strong><span>{page}</span></motion.li>
@@ -71,7 +71,7 @@ function RerouteVisual({ visible, reduceMotion }: VisualProps) {
           <p className={sheets.why}>Last time, 3 days ago, it came out partly right. Active transport builds on it.</p>
           <ul className={sheets.rows}>
             <motion.li {...row(0)}><strong>Active transport</strong><span>New</span></motion.li>
-            <motion.li {...row(1)}><strong>Diffusion</strong><span>Solid · in 5 days</span></motion.li>
+            <motion.li {...row(1)}><strong>Diffusion</strong><span>Solid, back in 5 days</span></motion.li>
           </ul>
         </div>
       </div>

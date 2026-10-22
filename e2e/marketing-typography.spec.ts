@@ -26,10 +26,10 @@ test("How it works tells one course story and actions stay green", async ({ page
   const setupActions = page.getByRole("link", { name: "Set up my course" });
   await expect(setupActions).toHaveCount(2);
   await expect(setupActions.first()).toHaveCSS("background-color", "rgb(31, 107, 69)");
-  await expect(setupActions.first()).toHaveCSS("border-radius", "8px");
+  await expect(setupActions.first()).toHaveCSS("border-radius", "11px");
   await expect(setupActions.first()).toHaveCSS("min-height", "48px");
   await expect(setupActions.first()).toHaveAttribute("href", "/today/");
-  await expect(setupActions.last()).toHaveCSS("border-radius", "8px");
+  await expect(setupActions.last()).toHaveCSS("border-radius", "11px");
   for (const width of [320, 375, 414, 768, 1440]) {
     await page.setViewportSize({ width, height: 900 });
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), `overflow at ${width}px`).toBe(true);
@@ -44,12 +44,12 @@ test("How it works tells one course story and actions stay green", async ({ page
   await page.screenshot({ path: "test-results/how-it-works-mobile.png", fullPage: true });
 });
 
-test("one pair of faces on every page: Literata headings, Inter text", async ({ page }) => {
+test("one face on every page: Geist headings and text", async ({ page }) => {
   for (const [path, heading] of [["/route/", "#how-title"], ["/pricing/", ".pricing-page h1"]]) {
     await page.goto(path);
     await page.evaluate(() => document.fonts.ready);
-    await expect(page.locator(heading)).toHaveCSS("font-family", /Literata/i);
-    await expect(page.locator('[data-marketing] p').first()).toHaveCSS("font-family", /Inter/i);
+    await expect(page.locator(heading)).toHaveCSS("font-family", /Geist/i);
+    await expect(page.locator('[data-marketing] p').first()).toHaveCSS("font-family", /Geist/i);
     await expect(page.locator('.site-header a').first()).toHaveCSS("font-family", /Inter/i);
     await page.setViewportSize({ width: 390, height: 844 });
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBeTruthy();
