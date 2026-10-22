@@ -21,11 +21,22 @@ export function subscribeKnownLines(onChange: () => void) {
   return subscribeDemoState(onChange);
 }
 
-/** Right answers: each line once, at its newest time. */
+/** Right answers: each line once, at its newest time. A right answer on a later day than the last one adds to the
+ * line's streak (it moves one Leitner box right); a second right answer the same day does not. */
 export function addKnownLines(lines: MissedLine[]) {
   if (!lines.length) return;
   const quotes = new Set(lines.map((line) => line.quote));
-  updateKnownLines((current) => [...current.filter((line) => !quotes.has(line.quote)), ...lines]);
+  updateKnownLines((current) => {
+    const before = new Map(current.map((line) => [line.quote, line]));
+    const next = lines.map((line) => ({ ...line, streak: nextStreak(before.get(line.quote), line.at) }));
+    return [...current.filter((line) => !quotes.has(line.quote)), ...next];
+  });
+}
+
+export function nextStreak(previous: MissedLine | undefined, at: string) {
+  if (!previous) return 1;
+  const streak = previous.streak ?? 1;
+  return previous.at.slice(0, 10) === at.slice(0, 10) ? streak : streak + 1;
 }
 
 /** Misses: a line you could not recall today is not one you can recall. */

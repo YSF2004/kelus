@@ -7,7 +7,7 @@ for (const viewport of [{ width: 1440, height: 900 }, { width: 390, height: 844 
     await expect(page.locator("#today-title")).toBeVisible();
 
     const lead = page.locator('[data-block="today-lead"]');
-    await expect(lead).toHaveCSS("border-top-style", "solid");
+    await expect(lead).toHaveCSS("border-top-style", "none");
     await expect(lead).toHaveCSS("border-right-style", "none");
     await expect(lead).toHaveCSS("box-shadow", "none");
     await expect(lead).toHaveCSS("background-color", "rgba(0, 0, 0, 0)");

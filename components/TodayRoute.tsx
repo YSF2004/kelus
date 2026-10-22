@@ -23,6 +23,8 @@ import { CourseFolderIcon } from "@/components/CourseFolderIcon";
 import { Octicon } from "@/components/Octicon";
 import { InlineName } from "@/components/InlineName";
 import { toneOf } from "@/lib/topic-tone";
+import { leitner } from "@/domain/leitner";
+import { LeitnerPanel } from "@/components/LeitnerPanel";
 import { recallMap } from "@/domain/recall-map";
 import { getKnownLines, getServerKnownLines, subscribeKnownLines } from "@/lib/known-lines";
 import q from "./TodayQuiet.module.css";
@@ -98,6 +100,7 @@ export function TodayRoute({
   const habit = habitSummary({ events, concepts });
   const knownLines = useSyncExternalStore(subscribeKnownLines, getKnownLines, getServerKnownLines);
   const recall = recallMap({ concepts, activities, known: knownLines, missed, nowIso });
+  const boxes = leitner({ concepts, activities, known: knownLines, missed, nowIso });
   const eve = !isSampleCourse && !examDatePending && daysToExam > 0 && daysToExam <= 3 && recall.total ? { days: daysToExam, recalled: recall.recalled, total: recall.total, back: recall.back } : null;
   const goalDone = !isSampleCourse && habit.goalMet;
   const goalDoneCount = habit.topicsToday;
@@ -117,7 +120,7 @@ export function TodayRoute({
     if (back && firstTimeToday(nowIso)) trackEvent({ name: "learner_returned", ...back });
   }, [hasPriorEvidence, isSampleCourse, route.allocations.length, sessions, nowIso]);
 
-  // Enter on Today starts (or continues) the next topic, as the button's ↵ says.
+  // Enter on Today starts (or continues) the next topic.
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
       if (event.key !== "Enter" || event.metaKey || event.ctrlKey || event.altKey || event.shiftKey) return;
@@ -245,6 +248,8 @@ export function TodayRoute({
         )}
       </motion.header>
 
+      <div className={q.desk}>
+      <div className={q.lead}>
       {/* The last three days: one calm page before the plan, counted from the student's own answers. */}
       {eve ? (
         <motion.section className={q.eve} aria-labelledby="exam-eve-title" {...settle(1)}>
@@ -257,12 +262,8 @@ export function TodayRoute({
       ) : null}
 
       <motion.section className={q.next} data-block="today-lead" data-tone={toneOf(first.conceptId, concepts)} aria-labelledby="today-title" {...settle(1)}>
-        <p className={q.eyebrow}>{startLabel ? "Continue your session" : goalDone ? "Extra for today" : "Up next"}</p>
-        {/* The topic's place in the notes, set as a chapter number in its own colour. */}
-        <div className={q.chapter}>
-          <span className={q.chapterNum} aria-hidden="true">{String(Math.max(1, concepts.findIndex((concept) => concept.id === first.conceptId) + 1)).padStart(2, "0")}</span>
-          <h2 id="today-title" className={q.topic}>{firstName}</h2>
-        </div>
+        <p className={q.eyebrow}>{startLabel ? "In progress" : goalDone ? "Extra for today" : "Due now"}</p>
+        <h2 id="today-title" className={q.topic}>{firstName}</h2>
         {/* What the run holds, as marks a student reads in a glance: time, checks, the explanation, the page. */}
         <ul className={q.chips} data-block="today-page-folio" aria-label="What this topic holds">
           <li><Octicon name="clock" className={q.ico} />{first.minutes} min</li>
@@ -274,13 +275,14 @@ export function TodayRoute({
         <motion.button
           type="button"
           data-action="start-topic"
+          aria-keyshortcuts="Enter"
+          title="Enter"
           className={`k-btn ${quietStart ? `k-btn--paper ${q.go}` : q.go}`}
           onClick={onStart}
           whileTap={reduceMotion ? undefined : { scale: 0.98 }}
           transition={pressSpring}
         >
           {startLabel ?? "Start this topic"}
-          {quietStart ? null : <kbd className={q.key} aria-hidden="true">↵</kbd>}
         </motion.button>
       </motion.section>
 
@@ -329,6 +331,10 @@ export function TodayRoute({
         : hasPriorEvidence && installable ? <InstallCard />
         : reminder ? <ReminderCard {...reminder} nextStopName={firstName} />
         : null}
+      </div>
+      {/* The signature: every line of the notes in its Leitner box, beside what is due now. */}
+      <LeitnerPanel state={boxes} />
+      </div>
     </div>
   );
 }

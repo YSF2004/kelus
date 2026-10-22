@@ -772,38 +772,3 @@ html body .k-btn--paper:active:not(:disabled) { box-shadow: inset 0 0 0 1px var(
 .start-page .setup-first-upload { grid-template-columns: auto minmax(0, 1fr); align-items: center; column-gap: 20px !important; row-gap: 2px !important; padding: 26px 28px !important; }
 .start-page .setup-first-upload .setup-upload-mark { grid-row: 1 / span 2; width: 44px !important; height: 44px !important; margin: 0 !important; }
 .start-page .setup-first-upload { min-height: 0 !important; }
-
-/* ── Notebook: a sheet on the desk ─────────────────────────────────────────────────────────────────────
-   The product's pages are sheets of ruled paper lying on a darker desk: the desk is the workspace, the sheet is the
-   page you work on, with a hairline edge, a soft shadow and faint ruled lines. Every section and the session share it. */
-:root:not([data-theme="dark"]) body.is-course-studio, :root:not([data-theme="dark"]) body.is-session-booklet { --k-desk: #ece7dc; --k-sheet: #fdfbf6; --k-rule: rgba(60, 80, 140, 0.07); --k-sheet-edge: rgba(26, 25, 21, 0.08); }
-:root[data-theme="dark"] body.is-course-studio, :root[data-theme="dark"] body.is-session-booklet { --k-desk: #0f100e; --k-sheet: #1b1c1a; --k-rule: rgba(255, 255, 255, 0.035); --k-sheet-edge: rgba(255, 255, 255, 0.06); }
-html body.is-course-studio .studio-page.kelus-space-stage { background: var(--k-desk) !important; }
-html body.is-course-studio :is([class*="TodayQuiet"][class*="page"], .surface-map.is-toc, [class*="ProgressView"][class*="page"]),
-html body.is-session-booklet main#main :is([class*="QuickRun"][class*="run"]:not([class*="runs"]), [class*="QuickResult"][class*="card"]) {
-  position: relative;
-  margin-top: 32px !important;
-  margin-bottom: 48px !important;
-  padding: 44px clamp(20px, 5vw, 56px) 56px !important;
-  border-radius: 6px;
-  background-color: var(--k-sheet) !important;
-  background-image: repeating-linear-gradient(180deg, transparent 0 31px, var(--k-rule) 31px 32px) !important;
-  box-shadow: 0 0 0 1px var(--k-sheet-edge), 0 1px 2px rgba(18, 22, 15, 0.05), 0 18px 40px -28px rgba(18, 22, 15, 0.35);
-}
-html body.is-course-studio .studio-section-head.kelus-space-top { background: var(--k-desk) !important; }
-html body.is-session-booklet main#main.study-shell { background: var(--k-desk) !important; }
-html body.is-course-studio .today-source-access { margin-top: 20px; }
-@media (max-width: 650px) {
-  html body.is-course-studio :is([class*="TodayQuiet"][class*="page"], .surface-map.is-toc, [class*="ProgressView"][class*="page"]),
-  html body.is-session-booklet main#main :is([class*="QuickRun"][class*="run"]:not([class*="runs"]), [class*="QuickResult"][class*="card"]) { margin: 12px 8px 24px !important; width: auto !important; padding: 28px 18px 36px !important; }
-}
-html body.is-course-studio .studio-topbar { background: var(--k-desk) !important; border-bottom-color: transparent !important; }
-html body.is-session-booklet main#main [class*="QuickRun"][class*="run"]:not([class*="runs"]) { margin-top: 0 !important; }
-@media (max-width: 650px) { html body.is-course-studio .studio-rail { background: var(--k-desk) !important; border: 0 !important; } }
-html body.is-course-studio [class*="TodayQuiet"][class*="page"] { margin-top: 12px !important; }
-html body.is-course-studio .today-source-access { margin-bottom: 0 !important; border-bottom-color: transparent !important; }
-html body.is-session-booklet main#main [class*="QuickResult"][class*="card"] { margin-top: 0 !important; max-width: 42rem; }
-html body.is-course-studio [class*="AnkiExport"][class*="card"] { padding-inline: 0 !important; }
-/* How questions are written: one quiet line under the topic check, not a card or a switch. */
-html body .first-source-review .ai-note { margin: 10px 0 0; color: var(--k-text-3, var(--q-text-3)); font-size: 0.8125rem; line-height: 1.5; }
-html body .first-source-review .ai-note a { color: inherit; text-decoration: underline; text-underline-offset: 3px; text-decoration-color: color-mix(in srgb, currentColor 40%, transparent); }

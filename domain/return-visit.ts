@@ -3,7 +3,14 @@ import { dayKey } from "./habit";
 import { isDrillable } from "./practice-check";
 import type { LearningEvent, PracticeItem, RetrievalOutcome } from "./types";
 
-export type MissedLine = { conceptId: string; name: string; quote: string; at: string };
+export type MissedLine = {
+  conceptId: string;
+  name: string;
+  quote: string;
+  at: string;
+  /** Known lines only: correct recalls in a row, on separate days. It sets the line's Leitner box (domain/leitner.ts). */
+  streak?: number;
+};
 
 export type ReturnVisit = {
   /** True when the last answer was on an earlier day, or at least a few hours ago. */

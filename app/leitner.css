@@ -1,0 +1,118 @@
+/* ── The Leitner Box ───────────────────────────────────────────────────────────────────────────────────
+   The product's visual world (direction contract: .impeccable/surfaces/components-todayroute-tsx.md). A precise
+   instrument for spaced repetition: white ground, a cool neutral rail, one ink, Kelus green for recall and the one
+   action, coral only for a miss. Geist for text and titles, Geist Mono for counts. No paper, no serif, no ruled lines.
+   Loaded after every older sheet, it sets the tokens those sheets read, so they follow without being rewritten. */
+
+:root:not([data-theme="dark"]) :is(body.is-course-studio, body.is-session-booklet, body.is-session-complete, body:has(.start-page)) {
+  --lb-ink: #0e1512;
+  --lb-text-2: #4a5550;
+  --lb-text-3: #69736e;
+  --lb-line: #e3e8e5;
+  --lb-line-strong: #d6ddd9;
+  --lb-surface: #ffffff;
+  --lb-rail: #f5f7f6;
+  --lb-well: #f5f7f6;
+  --lb-due: #eef5f1;
+  --lb-due-edge: #cfe2d7;
+  --lb-green: #1f6b45;
+  --lb-green-ink: #1f6b45;
+  --lb-miss: #c4492e;
+  --lb-miss-ink: #9b3622;
+  --k-ink: var(--lb-ink);
+  --k-text-2: var(--lb-text-2);
+  --k-text-3: var(--lb-text-3);
+  --k-line: var(--lb-line);
+  --k-line-strong: var(--lb-line-strong);
+  --k-surface: var(--lb-surface);
+  --k-surface-2: var(--lb-rail);
+  --k-selected: #eaefec;
+  --k-card: var(--lb-surface);
+  --q-ink: var(--lb-ink);
+  --q-text-2: var(--lb-text-2);
+  --q-text-3: var(--lb-text-3);
+  --q-line: var(--lb-line);
+  --q-line-strong: var(--lb-line-strong);
+  --q-hover: #f0f3f1;
+  --q-selected: #eaefec;
+  --q-rail: var(--lb-rail);
+  --color-pure-white: var(--lb-surface);
+  --booklet-paper: var(--lb-surface);
+  --color-paper-warmth: var(--lb-surface);
+  --paper: var(--lb-surface);
+  --background: var(--lb-surface);
+  --hero-paper: var(--lb-surface);
+  --color-frost: var(--lb-line-strong);
+  background: var(--lb-surface) !important;
+}
+:root[data-theme="dark"] :is(body.is-course-studio, body.is-session-booklet, body.is-session-complete, body:has(.start-page)) {
+  --lb-ink: #eceeed;
+  --lb-text-2: #a6ada9;
+  --lb-text-3: #8a918d;
+  --lb-line: #262a28;
+  --lb-line-strong: #333835;
+  --lb-surface: #121514;
+  --lb-rail: #0e1110;
+  --lb-well: #181c1a;
+  --lb-due: #15241c;
+  --lb-due-edge: #24493a;
+  --lb-green: #2a8051;
+  --lb-green-ink: #5fbd8a;
+  --lb-miss: #e8806a;
+  --lb-miss-ink: #f0a594;
+}
+:root:not([data-theme="dark"]):has(body.is-course-studio, body.is-session-booklet, body.is-session-complete, .start-page) { background: #ffffff; }
+
+/* One face family, the instrument's: Geist everywhere in the product, Geist Mono for figures. */
+:is(body.is-course-studio, body.is-session-booklet, body.is-session-complete, body.is-sheet, body:has(.start-page)) {
+  --font-display: var(--font-geist), system-ui, sans-serif;
+  --font-marketing-heading: var(--font-geist), system-ui, sans-serif;
+  --font-source-serif: var(--font-geist), system-ui, sans-serif;
+  --font-heading: var(--font-geist), system-ui, sans-serif;
+  --font-inter: var(--font-geist);
+  font-family: var(--font-geist), system-ui, sans-serif !important;
+  font-feature-settings: normal;
+}
+:is(body.is-course-studio, body.is-session-booklet, body.is-session-complete, body.is-sheet, body:has(.start-page)) :is(h1, h2, h3) {
+  font-family: var(--font-geist), system-ui, sans-serif !important;
+  font-style: normal !important;
+  font-variant-caps: normal !important;
+}
+:is(body.is-course-studio, body.is-session-booklet, body.is-session-complete, body.is-sheet) :is(em, i, blockquote, [class*="quote"], [class*="why"]) { font-family: var(--font-geist), system-ui, sans-serif !important; font-style: normal !important; }
+
+/* Topics are told apart by their names: no colour per topic. State is fill and outline (green recalled, coral missed). */
+html body :is([data-tone="1"], [data-tone="2"], [data-tone="3"], [data-tone="4"], [data-tone="5"], [data-tone="6"]) {
+  --topic: var(--lb-green, #1f6b45) !important;
+  --topic-ink: var(--lb-ink, #0e1512) !important;
+  --topic-wash: var(--lb-well, #f5f7f6) !important;
+}
+
+/* The shell: a cool neutral rail, the current section a white key with a hairline. */
+html body.is-course-studio .studio-rail { background: var(--lb-rail) !important; border-right: 1px solid var(--lb-line) !important; }
+html body.is-course-studio .studio-nav button[aria-pressed="true"] { background: var(--lb-surface) !important; color: var(--lb-ink) !important; font-weight: 500 !important; box-shadow: 0 0 0 1px var(--lb-line), 0 1px 2px rgba(14, 21, 18, 0.05) !important; }
+html body.is-course-studio :is(.studio-page, .studio-main, .studio-topbar, .studio-section-head) { background: var(--lb-surface) !important; }
+
+/* The primary action: one green key with a machined edge and a short shadow. */
+html body :is(body.is-course-studio, body.is-session-booklet, body.is-session-complete, body:has(.start-page)) :is(.k-btn, .cta):not(.k-btn--paper):not(:disabled),
+html :is(body.is-course-studio, body.is-session-booklet, body.is-session-complete, body:has(.start-page)) :is(.k-btn, .cta):not(.k-btn--paper):not(:disabled) {
+  border-radius: 10px !important;
+  font-weight: 600 !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.16), 0 0 0 1px #17573a, 0 4px 12px -4px rgba(31, 107, 69, 0.45) !important;
+}
+
+/* The plan runs wide beside the rail: header across, then the due topic and the boxes side by side. */
+@media (min-width: 651px) {
+  html body.is-course-studio :is(.core-workspace-grid.is-today-single, .core-workspace-grid.is-today-single > .core-workspace-action) { width: auto !important; max-width: none !important; margin-inline: 0 !important; }
+  html body.is-course-studio [class*="TodayQuiet"][class*="page"] { width: auto !important; max-width: 1240px !important; margin: 0 44px 48px !important; padding: 28px 0 0 !important; }
+  html body.is-course-studio .today-source-access { max-width: 1240px; margin: 0 44px !important; }
+}
+/* The notes action is a quiet link above the header at the right; no rule, no second copy of the course name. */
+html body.is-course-studio .today-source-access { width: auto !important; box-sizing: border-box; min-height: 0 !important; justify-content: space-between; padding: 20px 0 0 !important; border: 0 !important; }
+html body.is-course-studio .today-source-access > span:empty { display: none; }
+html body.is-course-studio .today-source-access ~ [class*="TodayQuiet"][class*="page"] { padding-top: 8px !important; }
+html body.is-course-studio .today-source-access { justify-content: flex-end !important; }
+/* The cards under the plan keep a quiet outlined button; only the one primary action is the green key. */
+html :is(body.is-course-studio) :is([class*="ExamDateCard"], [class*="NudgeCard"], [class*="InstallCard"], [class*="ReminderCard"]) :is(.k-btn, .cta, button) { box-shadow: 0 0 0 1px var(--lb-line-strong), 0 1px 2px rgba(14, 21, 18, 0.05) !important; background: var(--lb-surface) !important; color: var(--lb-ink) !important; }
+/* With the notes open beside the plan there is room for one column: the boxes go under the plan. */
+html body.is-course-studio .core-workspace-grid.is-notes-open [class*="TodayQuiet"][class*="desk"] { grid-template-columns: minmax(0, 1fr) !important; }
+html body.is-course-studio .core-workspace-grid.is-notes-open [class*="TodayQuiet"][class*="page"] { margin: 0 24px 48px !important; }

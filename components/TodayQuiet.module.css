@@ -285,3 +285,53 @@
 .chapterNum { color: var(--topic, var(--k-green)); font-family: var(--font-marketing-heading), Georgia, serif; font-size: clamp(4rem, 10vw, 6.5rem); font-weight: 400; line-height: 0.82; letter-spacing: -0.04em; font-variant-numeric: lining-nums; opacity: 0.9; }
 .chapter .topic { padding-bottom: 4px; }
 @media (max-width: 650px) { .chapter { column-gap: 12px; } .chapterNum { font-size: 3.75rem; } }
+
+/* Tidy: the course is named in plain sentence case, not a tracked small-caps label; the facts under it and under the
+   topic are set apart by space, not middle dots; the label over the topic is sentence case too. */
+.title, .title :global(*) { font-variant-caps: normal !important; letter-spacing: -0.005em !important; text-transform: none !important; }
+.stats { gap: 2px 18px; }
+.stats li + li::before { content: none; }
+.chips { gap: 4px 16px; }
+.chips li + li::before { content: none; }
+.eyebrow { font-variant-caps: normal !important; text-transform: none !important; letter-spacing: 0 !important; font-size: 0.875rem !important; }
+.thenTitle { font-variant-caps: normal !important; text-transform: none !important; letter-spacing: 0 !important; }
+
+/* ── The Leitner Box: the study plan ───────────────────────────────────────────────────────────────────
+   The course and its three figures across the top; then what is due now at display size beside the five boxes. */
+.page { background: none !important; }
+.head { display: flex; align-items: center; justify-content: space-between; gap: 24px; margin: 0 0 28px; padding-bottom: 20px; border-bottom: 1px solid var(--lb-line); }
+.title, .title :global(*) { color: var(--lb-ink) !important; font-size: 22px !important; font-weight: 600 !important; letter-spacing: -0.025em !important; font-variant-caps: normal !important; text-transform: none !important; line-height: 1.2; }
+.stats { gap: 4px 22px !important; margin: 0 !important; }
+.stats li { font-size: 13.5px !important; color: var(--lb-text-2) !important; }
+.stats li + li::before { content: none !important; }
+.stats strong { font-family: var(--font-geist-mono), ui-monospace, monospace; font-weight: 500 !important; color: var(--lb-ink) !important; }
+.stats .ico { display: none !important; }
+.desk { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 560px); gap: 40px; align-items: start; }
+.lead { min-width: 0; }
+.next { padding-top: 0 !important; }
+.eyebrow { display: inline-flex !important; align-items: center; gap: 8px; margin: 0 0 12px !important; color: var(--lb-green-ink) !important; font-size: 13px !important; font-weight: 600 !important; letter-spacing: 0 !important; font-variant-caps: normal !important; text-transform: none !important; }
+.eyebrow::before { content: "" !important; width: 6px !important; height: 6px !important; border-radius: 50% !important; background: var(--lb-green) !important; box-shadow: 0 0 0 4px color-mix(in oklch, var(--lb-green) 16%, transparent); }
+.topic { margin: 0; color: var(--lb-ink); font-size: clamp(44px, 5vw, 64px) !important; font-weight: 600 !important; letter-spacing: -0.045em !important; line-height: 1 !important; }
+.chips { gap: 4px 26px !important; margin: 18px 0 10px !important; }
+.chips li { font-size: 15px !important; color: var(--lb-text-2) !important; }
+.chips li + li::before { content: none !important; }
+.chips .ico { display: none !important; }
+.why { max-width: 46ch; margin: 0 !important; color: var(--lb-text-2) !important; font-size: 15px !important; line-height: 1.5; }
+.go { margin-top: 26px !important; height: 46px; padding: 0 20px !important; font-size: 15px !important; }
+.tomorrow { margin-top: 32px !important; padding: 14px 16px !important; border: 1px solid var(--lb-line) !important; border-radius: 10px !important; background: var(--lb-surface) !important; font-size: 14px !important; color: var(--lb-text-2) !important; }
+.tomorrow .ico { display: none !important; }
+.tomorrow b::after { content: none !important; }
+.then { margin-top: 40px !important; padding-top: 0 !important; border-top: 1px solid var(--lb-line) !important; }
+.thenTitle { margin: 18px 0 6px !important; color: var(--lb-text-3) !important; font-size: 13px !important; font-weight: 500 !important; letter-spacing: 0 !important; font-variant-caps: normal !important; text-transform: none !important; font-family: var(--font-geist), system-ui, sans-serif !important; }
+.then li { grid-template-columns: 1.5rem minmax(0, 1fr) auto 4rem !important; min-height: 52px !important; border-bottom: 1px solid var(--lb-line) !important; }
+.then li::after { content: none !important; }
+.then li strong { font-family: var(--font-geist), system-ui, sans-serif !important; font-size: 15px !important; font-weight: 500 !important; letter-spacing: -0.005em; }
+.then li .pill { grid-column: 3; font-size: 13.5px !important; color: var(--lb-text-2) !important; font-style: normal !important; }
+.then li em { grid-column: 4; text-align: right; font-style: normal !important; font-family: var(--font-geist-mono), ui-monospace, monospace; font-size: 13px; color: var(--lb-text-2); }
+.then li .num, .then li[data-tone] .num { width: 1.5rem; height: auto; border-radius: 0; background: none !important; color: var(--lb-text-3) !important; font-family: var(--font-geist-mono), ui-monospace, monospace; font-size: 12px; font-weight: 500; }
+@media (max-width: 1100px) { .desk { grid-template-columns: minmax(0, 1fr); } }
+@media (max-width: 650px) { .head { flex-direction: column; align-items: flex-start; gap: 8px; } .topic { font-size: 40px !important; } }
+.title { flex: none; white-space: nowrap; }
+.next { border-top: 0 !important; }
+.title, .title :global(*) { max-width: none !important; white-space: nowrap !important; text-wrap: nowrap !important; }
+.tomorrow b { margin-right: 6px; color: var(--lb-ink) !important; font-variant-caps: normal !important; letter-spacing: 0 !important; text-transform: none !important; font-weight: 600 !important; }
