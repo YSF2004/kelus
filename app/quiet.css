@@ -804,3 +804,6 @@ html body.is-course-studio [class*="TodayQuiet"][class*="page"] { margin-top: 12
 html body.is-course-studio .today-source-access { margin-bottom: 0 !important; border-bottom-color: transparent !important; }
 html body.is-session-booklet main#main [class*="QuickResult"][class*="card"] { margin-top: 0 !important; max-width: 42rem; }
 html body.is-course-studio [class*="AnkiExport"][class*="card"] { padding-inline: 0 !important; }
+/* How questions are written: one quiet line under the topic check, not a card or a switch. */
+html body .first-source-review .ai-note { margin: 10px 0 0; color: var(--k-text-3, var(--q-text-3)); font-size: 0.8125rem; line-height: 1.5; }
+html body .first-source-review .ai-note a { color: inherit; text-decoration: underline; text-underline-offset: 3px; text-decoration-color: color-mix(in srgb, currentColor 40%, transparent); }

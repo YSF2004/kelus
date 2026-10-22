@@ -19,7 +19,7 @@ import { AutoStart } from "@/components/AutoStart";
 import { ankiCards } from "@/domain/anki-export";
 import { PackArt, type PackArtName } from "@/components/PackArt";
 import { AppTabBar } from "@/components/AppTabBar";
-import { AiConsent } from "@/components/AiConsent";
+import { AiSetting } from "@/components/AiConsent";
 import { AiPrefetch } from "@/components/AiPrefetch";
 import { InlineName } from "@/components/InlineName";
 import { CourseFolderIcon } from "@/components/CourseFolderIcon";
@@ -340,6 +340,7 @@ export function RevisionSurface({ topicId }: { /** A topic's own page, opened in
           ) : null}
         <details className="studio-more" open={confirmReset || undefined}>
           <summary>Course options</summary>
+          {confirmReset ? null : <AiSetting />}
           {confirmReset ? (
             <span className="rail-confirm" role="group" aria-label="Confirm start over">
               <span>Start over? Your topics, answers and plan for this course are erased.</span>
@@ -417,7 +418,7 @@ export function RevisionSurface({ topicId }: { /** A topic's own page, opened in
                 {sourceBesidePlan && hasReadableSource && selectedMaterial ? <CourseSourceReader id="today-source-reader" key={`${selectedMaterial.id}-${selectedMaterial.id === firstReference?.materialId ? firstSourcePage : 1}`} material={selectedMaterial} initialPage={selectedMaterial.id === firstReference?.materialId ? firstSourcePage : 1} /> : null}
               </div>
             ) : null}
-            {mode === "materials" ? <div className={`core-workspace-grid is-materials${hasReadableSource ? "" : " is-source-missing"}`}>{hasReadableSource ? <CourseSourceReader key={selectedMaterial.id} material={selectedMaterial} /> : null}<div className="core-workspace-action"><MaterialLibrary embedded incomingFile={incomingSource} onIncomingFileHandled={() => setIncomingSource(null)} interceptFile={isSampleCourse ? (file) => { setSampleFile(file); return true; } : undefined} /><AiConsent /></div></div> : null}
+            {mode === "materials" ? <div className={`core-workspace-grid is-materials${hasReadableSource ? "" : " is-source-missing"}`}>{hasReadableSource ? <CourseSourceReader key={selectedMaterial.id} material={selectedMaterial} /> : null}<div className="core-workspace-action"><MaterialLibrary embedded incomingFile={incomingSource} onIncomingFileHandled={() => setIncomingSource(null)} interceptFile={isSampleCourse ? (file) => { setSampleFile(file); return true; } : undefined} /></div></div> : null}
             {mode === "map" ? <TopicMapPanel /> : null}
             {mode === "progress" ? <ProgressView concepts={concepts} activities={snapshot.learningActivities} events={snapshot.events} nowIso={nowIso} daysToExam={days} targetPercent={exam.targetPercent} examDatePending={examDatePending} /> : null}
           </motion.div>}

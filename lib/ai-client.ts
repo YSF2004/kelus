@@ -2,8 +2,9 @@ import { generateLocally, getLocalAiState } from "@/lib/local-ai";
 import { buildPrompt, mergeAiContent, validateAiReply, type AiTopicContent, type AiTopicInput } from "@/domain/ai-content";
 
 /**
- * The app's side of the AI step. It does nothing unless a proxy address is configured at build time
- * AND the learner has switched it on. Any failure returns null, and the offline questions are used.
+ * The app's side of question writing. It runs when a model is available (a proxy configured at build time, or this
+ * browser's own on-device model already installed) unless the learner turned it off. Any failure returns null, and
+ * the offline questions are used.
  */
 
 const CONSENT_KEY = "kelus-ai-consent-v1";
@@ -19,15 +20,16 @@ export function aiConfigured() {
   return aiEndpoint().length > 0;
 }
 
+/** Question writing is part of Kelus: on unless this browser has turned it off in Course options. */
 export function getAiConsent() {
-  try { return window.localStorage.getItem(CONSENT_KEY) === "on"; } catch { return false; }
+  try { return window.localStorage.getItem(CONSENT_KEY) !== "off"; } catch { return true; }
 }
 
 export function setAiConsent(on: boolean) {
   try {
-    if (on) window.localStorage.setItem(CONSENT_KEY, "on");
-    else window.localStorage.removeItem(CONSENT_KEY);
-  } catch { /* Consent is per browser; without storage it simply stays off. */ }
+    if (on) window.localStorage.removeItem(CONSENT_KEY);
+    else window.localStorage.setItem(CONSENT_KEY, "off");
+  } catch { /* Without storage the setting cannot be kept; it stays on for this visit. */ }
   window.dispatchEvent(new Event(CONSENT_EVENT));
 }
 

@@ -25,7 +25,7 @@ export default function PrivacyPage() {
           <li>
             <strong>Course materials</strong> — PDFs and notes you add are read in the browser to find their topics.
             Topics and the standard questions are made on this device. Without sign-in, PDF files stay in this browser’s storage.
-            The one exception is the optional AI question writing described below, which is off until you turn it on.
+            The one exception is question writing, described below, which you can turn off in Course options.
           </li>
           <li>
             <strong>Study state</strong> — your exam date, your topics, your answers, and your study sessions are
@@ -78,14 +78,15 @@ export default function PrivacyPage() {
           Never your notes, your answers or your name.
         </p>
 
-        <h2 id="ai-questions">Optional: AI-written questions</h2>
+        <h2 id="ai-questions">How questions are written</h2>
         <p>
-          This is off by default and appears in Materials only when it is available. When you turn it on, there are two cases:
+          Kelus writes your questions with a language model when one is available, and from your pages alone when not. It is on
+          by default; turn it off in Course options (in the sidebar). There are two cases:
         </p>
         <ul>
           <li>
             <strong>On-device model</strong> — if your Chrome has its own built-in model, the questions are written inside your
-            browser and your notes never leave this device. Chrome downloads the model once (about 2 GB).
+            browser and your notes never leave this device. Kelus uses it only when Chrome has already installed it.
           </li>
           <li>
             <strong>Hosted model</strong> — Kelus sends the text of one topic at a time, with writing instructions, to a small
@@ -96,7 +97,7 @@ export default function PrivacyPage() {
         </ul>
         <p>
           Every written question must quote your page, and any that does not is discarded. The written questions are kept in this
-          browser. Turning the switch off removes them from this device. Text that was already sent cannot be recalled by Kelus.
+          browser. Turning it off in Course options removes them from this device. Text that was already sent cannot be recalled by Kelus.
         </p>
 
         <h2>Reading scanned PDFs</h2>
