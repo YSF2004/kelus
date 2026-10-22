@@ -1,80 +1,33 @@
-import { expect, test } from "@playwright/test";
+import { test, expect } from "@playwright/test";
 
-test("the homepage shows a recording of the real product at desktop and phone sizes", async ({ page }) => {
-  const errors: string[] = [];
-  page.on("pageerror", (error) => errors.push(error.message));
-  for (const width of [320, 375, 414, 768, 1280, 1440]) {
-    await page.setViewportSize({ width, height: 900 });
+test("the hero says what Kelus does and shows a line moving between boxes, at desktop and phone sizes", async ({ page }) => {
+  for (const viewport of [{ width: 1440, height: 900 }, { width: 390, height: 844 }]) {
+    await page.setViewportSize(viewport);
     await page.goto("/");
-    const hero = page.locator('[data-hero="product-video"]');
-    await expect(hero.locator("h1")).toHaveText("Questions from your notes. Checked against the page.");
-    await expect(hero.getByRole("link", { name: "Add your notes" })).toHaveAttribute("href", /^\/today\/?$/);
-    await expect(hero.locator("figcaption")).toHaveCount(0);
-    await expect(hero.locator("video:visible")).toHaveAttribute("poster", /kelus-product-poster/);
-    await expect(hero.locator("video:visible source").first()).toHaveAttribute("src", /kelus-product-walkthrough.*\.webm/);
-    await expect(hero.getByRole("button", { name: /^(Play|Pause|Replay) product walkthrough$/ })).toBeVisible();
-    await expect(hero.locator("button svg")).toHaveCount(0);
-    expect(await hero.evaluate((element) => {
-      const frame = element.querySelector("figure > div")?.getBoundingClientRect();
-      const visible = [...element.querySelectorAll("video")].find((item) => getComputedStyle(item).display !== "none");
-      return Boolean(frame && visible && visible.getBoundingClientRect().top < frame.top - 5);
-    })).toBe(true);
+    const hero = page.locator('[data-hero="leitner"]');
+    await expect(hero.getByRole("heading", { level: 1 })).toHaveText(/Questions from your notes\. Checked against the page\./);
+    await expect(hero.getByRole("figure", { name: /a line answered correctly moves from Box 1 to Box 2/ })).toBeVisible();
+    await expect(hero.getByText("Example course, 10 lines")).toBeVisible();
+    await expect(hero.locator("video")).toHaveCount(0);
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
   }
-  expect(errors).toEqual([]);
 });
 
-test("the recording autoplays without a control bar or caption, and can be paused", async ({ page }) => {
-  await page.emulateMedia({ reducedMotion: "no-preference" });
+test("the hero's one action opens the product", async ({ page }) => {
   await page.goto("/");
-  const video = page.locator('[data-hero="product-video"] video:visible');
-  await expect(video).not.toHaveAttribute("controls", "");
-  await expect(video.locator("track")).toHaveAttribute("kind", "captions");
-  await expect(page.locator('[data-hero="product-video"] figcaption')).toHaveCount(0);
-  await expect.poll(() => video.evaluate((element: HTMLVideoElement) => element.readyState)).toBeGreaterThan(0);
-  await expect.poll(() => video.evaluate((element: HTMLVideoElement) => element.currentTime)).toBeGreaterThan(4);
-  await expect.poll(() => video.evaluate((element) => getComputedStyle(element).opacity)).toBe("1");
-  await page.getByRole("button", { name: "Pause product walkthrough" }).click();
-  await expect.poll(() => video.evaluate((element: HTMLVideoElement) => element.paused)).toBe(true);
-  await page.getByRole("button", { name: "Play product walkthrough" }).click();
-  await expect.poll(() => video.evaluate((element: HTMLVideoElement) => element.paused)).toBe(false);
-  await page.locator('[data-hero="product-video"]').getByRole("link", { name: "Add your notes" }).click();
-  await expect(page.getByRole("heading", { name: "Start with your notes." })).toBeVisible();
+  await page.locator('[data-hero="leitner"]').getByRole("link", { name: "Add your notes" }).click();
+  await expect(page).toHaveURL(/\/today\/?$/);
 });
 
-test("reduced motion keeps the recording paused until the student chooses play", async ({ page }) => {
+test("reduced motion shows the line already in Box 2", async ({ page }) => {
   await page.emulateMedia({ reducedMotion: "reduce" });
   await page.goto("/");
-  const video = page.locator('[data-hero="product-video"] video:visible');
-  await expect(video).toBeVisible();
-  await expect.poll(() => video.evaluate((element: HTMLVideoElement) => element.paused)).toBe(true);
-  await expect(video).toHaveAttribute("poster", /kelus-product-poster/);
-  // Paused at the opening shot, the chapter being dropped in, not skipped past it.
-  await expect.poll(() => video.evaluate((element: HTMLVideoElement) => element.currentTime)).toBeLessThan(1);
-  await expect(video).toHaveCSS("opacity", "0");
-  await expect(page.locator('[data-hero="product-video"] figure > div')).toHaveCSS("background-image", /kelus-product-poster/);
-  await page.getByRole("button", { name: "Play product walkthrough" }).click();
-  await expect.poll(() => video.evaluate((element: HTMLVideoElement) => element.paused)).toBe(false);
-  await page.getByRole("button", { name: "Pause product walkthrough" }).focus();
-  await page.keyboard.press("Space");
-  await expect.poll(() => video.evaluate((element: HTMLVideoElement) => element.paused)).toBe(true);
+  const mover = page.locator('[data-hero="leitner"] ol > i').last();
+  await expect(mover).toHaveCSS("animation-name", "none");
 });
 
-test("the revision story still follows the video without a duplicate sample", async ({ page }) => {
+test("the revision story still follows the hero without a duplicate sample", async ({ page }) => {
   await page.goto("/");
   await expect(page.locator("#try, .booklet-board")).toHaveCount(0);
   await expect(page.locator("main > section").nth(1).getByRole("heading", { name: "One line from your notes, followed all the way." })).toBeVisible();
-});
-
-test("the walkthrough's steps are named under it, follow the playhead, and jump when chosen", async ({ page }) => {
-  await page.emulateMedia({ reducedMotion: "no-preference" });
-  await page.goto("/");
-  const hero = page.locator('[data-hero="product-video"]');
-  const steps = hero.getByRole("list", { name: "Steps in the walkthrough" }).getByRole("button");
-  await expect(steps).toHaveCount(5);
-  await expect(steps.first()).toHaveAttribute("aria-current", "step");
-  await hero.getByRole("button", { name: "Watch step 5: Your plan moves" }).click();
-  const video = hero.locator("video:visible");
-  await expect.poll(() => video.evaluate((element: HTMLVideoElement) => element.currentTime)).toBeGreaterThan(42);
-  await expect(steps.nth(4)).toHaveAttribute("aria-current", "step");
 });

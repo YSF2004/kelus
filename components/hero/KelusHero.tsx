@@ -1,52 +1,62 @@
 import Link from "next/link";
-import { BrandIcon } from "@/components/BrandIcon";
-import { ArrowRight } from "@/components/Marks";
-import { HeroProductVideo } from "./HeroProductVideo";
-import styles from "./ProductVideoHero.module.css";
+import styles from "./LeitnerHero.module.css";
+
+/** Lines from the Cell Transport chapter (tests/fixtures/course-pdfs), set in the boxes they sit in a few days in. */
+const BOXES: Array<{ box: number; every: string; lines: Array<{ text: string; state?: "ok" | "miss" }> }> = [
+  { box: 1, every: "Every day", lines: [{ text: "Water moves from the dilute side", state: "miss" }, { text: "Active transport needs energy" }, { text: "Root hair cells absorb ions" }] },
+  { box: 2, every: "Every 2 days", lines: [{ text: "Diffusion is a passive process", state: "ok" }] },
+  { box: 3, every: "Every 4 days", lines: [{ text: "A partially permeable membrane", state: "ok" }, { text: "Carrier proteins in the membrane", state: "ok" }] },
+  { box: 4, every: "Every 9 days", lines: [{ text: "Alveoli and villi have a large surface", state: "ok" }] },
+  { box: 5, every: "Monthly", lines: [{ text: "A plant cell becomes turgid", state: "ok" }] },
+];
 
 /**
- * What only Kelus does, said plainly, over a recording of the real first-use journey: the drop, a question from a
- * line, an answer checked against the page, and the plan moving. Chapters under the recording name each step.
+ * The first viewport says what Kelus does and shows it working: a question written from a line of the notes, the right
+ * answer picked, and that line sliding from Box 1 to Box 2. The demonstration is labelled as an example course.
  */
 export function KelusHero() {
   return (
-    <section className={`${styles.hero} is-poster`} aria-labelledby="home-hero-title" data-hero="product-video">
+    <section className={styles.hero} aria-labelledby="home-hero-title" data-hero="leitner">
       <div className={styles.copy}>
         <h1 id="home-hero-title" className={styles.headline}>
-          Questions from your notes.{" "}
-          <span className={styles.secondLine}>Checked against the page.</span>
+          Questions from your notes. <span>Checked against the page.</span>
         </h1>
-
         <p className={styles.lede}>
-          Drop in a PDF or paste your notes. Kelus asks you about your own lines, shows you the line when you slip, and
-          brings it back first tomorrow.
+          Drop in a PDF or paste your notes. Kelus asks you about your own lines. Recall one and it moves to a later box;
+          miss it and it comes back first tomorrow.
         </p>
-
         <div className={styles.actions}>
-          <Link href="/today" className={styles.primary}>
-            Add your notes <ArrowRight className={`k-mark ${styles.primaryArrow}`} />
-          </Link>
+          <Link href="/today" className={styles.primary}>Add your notes</Link>
+          <span className={styles.free}>Free. No account needed.</span>
         </div>
+        <p className={styles.works}>
+          Works with <b>PDFs and slides</b>, <b>Notion</b>, <b>Obsidian</b>, <b>Markdown</b> and pasted notes. Cards export to <b>Anki</b>.
+        </p>
       </div>
 
-      <div className={styles.visual}>
-        {/* The recording sits in a browser window, so it reads at once as the product, at its own address. */}
-        <div className={styles.window}>
-          <div className={styles.chrome} aria-hidden="true">
-            <span className={styles.dots}><i /><i /><i /></span>
-            <span className={styles.address}>kelus.me</span>
-          </div>
-          <HeroProductVideo />
+      <figure className={styles.panel} aria-label="Example: a line answered correctly moves from Box 1 to Box 2">
+        <div className={styles.panelHead}><b>Cell Transport</b><span>Example course, 10 lines</span></div>
+        <div className={styles.question} aria-hidden="true">
+          <small>Which idea from your notes does this describe?</small>
+          <p>“The net movement of particles from high to low concentration, down a gradient.”</p>
+          <div className={styles.options}><span>Osmosis</span><span>Active transport</span><span className={styles.right}>Diffusion</span></div>
         </div>
-      </div>
-
-      {/* One sentence, with only the marks students already know. No chips, no filler icons. */}
-      <p className={styles.worksWith}>
-        Works with PDFs and slides, <span className={styles.brand}><BrandIcon brand="notion" size={14} />Notion,</span>{" "}
-        <span className={styles.brand}><BrandIcon brand="obsidian" size={14} />Obsidian,</span>{" "}
-        <span className={styles.brand}><BrandIcon brand="markdown" size={15} />Markdown</span> and pasted notes, and sends your cards to{" "}
-        <span className={styles.brand}><BrandIcon brand="anki" size={14} />Anki</span>.
-      </p>
+        <ol className={styles.boxes} aria-hidden="true">
+          {BOXES.map(({ box, every, lines }) => (
+            <li key={box} className={styles.box}>
+              <b>Box {box}</b>
+              <small>{every}</small>
+              <span className={styles.marks}>
+                {box <= 2 ? <i className={styles.gap} /> : null}
+                {lines.map((line) => <i key={line.text} data-state={line.state}>{line.text}</i>)}
+              </span>
+              <span className={styles.count}>{lines.length + (box === 2 ? 1 : 0)}</span>
+            </li>
+          ))}
+          <i className={styles.mover}>The net movement of particles</i>
+        </ol>
+        <figcaption className={styles.panelFoot}><span>Right answer: Box 1 to Box 2</span><span><b>6</b> of 10 recalled</span></figcaption>
+      </figure>
     </section>
   );
 }
