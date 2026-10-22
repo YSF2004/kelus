@@ -1,5 +1,7 @@
 import Link from "next/link";
+import { BrandIcon } from "@/components/BrandIcon";
 import styles from "./LeitnerHero.module.css";
+import brands from "./HeroBrands.module.css";
 
 /** Lines from the Cell Transport chapter (tests/fixtures/course-pdfs), set in the boxes they sit in a few days in. */
 const BOXES: Array<{ box: number; every: string; lines: Array<{ text: string; state?: "ok" | "miss" }> }> = [
@@ -29,9 +31,17 @@ export function KelusHero() {
           <Link href="/today" className={styles.primary}>Add your notes</Link>
           <span className={styles.free}>Free. No account needed.</span>
         </div>
-        <p className={styles.works}>
-          Works with <b>PDFs and slides</b>, <b>Notion</b>, <b>Obsidian</b>, <b>Markdown</b> and pasted notes. Cards export to <b>Anki</b>.
-        </p>
+        {/* The tools students already keep notes in, by their own marks (simple-icons, in each brand's colour). */}
+        <div className={brands.works}>
+          <span className={brands.label}>Works with</span>
+          <ul className={brands.list} aria-label="Works with">
+            <li><span className={brands.pdf} aria-hidden="true">PDF</span>PDFs and slides</li>
+            <li><BrandIcon brand="notion" size={18} />Notion</li>
+            <li><BrandIcon brand="obsidian" size={18} />Obsidian</li>
+            <li><BrandIcon brand="markdown" size={18} />Markdown</li>
+            <li><BrandIcon brand="anki" size={18} />Anki export</li>
+          </ul>
+        </div>
       </div>
 
       <figure className={styles.panel} aria-label="Example: a line answered correctly moves from Box 1 to Box 2">
