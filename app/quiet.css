@@ -666,17 +666,7 @@ html body .first-source-review-list small { display: -webkit-box; -webkit-line-c
 
 
 
-/* ── Alive: sections arrive, they don't appear ─────────────────────────────────────────────────────────
-   Each section's column rises a few pixels as it opens, and the rows of its lists follow one after another. Plain CSS,
-   so it costs nothing on a slow phone, runs once per opening, and is off with reduced motion. */
-@keyframes kelusRise { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
-@media (prefers-reduced-motion: no-preference) {
-  html body.is-course-studio :is(.surface-map.is-toc, [class*="ProgressView"][class*="page"], [class*="TodayQuiet"][class*="page"]) > * { animation: kelusRise 420ms cubic-bezier(0.22, 1, 0.36, 1) both; }
-  html body.is-course-studio :is(.surface-map.is-toc, [class*="ProgressView"][class*="page"], [class*="TodayQuiet"][class*="page"]) > *:nth-child(2) { animation-delay: 50ms; }
-  html body.is-course-studio :is(.surface-map.is-toc, [class*="ProgressView"][class*="page"], [class*="TodayQuiet"][class*="page"]) > *:nth-child(3) { animation-delay: 100ms; }
-  html body.is-course-studio :is(.surface-map.is-toc, [class*="ProgressView"][class*="page"], [class*="TodayQuiet"][class*="page"]) > *:nth-child(n+4) { animation-delay: 150ms; }
-  html body.is-course-studio .studio-section-head h1 { animation: kelusRise 380ms cubic-bezier(0.22, 1, 0.36, 1) both; }
-}
+/* Sections arrive as one crossfade (RevisionSurface); nothing inside them is staggered. */
 
 /* Materials is a two-pane workspace (the page and its shelf): its title stays on the workspace's edge. */
 html body.is-course-studio .studio-section-head.kelus-space-top[data-section="materials"] { padding: 32px 24px 12px; }
@@ -946,3 +936,14 @@ html { scrollbar-width: thin; scrollbar-color: color-mix(in srgb, var(--k-ink, #
 html body ::selection { background: color-mix(in srgb, var(--color-kelus, #1f6b45) 22%, transparent); color: inherit; }
 html body :is(p, li, dd, small) a:not(.k-btn):not(.cta) { text-decoration-thickness: 1px; text-underline-offset: 3px; text-decoration-color: color-mix(in srgb, currentColor 40%, transparent); transition: text-decoration-color 140ms; }
 html body :is(p, li, dd, small) a:not(.k-btn):not(.cta):hover { text-decoration-color: currentColor; }
+
+/* ── Type details ──────────────────────────────────────────────────────────────────────────────────────
+   Headings wrap in balanced lines and paragraphs avoid a lone last word. Every count, time, page and percentage uses
+   tabular figures so columns line up and numbers do not shift as they change; fractions like 1/3 keep their slash
+   tight. Opening quotes hang into the margin so a quoted line aligns on its first letter. Inter's contextual
+   alternates centre dashes and colons between figures (9:30, 2–3). */
+html body { font-feature-settings: "cv11" 1, "calt" 1, "case" 0; }
+html body :is(h1, h2, h3) { text-wrap: balance; }
+html body :is(p, li, dd, blockquote, figcaption) { text-wrap: pretty; }
+html body :is(.is-course-studio, .is-session-booklet, .is-session-complete, .is-sheet) :is(b, strong, small, span, em, td, th, time, li, p) { font-variant-numeric: tabular-nums; }
+html body :is(blockquote, [class*="quote"], [class*="prompt"]) { hanging-punctuation: first; }

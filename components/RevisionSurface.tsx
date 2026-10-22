@@ -365,7 +365,6 @@ export function RevisionSurface({ topicId }: { /** A topic's own page, opened in
         {!topicId && mode !== "today" ? (
           <header className="studio-section-head kelus-paper-head kelus-space-top is-section" data-section={mode}>
             <div className="kelus-space-identity">
-              {/* Sections swap at once, as pages do in Notion: no waiting for the old one to leave. */}
               <h1 id="section-title">{modeMeta.label}</h1>
             </div>
             {/* A list page's action sits at the title's right, the way a dashboard puts "Add" over its table. */}
@@ -377,9 +376,11 @@ export function RevisionSurface({ topicId }: { /** A topic's own page, opened in
           {topicId ? null : <motion.div
             key={mode}
             className="studio-panel kelus-paper-body kelus-space-panel revision-surface-panel"
-            initial={reduceMotion ? false : { opacity: 0.55 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.12, ease: kelusEase }}
+            // One crossfade for the whole section: it is readable on its first frame (half ink, a 2px blur, 4px low)
+            // and settles in 220ms. No row-by-row stagger: the page is one thing changing, not a list being dealt.
+            initial={reduceMotion ? false : { opacity: 0.5, y: 4, filter: "blur(2px)" }}
+            animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
+            transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
           >
             {mode === "today" ? (
               // Today starts as one focused column. The original notes open beside it only when requested.
