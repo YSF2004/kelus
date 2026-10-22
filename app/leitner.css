@@ -208,3 +208,16 @@ html body.is-course-studio .material-actions > :is(button, a):hover { background
 html body.is-course-studio .core-source-reader { border-right: 1px solid var(--lb-line) !important; background: var(--lb-well) !important; }
 html body.is-course-studio .core-source-toolbar { background: var(--lb-surface) !important; border-bottom: 1px solid var(--lb-line) !important; }
 html body.is-course-studio .core-source-page { box-shadow: 0 0 0 1px var(--lb-line), 0 12px 32px -18px rgba(14, 21, 18, 0.22) !important; border-radius: 4px; }
+
+/* ── Polish ────────────────────────────────────────────────────────────────────────────────────────────
+   Buttons say what they do without a trailing arrow; keyboard focus is a green ring with a soft halo on every control;
+   fields take the same ring; selection is a green tint; figures line up everywhere in the product. */
+:is(body.is-course-studio, body.is-session-booklet, body.is-session-complete) [data-mark="arrow-right"] { display: none !important; }
+:is(body.is-course-studio, body.is-session-booklet, body.is-session-complete, body:has(.start-page)) :is(a, button, summary, [role="button"], [tabindex]:not([tabindex="-1"])):focus-visible { outline: 2px solid var(--lb-green) !important; outline-offset: 2px !important; box-shadow: 0 0 0 5px color-mix(in oklch, var(--lb-green) 16%, transparent) !important; }
+:is(body.is-course-studio, body.is-session-booklet, body.is-session-complete, body:has(.start-page)) :is(input:not([type="checkbox"]):not([type="radio"]):not([type="file"]), textarea, select):focus { outline: none !important; border-color: var(--lb-green) !important; box-shadow: 0 0 0 4px color-mix(in oklch, var(--lb-green) 16%, transparent) !important; }
+:is(body.is-course-studio, body.is-session-booklet, body.is-session-complete, body:has(.start-page)) ::selection { background: color-mix(in srgb, var(--lb-green) 22%, transparent); }
+:is(body.is-course-studio, body.is-session-booklet, body.is-session-complete) { font-variant-numeric: tabular-nums; }
+:is(body.is-course-studio, body.is-session-booklet, body.is-session-complete) :is(h1, h2, h3) { text-wrap: balance; }
+@media (max-width: 650px) {
+  html body.is-course-studio .surface-map.is-toc .index-toc-row { min-height: 0 !important; padding-top: 12px !important; padding-bottom: 12px !important; row-gap: 8px !important; }
+}
