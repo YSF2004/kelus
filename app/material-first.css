@@ -166,6 +166,12 @@
   .material-source-preview > p { display: none; }
 }
 
+
+
+
+
+body.is-course-studio .studio-onboarding[data-stage="confirm"] .material-binder-stack:has(.concept-confirmation) :is(.material-shelf, .material-binder-note) { display: none; }
+
 @media (prefers-reduced-motion: reduce) {
   .is-material-first .setup-first-upload { transition: none; }
   .is-material-first .setup-first-upload:active { transform: none; }

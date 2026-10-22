@@ -83,6 +83,10 @@ body.is-course-studio .studio-section-head .kelus-space-identity {
   min-width: 0;
 }
 
+body.is-course-studio .studio-section-head .kelus-space-lede {
+  margin: 0;
+}
+
 
 
 @media (max-width: 640px) {
@@ -135,6 +139,15 @@ body.is-session-booklet.is-booklet-system main.study-shell.is-source-open > .stu
 
 /* Beside a source PDF the plan column is narrow: give the title the whole width and never break inside a word. */
 
+
+body.is-course-studio .core-workspace-grid:not(.is-source-missing) .today-hero {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+body.is-course-studio .core-workspace-grid:not(.is-source-missing) .today-hero-art {
+  display: none;
+}
+
 /* Completion: the reward moment. Plain sentence-case labels, one clear next action. */
 body.is-session-complete .kicker,
 body.is-session-complete .complete-folio .study-mark-kicker {
@@ -144,6 +157,23 @@ body.is-session-complete .complete-folio .study-mark-kicker {
 
 body.is-session-complete .complete-folio > svg {
   margin-bottom: 4px;
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+body.is-session-complete .complete-folio .complete-change p:not(.kicker) {
+  margin-bottom: 0;
+  font-size: var(--text-body-sm);
 }
 
 
@@ -222,6 +252,25 @@ body.is-course-studio .studio-panel .material-shelf.is-binder > header h2 {
 }
 
 /* Setup screens use the same voice as the app. */
+.studio-onboarding :is(.destination-page-title, .setup-stage-content h1, .concept-confirmation h2) {
+  font-family: var(--font-display);
+  font-weight: 500;
+  letter-spacing: -0.02em;
+}
+
+.studio-onboarding :is(.kicker, .proposal-confidence, .studio-eyebrow, .setup-kicker),
+.studio-onboarding .concept-confirmation :is(span, small, p) {
+  text-transform: none;
+  letter-spacing: 0;
+}
+
+
+
+body.is-booklet-system section.studio-onboarding .studio-onboarding-content :is(h1, h2) {
+  font-family: var(--font-display);
+  font-weight: 500;
+  letter-spacing: -0.02em;
+}
 
 /* Why now: one note, one idea. The reason and what it leads to read as a single thought. */
 body.is-course-studio .core-workspace-action .today-decision {

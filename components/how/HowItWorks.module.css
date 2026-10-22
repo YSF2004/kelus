@@ -120,21 +120,3 @@
   .primaryAction:hover, .primaryAction:active, .primaryAction:hover .primaryArrow { transform: none; }
   .visualWrap { transform: none !important; }
 }
-
-/* ── One grid, four steps ──────────────────────────────────────────────────────────────────────────────
-   Every step reads the same way: its place in the loop as four cells, the heading and one paragraph on the left, the
-   product fragment on the right. No alternating sides, no caption repeating the paragraph. The fragments are the
-   product's own surfaces: a hairline, a 10px corner, no shadow. */
-.chapter, .chapter:nth-child(even) { grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr); gap: clamp(32px, 6vw, 88px); padding: clamp(56px, 7vw, 88px) 0; }
-.chapter:nth-child(even) .visualWrap, .chapter:nth-child(even) .chapterText { grid-column: auto; grid-row: auto; }
-.chapter h2 { max-width: 14ch; font-size: clamp(30px, 3.2vw, 44px); font-weight: 600; letter-spacing: -0.035em; }
-.chapterText > p { margin-top: 18px; font-size: 16px; }
-.cells { display: flex; gap: 4px; width: 120px; margin-bottom: 22px; }
-.cells i { flex: 1; height: 6px; border-radius: 3px; background: var(--k-line-strong, #dadedc); transition: background-color 320ms cubic-bezier(0.22, 1, 0.36, 1); }
-.cells i[data-on] { background: var(--color-kelus, #1f6b45); }
-.visual { margin: 0; }
-.visual :global([class*="sheet"]) { border: 1px solid var(--k-line, #e9ebea) !important; border-radius: 10px !important; box-shadow: none !important; }
-@media (max-width: 760px) {
-  .chapter, .chapter:nth-child(even) { grid-template-columns: minmax(0, 1fr); gap: 24px; padding: 44px 0; }
-  .cells { margin-bottom: 16px; }
-}

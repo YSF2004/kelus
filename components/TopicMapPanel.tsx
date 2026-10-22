@@ -158,14 +158,12 @@ export function TopicMapPanel() {
           {passedCount ? <li data-tone="marigold"><Octicon name="trophy" className={styles.ico} /><strong>{passedCount}</strong><span>{passedCount === 1 ? "checkpoint" : "checkpoints"}</span></li> : null}
         </ul>
         {/* Two tones: solid topics in green, practised ones lighter. A path is not done while its topics need work. */}
-        {/* The course as cells, one per topic in the order of the notes: practised ones fill, solid ones in full green. */}
-        <span className={styles.pathCells} aria-hidden="true">
-          {path.map(({ concept, label }) => <i key={concept.id} data-state={concept.retrievalAttempts === 0 ? undefined : label === "Solid" ? "solid" : "practised"} />)}
+        <span className={styles.pathBar} aria-hidden="true">
+          <motion.i className={styles.pathPractised} initial={false} animate={{ scaleX: path.length ? practised / path.length : 0 }} transition={{ duration: reduce ? 0 : 0.5, ease: [0.22, 1, 0.36, 1] }} />
+          <motion.i className={styles.pathSolid} initial={false} animate={{ scaleX: path.length ? solid / path.length : 0 }} transition={{ duration: reduce ? 0 : 0.5, ease: [0.22, 1, 0.36, 1] }} />
         </span>
       </div>
 
-      {/* Column names for the eye; each row already says what it is to a screen reader. */}
-      <div className={styles.columns} aria-hidden="true"><span>Topic</span><span>Status</span><span>Tries</span><span>Page</span></div>
       <ol className={`index-toc ${styles.path}`} aria-label="Topics, in the order of your notes">
         <AnimatePresence initial={false} mode="popLayout">
         {path.flatMap(({ concept, mastery, label, page, due }, index) => {
@@ -190,8 +188,8 @@ export function TopicMapPanel() {
                 </ConceptTitleTransition>
                 <span className="index-toc-meta">
                   <span className={styles.state} data-level={isStart ? "next" : label.toLocaleLowerCase().replace(/\s+/g, "-")}>{isStart ? "Start here" : label}</span>
-                  <span className={`${styles.metaSoft} ${styles.colTries}`}>{mastery == null ? "–" : checks < 3 ? `${checks} ${checks === 1 ? "try" : "tries"}` : percent(mastery)}</span>
-                  <span className={`${styles.metaSoft} ${styles.colPage}`}>{page ? page.replace(/^(?:Page|p\.)\s*/i, "") : "–"}</span>
+                  {mastery == null ? null : <span className={styles.metaSoft}>{checks < 3 ? `${checks} ${checks === 1 ? "try" : "tries"}` : percent(mastery)}</span>}
+                  {page ? <span className={styles.metaSoft}><Octicon name="file" className={styles.icoSm} />{page}</span> : null}
                 </span>
                 {isStart && startReason ? <span className={styles.why}>{startReason}</span> : null}
                 {due ? <span className={styles.due}>Review due</span> : null}

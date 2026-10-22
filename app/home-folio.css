@@ -231,6 +231,21 @@
 
 
 
+
+
+
+
+
+.folio-product-intro > p:not(.kicker) {
+  margin: 0;
+  max-width: 38ch;
+  color: #787774;
+  font-size: 1.02rem;
+  line-height: 1.55;
+}
+
+
+
 .folio-product-demo.hero-product-demo.booklet-product-demo {
   position: relative;
   overflow: visible;
@@ -560,6 +575,33 @@
 
 
 
+
+
+
+
+
+
+
+
+
+.folio-chapter-copy > p:not(.kicker) {
+  margin: 0 0 1.35rem;
+  max-width: 42ch;
+  color: #787774;
+  font-size: 1.02rem;
+  line-height: 1.55;
+}
+
+
+
+
+
+
+
+
+
+
+
 /* Chapter illustrations → Booklet window cards */
 
 
@@ -578,6 +620,20 @@
 
 
 /* Method */
+
+
+
+
+
+
+
+
+.folio-method-heading > p:not(.kicker) {
+  margin: 0;
+  max-width: 44ch;
+  color: #787774;
+  line-height: 1.5;
+}
 
 
 

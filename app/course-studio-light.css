@@ -141,6 +141,22 @@ body.is-course-studio .kelus-space.is-studio {
   color: var(--studio-ink);
 }
 
+.is-course-studio .studio-topbar-course {
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.is-course-studio .studio-topbar-status {
+  color: var(--studio-muted);
+  font-size: 0.8125rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.is-course-studio .studio-topbar-divider {
+  padding-inline: 4px;
+  color: var(--line);
+}
+
 .is-course-studio .studio-page.kelus-space-stage {
   width: min(100%, 1160px);
   min-height: calc(100dvh - 64px);
@@ -161,6 +177,12 @@ body.is-course-studio .kelus-space.is-studio {
   font-weight: 600;
   letter-spacing: -0.055em;
   line-height: 1.1;
+}
+
+.is-course-studio .studio-section-head .kelus-space-lede {
+  margin-top: var(--spacing-16);
+  color: var(--studio-muted);
+  font-size: 1rem;
 }
 
 
@@ -343,6 +365,83 @@ body.is-course-studio .studio-panel .material-ingest.is-embedded .material-drop.
 
 
 
+
+
+body.is-course-studio .studio-onboarding .diagnosis-page :is(.diagnosis-panel, .diagnosis-check) {
+  color: var(--studio-ink);
+}
+
+
+
+
+
+
+
+
+
+
+
+
+body.is-course-studio .studio-onboarding :is(.destination-form .kicker, .workbench-chapter-label, .diagnosis-page .kicker) {
+  color: var(--color-kelus);
+  letter-spacing: 0;
+  text-transform: none;
+}
+
+
+body.is-course-studio .studio-onboarding :is(.destination-support, .workbench-chapter-intro p, .flow-context, .diagnosis-intro, .diagnosis-selection-reason) {
+  color: var(--studio-muted);
+}
+
+
+body.is-course-studio .studio-onboarding :is(.destination-form legend, .workbench-chapter-intro h1, .diagnosis-page h1, .concept-confirmation h2),body.is-course-studio .studio-onboarding .material-binder-stack :is(h2, h3, strong, label),body.is-course-studio .studio-onboarding .destination-form :is(label, legend, .target-input b),body.is-course-studio .studio-onboarding .diagnosis-page :is(label, .diagnosis-feedback, .diagnosis-evaluation) {
+  color: var(--studio-ink);
+}
+
+body.is-course-studio .studio-onboarding :is(.setup-sequence, .workbench-chapter-label, .diagnosis-page .flow-context) {
+  border-color: var(--studio-hairline);
+  color: var(--studio-ink);
+}
+
+body.is-course-studio .studio-onboarding .destination-form input:not([type="radio"]):not([type="checkbox"]),
+body.is-course-studio .studio-onboarding :is(.material-binder-stack input, .material-binder-stack select, .material-binder-stack textarea, .diagnosis-page textarea) {
+  border-color: var(--studio-hairline);
+  background: var(--studio-sheet);
+  color: var(--studio-ink);
+  color-scheme: light;
+}
+
+
+
+
+
+
+
+body.is-course-studio .studio-onboarding .time-choices label.is-selected :is(strong, span),
+body.is-course-studio .studio-onboarding .setup-sample :is(p, .kicker),
+body.is-course-studio .studio-onboarding .material-binder-stack :is(p, small, span) {
+  color: var(--studio-muted);
+}
+
+
+
+body.is-course-studio .studio-onboarding .material-binder-stack :is(.material-shelf, .material-ingest, .material-add-page, .material-honesty, .concept-confirmation) {
+  border-color: var(--studio-hairline);
+  background: transparent !important;
+  color: var(--studio-ink);
+}
+
+
+
+
+body.is-course-studio .studio-onboarding .material-binder-stack .material-shelf > header :is(.kicker, h2) {
+  color: var(--studio-ink) !important;
+}
+
+
+
+
+
 @media (max-width: 900px) {
   body.is-course-studio .kelus-space.is-studio {
     display: block;
@@ -397,6 +496,15 @@ body.is-course-studio .studio-panel .material-ingest.is-embedded .material-drop.
     display: flex;
     min-height: 48px;
     padding-inline: var(--spacing-24);
+  }
+
+  .is-course-studio .studio-topbar-status {
+    font-size: 0.75rem;
+  }
+
+  .is-course-studio .studio-topbar-kind,
+  .is-course-studio .studio-topbar-divider {
+    display: none;
   }
 
   .is-course-studio .studio-page.kelus-space-stage {

@@ -1,7 +1,7 @@
 "use client";
 
+import { BrandIcon } from "@/components/BrandIcon";
 import { useEffect, useState, type DragEvent } from "react";
-import { Octicon } from "@/components/Octicon";
 import { PackArt } from "@/components/PackArt";
 import { PasteNotes } from "@/components/PasteNotes";
 import { MAX_NOTES_BYTES } from "@/domain/markdown-pages";
@@ -53,7 +53,7 @@ export function DropNotes({ onFile, first = false, courseName }: { onFile: (file
       <div className="destination-form">
         <section className="setup-stage-content empty-course" aria-labelledby="start-title">
           {/* From the Kelus illustration pack (public/art/notion-pack): a student climbing with a pencil. */}
-          <PackArt name="growing" className="empty-course-art" size={120} />
+          <PackArt name="growing" className="empty-course-art" size={170} />
           <h1 id="start-title" className="destination-page-title">{first ? "Start with your notes." : courseName ? `Add notes to ${courseName}.` : "Add your notes."}</h1>
           <p className="destination-support">
             {first
@@ -69,14 +69,15 @@ export function DropNotes({ onFile, first = false, courseName }: { onFile: (file
             onDrop={drop}
           >
             <input type="file" title="" accept={SOURCE_FILE_ACCEPT} disabled={busy} onChange={(event) => { void take(event.target.files?.[0]); event.target.value = ""; }} />
-            <span className="setup-upload-mark" aria-hidden="true"><Octicon name="upload" size={24} /></span>
+            <span className="setup-upload-mark" aria-hidden="true"><PackArt name="folder" size={44} /></span>
             <strong>{busy ? "Reading your file…" : "Choose a PDF or notes"}</strong>
             {/* Dragging only exists with a mouse or trackpad; a phone gets the file types instead. */}
-            <span>{busy ? "This takes a few seconds." : <><span className="drop-hint">Or drop it here. </span>PDF, Markdown, .txt or a Notion .zip, up to 20 MB.</>}</span>
+            <span>{busy ? "This takes a few seconds." : <><span className="drop-hint">or drop it here · </span>PDF, <span className="brand-inline"><BrandIcon brand="markdown" size={15} />Markdown</span>, .txt or a <span className="brand-inline"><BrandIcon brand="notion" size={14} />Notion</span> .zip</>}</span>
           </label>
           <PasteNotes onFile={(file) => void take(file)} disabled={busy} />
           {error ? <p className="setup-error" role="alert">{error}</p> : null}
-          <p className="setup-file-help">Scanned pages are read too. From Notion, choose Export, then Markdown &amp; CSV. Your notes stay on this device; sign in later to sync.</p>
+          <p className="setup-file-help">PDFs up to 20 MB, scans included. From Notion: Export, then Markdown &amp; CSV, and choose the .zip.</p>
+          <p className="setup-privacy-note">Your notes stay on this device. You can sign in later to sync.</p>
         </section>
       </div>
     </main>

@@ -17,8 +17,8 @@ import { TopicMapPanel } from "@/components/TopicMapPanel";
 import { ProgressView } from "@/components/ProgressView";
 import { AutoStart } from "@/components/AutoStart";
 import { ankiCards } from "@/domain/anki-export";
+import { PackArt, type PackArtName } from "@/components/PackArt";
 import { AppTabBar } from "@/components/AppTabBar";
-import { Octicon, type OcticonName } from "@/components/Octicon";
 import { InlineName } from "@/components/InlineName";
 import { CourseFolderIcon } from "@/components/CourseFolderIcon";
 import { kelusEase } from "@/components/motion";
@@ -39,11 +39,11 @@ import { removeRemoteMaterial } from "@/lib/material-sync";
 
 export type SurfaceMode = "today" | "materials" | "map" | "progress";
 
-const MODES: Array<{ id: SurfaceMode; label: string; icon: OcticonName; tone: "green" | "marigold" | "iris" }> = [
-  { id: "today", label: "Study plan", icon: "list-unordered", tone: "green" },
-  { id: "materials", label: "Materials", icon: "file-directory", tone: "marigold" },
-  { id: "map", label: "Topics", icon: "workflow", tone: "iris" },
-  { id: "progress", label: "Progress", icon: "graph", tone: "iris" },
+const MODES: Array<{ id: SurfaceMode; label: string; art: PackArtName; tone: "green" | "marigold" | "iris" }> = [
+  { id: "today", label: "Study plan", art: "list-check", tone: "green" },
+  { id: "materials", label: "Materials", art: "folder", tone: "marigold" },
+  { id: "map", label: "Topics", art: "diagram-project", tone: "iris" },
+  { id: "progress", label: "Progress", art: "award", tone: "iris" },
 ];
 
 
@@ -280,7 +280,7 @@ export function RevisionSurface({ topicId }: { /** A topic's own page, opened in
                 whileTap={reduceMotion ? undefined : { scale: 0.97 }}
                 transition={pressSpring}
               >
-                <Octicon name={item.icon} className="nav-art" />
+                <PackArt name={item.art} className="nav-art" />
                 {item.label}
               </motion.button>
             );
@@ -329,7 +329,7 @@ export function RevisionSurface({ topicId }: { /** A topic's own page, opened in
           <button type="button" className="core-add-source" onClick={() => sourcePickerRef.current?.click()}><Plus /> Add source</button>
         </div>
         <div className="studio-rail-bottom">
-          <div className="studio-theme"><ThemeSwitch compact /></div>
+          <div className="studio-theme"><ThemeSwitch /></div>
           <Link href="/" className="studio-home-link"><ArrowLeft /> Back</Link>
           {auth.user ? (
             <button type="button" className="studio-account-action" onClick={() => auth.signOut()}>Sign out</button>
@@ -365,22 +365,18 @@ export function RevisionSurface({ topicId }: { /** A topic's own page, opened in
         {!topicId && mode !== "today" ? (
           <header className="studio-section-head kelus-paper-head kelus-space-top is-section" data-section={mode}>
             <div className="kelus-space-identity">
+              {/* Sections swap at once, as pages do in Notion: no waiting for the old one to leave. */}
               <h1 id="section-title">{modeMeta.label}</h1>
-            </div>
-            {/* A list page's action sits at the title's right, the way a dashboard puts "Add" over its table. */}
-            {mode === "materials" ? <button type="button" className="k-btn studio-section-action" onClick={() => sourcePickerRef.current?.click()}><Plus /> Add source</button> : null}
-          </header>
+            </div>          </header>
         ) : null}
 
         {/* The new section is on screen the frame after the click; a short settle of its ink, never an exit to wait for. */}
           {topicId ? null : <motion.div
             key={mode}
             className="studio-panel kelus-paper-body kelus-space-panel revision-surface-panel"
-            // One crossfade for the whole section: it is readable on its first frame (half ink, a 2px blur, 4px low)
-            // and settles in 220ms. No row-by-row stagger: the page is one thing changing, not a list being dealt.
-            initial={reduceMotion ? false : { opacity: 0.5, y: 4, filter: "blur(2px)" }}
-            animate={{ opacity: 1, y: 0, filter: "blur(0px)" }}
-            transition={{ duration: 0.22, ease: [0.16, 1, 0.3, 1] }}
+            initial={reduceMotion ? false : { opacity: 0.55 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.12, ease: kelusEase }}
           >
             {mode === "today" ? (
               // Today starts as one focused column. The original notes open beside it only when requested.
@@ -388,8 +384,7 @@ export function RevisionSurface({ topicId }: { /** A topic's own page, opened in
                 <div className="core-workspace-action workbench-focus is-ready is-one-next is-booklet-page" aria-labelledby="today-title">
                   {!hasReadableSource ? <p className="core-source-inline">This plan has no original PDF beside it. <Link href="/today?section=materials">Add your course PDF</Link> to study from your own pages.</p> : null}
                   {hasReadableSource && selectedMaterial ? <div className="today-source-access">
-                    {/* The file is named only when its name says something the page title does not. */}
-                    {selectedMaterial.title.trim().toLocaleLowerCase() !== (courseName ?? "").trim().toLocaleLowerCase() ? <span><Page /> <span title={selectedMaterial.title}>{selectedMaterial.title}</span></span> : <span />}
+                    <span><Page /> <span title={selectedMaterial.title}>{selectedMaterial.title}</span></span>
                     <button type="button" className="today-source-desktop" aria-controls="today-source-reader" aria-expanded={sourceBesidePlan} onClick={() => router.replace(hrefForMode("today", selectedMaterialId, !sourceBesidePlan), { scroll: false })}>{sourceBesidePlan ? "Hide notes" : "See notes beside plan"}</button>
                     <button type="button" className="today-source-mobile" onClick={() => setMode("materials")}>Open notes</button>
                   </div> : null}

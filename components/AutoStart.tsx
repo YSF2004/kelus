@@ -103,7 +103,7 @@ export function AutoStart({ ready, plan, showPlan, onStart }: { ready: boolean; 
         ) : null}
         <motion.p {...rise(0.3)} className={styles.how}>Every question quotes a line from {plan.course}, and what you miss comes back tomorrow. About {time} for all of it.</motion.p>
         <motion.div {...rise(0.36)} className={styles.actions}>
-          <button type="button" className="k-btn" onClick={start}>Start</button>
+          <button type="button" className="k-btn" onClick={start}>Start <span aria-hidden="true">→</span></button>
           <button type="button" className={styles.later} onClick={later}>See the plan first</button>
         </motion.div>
       </section>

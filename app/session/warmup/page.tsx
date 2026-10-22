@@ -1,7 +1,6 @@
 "use client";
 
 import { ArrowRight, Return, Tick } from "@/components/Marks";
-import { Octicon } from "@/components/Octicon";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { motion, useReducedMotion } from "motion/react";
@@ -91,7 +90,7 @@ function WarmUp() {
   if (!plan.length && !result) {
     return (
       <section className={styles.empty}>
-        <Octicon name="trophy" className={styles.emptyIcon} size={24} />
+        <PackArt name="award" className={styles.emptyIcon} size={40} />
         <h1>{checkpoint ? "Nothing to check yet." : "Nothing to warm up on."}</h1>
         <p>{checkpoint ? "These topics have no lines Kelus can ask about on their own. Study them first." : "Every line you missed has come back, or it is still too fresh to ask again."}</p>
         <Link href="/today" className={`k-btn ${styles.primary}`}>Back to study plan <ArrowRight /></Link>
@@ -119,7 +118,7 @@ function WarmUp() {
           {checkpoint ? (
             <div className={styles.seal}>
               {/* A checkpoint passed is the one place a hi-five belongs. */}
-              {result.right >= need ? <PackArt name="hi-five" className={styles.passArt} size={120} /> : null}
+              {result.right >= need ? <PackArt name="hi-five" className={styles.passArt} size={170} /> : null}
               <MarkStamp outcome={result.right >= need ? "success" : result.right > 0 ? "partial" : "failure"} />
               <h1 id="warmup-done-title">
                 {result.right >= need ? `${label} passed.` : `${result.right} of ${result.total} this time.`}

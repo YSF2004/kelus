@@ -10,7 +10,7 @@
 .print { min-height: 40px; font-size: 0.875rem !important; }
 
 .head { padding-bottom: 28px; border-bottom: 1px solid var(--k-line); }
-.running { margin: 0 0 10px; color: var(--k-text-3, var(--k-text-2)); font-size: 0.9375rem; font-weight: 600; font-variant-caps: normal; letter-spacing: 0; }
+.running { margin: 0 0 10px; color: var(--k-text-3, var(--k-text-2)); font-size: 0.9375rem; font-weight: 600; font-variant-caps: all-small-caps; letter-spacing: 0.08em; }
 .head h1 { margin: 0; font-family: var(--font-marketing-heading), Georgia, serif !important; font-size: clamp(2.25rem, 6vw, 3.25rem) !important; font-weight: 500 !important; letter-spacing: -0.025em !important; line-height: 1.05; }
 .lede { max-width: 34rem; margin: 12px 0 0; color: var(--k-text-2); font-family: var(--font-marketing-heading), Georgia, serif; font-size: 1.0625rem; font-style: italic; line-height: 1.5; }
 .meta { display: flex; flex-wrap: wrap; gap: 4px 0; margin: 16px 0 0; color: var(--k-text-2); font-size: 0.875rem; font-variant-numeric: tabular-nums; }
@@ -24,9 +24,9 @@
 .num { color: var(--k-text-3, var(--k-text-2)); font-size: 1rem; font-variant-numeric: lining-nums; }
 .words { margin: 0; }
 .words p { margin: 0; font-family: var(--font-marketing-heading), Georgia, serif; font-size: 1.1875rem; font-style: italic; line-height: 1.55; }
-.words footer { margin-top: 6px; color: var(--k-text-3, var(--k-text-2)); font-size: 0.8125rem; font-variant-caps: normal; letter-spacing: 0; font-weight: 600; }
+.words footer { margin-top: 6px; color: var(--k-text-3, var(--k-text-2)); font-size: 0.8125rem; font-variant-caps: all-small-caps; letter-spacing: 0.06em; font-weight: 600; }
 .notes { margin: 14px 0 0; color: var(--k-text-2); font-size: 0.9375rem; line-height: 1.55; }
-.notes span, .margin span { display: block; margin-bottom: 2px; color: var(--k-text-3, var(--k-text-2)); font-size: 0.8125rem; font-weight: 600; font-variant-caps: normal; letter-spacing: 0; }
+.notes span, .margin span { display: block; margin-bottom: 2px; color: var(--k-text-3, var(--k-text-2)); font-size: 0.8125rem; font-weight: 600; font-variant-caps: all-small-caps; letter-spacing: 0.06em; }
 .unwritten { margin: 0; color: var(--k-text-3, var(--k-text-2)); font-family: var(--font-marketing-heading), Georgia, serif; font-style: italic; }
 .unwritten a { margin-left: 6px; color: var(--color-kelus, var(--k-green)); font-family: var(--font-inter), system-ui, sans-serif; font-style: normal; font-weight: 600; }
 
@@ -60,29 +60,3 @@
 .entry[data-tone] .num { color: var(--topic-ink); }
 .entry[data-tone] .words { padding-left: 14px; border-left: 3px solid var(--topic); }
 @media print { .entry[data-tone] .words { border-left-color: #999; } }
-
-/* ── Minimal ───────────────────────────────────────────────────────────────────────────────────────────
-   One typeface, no italics, no ornament. The course name over the title, the facts in a row, each topic a section with
-   its colour as a small dot, the student's words in a quiet panel, the notes below, and the margin as plain labels. */
-.running { margin-bottom: 6px; font-size: 0.875rem; font-weight: 500; }
-.head h1 { font-size: 1.75rem !important; font-weight: 600 !important; letter-spacing: -0.022em !important; line-height: 1.2; }
-.lede { font-size: 0.9375rem; font-style: normal; color: var(--k-text-2); }
-.meta { gap: 4px 20px; font-size: 0.8125rem; }
-.meta span + span::before { content: none; }
-.text h2 { gap: 10px; align-items: center; font-size: 1.125rem !important; font-weight: 600 !important; letter-spacing: -0.015em !important; }
-.num { width: 8px; height: 8px; flex: none; overflow: hidden; border-radius: 2px; background: var(--topic, var(--k-text-3)); color: transparent !important; font-size: 0; }
-.words { padding: 14px 16px; border: 1px solid color-mix(in oklch, var(--topic, var(--k-line-strong)) 30%, var(--k-line)); border-radius: 10px; background: color-mix(in oklch, var(--topic-wash, var(--k-surface-2)) 45%, var(--k-surface)); }
-.words p { font-size: 1rem; font-style: normal; line-height: 1.6; }
-.words footer { font-weight: 500; }
-.notes { font-size: 0.875rem; }
-.notes span, .margin span { font-weight: 500; }
-.unwritten { font-size: 0.875rem; font-style: normal; }
-.margin span { color: var(--k-text-3); }
-.margin i { font-style: normal; font-weight: 600; }
-.returning mark { text-decoration: none; }
-.foot { font-size: 0.8125rem; font-style: normal; }
-@media print { .words { border-color: #ddd; background: transparent; } .num { background: #999; } }
-.entry[data-tone] .words, .words { border-left-width: 1px !important; border-left-color: color-mix(in oklch, var(--topic, var(--k-line-strong)) 30%, var(--k-line)) !important; padding-left: 16px !important; }
-/* No colour square before each topic; the student's words sit in a neutral panel. */
-.num { display: none !important; }
-.words, .entry[data-tone] .words { border-color: var(--k-line) !important; background: var(--k-surface-2) !important; }

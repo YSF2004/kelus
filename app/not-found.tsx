@@ -8,7 +8,7 @@ export default function NotFound() {
     <main id="main" className="legal-page">
       <section className="legal-panel">
         {/* From the Kelus illustration pack. */}
-        <PackArt name="lighthouse" size={160} className="not-found-art" />
+        <PackArt name="lighthouse" size={200} className="not-found-art" />
         <h1>This page isn’t here.</h1>
         <p className="legal-lede">The link may be old or mistyped. Your notes and your study plan are still saved on this device.</p>
         <p className="legal-inline-links">

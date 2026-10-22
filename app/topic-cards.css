@@ -81,3 +81,10 @@ body.is-course-studio .surface-map .topic-cards {
 }
 
 /* Old rows placed the status in a third column; inside a card everything stacks in one. */
+body.is-course-studio .surface-map .topic-cards .topic-card-main > * {
+  grid-column: 1;
+  grid-row: auto;
+  justify-self: start;
+  text-align: left;
+  min-width: 0;
+}
