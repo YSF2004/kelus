@@ -131,3 +131,20 @@
 .rememberHead .icon { display: none; }
 .locator { color: var(--k-text-3); font-weight: 400; }
 .remember p { font-size: 1rem !important; line-height: 1.55 !important; }
+
+/* ── The topic closes ──────────────────────────────────────────────────────────────────────────────────
+   The result's one authored moment, in the product's own mark: this topic's cell fills from the left once the verdict
+   has settled (700ms, a confident deceleration), then the first cell still to do gives one soft ring, where the
+   button below leads. Reduced motion shows the finished state at once. */
+.pathSteps { gap: 4px; }
+.pathSteps i { position: relative; max-width: 36px; height: 6px !important; margin: 0 !important; overflow: hidden; border-radius: 3px; background: var(--k-line-strong) !important; }
+.pathSteps i::after { content: ""; position: absolute; inset: 0; border-radius: inherit; background: var(--color-kelus, var(--k-green)); transform: scaleX(0); transform-origin: left center; }
+.pathSteps i[data-done]::after { transform: scaleX(1); opacity: 0.55; }
+.pathSteps i[data-here]::after { opacity: 1; animation: kelusCellFill 700ms cubic-bezier(0.16, 1, 0.3, 1) 420ms both; }
+.pathSteps i[data-next] { overflow: visible; animation: kelusCellCue 900ms cubic-bezier(0.16, 1, 0.3, 1) 1150ms both; }
+@keyframes kelusCellFill { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+@keyframes kelusCellCue { 0% { box-shadow: 0 0 0 0 color-mix(in oklch, var(--color-kelus, #1f6b45) 45%, transparent); } 100% { box-shadow: 0 0 0 6px transparent; } }
+@media (prefers-reduced-motion: reduce) {
+  .pathSteps i[data-here]::after { animation: none; transform: scaleX(1); }
+  .pathSteps i[data-next] { animation: none; }
+}

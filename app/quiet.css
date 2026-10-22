@@ -894,3 +894,14 @@ html body [data-marketing] [data-mark="arrow-right"] { display: none !important;
 html body [data-marketing] :is(dt, dd) { font-family: var(--font-inter), system-ui, sans-serif !important; }
 html body .pricing-page :is(h1, h2) { font-weight: 600 !important; letter-spacing: -0.035em !important; }
 @media (min-width: 651px) { html body.is-course-studio .today-source-access { width: auto !important; box-sizing: border-box; } }
+/* The notes bar is a page action now: the button at the right, a file name at the left only when it differs. */
+@media (min-width: 651px) { html body.is-course-studio .today-source-access { justify-content: space-between; min-height: 0 !important; padding: 0 !important; border-bottom: 0 !important; } }
+/* The notes action sits on the title's row at the right, as a page action does: the bar and the plan share the first
+   grid cell, the bar shrunk to its button and pinned to the cell's top right. */
+@media (min-width: 651px) {
+  html body.is-course-studio .core-workspace-action:has(> .today-source-access) { position: relative; grid-template-columns: minmax(0, 1fr) !important; }
+  html body.is-course-studio .core-workspace-action:has(> .today-source-access) > .today-source-access { grid-area: 1 / 1 / 2 / 2; justify-self: end; align-self: start; position: relative; z-index: 1; width: auto !important; margin-top: -5px !important; }
+  html body.is-course-studio .core-workspace-action:has(> .today-source-access) > .today-source-access > span:empty { display: none; }
+  html body.is-course-studio .core-workspace-action:has(> .today-source-access) > [class*="TodayQuiet"][class*="page"] { grid-area: 1 / 1 / 2 / 2; margin-top: 0 !important; }
+}
+@media (max-width: 650px) { html body.is-course-studio .today-source-access { min-height: 0 !important; margin-bottom: 0 !important; padding: 8px 0 0 !important; border-bottom: 0 !important; justify-content: flex-end; } html body.is-course-studio .today-source-access > span:empty { display: none; } }

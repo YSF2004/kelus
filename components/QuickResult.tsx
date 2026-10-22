@@ -107,6 +107,7 @@ export function QuickResult({
   // The verdict is readable at once; the rest follows in a short stagger, all settled within about half a second.
   const rise = (delay: number) => (reduce ? {} : { initial: { opacity: 0, y: 8 }, animate: { opacity: 1, y: 0 }, transition: { duration: 0.22, delay: delay * 0.3, ease } });
   const goalMet = goalDone >= goal;
+  const nextStep = path ? Array.from({ length: path.total }, (_, index) => index).find((index) => index !== path.here && !(path.done?.[index] ?? index < path.practised)) ?? -1 : -1;
   const router = useRouter();
   // Decided once, when the result opens: the moment marks the day as seen, and must not vanish under itself.
   const [moment, setMoment] = useState(() => Boolean(habit) && goalDone === goal && goalMomentDue(habit!.today));
@@ -147,12 +148,13 @@ export function QuickResult({
       {/* Today's count lives on the study plan; here it only shows the moment the goal is reached. */}
       {goalMet ? <motion.p {...rise(0.54)} className={styles.goal}><PackArt name="award" className={styles.icon} /> Today’s goal reached: {goal} topics.</motion.p> : null}
 
-      {/* The course path in one line: a step for every topic, filled as each is practised. */}
+      {/* The course path in one line: a step for every topic, filled as each is practised. This topic's step fills as the
+          result settles, then the first step still to do answers once: that is where the button goes. */}
       {path && path.total > 1 ? (
         <motion.div {...rise(0.6)} className={styles.path} aria-label={`${path.practised} of ${path.total} topics practised`}>
           <span className={styles.pathSteps} aria-hidden="true">
             {/* One step per topic, in the order of the notes; this topic's step is marked. Practised steps fill. */}
-            {path.total <= 24 ? Array.from({ length: path.total }, (_, index) => <i key={index} data-here={index === path.here ? "true" : undefined} data-done={(path.done?.[index] ?? index < path.practised) ? "true" : undefined} />) : <i className={styles.pathFill} style={{ ["--share" as string]: path.practised / path.total }} />}
+            {path.total <= 24 ? Array.from({ length: path.total }, (_, index) => <i key={index} data-here={index === path.here ? "true" : undefined} data-done={(path.done?.[index] ?? index < path.practised) ? "true" : undefined} data-next={index === nextStep ? "true" : undefined} />) : <i className={styles.pathFill} style={{ ["--share" as string]: path.practised / path.total }} />}
           </span>
           <span>{w.practised(path.practised, path.total)}{language !== "en" ? "" : path.recalled ? `, ${path.recalled} ${path.recalled === 1 ? "line" : "lines"} answered correctly` : ""}</span>
         </motion.div>

@@ -316,3 +316,7 @@
 /* The course name is the page's title, at the size every section's title has. */
 .title, .title :global(*) { font-size: 1.75rem !important; font-weight: 600 !important; letter-spacing: -0.022em !important; line-height: 1.2; }
 .stats { margin-top: 8px; }
+/* The next topic's colour sits beside its name, now that no label stands over it. */
+.next .topic { display: flex; align-items: center; gap: 12px; }
+.next .topic::before { content: ""; flex: none; width: 10px; height: 10px; border-radius: 3px; background: var(--topic, var(--color-kelus)); }
+.next { padding-top: 24px; }
