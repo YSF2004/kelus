@@ -117,7 +117,7 @@ export function TodayRoute({
     if (back && firstTimeToday(nowIso)) trackEvent({ name: "learner_returned", ...back });
   }, [hasPriorEvidence, isSampleCourse, route.allocations.length, sessions, nowIso]);
 
-  // Enter on Today starts (or continues) the next topic.
+  // Enter on Today starts (or continues) the next topic, as the button's ↵ says.
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
       if (event.key !== "Enter" || event.metaKey || event.ctrlKey || event.altKey || event.shiftKey) return;
@@ -257,8 +257,7 @@ export function TodayRoute({
       ) : null}
 
       <motion.section className={q.next} data-block="today-lead" data-tone={toneOf(first.conceptId, concepts)} aria-labelledby="today-title" {...settle(1)}>
-        {/* No label over the title: the button says Continue or Start. Only "beyond today's goal" needs saying. */}
-        {goalDone && !startLabel ? <p className={q.eyebrow}>Extra for today</p> : null}
+        <p className={q.eyebrow}>{startLabel ? "Continue your session" : goalDone ? "Extra for today" : "Up next"}</p>
         {/* The topic's place in the notes, set as a chapter number in its own colour. */}
         <div className={q.chapter}>
           <span className={q.chapterNum} aria-hidden="true">{String(Math.max(1, concepts.findIndex((concept) => concept.id === first.conceptId) + 1)).padStart(2, "0")}</span>
@@ -275,15 +274,13 @@ export function TodayRoute({
         <motion.button
           type="button"
           data-action="start-topic"
-          aria-keyshortcuts="Enter"
-          title="Enter"
           className={`k-btn ${quietStart ? `k-btn--paper ${q.go}` : q.go}`}
           onClick={onStart}
           whileTap={reduceMotion ? undefined : { scale: 0.98 }}
           transition={pressSpring}
         >
           {startLabel ?? "Start this topic"}
-
+          {quietStart ? null : <kbd className={q.key} aria-hidden="true">↵</kbd>}
         </motion.button>
       </motion.section>
 

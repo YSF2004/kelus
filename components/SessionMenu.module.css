@@ -123,6 +123,3 @@
 /* Under the items: appearance, as one quiet row. */
 .footer { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-top: 4px; padding: 8px 8px 4px; border-top: 1px solid var(--q-line, var(--k-line)); }
 .footer::before { content: "Appearance"; color: var(--k-text-2); font-size: 0.8125rem; }
-/* The menu floats a step above the page: a hairline, a 10px corner, and a shadow in two layers (a close edge and a
-   soft far lift), opening from its corner. */
-.root .panel { border-radius: 10px; box-shadow: 0 0 0 1px color-mix(in srgb, var(--k-ink) 6%, transparent), 0 4px 8px -2px rgba(12, 20, 16, 0.08), 0 18px 40px -10px rgba(12, 20, 16, 0.22); }

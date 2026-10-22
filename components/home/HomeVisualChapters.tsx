@@ -11,12 +11,12 @@ export function StudyMoment() {
       <div className={styles.studyInner}>
         <Reveal className={styles.studyArt}>
           {/* From the Kelus illustration pack (Overflow Design, in the founder's Figma file). */}
-          <PackArt name="thinking" className={styles.packArt} size={300} label="A student working through a problem" />
+          <PackArt name="thinking" className={styles.packArt} size={420} label="A student working through a problem" />
         </Reveal>
         <Reveal className={styles.studyCopy}>
           <h2 id="study-moment-title">Your notes stay open beside the question.</h2>
           <p>Miss one, and “Show it in your notes” opens that line with the lines around it. Listen reads it out. Every question comes from your own pages, so you never have to wonder where an answer came from.</p>
-          <Link href="/today" className={styles.textLink}>Set up my course</Link>
+          <Link href="/today" className={styles.textLink}>Set up my course <span aria-hidden="true">↗</span></Link>
         </Reveal>
       </div>
     </section>

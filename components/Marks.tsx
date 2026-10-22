@@ -25,7 +25,7 @@ const line = { stroke: "currentColor", strokeWidth: 1.75, strokeLinecap: "round"
 /** An arrow in a button or link: the same stroke as the marks, sitting on the text's baseline. */
 export function ArrowRight({ size = 14, className }: MarkProps) {
   return (
-    <svg className={className ?? "k-mark"} data-mark="arrow-right" width={size} height={size} viewBox="0 0 16 16" aria-hidden="true" focusable="false">
+    <svg className={className ?? "k-mark"} width={size} height={size} viewBox="0 0 16 16" aria-hidden="true" focusable="false">
       <path d="M3 8h9.5M8.5 4l4 4-4 4" {...line} />
     </svg>
   );

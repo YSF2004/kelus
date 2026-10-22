@@ -112,6 +112,12 @@
   --btn-edge: var(--k-marigold-edge);
 }
 
+.k-btn--iris {
+  --btn-bg: var(--k-iris);
+  --btn-ink: #fff;
+  --btn-edge: var(--k-iris-edge);
+}
+
 /* Second in line: paper with an ink edge, same shape, same press. */
 .k-btn--paper {
   --btn-bg: #fff;
@@ -220,6 +226,11 @@ html body .site-header.is-product:not(.is-session) .site-header-inner { display:
 html body .site-header .mark { display: inline-flex !important; align-items: center; gap: 6px; color: var(--color-midnight-ink) !important; text-decoration: none; }
 
 /* Topic cards respond to the pointer, as rows do in Notion: a lift of the edge and a faint wash. */
+.index-toc-row.topic-card { transition: border-color 120ms, background-color 120ms, box-shadow 120ms, transform 120ms; }
+@media (hover: hover) {
+  .index-toc-row.topic-card:hover { border-color: color-mix(in srgb, var(--k-ink) 22%, transparent) !important; background-color: color-mix(in srgb, var(--k-surface) 92%, var(--k-green-wash)) !important; box-shadow: 0 4px 14px rgba(18, 22, 15, 0.07) !important; }
+}
+.index-toc-row.topic-card:active { transform: scale(0.995); }
 
 /* ── One Kelus mark ───────────────────────────────────────────────────────────────────────────────────
    Every header carries the same "K kelus" as the course sidebar: a 23px K and the wordmark at 1.42rem, light, so the

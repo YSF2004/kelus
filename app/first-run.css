@@ -67,6 +67,11 @@
 
 
 /* A rated topic gets a quiet tick, so progress is visible down the list. */
+body.is-booklet-system .diagnosis-page .diagnosis-list li:has(button.is-selected) > span::after {
+  content: " ✓";
+  color: var(--color-kelus);
+  font-weight: 600;
+}
 
 /* Why Continue is off, and how to leave. */
 

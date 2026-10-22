@@ -34,7 +34,7 @@ export default function PricingPage() {
       <PricingViewTracker />
       <section className="legal-panel pricing-booklet">
         {/* From the Kelus illustration pack: monthly, cancel any time, no trial that runs out. */}
-        <PackArt name="time-flies" className="pricing-hero-art" size={160} />
+        <PackArt name="time-flies" className="pricing-hero-art" size={190} />
         <h1>Start revising. Stay in control.</h1>
         <p className="legal-lede">
           Revise your own course for free. Kelus Plus is planned at $4.99/month.
@@ -60,7 +60,7 @@ export default function PricingPage() {
                 {syncReady ? <li>Optional free sign-in to sync revision progress</li> : <li>Saved on this device</li>}
               </ul>
               <Link className="cta" href="/today">
-                Start revising
+                Start revising <span aria-hidden="true">→</span>
               </Link>
             </article>
           </PricingPlanMotion>
@@ -103,7 +103,11 @@ export default function PricingPage() {
         </section>
 
         <p className="legal-inline-links">
-          Questions? Write to <a href="mailto:hello@kelus.me">hello@kelus.me</a>, <Link href="/questions">ask one here</Link>, or read the <Link href="/privacy">privacy note</Link>.
+          Questions? <a href="mailto:hello@kelus.me">hello@kelus.me</a>
+          {" · "}
+          <Link href="/questions">Ask a question</Link>
+          {" · "}
+          <Link href="/privacy">Privacy</Link>
         </p>
       </section>
     </main>

@@ -188,6 +188,26 @@ body.is-booklet-system .kicker {
 
 
 
+
+
+
+
+
+body.is-booklet-system .kelus-hero.is-folio.is-booklet .folio-hero-copy h1 span:not(.hero-pill) {
+  color: inherit;
+  font-weight: inherit;
+}
+
+
+
+
+
+
+
+
+
+
+
 /* Hero product mock — white card on paper, hairline only; soft product shadow ok */
 
 
@@ -315,6 +335,18 @@ body.is-booklet-system .booklet-product-demo .hero-demo-signal span {
 
 
 
+body.is-booklet-system .folio-chapter-copy > p:not(.kicker) {
+  color: var(--color-graphite);
+  font-family: var(--font-editorial);
+  font-size: 18px;
+  line-height: 1.56;
+}
+
+
+
+
+
+
 
 
 
@@ -342,6 +374,16 @@ body.is-booklet-system .booklet-product-demo .hero-demo-signal span {
 
 
 /* Method + close */
+
+
+
+
+body.is-booklet-system .folio-method-heading > p:not(.kicker) {
+  color: var(--color-graphite);
+  font-family: var(--font-editorial);
+  font-size: 18px;
+  line-height: 1.56;
+}
 
 
 
