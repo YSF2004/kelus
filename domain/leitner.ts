@@ -15,7 +15,15 @@ export const BOXES = [
   { box: 5, every: "Monthly" },
 ] as const;
 
-export type LeitnerLine = { quote: string; conceptId: string; topic: string; box: 1 | 2 | 3 | 4 | 5; state: "new" | "missed" | "recalled" };
+export type LeitnerLine = {
+  quote: string;
+  conceptId: string;
+  topic: string;
+  box: 1 | 2 | 3 | 4 | 5;
+  state: "new" | "missed" | "recalled";
+  /** Recalled today: it moved one box right today, so it is shown arriving from the box before. */
+  movedToday: boolean;
+};
 export type LeitnerState = { lines: LeitnerLine[]; byBox: LeitnerLine[][]; total: number; recalled: number; movedThisWeek: number };
 
 const key = (quote: string) => quote.trim().toLocaleLowerCase();
@@ -27,7 +35,8 @@ export function leitner(input: { concepts: Concept[]; activities: LearningActivi
   const lines: LeitnerLine[] = map.topics.flatMap((topic) => topic.lines.map((line) => {
     const hit = known.get(key(line.quote));
     const box = line.state === "recalled" ? (Math.min(5, 1 + (hit?.streak ?? 1)) as LeitnerLine["box"]) : 1;
-    return { quote: line.quote, conceptId: topic.id, topic: topic.name, box, state: line.state === "recalled" ? "recalled" : line.state === "back" ? "missed" : "new" };
+    const movedToday = line.state === "recalled" && box > 1 && Boolean(hit) && hit!.at.slice(0, 10) === input.nowIso.slice(0, 10);
+    return { quote: line.quote, conceptId: topic.id, topic: topic.name, box, state: line.state === "recalled" ? "recalled" : line.state === "back" ? "missed" : "new", movedToday };
   }));
   const byBox = BOXES.map(({ box }) => lines.filter((line) => line.box === box));
   const movedThisWeek = input.known.filter((line) => Date.parse(line.at) >= weekAgo).length;

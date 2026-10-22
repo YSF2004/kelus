@@ -18,6 +18,7 @@ export function LeitnerPanel({ state }: { state: LeitnerState }) {
   const reduce = useReducedMotion() === true;
   if (!state.total) return null;
   const MAX = 6;
+  const moved = state.lines.filter((line) => line.movedToday).length;
   return (
     <section className={styles.panel} aria-labelledby="leitner-title">
       <header className={styles.head}>
@@ -39,9 +40,11 @@ export function LeitnerPanel({ state }: { state: LeitnerState }) {
                     className={styles.mark}
                     data-state={line.state}
                     title={`${line.topic}: ${line.quote}`}
-                    initial={reduce ? false : { opacity: 0, y: 4 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.24, ease: [0.16, 1, 0.3, 1], delay: reduce ? 0 : Math.min(0.2, (index * 3 + at) * 0.012) }}
+                    data-moved={line.movedToday ? "" : undefined}
+                    // A line recalled today arrives from the box before it, so the plan shows what today's answers did.
+                    initial={reduce ? false : line.movedToday ? { x: "calc(-100% - 26px)", opacity: 1 } : { opacity: 0, y: 4 }}
+                    animate={{ opacity: 1, y: 0, x: 0 }}
+                    transition={line.movedToday ? { duration: 0.7, ease: [0.16, 1, 0.3, 1], delay: reduce ? 0 : 0.45 + at * 0.08 } : { duration: 0.24, ease: [0.16, 1, 0.3, 1], delay: reduce ? 0 : Math.min(0.2, (index * 3 + at) * 0.012) }}
                   >
                     {short(line.quote)}
                   </motion.li>
@@ -55,7 +58,7 @@ export function LeitnerPanel({ state }: { state: LeitnerState }) {
         })}
       </ol>
       <footer className={styles.foot}>
-        <span>{state.byBox[0].length ? `${state.byBox[0].length} in Box 1, asked today` : "Box 1 is clear"}</span>
+        <span>{moved ? `${moved} ${moved === 1 ? "line" : "lines"} moved right today` : state.byBox[0].length ? `${state.byBox[0].length} in Box 1, asked today` : "Box 1 is clear"}</span>
         <span><b>{state.recalled}</b> of {state.total} recalled</span>
       </footer>
     </section>

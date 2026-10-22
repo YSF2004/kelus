@@ -25,9 +25,10 @@ export function TopicBoxes({ conceptId }: { conceptId: string }) {
   const state = leitner({ concepts: [concept], activities: snapshot.snapshot.learningActivities, known, missed, nowIso: snapshot.nowIso });
   if (!state.total) return null;
   const moved = state.lines.filter((line) => line.box > 1).length;
+  const today = state.lines.filter((line) => line.movedToday).length;
   return (
     <section className={styles.wrap} aria-label={`${concept.name}: ${moved} of ${state.total} lines past Box 1`}>
-      <p className={styles.head}><b>{concept.name}</b><span>{moved ? `${moved} of ${state.total} lines past Box 1` : `${state.total} lines in Box 1, asked again soon`}</span></p>
+      <p className={styles.head}><b>{concept.name}</b><span>{today ? `${today} ${today === 1 ? "line" : "lines"} moved right today` : moved ? `${moved} of ${state.total} lines past Box 1` : `${state.total} lines in Box 1, asked again soon`}</span></p>
       <ol className={styles.row} aria-hidden="true">
         {BOXES.map(({ box, every }, index) => (
           <li key={box}>
@@ -37,6 +38,7 @@ export function TopicBoxes({ conceptId }: { conceptId: string }) {
                 <motion.i
                   key={line.quote}
                   data-state={line.state}
+                  data-moved={line.movedToday && !reduce ? "" : undefined}
                   title={line.quote}
                   initial={reduce ? false : { opacity: 0, scale: 0.6 }}
                   animate={{ opacity: 1, scale: 1 }}

@@ -32,3 +32,14 @@ test("the box never passes 5, and a second right answer the same day does not mo
   assert.equal(nextStreak({ conceptId: "c1", name: "D", quote: "q", at: "2026-10-20T09:00:00Z", streak: 2 }, "2026-10-21T18:00:00Z"), 3);
   assert.equal(nextStreak(undefined, now), 1);
 });
+
+test("a line recalled today is marked as moved today; one recalled on an earlier day is not", () => {
+  const state = leitner({ concepts, activities, nowIso: now, missed: [], known: [
+    { conceptId: "c1", name: "Diffusion", quote: "Particles spread out.", at: now, streak: 1 },
+    { conceptId: "c1", name: "Diffusion", quote: "It needs no energy.", at: "2026-10-19T09:00:00.000Z", streak: 2 },
+  ] });
+  const line = (quote) => state.lines.find((item) => item.quote === quote);
+  assert.equal(line("Particles spread out.").movedToday, true);
+  assert.equal(line("It needs no energy.").movedToday, false);
+  assert.equal(line("Down a gradient.").movedToday, false);
+});
