@@ -28,7 +28,8 @@ export function buildPrompt(input: AiTopicInput, options: { maxItems?: number } 
     "You write study material for one topic of a student's own course, using ONLY the page text provided.",
     "Never use outside knowledge. If the page does not say it, do not write it.",
     "Every item must include sourceQuote: an exact, word-for-word copy of a passage from the page that supports the answer.",
-    "Write plain, direct English a student can read quickly. No praise, no filler.",
+    "Write in the same language as the page text (French notes get French questions). Plain and direct; no praise, no filler.",
+    "Prefer questions that test understanding over word-matching: apply the idea to a new case, predict what happens, compare two ideas, or pick the reason. Never ask which topic a sentence describes.",
     "Reply with JSON only, matching the schema. No markdown.",
   ].join(" ");
   const user = JSON.stringify({
@@ -49,7 +50,7 @@ export function buildPrompt(input: AiTopicInput, options: { maxItems?: number } 
         correctIndex: "for kind=choice only: index of the correct option",
       }],
     },
-    wanted: `Up to ${maxItems} items, a mix of kinds, at least one that asks the student to explain or predict, not just recall.`,
+    wanted: `Up to ${maxItems} items. Most must be kind=choice (they are checked instantly): at least half of them a scenario, prediction or "why" question answered by the page, with wrong options that are tempting mistakes a student makes about this page. Add one or two kind=cloze items whose gap is a single key word. Open kinds (recall, why, scenario without choices) are optional.`,
   });
   return { system, user };
 }

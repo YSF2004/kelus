@@ -6,8 +6,8 @@ import { getLocalAiProgress, getLocalAiState, prepareLocalAi, subscribeLocalAi }
 import styles from "./AiConsent.module.css";
 
 /**
- * Off by default. Shown when a question-writing service is configured, or when this browser has its own
- * on-device model (recent Chrome). Says exactly what happens to your notes in each case.
+ * Off by default. Shown only when there is a model to use: a configured question-writing service, or this browser's
+ * own on-device model (recent Chrome). One row, like a setting: what it does, where the text goes, and a switch.
  */
 export function AiConsent() {
   const on = useSyncExternalStore(subscribeAiConsent, getAiConsent, () => false);
@@ -21,36 +21,30 @@ export function AiConsent() {
     if (!next) { setAiConsent(false); forgetAiContent(); return; }
     if (remote) { setAiConsent(true); return; }
     // The model download has to start from this click.
-    const ready = await prepareLocalAi();
-    setAiConsent(ready);
+    setAiConsent(await prepareLocalAi());
   }
 
   const downloading = local === "downloading";
   return (
-    <section className={styles.card} aria-labelledby="ai-consent-title">
-      <div>
+    <section className={styles.row} aria-labelledby="ai-consent-title">
+      <div className={styles.text}>
         <h3 id="ai-consent-title">Smarter questions</h3>
         <p>
-          Let an AI model read the text of each topic you confirm, and write questions and explanations from it. Every question
-          quotes your page, and anything it can’t quote is thrown away.
+          An AI model reads each topic’s page and writes questions that test understanding: apply the idea, predict what
+          happens, pick the reason. Every question quotes your page; anything it can’t quote is thrown away.
         </p>
-        {remote ? (
-          <p className={styles.fine}>
-            Only that page text is sent, to a Kelus service that passes it to Anthropic’s API; Kelus doesn’t store it, and Anthropic handles it under its API terms.
-            Your files, name and answers stay on this device. Off by default; turn it off any time and what it wrote is removed from this device.
-            <a href="/privacy#ai-questions"> Read the details.</a>
-          </p>
-        ) : (
-          <p className={styles.fine}>
-            The model runs inside your browser, so your notes never leave this device. The first time, Chrome downloads it (about 2 GB, once).
-            Questions are written in the background for your next topics. Turn it off any time and what it wrote is removed.
-          </p>
-        )}
-        {downloading ? <p className={styles.fine} role="status">Downloading the on-device model… {Math.round(progress * 100)}%</p> : null}
+        <p className={styles.fine}>
+          {remote
+            ? "Only that page text is sent, to a Kelus service that passes it to Anthropic’s API. Your files, name and answers stay on this device. "
+            : "The model runs inside Chrome, so your notes never leave this device. The first time, Chrome downloads it (about 2 GB, once). "}
+          Turn it off any time and what it wrote is removed. <a href="/privacy#ai-questions">Details</a>
+        </p>
+        {downloading ? <p className={styles.fine} role="status">Downloading the on-device model, {Math.round(progress * 100)}%</p> : null}
       </div>
       <label className={styles.switch}>
-        <input type="checkbox" checked={on} disabled={downloading} onChange={(event) => void change(event.target.checked)} />
-        <span>{downloading ? "Preparing" : on ? "On" : "Off"}</span>
+        <input type="checkbox" role="switch" checked={on} disabled={downloading} onChange={(event) => void change(event.target.checked)} aria-describedby="ai-consent-title" />
+        <span aria-hidden="true" />
+        <span className="sr-only">{on ? "On" : "Off"}</span>
       </label>
     </section>
   );

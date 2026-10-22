@@ -59,3 +59,14 @@ test("a smaller request asks for fewer items, and never more than the limit", as
   assert.match(JSON.parse(buildPrompt(input, { maxItems: 4 }).user).wanted, /Up to 4 items/);
   assert.match(JSON.parse(buildPrompt(input, { maxItems: 99 }).user).wanted, new RegExp(`Up to ${AI_LIMITS.maxItems} items`));
 });
+
+test("the prompt asks for checkable questions that test understanding, in the notes' own language", () => {
+  const { system, user } = buildPrompt({ ...input, pageText: "L'osmose est le passage de l'eau à travers une membrane partiellement perméable, du milieu dilué vers le milieu concentré." });
+  assert.match(system, /same language as the page text/);
+  assert.match(system, /apply the idea to a new case, predict what happens/);
+  assert.match(system, /Never ask which topic a sentence describes/);
+  const wanted = JSON.parse(user).wanted;
+  assert.match(wanted, /Most must be kind=choice/);
+  assert.match(wanted, /scenario, prediction or "why" question/);
+  assert.match(JSON.parse(user).pageText, /L'osmose/);
+});
