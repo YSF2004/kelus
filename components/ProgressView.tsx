@@ -82,7 +82,7 @@ export function ProgressView({ concepts, events, nowIso, daysToExam, targetPerce
     return (
       <div className={styles.page}>
         <RecallMap concepts={concepts} activities={activities} nowIso={nowIso} />
-        <Link href="/sheet" className={styles.sheetLink}>Read your revision sheet: every topic in your own words <ArrowRight /></Link>
+        <Link href="/sheet" className={styles.sheetLink}>Open your revision sheet</Link>
         <section className={styles.group} aria-labelledby="progress-headline">
           <h2 id="progress-headline" className={styles.earlyHeading}>{summary.practised.length} of {concepts.length} topics tried</h2>
           <ul>
@@ -104,7 +104,7 @@ export function ProgressView({ concepts, events, nowIso, daysToExam, targetPerce
   return (
     <div className={styles.page}>
       <RecallMap concepts={concepts} activities={activities} nowIso={nowIso} />
-      <Link href="/sheet" className={styles.sheetLink}>Read your revision sheet: every topic in your own words <ArrowRight /></Link>
+      <Link href="/sheet" className={styles.sheetLink}>Open your revision sheet</Link>
       <motion.section className={styles.lead} initial={reduce ? false : { opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: reduce ? 0 : 0.3, ease: [0.22, 1, 0.36, 1] }} aria-labelledby="progress-headline">
         {/* Before there are enough answers there is no trend to talk about: the counts below say where you are. */}
         <h2 id="progress-headline">{fresh ? "Your progress starts with a first answer." : progressHeadline(summary)}</h2>
