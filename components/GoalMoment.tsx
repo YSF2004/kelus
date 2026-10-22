@@ -67,7 +67,7 @@ export function GoalMoment({ today, streak, goal, week, backTomorrow, nextName, 
           animate={{ opacity: 1, y: 0, scale: 1 }}
           transition={{ type: "spring", bounce: 0, duration: 0.7, delay: 0.05 }}
         >
-          <PackArt name="napping" size={150} />
+          <PackArt name="napping" size={120} />
         </motion.span>
 
         <motion.p className={styles.count} {...rise(0.3)} aria-hidden="true"><Octicon name="flame" size={18} /><b>{shown}</b> day streak</motion.p>

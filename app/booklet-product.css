@@ -551,15 +551,6 @@
 
 
 
-
-.is-booklet-system .home .folio-chapter-art :is(.v1-plan, .v1-reroute, .v1-materials) { box-shadow: none; }
-
-
-
-
-
-
-
 .is-booklet-system .home .site-footer {
   width: 100%;
   max-width: none;
