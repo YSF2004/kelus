@@ -908,3 +908,6 @@ html body :is([data-tone="1"], [data-tone="2"], [data-tone="3"], [data-tone="4"]
 }
 html body .material-card-topics span[data-tone]::before { content: none !important; }
 html body.is-course-studio .is-materials .material-card-topics { gap: 2px 12px; }
+/* Materials' privacy note: one quiet line under the table, not a two-line block between the table and the reader. */
+html body.is-course-studio .is-materials .material-binder-note { max-width: none !important; margin: -4px 0 0 !important; text-align: left; }
+html body.is-course-studio .surface-map.is-toc [class*="AnkiExport"][class*="card"] { width: auto !important; max-width: none !important; padding-left: 0 !important; padding-right: 0 !important; }

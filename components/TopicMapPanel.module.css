@@ -248,3 +248,10 @@
 .stepLink { padding-left: 12px !important; }
 .columns { padding-left: 12px !important; }
 .checkpoint { padding-left: 12px !important; }
+
+/* The course as cells, one per topic: empty until practised, a lighter green once tried, full green once solid. */
+.pathCells { display: flex; gap: 4px; margin-top: 10px; }
+.pathCells i { flex: 1 1 0; max-width: 48px; height: 6px; border-radius: 3px; background: var(--k-line-strong); transition: background-color 320ms cubic-bezier(0.16, 1, 0.3, 1); }
+.pathCells i[data-state="practised"] { background: color-mix(in oklch, var(--color-kelus, #1f6b45) 55%, var(--k-surface)); }
+.pathCells i[data-state="solid"] { background: var(--color-kelus, #1f6b45); }
+.pathCells i[data-state="practised"] { background: var(--color-kelus, #1f6b45); }

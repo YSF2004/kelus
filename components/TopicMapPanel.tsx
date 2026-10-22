@@ -158,9 +158,9 @@ export function TopicMapPanel() {
           {passedCount ? <li data-tone="marigold"><Octicon name="trophy" className={styles.ico} /><strong>{passedCount}</strong><span>{passedCount === 1 ? "checkpoint" : "checkpoints"}</span></li> : null}
         </ul>
         {/* Two tones: solid topics in green, practised ones lighter. A path is not done while its topics need work. */}
-        <span className={styles.pathBar} aria-hidden="true">
-          <motion.i className={styles.pathPractised} initial={false} animate={{ scaleX: path.length ? practised / path.length : 0 }} transition={{ duration: reduce ? 0 : 0.5, ease: [0.22, 1, 0.36, 1] }} />
-          <motion.i className={styles.pathSolid} initial={false} animate={{ scaleX: path.length ? solid / path.length : 0 }} transition={{ duration: reduce ? 0 : 0.5, ease: [0.22, 1, 0.36, 1] }} />
+        {/* The course as cells, one per topic in the order of the notes: practised ones fill, solid ones in full green. */}
+        <span className={styles.pathCells} aria-hidden="true">
+          {path.map(({ concept, label }) => <i key={concept.id} data-state={concept.retrievalAttempts === 0 ? undefined : label === "Solid" ? "solid" : "practised"} />)}
         </span>
       </div>
 
