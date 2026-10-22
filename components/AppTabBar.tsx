@@ -3,10 +3,10 @@
 import { motion, useReducedMotion } from "motion/react";
 import { useSyncExternalStore } from "react";
 import { createPortal } from "react-dom";
-import { PackArt, type PackArtName } from "@/components/PackArt";
+import { Octicon, type OcticonName } from "@/components/Octicon";
 import styles from "./AppTabBar.module.css";
 
-export type AppTab<Id extends string> = { id: Id; label: string; art: PackArtName; tone?: "green" | "marigold" | "iris" };
+export type AppTab<Id extends string> = { id: Id; label: string; icon: OcticonName; tone?: "green" | "marigold" | "iris" };
 
 const noop = () => () => {};
 
@@ -34,7 +34,7 @@ export function AppTabBar<Id extends string>({ tabs, active, onSelect }: { tabs:
             transition={{ type: "spring", bounce: 0, duration: 0.25 }}
           >
             {on && !reduce ? <motion.span layoutId="app-tab-pill" className={styles.pill} transition={{ type: "spring", bounce: 0, duration: 0.35 }} /> : on ? <span className={styles.pill} /> : null}
-            <PackArt name={tab.art} className={styles.icon} />
+            <Octicon name={tab.icon} className={styles.icon} size={20} />
             <span className={styles.label}>{tab.label}</span>
           </motion.button>
         );

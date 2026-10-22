@@ -27,7 +27,7 @@ export function ReadingNotes({ message, error, onStartOver, topics = [] }: { mes
     return (
       <section className={styles.box} aria-labelledby="reading-title">
         {/* From the Kelus illustration pack: a shrug, not an error icon. */}
-        <PackArt name="no-answer" size={220} className={styles.shrug} />
+        <PackArt name="no-answer" size={140} className={styles.shrug} />
         <h1 id="reading-title">Kelus couldn’t find topics in this file.</h1>
         <p>{error}</p>
         <p className={styles.hint}>Notes with a heading above each topic work best. A PDF needs selectable text, or a clear scan.</p>

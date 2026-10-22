@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, type DragEvent } from "react";
+import { Octicon } from "@/components/Octicon";
 import { PackArt } from "@/components/PackArt";
 import { PasteNotes } from "@/components/PasteNotes";
 import { MAX_NOTES_BYTES } from "@/domain/markdown-pages";
@@ -52,7 +53,7 @@ export function DropNotes({ onFile, first = false, courseName }: { onFile: (file
       <div className="destination-form">
         <section className="setup-stage-content empty-course" aria-labelledby="start-title">
           {/* From the Kelus illustration pack (public/art/notion-pack): a student climbing with a pencil. */}
-          <PackArt name="growing" className="empty-course-art" size={170} />
+          <PackArt name="growing" className="empty-course-art" size={120} />
           <h1 id="start-title" className="destination-page-title">{first ? "Start with your notes." : courseName ? `Add notes to ${courseName}.` : "Add your notes."}</h1>
           <p className="destination-support">
             {first
@@ -68,7 +69,7 @@ export function DropNotes({ onFile, first = false, courseName }: { onFile: (file
             onDrop={drop}
           >
             <input type="file" title="" accept={SOURCE_FILE_ACCEPT} disabled={busy} onChange={(event) => { void take(event.target.files?.[0]); event.target.value = ""; }} />
-            <span className="setup-upload-mark" aria-hidden="true"><PackArt name="folder" size={44} /></span>
+            <span className="setup-upload-mark" aria-hidden="true"><Octicon name="upload" size={24} /></span>
             <strong>{busy ? "Reading your file…" : "Choose a PDF or notes"}</strong>
             {/* Dragging only exists with a mouse or trackpad; a phone gets the file types instead. */}
             <span>{busy ? "This takes a few seconds." : <><span className="drop-hint">Or drop it here. </span>PDF, Markdown, .txt or a Notion .zip, up to 20 MB.</>}</span>

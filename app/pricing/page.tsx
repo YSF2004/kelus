@@ -34,7 +34,7 @@ export default function PricingPage() {
       <PricingViewTracker />
       <section className="legal-panel pricing-booklet">
         {/* From the Kelus illustration pack: monthly, cancel any time, no trial that runs out. */}
-        <PackArt name="time-flies" className="pricing-hero-art" size={190} />
+        <PackArt name="time-flies" className="pricing-hero-art" size={160} />
         <h1>Start revising. Stay in control.</h1>
         <p className="legal-lede">
           Revise your own course for free. Kelus Plus is planned at $4.99/month.

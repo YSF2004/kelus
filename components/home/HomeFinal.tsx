@@ -7,7 +7,7 @@ import styles from "./HomeFinal.module.css";
 export function HomeFinal() {
   return (
     <section className={styles.final} aria-labelledby="home-final-title">
-      <PackArt name="target" className={styles.art} size={150} />
+      <PackArt name="target" className={styles.art} size={120} />
       <div className={styles.copy}>
         <h2 id="home-final-title">Bring the notes for your next exam.</h2>
         <p>Drop them in tonight. Your first question is ready in about a minute.</p>

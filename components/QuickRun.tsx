@@ -351,7 +351,7 @@ export function QuickRun({ run, onRevealSource, onShowLine, onFinish, onChecksDo
 
             {answered ? (
               <motion.div className={`${styles.feedback} ${answered.right ? styles.ok : answered.unsure ? styles.unsure : styles.no}`} role="status" initial={reduce ? false : touch ? { opacity: 1, y: "100%" } : { opacity: 0, y: 8, scale: 0.98 }} animate={{ opacity: 1, y: 0, scale: 1 }} transition={touch ? { type: "spring", bounce: 0, duration: 0.38 } : { type: "spring", bounce: 0, duration: 0.28 }}>
-                <strong>{answered.right ? <PackArt name="check" className={styles.mark} /> : null}{answered.unsure ? (item.kind === "cloze" ? w.itWas(item.modelAnswer) : w.lineFrom) : answered.right ? (answered.picked ? w.picked : answered.firstEver ? w.firstRight : w.right) : item.kind === "cloze" ? w.notQuiteWas(item.modelAnswer) : w.notQuite}</strong>
+                <strong>{answered.right ? <Octicon name="check-circle" className={styles.mark} size={18} /> : null}{answered.unsure ? (item.kind === "cloze" ? w.itWas(item.modelAnswer) : w.lineFrom) : answered.right ? (answered.picked ? w.picked : answered.firstEver ? w.firstRight : w.right) : item.kind === "cloze" ? w.notQuiteWas(item.modelAnswer) : w.notQuite}</strong>
                 {around && linesAround(run, item.sourceQuote) ? (
                   <div className={styles.around} aria-label="This line in your notes">
                     {linesAround(run, item.sourceQuote)!.before ? <p>{linesAround(run, item.sourceQuote)!.before}</p> : null}
@@ -361,7 +361,7 @@ export function QuickRun({ run, onRevealSource, onShowLine, onFinish, onChecksDo
                 ) : <p className={styles.quote}>“{item.sourceQuote}”</p>}
                 {/* Accepted on purpose, and said so: the student sees the notes' own word, not a silent pass. */}
                 {answered.right && item.kind === "cloze" && answered.how && answered.how !== "exact" ? <p className={styles.accepted}>{acceptedNote(answered.how, item.modelAnswer)}</p> : null}
-                {answered.firstEver ? <p className={styles.firstNote}><PackArt name="ranking" className={styles.firstArt} size={64} /><span>Kelus brings it back in a few days, just before you’d forget it, so it sticks for the exam.</span></p> : null}
+                {answered.firstEver ? <p className={styles.firstNote}><PackArt name="ranking" className={styles.firstArt} size={48} /><span>Kelus brings it back in a few days, just before you’d forget it, so it sticks for the exam.</span></p> : null}
                 <div className={styles.lineTools}>
                   <ListenButton key={`listen-q-${step}`} text={item.sourceQuote} className={styles.listen} label={w.listen} stopLabel={w.stop} />
                   {!answered.right && onShowLine ? <button type="button" className={styles.listen} onClick={() => onShowLine(item.sourceQuote)}>{w.seeOnPage}</button> : !answered.right && !around && linesAround(run, item.sourceQuote) ? <button type="button" className={styles.listen} onClick={() => setAround(true)}>{w.showInNotes}</button> : null}

@@ -141,12 +141,12 @@ export function QuickResult({
 
 
       <motion.blockquote {...rise(0.42)} className={styles.remember}>
-        <span className={styles.rememberHead}><PackArt name="clipboard-check" className={styles.icon} />{rememberLabel}{/^Section\b/.test(locator) ? null : <span className={styles.locator}>{locator}</span>}</span>
+        <span className={styles.rememberHead}>{rememberLabel}{/^Section\b/.test(locator) ? null : <span className={styles.locator}>{locator}</span>}</span>
         <p>“{remember}”</p>
       </motion.blockquote>
 
       {/* Today's count lives on the study plan; here it only shows the moment the goal is reached. */}
-      {goalMet ? <motion.p {...rise(0.54)} className={styles.goal}><PackArt name="award" className={styles.icon} /> Today’s goal reached: {goal} topics.</motion.p> : null}
+      {goalMet ? <motion.p {...rise(0.54)} className={styles.goal}><Octicon name="trophy" className={styles.icon} /> Today’s goal reached: {goal} topics.</motion.p> : null}
 
       {/* The course path in one line: a step for every topic, filled as each is practised. This topic's step fills as the
           result settles, then the first step still to do answers once: that is where the button goes. */}

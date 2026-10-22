@@ -17,8 +17,8 @@ import { TopicMapPanel } from "@/components/TopicMapPanel";
 import { ProgressView } from "@/components/ProgressView";
 import { AutoStart } from "@/components/AutoStart";
 import { ankiCards } from "@/domain/anki-export";
-import { PackArt, type PackArtName } from "@/components/PackArt";
 import { AppTabBar } from "@/components/AppTabBar";
+import { Octicon, type OcticonName } from "@/components/Octicon";
 import { InlineName } from "@/components/InlineName";
 import { CourseFolderIcon } from "@/components/CourseFolderIcon";
 import { kelusEase } from "@/components/motion";
@@ -39,11 +39,11 @@ import { removeRemoteMaterial } from "@/lib/material-sync";
 
 export type SurfaceMode = "today" | "materials" | "map" | "progress";
 
-const MODES: Array<{ id: SurfaceMode; label: string; art: PackArtName; tone: "green" | "marigold" | "iris" }> = [
-  { id: "today", label: "Study plan", art: "list-check", tone: "green" },
-  { id: "materials", label: "Materials", art: "folder", tone: "marigold" },
-  { id: "map", label: "Topics", art: "diagram-project", tone: "iris" },
-  { id: "progress", label: "Progress", art: "award", tone: "iris" },
+const MODES: Array<{ id: SurfaceMode; label: string; icon: OcticonName; tone: "green" | "marigold" | "iris" }> = [
+  { id: "today", label: "Study plan", icon: "list-unordered", tone: "green" },
+  { id: "materials", label: "Materials", icon: "file-directory", tone: "marigold" },
+  { id: "map", label: "Topics", icon: "workflow", tone: "iris" },
+  { id: "progress", label: "Progress", icon: "graph", tone: "iris" },
 ];
 
 
@@ -280,7 +280,7 @@ export function RevisionSurface({ topicId }: { /** A topic's own page, opened in
                 whileTap={reduceMotion ? undefined : { scale: 0.97 }}
                 transition={pressSpring}
               >
-                <PackArt name={item.art} className="nav-art" />
+                <Octicon name={item.icon} className="nav-art" />
                 {item.label}
               </motion.button>
             );

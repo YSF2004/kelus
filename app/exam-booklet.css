@@ -140,37 +140,7 @@ body.is-booklet-system .is-poster .home-cta:hover {
 
 
 
-
-
-
-
-
-body.is-booklet-system .folio-chapter-copy > p:not(.kicker) {
-  max-width: 40ch;
-  margin: 0 0 1.25rem;
-  color: var(--booklet-mute);
-  font-family: var(--font-editorial);
-  font-size: 1rem;
-  line-height: 1.55;
-  opacity: 1;
-}
-
-
-
-
-
 /* ── Method ── */
-
-
-
-
-
-
-body.is-booklet-system .folio-method-heading > p:not(.kicker) {
-  color: var(--booklet-mute);
-  font-family: var(--font-editorial);
-  opacity: 1;
-}
 
 
 
@@ -230,15 +200,14 @@ body.is-booklet-system .is-booklet-product .kicker,body.is-booklet-system .desti
 
 
 
-body.is-booklet-system .is-booklet-product .cta,body.is-booklet-system .destination-page.is-booklet-product .cta,body.is-booklet-system .site-header:not(.is-home) .site-header-action {
+body.is-booklet-system .is-booklet-product .cta,body.is-booklet-system .destination-page.is-booklet-product .cta {
   background: var(--booklet-kelus);
   border-color: var(--booklet-kelus);
   color: #f7f8f5;
 }
 
 body.is-booklet-system .is-booklet-product .cta:hover,
-body.is-booklet-system .destination-page.is-booklet-product .cta:hover,
-body.is-booklet-system .site-header:not(.is-home) .site-header-action:hover {
+body.is-booklet-system .destination-page.is-booklet-product .cta:hover {
   background: #185536;
   border-color: #185536;
   color: #fff;
@@ -800,9 +769,6 @@ body.is-booklet-system .course-masthead-hint {
 }
 
 /* Hide legacy sidebar rail if any leftover markup still mounts it */
-body.is-booklet-system .course-workspace-rail:not(.course-masthead) {
-  display: none;
-}
 
 /* Map: paper list, sentence-case status, Kelus ink (not sky blue) */
 
@@ -837,7 +803,7 @@ body.is-booklet-system .mark-status.is-fading {
 
 
 
-body.is-booklet-system .how-page .how-concept-node:not(.is-primary) circle,body.is-booklet-system .first-run-gate-preview .how-paper-stack rect,body.is-booklet-system .first-run-gate-preview .how-concept-node:not(.is-primary) circle {
+body.is-booklet-system .first-run-gate-preview .how-paper-stack rect,body.is-booklet-system .first-run-gate-preview .how-concept-node:not(.is-primary) circle {
   fill: transparent !important;
 }
 

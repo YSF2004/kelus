@@ -11,7 +11,7 @@ export function StudyMoment() {
       <div className={styles.studyInner}>
         <Reveal className={styles.studyArt}>
           {/* From the Kelus illustration pack (Overflow Design, in the founder's Figma file). */}
-          <PackArt name="thinking" className={styles.packArt} size={420} label="A student working through a problem" />
+          <PackArt name="thinking" className={styles.packArt} size={300} label="A student working through a problem" />
         </Reveal>
         <Reveal className={styles.studyCopy}>
           <h2 id="study-moment-title">Your notes stay open beside the question.</h2>
