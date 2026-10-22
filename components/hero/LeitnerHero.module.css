@@ -52,7 +52,7 @@
   .lede { font-size: 16.5px; }
   .options { grid-template-columns: minmax(0, 1fr); }
   .question p { font-size: 15.5px; }
-  .box { min-height: 170px; padding: 10px 7px; }
+  .box { min-height: 200px; padding: 10px 7px; }
   .box > small { display: none; }
   .marks i, .mover { padding: 0 5px; font-size: 10.5px; }
   .mover { left: 7px; top: 44px; width: calc(20% - 20px); }

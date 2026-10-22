@@ -49,7 +49,7 @@ export function RevisionLoopVisuals() {
               </motion.mark>{" "}
               from a dilute solution to a more concentrated one.
             </p>
-            <p className={styles.where}>Biology · page 2</p>
+            <p className={styles.where}>Biology, page 2</p>
           </div>
         </motion.article>
 
@@ -114,7 +114,7 @@ export function RevisionLoopVisuals() {
                 transition={{ type: "spring", bounce: 0, duration: 0.6, delay: at(3, 0.35) }}
               >
                 <strong>Osmosis</strong>
-                <span>comes back tomorrow</span>
+                <span>Back to Box 1, tomorrow</span>
               </motion.li>
               <motion.li
                 initial={reduce ? false : { y: -34 }}
@@ -122,11 +122,11 @@ export function RevisionLoopVisuals() {
                 transition={{ type: "spring", bounce: 0, duration: 0.6, delay: at(3, 0.35) }}
               >
                 <strong>Diffusion</strong>
-                <span>in 4 days</span>
+                <span>Box 3, in 4 days</span>
               </motion.li>
               <li>
                 <strong>Enzymes</strong>
-                <span>next week</span>
+                <span>Box 4, next week</span>
               </li>
             </ol>
           </div>
