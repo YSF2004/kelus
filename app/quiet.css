@@ -897,3 +897,14 @@ html body .pricing-page :is(h1, h2) { font-weight: 600 !important; letter-spacin
 html body [data-marketing] img[src*="/art/notion-pack/"] { width: auto !important; max-width: min(300px, 100%) !important; height: auto !important; max-height: 300px !important; object-fit: contain; }
 html body .start-page .setup-upload-mark { color: var(--color-kelus, #1f6b45) !important; }
 html body .start-page .setup-upload-mark svg { width: 24px !important; height: 24px !important; }
+
+/* ── No topic colours ──────────────────────────────────────────────────────────────────────────────────
+   Topics are told apart by their names, not by a colour each. Every topic tone resolves to the one Kelus green and a
+   neutral wash, and the small coloured squares that keyed them (Topics, Materials, Progress, the sheet) are gone. */
+html body :is([data-tone="1"], [data-tone="2"], [data-tone="3"], [data-tone="4"], [data-tone="5"], [data-tone="6"]) {
+  --topic: var(--color-kelus, #1f6b45) !important;
+  --topic-ink: var(--k-ink) !important;
+  --topic-wash: var(--k-surface-2) !important;
+}
+html body .material-card-topics span[data-tone]::before { content: none !important; }
+html body.is-course-studio .is-materials .material-card-topics { gap: 2px 12px; }

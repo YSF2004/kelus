@@ -54,7 +54,7 @@ test("after answering, the screen counts the answers but still does not claim a 
   await expect(page.getByText(/Readiness after 6 answers/)).toHaveCount(0);
   const tried = page.locator('section[aria-labelledby="progress-headline"] li').first();
   await expect(tried).toContainText("Osmosis");
-  await expect(tried).toContainText(/(Solid|Partly there|Missed) · back /);
+  await expect(tried).toContainText(/(Solid|Partly there|Missed), back /);
   await expect(page.getByText(/^Not started: /)).not.toContainText("Osmosis");
 });
 
