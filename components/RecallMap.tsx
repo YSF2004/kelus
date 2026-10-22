@@ -22,11 +22,8 @@ export function RecallMap({ concepts, activities, nowIso }: { concepts: Concept[
 
   return (
     <section className={styles.map} aria-labelledby="recall-map-title">
-      <p className={styles.kicker} id="recall-map-title">Lines answered correctly</p>
-      <p className={styles.figure}>
-        <b>{map.recalled}</b>
-        <span>of {map.total} lines in your notes{map.recalled ? `, ${share}%` : ""}</span>
-      </p>
+      {/* One plain line, not a big figure over a small label: the count is read, not admired. */}
+      <h2 className={styles.summary} id="recall-map-title"><b>{map.recalled}</b> of {map.total} lines answered correctly{map.recalled ? <span>{share}%</span> : null}</h2>
       <p className={styles.sub}>
         {map.recalled === 0
           ? "None yet. The count rises with each line you answer correctly."
