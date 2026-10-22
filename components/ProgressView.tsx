@@ -55,7 +55,7 @@ function Topics({ title, note, items, empty }: { title: string; note: string; it
               <span className={styles.move} aria-label={`${pct(topic.before)} percent to ${pct(topic.after)} percent`}>
                 {/* A change is shown as a change; "0% → 0%" says nothing, so the last answer is named instead. */}
                 {/* Percentages only once there are a few answers behind them; before that, the last answer in words. */}
-                {topic.attempts === 0 ? "Not started" : topic.attempts < 3 ? `${LAST[topic.lastOutcome ?? "partial"]} · ${topic.attempts} ${topic.attempts === 1 ? "try" : "tries"}` : pct(topic.before) !== pct(topic.after) ? <>{pct(topic.before)}% <ArrowRight /> {pct(topic.after)}%</> : LAST[topic.lastOutcome ?? "partial"]}
+                {topic.attempts === 0 ? "Not started" : topic.attempts < 3 ? `${LAST[topic.lastOutcome ?? "partial"]}, ${topic.attempts} ${topic.attempts === 1 ? "try" : "tries"}` : pct(topic.before) !== pct(topic.after) ? <>{pct(topic.before)}% <ArrowRight /> {pct(topic.after)}%</> : LAST[topic.lastOutcome ?? "partial"]}
               </span>
               {topic.attempts >= 3 ? <span className={styles.bar} aria-hidden="true"><i style={{ width: `${pct(topic.after)}%` }} /></span> : <span className={styles.bar} aria-hidden="true" style={{ visibility: "hidden" }} />}
             </li>
@@ -89,7 +89,7 @@ export function ProgressView({ concepts, events, nowIso, daysToExam, targetPerce
             {summary.practised.map((topic) => (
               <li key={topic.id}>
                 <strong>{topic.name}</strong>
-                <span className={styles.move}>{EARLY[topic.lastOutcome ?? "partial"]} · {comesBackLine(byId.get(topic.id)?.nextReviewAt, nowIso).replace(/^Comes back/, "back")}</span>
+                <span className={styles.move}>{EARLY[topic.lastOutcome ?? "partial"]}, {comesBackLine(byId.get(topic.id)?.nextReviewAt, nowIso).replace(/^Comes back/, "back")}</span>
                 <span className={styles.bar} aria-hidden="true" style={{ visibility: "hidden" }} />
               </li>
             ))}

@@ -83,3 +83,6 @@
 .foot { font-size: 0.8125rem; font-style: normal; }
 @media print { .words { border-color: #ddd; background: transparent; } .num { background: #999; } }
 .entry[data-tone] .words, .words { border-left-width: 1px !important; border-left-color: color-mix(in oklch, var(--topic, var(--k-line-strong)) 30%, var(--k-line)) !important; padding-left: 16px !important; }
+/* No colour square before each topic; the student's words sit in a neutral panel. */
+.num { display: none !important; }
+.words, .entry[data-tone] .words { border-color: var(--k-line) !important; background: var(--k-surface-2) !important; }

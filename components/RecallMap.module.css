@@ -43,3 +43,6 @@
 .topic[data-tone] .dot[data-state="recalled"] { background: var(--topic); }
 .topic[data-tone] .name::before { content: ""; display: inline-block; width: 8px; height: 8px; margin-right: 8px; border-radius: 2px; background: var(--topic); vertical-align: 0.05em; }
 .legend .dot[data-state="recalled"] { background: var(--k-ink); }
+/* No colour square before each topic; a line answered correctly fills in ink, as the key below says. */
+.topic[data-tone] .name::before { content: none; }
+.topic[data-tone] .dot[data-state="recalled"] { background: var(--k-ink); }

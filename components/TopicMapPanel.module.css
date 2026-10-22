@@ -243,3 +243,8 @@
   .colTries, .colPage { display: none !important; }
 }
 .step { border-bottom: 1px solid var(--k-line) !important; }
+/* No colour square before each topic: the name starts the row. */
+.step .node { display: none !important; }
+.stepLink { padding-left: 12px !important; }
+.columns { padding-left: 12px !important; }
+.checkpoint { padding-left: 12px !important; }
