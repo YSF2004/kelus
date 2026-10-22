@@ -110,3 +110,16 @@
 .rememberHead .icon { display: none; }
 .remember p { font-family: var(--font-marketing-heading), Georgia, serif; font-style: italic; font-size: 1.25rem; }
 
+
+/* ── The teacher's mark ────────────────────────────────────────────────────────────────────────────────
+   No icon in a grey disc: a pencil mark in the margin, in the verdict's colour, and the verdict underlined by hand. */
+.pencil { width: 56px; height: 56px; transform: rotate(-4deg); }
+.pencil svg { fill: none; stroke: var(--mark); stroke-width: 4.5; stroke-linecap: round; stroke-linejoin: round; overflow: visible; }
+.pencil, .title { --mark: var(--color-kelus, var(--k-green)); }
+.pencil[data-outcome="partial"], .title[data-outcome="partial"] { --mark: #c0841a; }
+.pencil[data-outcome="failure"], .title[data-outcome="failure"] { --mark: var(--k-danger, #b4442f); }
+:root[data-theme="dark"] .pencil, :root[data-theme="dark"] .title { --mark: #7fd0a0; }
+:root[data-theme="dark"] .pencil[data-outcome="partial"], :root[data-theme="dark"] .title[data-outcome="partial"] { --mark: #f0b85a; }
+:root[data-theme="dark"] .pencil[data-outcome="failure"], :root[data-theme="dark"] .title[data-outcome="failure"] { --mark: #f08a74; }
+.title { position: relative; justify-self: start; }
+.underline { position: absolute; left: 0; bottom: -8px; width: 100%; height: 10px; overflow: visible; fill: none; stroke: var(--mark); stroke-width: 2.5px; stroke-linecap: round; opacity: 0.85; }

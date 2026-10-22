@@ -804,3 +804,47 @@ html body.is-course-studio [class*="TodayQuiet"][class*="page"] { margin-top: 12
 html body.is-course-studio .today-source-access { margin-bottom: 0 !important; border-bottom-color: transparent !important; }
 html body.is-session-booklet main#main [class*="QuickResult"][class*="card"] { margin-top: 0 !important; max-width: 42rem; }
 html body.is-course-studio [class*="AnkiExport"][class*="card"] { padding-inline: 0 !important; }
+/* The first screens sit on the same sheet: start, the topic check, Let's start. */
+html body .start-page { background: var(--k-desk, #ece7dc); }
+:root:not([data-theme="dark"]) body:has(.start-page) { --k-desk: #ece7dc; --k-sheet: #fdfbf6; --k-rule: rgba(60, 80, 140, 0.07); --k-sheet-edge: rgba(26, 25, 21, 0.08); }
+:root[data-theme="dark"] body:has(.start-page) { --k-desk: #0f100e; --k-sheet: #1b1c1a; --k-rule: rgba(255, 255, 255, 0.035); --k-sheet-edge: rgba(255, 255, 255, 0.06); }
+html body main.start-page { min-height: calc(100dvh - 58px); padding: 32px 16px 64px !important; background: var(--k-desk) !important; }
+html body main.start-page > :is(.destination-form, .first-source-review, [class*="ReadingNotes"]) {
+  width: min(100%, 44rem); margin: 0 auto !important; padding: 44px clamp(20px, 5vw, 56px) 52px !important; border-radius: 6px;
+  background-color: var(--k-sheet) !important; background-image: repeating-linear-gradient(180deg, transparent 0 31px, var(--k-rule) 31px 32px) !important;
+  box-shadow: 0 0 0 1px var(--k-sheet-edge), 0 1px 2px rgba(18, 22, 15, 0.05), 0 18px 40px -28px rgba(18, 22, 15, 0.35);
+}
+:root:not([data-theme="dark"]) body main.start-page, :root:not([data-theme="dark"]) body:has(.start-page) { background: #ece7dc !important; }
+:root[data-theme="dark"] body main.start-page, :root[data-theme="dark"] body:has(.start-page) { background: #0f100e !important; }
+
+/* ── The cover ─────────────────────────────────────────────────────────────────────────────────────────
+   On a wide screen the sidebar is the notebook's cover: deep Kelus green with cream type, a faint grain of cloth,
+   and the sheet lying beside it on the desk. Its tokens are remapped, so every item inside reads the cover's colours. */
+@media (min-width: 651px) {
+  html body.is-course-studio .studio-rail {
+    --q-ink: #f3efe4; --k-ink: #f3efe4; --q-text-2: rgba(243, 239, 228, 0.72); --k-text-2: rgba(243, 239, 228, 0.72);
+    --q-text-3: rgba(243, 239, 228, 0.5); --k-text-3: rgba(243, 239, 228, 0.5); --q-line: rgba(243, 239, 228, 0.12);
+    --q-hover: rgba(243, 239, 228, 0.08); --q-selected: rgba(243, 239, 228, 0.14); --k-line-strong: rgba(243, 239, 228, 0.2);
+    --k-card: rgba(243, 239, 228, 0.14); --k-surface: rgba(243, 239, 228, 0.06); --color-midnight-ink: #f3efe4;
+    background-color: #1d3a2b !important;
+    background-image: radial-gradient(rgba(255, 255, 255, 0.025) 1px, transparent 1px) !important;
+    background-size: 3px 3px !important;
+    border-right: 0 !important;
+    box-shadow: inset -1px 0 0 rgba(0, 0, 0, 0.25), 4px 0 18px -10px rgba(0, 0, 0, 0.35) !important;
+    color: #f3efe4 !important;
+  }
+  :root[data-theme="dark"] body.is-course-studio .studio-rail { background-color: #12261b !important; }
+  html body.is-course-studio .studio-rail :is(a, button, summary, span, strong, small, p, kbd, svg) { color: inherit; }
+  html body.is-course-studio .studio-rail :is(.studio-nav button, .studio-search, .studio-rail-bottom :is(a, button, summary), .core-source-item, .core-add-source) { color: rgba(243, 239, 228, 0.78) !important; }
+  html body.is-course-studio .studio-rail .studio-nav.revision-surface-modes button[aria-pressed="true"] { background: #f3efe4 !important; color: #1d3a2b !important; font-weight: 600 !important; }
+  html body.is-course-studio .studio-rail .studio-nav.revision-surface-modes button[aria-pressed="true"] svg { color: #1d3a2b !important; }
+  html body.is-course-studio .studio-rail .studio-brand, html body.is-course-studio .studio-rail .studio-brand * { color: #f3efe4 !important; }
+  html body.is-course-studio .studio-rail [role="radiogroup"] { background: rgba(0, 0, 0, 0.18) !important; border-color: rgba(243, 239, 228, 0.12) !important; }
+  html body.is-course-studio .studio-rail [role="radiogroup"] [aria-checked="true"] { color: #1d3a2b !important; }
+  html body.is-course-studio .studio-rail [role="radiogroup"] [aria-checked="true"] > span:first-child { background: #f3efe4 !important; }
+}
+@media (min-width: 651px) {
+  html body.is-course-studio .studio-rail img { filter: invert(0.94) sepia(0.15) !important; opacity: 0.85; }
+  html body.is-course-studio .studio-rail .studio-nav button[aria-pressed="true"] img { filter: none !important; opacity: 1; }
+}
+html body.is-course-studio .studio-main { background: var(--k-desk) !important; }

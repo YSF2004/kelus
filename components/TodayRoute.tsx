@@ -22,7 +22,7 @@ import { firstTimeToday, returnVisit } from "@/lib/pilot";
 import { CourseFolderIcon } from "@/components/CourseFolderIcon";
 import { Octicon } from "@/components/Octicon";
 import { InlineName } from "@/components/InlineName";
-import { toneOf } from "@/lib/topic-tone";
+import { toneAt, toneOf } from "@/lib/topic-tone";
 import { recallMap } from "@/domain/recall-map";
 import { getKnownLines, getServerKnownLines, subscribeKnownLines } from "@/lib/known-lines";
 import q from "./TodayQuiet.module.css";
@@ -215,6 +215,16 @@ export function TodayRoute({
 
   return (
     <div className={q.page}>
+      {/* Divider tabs down the sheet's edge, one per topic in its colour, as in a ring binder. */}
+      {concepts.length > 1 ? (
+        <nav className={q.tabs} aria-label="Topics">
+          {concepts.slice(0, 12).map((concept, at) => (
+            <Link key={concept.id} href={`/concept?id=${encodeURIComponent(concept.id)}`} className={q.tab} data-tone={toneAt(at)} data-here={concept.id === first.conceptId ? "true" : undefined} aria-current={concept.id === first.conceptId ? "true" : undefined} title={concept.name}>
+              <span>{at + 1}</span>
+            </Link>
+          ))}
+        </nav>
+      ) : null}
       {!isSampleCourse ? <WelcomeBack visit={visit} nowIso={nowIso} nextName={firstName} /> : null}
 
       {/* The course, then three things a student checks at a glance: the streak, today's goal, how far through. */}
