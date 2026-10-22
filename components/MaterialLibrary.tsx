@@ -1,5 +1,6 @@
 "use client";
 
+import { AiNote } from "@/components/AiConsent";
 import { KIND_NAME, sourceKind } from "@/domain/source-kind";
 import { toneOf } from "@/lib/topic-tone";
 import { ArrowRight } from "@/components/Marks";
@@ -667,6 +668,7 @@ export function MaterialLibrary({ embedded = false, incomingFile = null, onIncom
           {asking ? null : <>
             {analysis.coverage ? <ReadCoverage coverage={analysis.coverage} found={analysis.proposals.length} /> : null}
             <p>These come from {analysis.material.fileName ?? analysis.material.title}. Remove anything that is not part of your exam.</p>
+            <AiNote />
           </>}
         </header>
         {/* A CV or a letter reads fine and its headings look like topics, but nobody sits an exam on them: ask first. */}

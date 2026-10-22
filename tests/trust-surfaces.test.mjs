@@ -17,7 +17,7 @@ test("privacy, terms, and waitlist pages ship with local-first trust copy", asyn
 
   assert.match(privacy, /local-first/i);
   assert.match(privacy, /analytics/i);
-  assert.match(privacy, /id="ai-questions"/); // the opt-in card links here
+  assert.match(privacy, /id="ai-questions"/); // the note under the topic check links here
   assert.match(privacy, /Anthropic/);
   assert.match(privacy, /on-device model/i);
   assert.match(privacy, /hello@kelus\.me/);
