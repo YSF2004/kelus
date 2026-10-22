@@ -245,3 +245,20 @@ html body .is-leitner-home :is(section, footer) + :is(section, footer) { border-
 html body [data-marketing="editorial"].is-leitner-home :is(#revision-loop-title, #study-moment-title, #revision-return-title, #home-final-title, #home-close-title, #poster-sample-title),
 html body [data-marketing="editorial"].is-leitner-home :is(#revision-loop-title, #study-moment-title, #revision-return-title, #home-final-title) * { font-family: var(--font-geist), system-ui, sans-serif !important; font-weight: 600 !important; letter-spacing: -0.035em !important; font-style: normal !important; }
 html body .is-leitner-home [class*="HomeVisualChapters"] img[src*="/art/notion-pack/"] { max-width: min(380px, 100%) !important; }
+
+/* ── How it works and pricing: the same instrument ────────────────────────────────────────────────────
+   Type, colour and surfaces only; every animation on these pages is left exactly as it is. ":is(#k, *)" lends the
+   rules an ID's weight so they outrank the older ID-scoped marketing rules, without listing every heading. */
+html body :is(.route-page, .pricing-page)[data-marketing] :is(#k, *) { font-family: var(--font-geist), system-ui, sans-serif !important; font-style: normal !important; }
+html body :is(.route-page, .pricing-page)[data-marketing] :is(#k, h1, h2) { font-weight: 600 !important; letter-spacing: -0.035em !important; line-height: 1.06 !important; color: #0e1512 !important; text-wrap: balance; }
+html body :is(.route-page, .pricing-page)[data-marketing] :is(#k, h3, dt, strong) { letter-spacing: -0.01em !important; }
+html body :is(.route-page, .pricing-page)[data-marketing] :is(#k, .pricing-price, [class*="price"] b, [class*="price"] strong) { font-family: var(--font-geist), system-ui, sans-serif !important; font-variant-numeric: tabular-nums; letter-spacing: -0.04em !important; font-weight: 600 !important; }
+/* The product fragments on How it works: wells with a hairline, like the product's panels. */
+html body .route-page[data-marketing] [class*="HowSheets"][class*="sheet"] { border: 0 !important; border-radius: 14px !important; background: #f5f7f6 !important; box-shadow: inset 0 0 0 1px #e3e8e5 !important; }
+/* One green key per page, with a machined edge; text arrows after labels go. */
+html body :is(.route-page, .pricing-page)[data-marketing] :is([class*="primaryAction"], .cta, .k-btn):not(:disabled) { border-radius: 11px !important; font-weight: 600 !important; box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.16), 0 0 0 1px #17573a, 0 6px 16px -6px rgba(31, 107, 69, 0.55) !important; }
+html body .route-page[data-marketing] [class*="primaryArrow"],
+html body .pricing-page[data-marketing] :is(.cta, .k-btn, button) > span[aria-hidden="true"] { display: none !important; }
+/* Pricing cards: hairline panels; the planned plan sits in a well. */
+html body .pricing-page[data-marketing] .pricing-plan-shell > * { border-radius: 16px !important; border-color: #e3e8e5 !important; }
+html body .pricing-page[data-marketing] .pricing-plan-shell:nth-child(2) > * { background: #f5f7f6 !important; }

@@ -6,7 +6,7 @@ test("pricing opens from the homepage with the Plus sheet and no stale homepage"
   await expect(page).toHaveURL(/\/pricing\/$/);
   await expect(page.getByRole("heading", { name: "Start revising. Stay in control." })).toBeVisible();
   await expect(page.getByRole("heading", { name: "Questions from your notes. Checked against the page." })).toHaveCount(0);
-  await expect(page.locator(".pricing-offer.is-pass")).toHaveCSS("background-color", "rgb(250, 250, 249)");
+  await expect(page.locator(".pricing-offer.is-pass")).toHaveCSS("background-color", "rgb(245, 247, 246)");
 });
 
 test("pricing plans zoom gently without losing mobile or reduced-motion usability", async ({ browser }) => {
