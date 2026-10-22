@@ -911,3 +911,38 @@ html body.is-course-studio .is-materials .material-card-topics { gap: 2px 12px; 
 /* Materials' privacy note: one quiet line under the table, not a two-line block between the table and the reader. */
 html body.is-course-studio .is-materials .material-binder-note { max-width: none !important; margin: -4px 0 0 !important; text-align: left; }
 html body.is-course-studio .surface-map.is-toc [class*="AnkiExport"][class*="card"] { width: auto !important; max-width: none !important; padding-left: 0 !important; padding-right: 0 !important; }
+
+/* ── Premium details ───────────────────────────────────────────────────────────────────────────────────
+   The small things an expensive product gets right, applied once and everywhere:
+   - The primary button has a material: a faint top light, a soft edge of its own green and a short shadow. Hover
+     brightens it a step instead of darkening, and a press settles it half a pixel.
+   - Focus is the brand's: a green ring with a soft halo, shown for the keyboard only, on every control.
+   - Fields answer the pointer and the caret: a darker edge on hover, the green ring on focus, a quiet placeholder.
+   - The browser's own surfaces match: thin neutral scrollbars, selection in a green tint, links underlined at a
+     calm distance. */
+html body :is(.k-btn, .cta):not(.k-btn--paper):not(.home-cta):not(:disabled):not(:is([class*="ExamDateCard"], [class*="NudgeCard"], [class*="InstallCard"], [class*="ReminderCard"]) *) {
+  background-image: linear-gradient(180deg, rgba(255, 255, 255, 0.07), rgba(255, 255, 255, 0)) !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.14), 0 0 0 1px color-mix(in oklch, var(--color-kelus, #1f6b45) 82%, #000), 0 1px 2px rgba(12, 30, 20, 0.18), 0 2px 6px -2px rgba(12, 30, 20, 0.22) !important;
+  transition: background-color 160ms cubic-bezier(0.16, 1, 0.3, 1), box-shadow 160ms cubic-bezier(0.16, 1, 0.3, 1), transform 120ms cubic-bezier(0.16, 1, 0.3, 1) !important;
+}
+html body :is(.k-btn, .cta):not(.k-btn--paper):not(.home-cta):not(:disabled):not(:is([class*="ExamDateCard"], [class*="NudgeCard"], [class*="InstallCard"], [class*="ReminderCard"]) *):hover { background-color: color-mix(in oklch, var(--btn-bg, var(--color-kelus, #1f6b45)) 90%, #fff) !important; }
+html body :is(.k-btn, .cta):not(.home-cta):not(:disabled):active { transform: translateY(0.5px) scale(0.985) !important; }
+html body .k-btn--paper:not(:disabled) { box-shadow: 0 0 0 1px var(--k-line-strong), 0 1px 2px rgba(12, 20, 16, 0.06) !important; }
+:root[data-theme="dark"] body :is(.k-btn, .cta):not(.k-btn--paper):not(.home-cta):not(:disabled):not(:is([class*="ExamDateCard"], [class*="NudgeCard"], [class*="InstallCard"], [class*="ReminderCard"]) *) { box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12), 0 0 0 1px rgba(0, 0, 0, 0.5), 0 2px 8px -2px rgba(0, 0, 0, 0.5) !important; }
+
+html body :is(a, button, summary, [role="button"], [tabindex]:not([tabindex="-1"])):focus-visible {
+  outline: 2px solid var(--color-kelus, #1f6b45) !important;
+  outline-offset: 2px !important;
+  box-shadow: 0 0 0 5px color-mix(in oklch, var(--color-kelus, #1f6b45) 16%, transparent) !important;
+}
+
+html body :is(input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="file"]), textarea, select) { transition: border-color 140ms, box-shadow 140ms; }
+html body :is(input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="file"]), textarea, select):hover:not(:focus):not(:disabled) { border-color: var(--k-text-3, #6b736e) !important; }
+html body :is(input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="file"]), textarea, select):focus { outline: none !important; border-color: var(--color-kelus, #1f6b45) !important; box-shadow: 0 0 0 4px color-mix(in oklch, var(--color-kelus, #1f6b45) 16%, transparent) !important; }
+html body :is(input, textarea)::placeholder { color: var(--k-text-3, #6b736e); opacity: 1; }
+html body :is(input, textarea) { caret-color: var(--color-kelus, #1f6b45); }
+
+html { scrollbar-width: thin; scrollbar-color: color-mix(in srgb, var(--k-ink, #17201b) 22%, transparent) transparent; }
+html body ::selection { background: color-mix(in srgb, var(--color-kelus, #1f6b45) 22%, transparent); color: inherit; }
+html body :is(p, li, dd, small) a:not(.k-btn):not(.cta) { text-decoration-thickness: 1px; text-underline-offset: 3px; text-decoration-color: color-mix(in srgb, currentColor 40%, transparent); transition: text-decoration-color 140ms; }
+html body :is(p, li, dd, small) a:not(.k-btn):not(.cta):hover { text-decoration-color: currentColor; }
