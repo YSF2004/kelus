@@ -116,3 +116,28 @@ html :is(body.is-course-studio) :is([class*="ExamDateCard"], [class*="NudgeCard"
 /* With the notes open beside the plan there is room for one column: the boxes go under the plan. */
 html body.is-course-studio .core-workspace-grid.is-notes-open [class*="TodayQuiet"][class*="desk"] { grid-template-columns: minmax(0, 1fr) !important; }
 html body.is-course-studio .core-workspace-grid.is-notes-open [class*="TodayQuiet"][class*="page"] { margin: 0 24px 48px !important; }
+
+/* ── The session ───────────────────────────────────────────────────────────────────────────────────────
+   Feedback is a callout of its verdict (a wash and a hairline of green or coral), not a rule down the margin. Labels are
+   sentence case, quotes upright, figures in Geist Mono. The result opens on a plain mark, its facts as figures, and
+   ends on this topic's lines in their boxes. */
+html body.is-session-booklet [class*="QuickRun"][class*="feedback"] { padding: 18px 20px !important; border: 1px solid var(--lb-line) !important; border-left-width: 1px !important; border-radius: 12px !important; background: var(--lb-surface) !important; gap: 10px !important; }
+html body.is-session-booklet [class*="QuickRun"][class*="feedback"][class*="ok"] { border-color: color-mix(in oklch, var(--lb-green) 30%, var(--lb-line)) !important; background: color-mix(in oklch, var(--lb-green) 5%, var(--lb-surface)) !important; }
+html body.is-session-booklet [class*="QuickRun"][class*="feedback"][class*="no"] { border-color: color-mix(in oklch, var(--lb-miss) 30%, var(--lb-line)) !important; background: color-mix(in oklch, var(--lb-miss) 5%, var(--lb-surface)) !important; }
+html body.is-session-booklet [class*="QuickRun"][class*="feedback"] strong { font-size: 18px !important; font-weight: 600 !important; letter-spacing: -0.015em !important; }
+html body.is-session-booklet [class*="QuickRun"][class*="feedback"] [class*="quote"] { font-size: 14.5px !important; color: var(--lb-text-2) !important; }
+html body.is-session-booklet [class*="QuickRun"][class*="steps"] li[class*="done"] { background: var(--lb-green) !important; }
+html body.is-session-booklet [class*="QuickRun"][class*="steps"] li[class*="now"] { background: color-mix(in oklch, var(--lb-green) 45%, var(--lb-line-strong)) !important; }
+html body.is-session-booklet [class*="QuickRun"][class*="prompt"] { font-size: 24px !important; font-weight: 600 !important; letter-spacing: -0.02em !important; line-height: 1.32 !important; }
+html body.is-session-booklet [class*="QuickRun"][class*="choice"] { border-radius: 10px !important; }
+
+html body.is-session-booklet [class*="QuickResult"][class*="title"] { font-size: 30px !important; font-weight: 600 !important; letter-spacing: -0.03em !important; }
+html body.is-session-booklet [class*="QuickResult"][class*="stamp"] { width: 40px !important; height: 40px !important; }
+html body.is-session-booklet [class*="QuickResult"][class*="stamp"] circle:first-child { fill: transparent !important; }
+html body.is-session-booklet [class*="QuickResult"][class*="tiles"] b { font-family: var(--font-geist-mono), ui-monospace, monospace !important; font-weight: 500 !important; letter-spacing: -0.02em !important; }
+html body.is-session-booklet [class*="QuickResult"] :is([class*="tiles"] span, [class*="rememberHead"]) { font-variant-caps: normal !important; text-transform: none !important; letter-spacing: 0 !important; font-size: 13px !important; color: var(--lb-text-2) !important; }
+html body.is-session-booklet [class*="QuickResult"][class*="remember"]:not([class*="rememberHead"]) { padding: 14px 16px !important; border: 1px solid var(--lb-line) !important; border-left-width: 1px !important; border-radius: 12px !important; background: var(--lb-well) !important; }
+html body.is-session-booklet [class*="QuickResult"][class*="remember"]:not([class*="rememberHead"]) p { font-family: var(--font-geist), system-ui, sans-serif !important; font-style: normal !important; font-size: 15px !important; line-height: 1.55 !important; }
+html body.is-session-booklet [class*="QuickResult"][class*="rememberHead"] [class*="icon"] { display: none !important; }
+html body.is-session-booklet [class*="QuickResult"][class*="rememberHead"] { padding: 0 !important; border: 0 !important; background: none !important; }
+html body.is-session-booklet [class*="QuickResult"][class*="tiles"] b[class*="tileWord"] { font-family: var(--font-geist), system-ui, sans-serif !important; font-weight: 600 !important; }

@@ -4,6 +4,7 @@ import { ArrowOut, ArrowRight } from "@/components/Marks";
 import { animate, motion, useReducedMotion } from "motion/react";
 import { useEffect, useState, type ReactNode } from "react";
 import { MarkStamp } from "@/components/MarkStamp";
+import { TopicBoxes } from "@/components/TopicBoxes";
 import { PackArt } from "@/components/PackArt";
 import { GoalMoment, goalMomentDue } from "@/components/GoalMoment";
 import { useRouter } from "next/navigation";
@@ -73,8 +74,7 @@ function Burst() {
  * remember (quoted from your notes), today's goal filling up, and a single next step. Detail is one tap away.
  */
 export function QuickResult({
-  outcome, topic, attempts, stats, comesBack, remember, rememberLabel = "Worth remembering", locator, goalDone, goal, routeLine, nextName, details, onRetry, onContinue, onSource, path, habit, language = "en",
-}: {
+  outcome, topic, attempts, stats, comesBack, remember, rememberLabel = "Worth remembering", locator, goalDone, goal, routeLine, nextName, details, onRetry, onContinue, onSource, path, habit, language = "en", conceptId }: {
   outcome: RetrievalOutcome;
   topic: string;
   /** How many times this topic has been answered, counting this one. */
@@ -99,6 +99,8 @@ export function QuickResult({
   /** The notes' language: the screen's own words follow it. */
   language?: NoteLanguage;
   /** Where this topic leaves you on the course path: topics practised of all, and lines answered correctly. */
+  /** This topic, so its lines can be shown in their Leitner boxes after the answers are saved. */
+  conceptId?: string;
   path?: { practised: number; total: number; recalled: number; /** This topic's place on the path, from 0. */ here?: number; /** Each topic, in order: practised or not. */ done?: boolean[] };
 }) {
   const reduce = useReducedMotion() === true;
@@ -147,6 +149,7 @@ export function QuickResult({
       {/* Today's count lives on the study plan; here it only shows the moment the goal is reached. */}
       {goalMet ? <motion.p {...rise(0.54)} className={styles.goal}><PackArt name="award" className={styles.icon} /> Today’s goal reached: {goal} topics.</motion.p> : null}
 
+      {conceptId ? <motion.div {...rise(0.3)}><TopicBoxes conceptId={conceptId} /></motion.div> : null}
       {/* The course path in one line: a step for every topic, filled as each is practised. */}
       {path && path.total > 1 ? (
         <motion.div {...rise(0.6)} className={styles.path} aria-label={`${path.practised} of ${path.total} topics practised`}>
