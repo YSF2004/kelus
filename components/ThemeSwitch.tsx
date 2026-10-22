@@ -43,7 +43,7 @@ export function ThemeSwitch({ compact = false }: { compact?: boolean }) {
   );
 }
 
-/** One tap between paper and night, for a crowded top bar: the mark shows where a tap takes you. */
+/** One tap between light and dark, for a crowded top bar: the mark shows the mode you are in, as a switch does. */
 export function ThemeToggle() {
   const choice = useSyncExternalStore(subscribeTheme, themeChoice, serverThemeChoice);
   const dark = useSyncExternalStore(subscribeTheme, () => document.documentElement.dataset.theme === "dark", () => false);
@@ -56,7 +56,7 @@ export function ThemeToggle() {
       title={`${dark ? "Switch to light" : "Switch to dark"}${choice === "auto" ? " (now following this device)" : ""}`}
       onClick={() => setTheme(dark ? "light" : "dark")}
     >
-      <Octicon name={dark ? "sun" : "moon"} size={16} />
+      <Octicon name={dark ? "moon" : "sun"} size={16} />
     </button>
   );
 }
