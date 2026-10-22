@@ -1,10 +1,10 @@
 import { test, expect } from "@playwright/test";
 
-test("the homepage hero is set in the product's face, Geist", async ({ page }) => {
+test("the homepage hero keeps the site's faces: Literata heading, Inter text", async ({ page }) => {
   await page.goto("/");
   const hero = page.locator('[data-hero="leitner"]');
-  await expect(hero.locator("h1")).toHaveCSS("font-family", /Geist/i);
-  await expect(hero.locator("p").first()).toHaveCSS("font-family", /Geist/i);
+  await expect(hero.locator("h1")).toHaveCSS("font-family", /Literata/i);
+  await expect(hero.locator("p").first()).toHaveCSS("font-family", /Inter/i);
 });
 
 test("How it works uses the shared Kelus canvas on desktop and mobile", async ({ page }) => {
@@ -44,12 +44,12 @@ test("How it works tells one course story and actions stay green", async ({ page
   await page.screenshot({ path: "test-results/how-it-works-mobile.png", fullPage: true });
 });
 
-test("one face on every page: Geist headings and text", async ({ page }) => {
+test("one pair of faces on every page: Literata headings, Inter text", async ({ page }) => {
   for (const [path, heading] of [["/route/", "#how-title"], ["/pricing/", ".pricing-page h1"]]) {
     await page.goto(path);
     await page.evaluate(() => document.fonts.ready);
-    await expect(page.locator(heading)).toHaveCSS("font-family", /Geist/i);
-    await expect(page.locator('[data-marketing] p').first()).toHaveCSS("font-family", /Geist/i);
+    await expect(page.locator(heading)).toHaveCSS("font-family", /Literata/i);
+    await expect(page.locator('[data-marketing] p').first()).toHaveCSS("font-family", /Inter/i);
     await expect(page.locator('.site-header a').first()).toHaveCSS("font-family", /Inter/i);
     await page.setViewportSize({ width: 390, height: 844 });
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBeTruthy();

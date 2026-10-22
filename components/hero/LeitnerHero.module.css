@@ -3,9 +3,9 @@
   --ink: #0e1512; --t2: #4a5550; --t3: #5c6661; --line: #e3e8e5; --strong: #d6ddd9; --well: #f5f7f6; --due: #eef5f1; --due-edge: #cfe2d7; --green: #1f6b45; --miss: #c4492e; --miss-ink: #9b3622;
   display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 640px); gap: 56px; align-items: center;
   max-width: 1360px; margin: 0 auto; padding: 72px 40px 64px;
-  color: var(--ink); font-family: var(--font-geist), system-ui, sans-serif; font-variant-numeric: tabular-nums;
+  color: var(--ink); font-variant-numeric: tabular-nums;
 }
-.headline { margin: 0; font-family: var(--font-geist), system-ui, sans-serif !important; font-size: clamp(44px, 4.8vw, 68px) !important; font-weight: 600 !important; line-height: 1.02 !important; letter-spacing: -0.045em !important; text-wrap: balance; color: var(--ink); }
+.headline { margin: 0; font-size: clamp(44px, 4.8vw, 68px) !important; line-height: 1.04 !important; text-wrap: balance; color: var(--ink); }
 .headline span { color: var(--t3); }
 .lede { max-width: 30em; margin: 22px 0 0; font-size: 18px; line-height: 1.55; color: var(--t2); }
 .actions { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 18px; margin-top: 32px; }
@@ -42,7 +42,9 @@
 .panelFoot { display: flex; justify-content: space-between; gap: 12px; margin-top: 14px; font-size: 13px; color: var(--t2); }
 .panelFoot b { color: var(--green); }
 @keyframes kelusHeroPick { 0%, 18% { box-shadow: 0 0 0 1px var(--line); color: var(--ink); background: #fff; font-weight: 400; } 22%, 100% { box-shadow: 0 0 0 1.5px var(--green); color: var(--green); background: #f1f7f3; font-weight: 600; } }
-@keyframes kelusHeroMove { 0%, 26% { transform: translate(0, 0); background: #fff; color: var(--t2); box-shadow: 0 0 0 1px var(--strong); } 40%, 100% { transform: translate(calc(100% + 28px), 0); background: var(--green); color: #fff; box-shadow: 0 8px 18px -8px rgba(31, 107, 69, 0.6); } }
+/* The slide interpolates; the colour changes in one step as the chip lands, so its text never sits half-faded on a
+   half-green chip (white on pale green fails contrast). */
+@keyframes kelusHeroMove { 0%, 26% { transform: translate(0, 0); } 40%, 100% { transform: translate(calc(100% + 28px), 0); } 0%, 39.9% { background: #fff; color: var(--t2); box-shadow: 0 0 0 1px var(--strong); } 40%, 100% { background: var(--green); color: #fff; box-shadow: 0 8px 18px -8px rgba(31, 107, 69, 0.6); } }
 @media (prefers-reduced-motion: reduce) {
   .options .right { animation: none; box-shadow: 0 0 0 1.5px var(--green); color: var(--green); background: #f1f7f3; font-weight: 600; }
   .mover { animation: none; transform: translate(calc(100% + 28px), 0); background: var(--green); color: #fff; box-shadow: none; }
@@ -60,8 +62,3 @@
   .panel { padding: 18px; }
 }
 /* The marketing sheets set every [data-marketing] h1 in the book serif; the hero is the product's own face. */
-:global(html body [data-marketing]) .hero :is(h1, p, a, b, span, small, i) { font-family: var(--font-geist), system-ui, sans-serif !important; }
-:global(html body [data-marketing]) .hero .count { font-family: var(--font-geist-mono), ui-monospace, monospace !important; }
-:global(html body [data-marketing]) .hero h1 { font-weight: 600 !important; letter-spacing: -0.045em !important; line-height: 1.02 !important; }
-:global(html body [data-marketing="editorial"] #home-hero-title) { font-family: var(--font-geist), system-ui, sans-serif !important; }
-:global(html body [data-marketing="editorial"] #home-hero-title *) { font-family: var(--font-geist), system-ui, sans-serif !important; font-style: normal !important; font-weight: 600 !important; letter-spacing: -0.045em !important; }
