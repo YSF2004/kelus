@@ -2,29 +2,21 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import test from "node:test";
 
-test("homepage presents the real product video followed by the illustrated revision story", () => {
+test("homepage opens on the Leitner Box hero followed by the illustrated revision story", () => {
   const page = readFileSync("app/page.tsx", "utf8");
   const hero = readFileSync("components/hero/KelusHero.tsx", "utf8");
   const story = readFileSync("components/home/HomeAfterHero.tsx", "utf8");
   assert.match(page, /KelusHero/);
   assert.doesNotMatch(page, /StartHereJourney/);
   assert.match(page, /HomeAfterHero/);
-  assert.match(hero, /is-folio|is-poster/);
+  assert.match(hero, /data-hero="leitner"/);
+  assert.match(hero, /Example course/); // the demonstration says it is an example
   assert.match(hero, /Questions from your notes/);
   assert.doesNotMatch(hero, /Try sample \(~1 min\)/);
   assert.doesNotMatch(hero, /today\?sample=1/);
   assert.match(hero, /Add your notes/);
   assert.doesNotMatch(hero, /Set up with your own course material/);
-  assert.match(hero, /HeroProductVideo/);
-  const video = readFileSync("components/hero/HeroProductVideo.tsx", "utf8");
-  assert.match(video, /kelus-product-walkthrough\.webm/);
-  assert.match(video, /kelus-product-walkthrough-mobile\.webm/);
-  // WebM only: an MP4 could not be re-encoded here, and an old recording is worse than the current poster.
-  assert.doesNotMatch(video, /\.mp4/);
-  assert.match(video, /WALKTHROUGH_START_SECONDS = 0/); // the drop of the PDF is the opening shot
-  assert.doesNotMatch(video, /playbackButton/);
-  assert.doesNotMatch(video, /Recorded in Kelus with a demo lecture PDF/);
-  assert.doesNotMatch(video, /\bcontrols\b/);
+  assert.doesNotMatch(hero, /HeroProductVideo|<video/);
   assert.doesNotMatch(hero, /LEARNING_EXAMPLES/);
   assert.doesNotMatch(hero, /home-brand/);
   assert.doesNotMatch(hero, /hero-window-controls/);
