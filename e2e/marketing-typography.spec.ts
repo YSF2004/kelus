@@ -61,7 +61,6 @@ test("one pair of faces on every page: Literata headings, Inter text", async ({ 
   await page.locator('#home-hero-title').waitFor();
   await page.getByRole("link", { name: "Add your notes" }).first().click();
   await expect(page.locator('[data-marketing]')).toHaveCount(0);
-  // The product shares the faces: Literata page titles, Inter text.
-  await expect(page.locator("body")).toHaveCSS("font-family", /Inter/i);
-  await expect(page.locator('.site-header a').first()).toHaveCSS("font-family", /Inter/i);
+  // The product is its own instrument: Geist for text and titles.
+  await expect(page.locator("body")).toHaveCSS("font-family", /Geist/i);
 });

@@ -387,7 +387,8 @@ export function RevisionSurface({ topicId }: { /** A topic's own page, opened in
                 <div className="core-workspace-action workbench-focus is-ready is-one-next is-booklet-page" aria-labelledby="today-title">
                   {!hasReadableSource ? <p className="core-source-inline">This plan has no original PDF beside it. <Link href="/today?section=materials">Add your course PDF</Link> to study from your own pages.</p> : null}
                   {hasReadableSource && selectedMaterial ? <div className="today-source-access">
-                    <span><Page /> <span title={selectedMaterial.title}>{selectedMaterial.title}</span></span>
+                    {/* The file is named only when its name says something the course title does not. */}
+                    {selectedMaterial.title.trim().toLocaleLowerCase() !== (courseName ?? "").trim().toLocaleLowerCase() ? <span><Page /> <span title={selectedMaterial.title}>{selectedMaterial.title}</span></span> : <span />}
                     <button type="button" className="today-source-desktop" aria-controls="today-source-reader" aria-expanded={sourceBesidePlan} onClick={() => router.replace(hrefForMode("today", selectedMaterialId, !sourceBesidePlan), { scroll: false })}>{sourceBesidePlan ? "Hide notes" : "See notes beside plan"}</button>
                     <button type="button" className="today-source-mobile" onClick={() => setMode("materials")}>Open notes</button>
                   </div> : null}

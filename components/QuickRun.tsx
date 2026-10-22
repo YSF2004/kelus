@@ -4,6 +4,7 @@ import { ArrowRight, Cross, Tick } from "@/components/Marks";
 import type { ReactNode } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { useEffect, useRef, useState, useSyncExternalStore } from "react";
+import { LineMove } from "@/components/LineMove";
 import { checkAnswer, type CheckVerdict } from "@/domain/practice-check";
 import { explainMatch, looksLikeWords } from "@/domain/answer-evaluation";
 import { PackArt } from "@/components/PackArt";
@@ -352,6 +353,8 @@ export function QuickRun({ run, onRevealSource, onShowLine, onFinish, onChecksDo
             {answered ? (
               <motion.div className={`${styles.feedback} ${answered.right ? styles.ok : answered.unsure ? styles.unsure : styles.no}`} role="status" initial={reduce ? false : touch ? { opacity: 1, y: "100%" } : { opacity: 0, y: 8, scale: 0.98 }} animate={{ opacity: 1, y: 0, scale: 1 }} transition={touch ? { type: "spring", bounce: 0, duration: 0.38 } : { type: "spring", bounce: 0, duration: 0.28 }}>
                 <strong>{answered.right ? <PackArt name="check" className={styles.mark} /> : null}{answered.unsure ? (item.kind === "cloze" ? w.itWas(item.modelAnswer) : w.lineFrom) : answered.right ? (answered.picked ? w.picked : answered.firstEver ? w.firstRight : w.right) : item.kind === "cloze" ? w.notQuiteWas(item.modelAnswer) : w.notQuite}</strong>
+                {/* Where this answer puts the line in the five boxes, moved as you watch. Not for a shrug: nothing was tried. */}
+                {answered.unsure ? null : <LineMove quote={item.sourceQuote} right={answered.right} nowIso={new Date().toISOString()} />}
                 {around && linesAround(run, item.sourceQuote) ? (
                   <div className={styles.around} aria-label="This line in your notes">
                     {linesAround(run, item.sourceQuote)!.before ? <p>{linesAround(run, item.sourceQuote)!.before}</p> : null}

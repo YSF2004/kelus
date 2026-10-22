@@ -32,7 +32,7 @@ export function AnkiExport({ course, concepts, activities }: { course: string; c
       <span className={styles.logo}><BrandIcon brand="anki" size={40} tile /></span>
       <div>
         <h2 id="anki-title">Take your cards to Anki</h2>
-        <p title="Every question, with the answer and the line from your notes on the back.">{concepts.length} {concepts.length === 1 ? "topic" : "topics"} · answers and lines on the back</p>
+        <p title="Every question, with the answer and the line from your notes on the back.">{concepts.length} {concepts.length === 1 ? "topic" : "topics"}, with the answer and its line on the back</p>
       </div>
       <button type="button" className="k-btn k-btn--paper k-btn--small" onClick={download}>Export for Anki</button>
       {done !== null ? (

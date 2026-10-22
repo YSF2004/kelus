@@ -669,6 +669,7 @@ function SessionBody() {
             {quickMode && lastOutcome ? (
               <QuickResult
                 outcome={lastOutcome}
+                conceptId={concept.id}
                 topic={concept.name}
                 attempts={checkCount}
                 stats={quickStats}

@@ -4,6 +4,7 @@ import { ArrowOut, ArrowRight } from "@/components/Marks";
 import { animate, motion, useReducedMotion } from "motion/react";
 import { useEffect, useState, type ReactNode } from "react";
 import { MarkStamp } from "@/components/MarkStamp";
+import { TopicBoxes } from "@/components/TopicBoxes";
 import { PackArt } from "@/components/PackArt";
 import { GoalMoment, goalMomentDue } from "@/components/GoalMoment";
 import { useRouter } from "next/navigation";
@@ -73,8 +74,7 @@ function Burst() {
  * remember (quoted from your notes), today's goal filling up, and a single next step. Detail is one tap away.
  */
 export function QuickResult({
-  outcome, topic, attempts, stats, comesBack, remember, rememberLabel = "Worth remembering", locator, goalDone, goal, routeLine, nextName, details, onRetry, onContinue, onSource, path, habit, language = "en",
-}: {
+  outcome, topic, attempts, stats, comesBack, remember, rememberLabel = "Worth remembering", locator, goalDone, goal, routeLine, nextName, details, onRetry, onContinue, onSource, path, habit, language = "en", conceptId }: {
   outcome: RetrievalOutcome;
   topic: string;
   /** How many times this topic has been answered, counting this one. */
@@ -99,6 +99,8 @@ export function QuickResult({
   /** The notes' language: the screen's own words follow it. */
   language?: NoteLanguage;
   /** Where this topic leaves you on the course path: topics practised of all, and lines answered correctly. */
+  /** This topic, so its lines can be shown in their Leitner boxes after the answers are saved. */
+  conceptId?: string;
   path?: { practised: number; total: number; recalled: number; /** This topic's place on the path, from 0. */ here?: number; /** Each topic, in order: practised or not. */ done?: boolean[] };
 }) {
   const reduce = useReducedMotion() === true;
@@ -140,13 +142,14 @@ export function QuickResult({
 
 
       <motion.blockquote {...rise(0.42)} className={styles.remember}>
-        <span className={styles.rememberHead}><PackArt name="clipboard-check" className={styles.icon} />{rememberLabel}{/^Section\b/.test(locator) ? "" : ` · ${locator}`}</span>
+        <span className={styles.rememberHead}><PackArt name="clipboard-check" className={styles.icon} />{rememberLabel}{/^Section\b/.test(locator) ? "" : `, ${locator.charAt(0).toLowerCase()}${locator.slice(1)}`}</span>
         <p>“{remember}”</p>
       </motion.blockquote>
 
       {/* Today's count lives on the study plan; here it only shows the moment the goal is reached. */}
       {goalMet ? <motion.p {...rise(0.54)} className={styles.goal}><PackArt name="award" className={styles.icon} /> Today’s goal reached: {goal} topics.</motion.p> : null}
 
+      {conceptId ? <motion.div {...rise(0.3)}><TopicBoxes conceptId={conceptId} /></motion.div> : null}
       {/* The course path in one line: a step for every topic, filled as each is practised. */}
       {path && path.total > 1 ? (
         <motion.div {...rise(0.6)} className={styles.path} aria-label={`${path.practised} of ${path.total} topics practised`}>
@@ -154,7 +157,7 @@ export function QuickResult({
             {/* One step per topic, in the order of the notes; this topic's step is marked. Practised steps fill. */}
             {path.total <= 24 ? Array.from({ length: path.total }, (_, index) => <i key={index} data-here={index === path.here ? "true" : undefined} data-done={(path.done?.[index] ?? index < path.practised) ? "true" : undefined} />) : <i className={styles.pathFill} style={{ ["--share" as string]: path.practised / path.total }} />}
           </span>
-          <span>{w.practised(path.practised, path.total)}{language !== "en" ? "" : path.recalled ? ` · ${path.recalled} ${path.recalled === 1 ? "line" : "lines"} answered correctly` : ""}</span>
+          <span>{w.practised(path.practised, path.total)}{language !== "en" ? "" : path.recalled ? `, ${path.recalled} ${path.recalled === 1 ? "line" : "lines"} answered correctly` : ""}</span>
         </motion.div>
       ) : null}
 

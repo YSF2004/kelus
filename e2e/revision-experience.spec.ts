@@ -78,19 +78,19 @@ test("the course workspace stays legible across its sections and returns home", 
   await page.goto("/today/?sample=1");
   await expect(page.locator("#today-title")).toHaveText("Elasticity");
   // The product is set on warm paper (the editorial notebook), not screen white.
-  await expect(page.locator(".studio-main")).toHaveCSS("background-color", "rgb(251, 250, 247)");
+  await expect(page.locator(".studio-main")).toHaveCSS("background-color", "rgb(255, 255, 255)");
   await expect(page.locator('[data-block="course-title"]')).toHaveText("Microeconomics");
 
   const sections = sectionsNav(page);
   await sections.getByRole("button", { name: "Materials" }).click();
   await expect(page.getByRole("heading", { name: "Materials" })).toBeVisible();
   await expect(sections.getByRole("button", { name: "Materials" })).toHaveAttribute("aria-pressed", "true");
-  await expect(sections.getByRole("button", { name: "Materials" })).toHaveCSS("box-shadow", "none");
-  await expect(page.locator(".material-shelf h2")).toHaveCSS("color", "rgb(26, 25, 21)");
+  await expect(sections.getByRole("button", { name: "Materials" })).toHaveCSS("box-shadow", /0px 0px 0px 1px/);
+  await expect(page.locator(".material-shelf h2")).toHaveCSS("color", "rgb(14, 21, 18)");
   await sections.getByRole("button", { name: "Topics" }).click();
   await expect(page.getByRole("heading", { name: "Topics" })).toBeVisible();
   await expect(sections.getByRole("button", { name: "Topics" })).toHaveAttribute("aria-pressed", "true");
-  await expect(sections.getByRole("button", { name: "Topics" })).toHaveCSS("box-shadow", "none");
+  await expect(sections.getByRole("button", { name: "Topics" })).toHaveCSS("box-shadow", /0px 0px 0px 1px/);
   await expect(page.locator(".index-toc-row", { hasText: "Start here" })).toContainText("Elasticity");
 
   for (const width of [320, 375, 414, 768]) {

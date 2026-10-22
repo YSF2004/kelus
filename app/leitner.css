@@ -1,0 +1,223 @@
+/* ── The Leitner Box ───────────────────────────────────────────────────────────────────────────────────
+   The product's visual world (direction contract: .impeccable/surfaces/components-todayroute-tsx.md). A precise
+   instrument for spaced repetition: white ground, a cool neutral rail, one ink, Kelus green for recall and the one
+   action, coral only for a miss. Geist for text and titles, Geist Mono for counts. No paper, no serif, no ruled lines.
+   Loaded after every older sheet, it sets the tokens those sheets read, so they follow without being rewritten. */
+
+:root:not([data-theme="dark"]) :is(body.is-course-studio, body.is-session-booklet, body.is-session-complete, body:has(.start-page)) {
+  --lb-ink: #0e1512;
+  --lb-text-2: #4a5550;
+  --lb-text-3: #69736e;
+  --lb-line: #e3e8e5;
+  --lb-line-strong: #d6ddd9;
+  --lb-surface: #ffffff;
+  --lb-rail: #f5f7f6;
+  --lb-well: #f5f7f6;
+  --lb-due: #eef5f1;
+  --lb-due-edge: #cfe2d7;
+  --lb-green: #1f6b45;
+  --lb-green-ink: #1f6b45;
+  --lb-miss: #c4492e;
+  --lb-miss-ink: #9b3622;
+  --k-ink: var(--lb-ink);
+  --k-text-2: var(--lb-text-2);
+  --k-text-3: var(--lb-text-3);
+  --k-line: var(--lb-line);
+  --k-line-strong: var(--lb-line-strong);
+  --k-surface: var(--lb-surface);
+  --k-surface-2: var(--lb-rail);
+  --k-selected: #eaefec;
+  --k-card: var(--lb-surface);
+  --q-ink: var(--lb-ink);
+  --q-text-2: var(--lb-text-2);
+  --q-text-3: var(--lb-text-3);
+  --q-line: var(--lb-line);
+  --q-line-strong: var(--lb-line-strong);
+  --q-hover: #f0f3f1;
+  --q-selected: #eaefec;
+  --q-rail: var(--lb-rail);
+  --color-pure-white: var(--lb-surface);
+  --booklet-paper: var(--lb-surface);
+  --color-paper-warmth: var(--lb-surface);
+  --paper: var(--lb-surface);
+  --background: var(--lb-surface);
+  --hero-paper: var(--lb-surface);
+  --color-frost: var(--lb-line-strong);
+  background: var(--lb-surface) !important;
+}
+:root[data-theme="dark"] :is(body.is-course-studio, body.is-session-booklet, body.is-session-complete, body:has(.start-page)) {
+  --lb-ink: #eceeed;
+  --lb-text-2: #a6ada9;
+  --lb-text-3: #8a918d;
+  --lb-line: #262a28;
+  --lb-line-strong: #333835;
+  --lb-surface: #121514;
+  --lb-rail: #0e1110;
+  --lb-well: #181c1a;
+  --lb-due: #15241c;
+  --lb-due-edge: #24493a;
+  --lb-green: #2a8051;
+  --lb-green-ink: #5fbd8a;
+  --lb-miss: #e8806a;
+  --lb-miss-ink: #f0a594;
+}
+:root:not([data-theme="dark"]):has(body.is-course-studio, body.is-session-booklet, body.is-session-complete, .start-page) { background: #ffffff; }
+
+/* One face family, the instrument's: Geist everywhere in the product, Geist Mono for figures. */
+:is(body.is-course-studio, body.is-session-booklet, body.is-session-complete, body.is-sheet, body:has(.start-page)) {
+  --font-display: var(--font-geist), system-ui, sans-serif;
+  --font-marketing-heading: var(--font-geist), system-ui, sans-serif;
+  --font-source-serif: var(--font-geist), system-ui, sans-serif;
+  --font-heading: var(--font-geist), system-ui, sans-serif;
+  --font-inter: var(--font-geist);
+  font-family: var(--font-geist), system-ui, sans-serif !important;
+  font-feature-settings: normal;
+}
+:is(body.is-course-studio, body.is-session-booklet, body.is-session-complete, body.is-sheet, body:has(.start-page)) :is(h1, h2, h3) {
+  font-family: var(--font-geist), system-ui, sans-serif !important;
+  font-style: normal !important;
+  font-variant-caps: normal !important;
+}
+:is(body.is-course-studio, body.is-session-booklet, body.is-session-complete, body.is-sheet) :is(em, i, blockquote, [class*="quote"], [class*="why"]) { font-family: var(--font-geist), system-ui, sans-serif !important; font-style: normal !important; }
+
+/* Topics are told apart by their names: no colour per topic. State is fill and outline (green recalled, coral missed). */
+html body :is([data-tone="1"], [data-tone="2"], [data-tone="3"], [data-tone="4"], [data-tone="5"], [data-tone="6"]) {
+  --topic: var(--lb-green, #1f6b45) !important;
+  --topic-ink: var(--lb-ink, #0e1512) !important;
+  --topic-wash: var(--lb-well, #f5f7f6) !important;
+}
+
+/* The shell: a cool neutral rail, the current section a white key with a hairline. */
+html body.is-course-studio .studio-rail { background: var(--lb-rail) !important; border-right: 1px solid var(--lb-line) !important; }
+html body.is-course-studio .studio-nav button[aria-pressed="true"] { background: var(--lb-surface) !important; color: var(--lb-ink) !important; font-weight: 500 !important; box-shadow: 0 0 0 1px var(--lb-line), 0 1px 2px rgba(14, 21, 18, 0.05) !important; }
+html body.is-course-studio :is(.studio-page, .studio-main, .studio-topbar, .studio-section-head) { background: var(--lb-surface) !important; }
+
+/* The primary action: one green key with a machined edge and a short shadow. */
+html body :is(body.is-course-studio, body.is-session-booklet, body.is-session-complete, body:has(.start-page)) :is(.k-btn, .cta):not(.k-btn--paper):not(:disabled),
+html :is(body.is-course-studio, body.is-session-booklet, body.is-session-complete, body:has(.start-page)) :is(.k-btn, .cta):not(.k-btn--paper):not(:disabled) {
+  border-radius: 10px !important;
+  font-weight: 600 !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.16), 0 0 0 1px #17573a, 0 4px 12px -4px rgba(31, 107, 69, 0.45) !important;
+}
+
+/* The plan runs wide beside the rail: header across, then the due topic and the boxes side by side. */
+@media (min-width: 651px) {
+  html body.is-course-studio :is(.core-workspace-grid.is-today-single, .core-workspace-grid.is-today-single > .core-workspace-action) { width: auto !important; max-width: none !important; margin-inline: 0 !important; }
+  html body.is-course-studio [class*="TodayQuiet"][class*="page"] { width: auto !important; max-width: 1240px !important; margin: 0 44px 48px !important; padding: 28px 0 0 !important; }
+  html body.is-course-studio .today-source-access { max-width: 1240px; margin: 0 44px !important; }
+}
+/* The notes action is a quiet link above the header at the right; no rule, no second copy of the course name. */
+html body.is-course-studio .today-source-access { width: auto !important; box-sizing: border-box; min-height: 0 !important; justify-content: space-between; padding: 20px 0 0 !important; border: 0 !important; }
+html body.is-course-studio .today-source-access > span:empty { display: none; }
+html body.is-course-studio .today-source-access ~ [class*="TodayQuiet"][class*="page"] { padding-top: 8px !important; }
+html body.is-course-studio .today-source-access { justify-content: flex-end !important; }
+/* The cards under the plan keep a quiet outlined button; only the one primary action is the green key. */
+html :is(body.is-course-studio) :is([class*="ExamDateCard"], [class*="NudgeCard"], [class*="InstallCard"], [class*="ReminderCard"]) :is(.k-btn, .cta, button) { box-shadow: 0 0 0 1px var(--lb-line-strong), 0 1px 2px rgba(14, 21, 18, 0.05) !important; background: var(--lb-surface) !important; color: var(--lb-ink) !important; }
+/* With the notes open beside the plan there is room for one column: the boxes go under the plan. */
+html body.is-course-studio .core-workspace-grid.is-notes-open [class*="TodayQuiet"][class*="desk"] { grid-template-columns: minmax(0, 1fr) !important; }
+html body.is-course-studio .core-workspace-grid.is-notes-open [class*="TodayQuiet"][class*="page"] { margin: 0 24px 48px !important; }
+
+/* ── The session ───────────────────────────────────────────────────────────────────────────────────────
+   Feedback is a callout of its verdict (a wash and a hairline of green or coral), not a rule down the margin. Labels are
+   sentence case, quotes upright, figures in Geist Mono. The result opens on a plain mark, its facts as figures, and
+   ends on this topic's lines in their boxes. */
+html body.is-session-booklet [class*="QuickRun"][class*="feedback"] { padding: 18px 20px !important; border: 1px solid var(--lb-line) !important; border-left-width: 1px !important; border-radius: 12px !important; background: var(--lb-surface) !important; gap: 10px !important; }
+html body.is-session-booklet [class*="QuickRun"][class*="feedback"][class*="ok"] { border-color: color-mix(in oklch, var(--lb-green) 30%, var(--lb-line)) !important; background: color-mix(in oklch, var(--lb-green) 5%, var(--lb-surface)) !important; }
+html body.is-session-booklet [class*="QuickRun"][class*="feedback"][class*="no"] { border-color: color-mix(in oklch, var(--lb-miss) 30%, var(--lb-line)) !important; background: color-mix(in oklch, var(--lb-miss) 5%, var(--lb-surface)) !important; }
+html body.is-session-booklet [class*="QuickRun"][class*="feedback"] strong { font-size: 18px !important; font-weight: 600 !important; letter-spacing: -0.015em !important; }
+html body.is-session-booklet [class*="QuickRun"][class*="feedback"] [class*="quote"] { font-size: 14.5px !important; color: var(--lb-text-2) !important; }
+html body.is-session-booklet [class*="QuickRun"][class*="steps"] li[class*="done"] { background: var(--lb-green) !important; }
+html body.is-session-booklet [class*="QuickRun"][class*="steps"] li[class*="now"] { background: color-mix(in oklch, var(--lb-green) 45%, var(--lb-line-strong)) !important; }
+html body.is-session-booklet [class*="QuickRun"][class*="prompt"] { font-size: 24px !important; font-weight: 600 !important; letter-spacing: -0.02em !important; line-height: 1.32 !important; }
+html body.is-session-booklet [class*="QuickRun"][class*="choice"] { border-radius: 10px !important; }
+
+html body.is-session-booklet [class*="QuickResult"][class*="title"] { font-size: 30px !important; font-weight: 600 !important; letter-spacing: -0.03em !important; }
+html body.is-session-booklet [class*="QuickResult"][class*="stamp"] { width: 40px !important; height: 40px !important; }
+html body.is-session-booklet [class*="QuickResult"][class*="stamp"] circle:first-child { fill: transparent !important; }
+html body.is-session-booklet [class*="QuickResult"][class*="tiles"] b { font-family: var(--font-geist-mono), ui-monospace, monospace !important; font-weight: 500 !important; letter-spacing: -0.02em !important; }
+html body.is-session-booklet [class*="QuickResult"] :is([class*="tiles"] span, [class*="rememberHead"]) { font-variant-caps: normal !important; text-transform: none !important; letter-spacing: 0 !important; font-size: 13px !important; color: var(--lb-text-2) !important; }
+html body.is-session-booklet [class*="QuickResult"][class*="remember"]:not([class*="rememberHead"]) { padding: 14px 16px !important; border: 1px solid var(--lb-line) !important; border-left-width: 1px !important; border-radius: 12px !important; background: var(--lb-well) !important; }
+html body.is-session-booklet [class*="QuickResult"][class*="remember"]:not([class*="rememberHead"]) p { font-family: var(--font-geist), system-ui, sans-serif !important; font-style: normal !important; font-size: 15px !important; line-height: 1.55 !important; }
+html body.is-session-booklet [class*="QuickResult"][class*="rememberHead"] [class*="icon"] { display: none !important; }
+html body.is-session-booklet [class*="QuickResult"][class*="rememberHead"] { padding: 0 !important; border: 0 !important; background: none !important; }
+html body.is-session-booklet [class*="QuickResult"][class*="tiles"] b[class*="tileWord"] { font-family: var(--font-geist), system-ui, sans-serif !important; font-weight: 600 !important; }
+
+/* ── Topics: a table of topics, each with its lines across the five boxes ─────────────────────────── */
+@media (min-width: 651px) {
+  html body.is-course-studio .studio-section-head.kelus-space-top { padding: 32px 44px 20px !important; max-width: none !important; border-bottom: 1px solid var(--lb-line) !important; }
+  html body.is-course-studio .studio-section-head h1 { font-size: 22px !important; font-weight: 600 !important; letter-spacing: -0.025em !important; }
+  html body.is-course-studio .surface-map.is-toc { width: auto !important; max-width: 1240px !important; margin: 24px 44px 48px !important; }
+}
+html body.is-course-studio .surface-map.is-toc [class*="TopicMapPanel"][class*="path"]::before,
+html body.is-course-studio .surface-map.is-toc [class*="TopicMapPanel"][class*="step"]::before,
+html body.is-course-studio .surface-map.is-toc [class*="TopicMapPanel"][class*="step"]::after { display: none !important; }
+html body.is-course-studio .surface-map.is-toc [class*="TopicMapPanel"][class*="node"] { display: none !important; }
+html body.is-course-studio .surface-map.is-toc ol[class*="TopicMapPanel"][class*="path"] { margin: 0 !important; padding: 0 !important; border-top: 1px solid var(--lb-line); }
+html body.is-course-studio .surface-map.is-toc li[class*="TopicMapPanel"][class*="step"] { display: block !important; margin: 0 !important; padding: 0 !important; border-bottom: 1px solid var(--lb-line); }
+html body.is-course-studio .surface-map.is-toc .index-toc-row { display: grid !important; grid-template-columns: minmax(0, 1fr) auto 9rem 4rem; align-items: center; column-gap: 24px; min-height: 56px; padding: 10px 48px 10px 12px !important; border-radius: 0 !important; }
+html body.is-course-studio .surface-map.is-toc .index-toc-row:hover { background: var(--q-hover) !important; }
+html body.is-course-studio .surface-map.is-toc .index-toc-name { font-size: 15px !important; font-weight: 500 !important; letter-spacing: -0.01em !important; }
+html body.is-course-studio .surface-map.is-toc .index-toc-meta { display: contents !important; }
+html body.is-course-studio .surface-map.is-toc .index-toc-meta > [class*="BoxStrip"] { grid-column: 2; }
+html body.is-course-studio .surface-map.is-toc .index-toc-meta [class*="TopicMapPanel"][class*="state"] { grid-column: 3; font-style: normal !important; font-size: 13.5px !important; font-weight: 500 !important; }
+html body.is-course-studio .surface-map.is-toc .index-toc-meta [class*="TopicMapPanel"][class*="metaSoft"] { grid-column: 4; justify-self: end; font-family: var(--font-geist-mono), ui-monospace, monospace; font-size: 12.5px !important; color: var(--lb-text-3) !important; }
+html body.is-course-studio .surface-map.is-toc .index-toc-meta [class*="TopicMapPanel"][class*="metaSoft"] + [class*="metaSoft"] { display: none; }
+html body.is-course-studio .surface-map.is-toc .index-toc-meta [class*="TopicMapPanel"][class*="icoSm"] { display: none; }
+html body.is-course-studio .surface-map.is-toc :is([class*="TopicMapPanel"][class*="why"], [class*="TopicMapPanel"][class*="due"]) { grid-column: 1 / -1; font-size: 13px; color: var(--lb-text-3); }
+html body.is-course-studio .surface-map.is-toc li[class*="TopicMapPanel"][class*="checkpoint"] { margin: 0 !important; padding: 14px 12px !important; border-bottom: 1px solid var(--lb-line); }
+html body.is-course-studio .surface-map.is-toc [class*="TopicMapPanel"][class*="diamond"] { display: none !important; }
+html body.is-course-studio .surface-map.is-toc [class*="TopicMapPanel"][class*="pathHead"] { margin-bottom: 20px; }
+html body.is-course-studio .surface-map.is-toc [class*="TopicMapPanel"][class*="stats"] li + li::before { content: none !important; }
+html body.is-course-studio .surface-map.is-toc [class*="TopicMapPanel"][class*="stats"] strong { font-family: var(--font-geist-mono), ui-monospace, monospace; font-weight: 500; }
+html body.is-course-studio .surface-map.is-toc [class*="TopicMapPanel"][class*="pathBar"] { display: none !important; }
+@media (max-width: 650px) {
+  html body.is-course-studio .surface-map.is-toc .index-toc-row { grid-template-columns: minmax(0, 1fr) auto; row-gap: 6px; padding-right: 44px !important; }
+  html body.is-course-studio .surface-map.is-toc .index-toc-meta > [class*="BoxStrip"] { grid-column: 1; grid-row: 2; }
+  html body.is-course-studio .surface-map.is-toc .index-toc-meta [class*="TopicMapPanel"][class*="state"] { grid-column: 2; grid-row: 1; }
+  html body.is-course-studio .surface-map.is-toc .index-toc-meta [class*="TopicMapPanel"][class*="metaSoft"] { display: none; }
+}
+html body.is-course-studio .surface-map.is-toc .toc-columns { display: grid; grid-template-columns: minmax(0, 1fr) auto 9rem 4rem; align-items: end; column-gap: 24px; padding: 0 48px 8px 12px; color: var(--lb-text-3); font-size: 12.5px; font-weight: 500; }
+html body.is-course-studio .surface-map.is-toc .toc-columns > span:last-child { justify-self: end; }
+html body.is-course-studio .surface-map.is-toc .toc-boxes { display: inline-grid; grid-template-columns: repeat(5, 26px); gap: 3px; }
+html body.is-course-studio .surface-map.is-toc .toc-boxes i { font-style: normal; text-align: center; font-family: var(--font-geist-mono), ui-monospace, monospace; font-size: 11px; }
+html body.is-course-studio .surface-map.is-toc li[class*="TopicMapPanel"][class*="step"] { min-height: 0 !important; height: auto !important; }
+html body.is-course-studio .surface-map.is-toc .index-toc-row { min-height: 52px !important; padding-top: 0 !important; padding-bottom: 0 !important; }
+html body.is-course-studio .surface-map.is-toc li[class*="TopicMapPanel"][class*="checkpoint"] { display: flex !important; align-items: center; justify-content: space-between; width: auto !important; grid-template-columns: none !important; }
+html body.is-course-studio .surface-map.is-toc li[class*="TopicMapPanel"][class*="checkpoint"] > span { flex: 1; min-width: 0; }
+html body.is-course-studio .surface-map.is-toc [class*="AnkiExport"][class*="card"] { width: auto !important; max-width: none !important; padding-inline: 0 !important; }
+@media (max-width: 650px) { html body.is-course-studio .surface-map.is-toc .toc-columns { display: none; } }
+html body.is-course-studio .surface-map.is-toc li[class*="TopicMapPanel"][class*="step"] { position: relative !important; }
+html body.is-course-studio .surface-map.is-toc li[class*="TopicMapPanel"][class*="step"] > button[class*="remove"] { position: absolute !important; right: 6px; top: 50%; width: 32px !important; height: 32px !important; margin: 0 !important; transform: translateY(-50%); }
+
+/* ── Progress ─────────────────────────────────────────────────────────────────────────────────────────── */
+@media (min-width: 651px) {
+  html body.is-course-studio [class*="ProgressView"][class*="page"] { width: auto !important; max-width: 1240px !important; margin: 24px 44px 48px !important; padding: 0 !important; background: none !important; box-shadow: none !important; }
+}
+html body.is-course-studio [class*="ProgressView"] :is(h2, h3) { font-size: 18px !important; font-weight: 600 !important; letter-spacing: -0.02em !important; }
+html body.is-course-studio [class*="ProgressView"][class*="sheetLink"] { font-size: 14px !important; font-weight: 500 !important; }
+html body.is-course-studio [class*="ProgressView"][class*="sheetLink"] svg { display: none; }
+
+/* ── Materials: the reader and the source list in the instrument's surfaces ────────────────────────── */
+html body.is-course-studio .material-card .material-name > strong { font-family: var(--font-geist), system-ui, sans-serif !important; font-size: 16px !important; font-weight: 600 !important; letter-spacing: -0.015em !important; }
+html body.is-course-studio .material-card-topics span { color: var(--lb-text-2) !important; font-size: 13px !important; }
+html body.is-course-studio .material-card-topics span[data-tone]::before { content: none !important; }
+html body.is-course-studio .material-card-topics { gap: 2px 12px !important; }
+html body.is-course-studio .material-shelf h2 { font-family: var(--font-geist), system-ui, sans-serif !important; font-size: 18px !important; font-weight: 600 !important; letter-spacing: -0.02em !important; }
+html body.is-course-studio .material-actions > :is(button, a) { border-radius: 8px !important; font-size: 13px !important; font-weight: 500 !important; color: var(--lb-text-2) !important; }
+html body.is-course-studio .material-actions > :is(button, a):hover { background: var(--q-hover) !important; color: var(--lb-ink) !important; }
+html body.is-course-studio .core-source-reader { border-right: 1px solid var(--lb-line) !important; background: var(--lb-well) !important; }
+html body.is-course-studio .core-source-toolbar { background: var(--lb-surface) !important; border-bottom: 1px solid var(--lb-line) !important; }
+html body.is-course-studio .core-source-page { box-shadow: 0 0 0 1px var(--lb-line), 0 12px 32px -18px rgba(14, 21, 18, 0.22) !important; border-radius: 4px; }
+
+/* ── Polish ────────────────────────────────────────────────────────────────────────────────────────────
+   Buttons say what they do without a trailing arrow; keyboard focus is a green ring with a soft halo on every control;
+   fields take the same ring; selection is a green tint; figures line up everywhere in the product. */
+:is(body.is-course-studio, body.is-session-booklet, body.is-session-complete) [data-mark="arrow-right"] { display: none !important; }
+:is(body.is-course-studio, body.is-session-booklet, body.is-session-complete, body:has(.start-page)) :is(a, button, summary, [role="button"], [tabindex]:not([tabindex="-1"])):focus-visible { outline: 2px solid var(--lb-green) !important; outline-offset: 2px !important; box-shadow: 0 0 0 5px color-mix(in oklch, var(--lb-green) 16%, transparent) !important; }
+:is(body.is-course-studio, body.is-session-booklet, body.is-session-complete, body:has(.start-page)) :is(input:not([type="checkbox"]):not([type="radio"]):not([type="file"]), textarea, select):focus { outline: none !important; border-color: var(--lb-green) !important; box-shadow: 0 0 0 4px color-mix(in oklch, var(--lb-green) 16%, transparent) !important; }
+:is(body.is-course-studio, body.is-session-booklet, body.is-session-complete, body:has(.start-page)) ::selection { background: color-mix(in srgb, var(--lb-green) 22%, transparent); }
+:is(body.is-course-studio, body.is-session-booklet, body.is-session-complete) { font-variant-numeric: tabular-nums; }
+:is(body.is-course-studio, body.is-session-booklet, body.is-session-complete) :is(h1, h2, h3) { text-wrap: balance; }
+@media (max-width: 650px) {
+  html body.is-course-studio .surface-map.is-toc .index-toc-row { min-height: 0 !important; padding-top: 12px !important; padding-bottom: 12px !important; row-gap: 8px !important; }
+}

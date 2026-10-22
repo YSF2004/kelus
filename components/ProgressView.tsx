@@ -55,7 +55,7 @@ function Topics({ title, note, items, empty }: { title: string; note: string; it
               <span className={styles.move} aria-label={`${pct(topic.before)} percent to ${pct(topic.after)} percent`}>
                 {/* A change is shown as a change; "0% → 0%" says nothing, so the last answer is named instead. */}
                 {/* Percentages only once there are a few answers behind them; before that, the last answer in words. */}
-                {topic.attempts === 0 ? "Not started" : topic.attempts < 3 ? `${LAST[topic.lastOutcome ?? "partial"]} · ${topic.attempts} ${topic.attempts === 1 ? "try" : "tries"}` : pct(topic.before) !== pct(topic.after) ? <>{pct(topic.before)}% <ArrowRight /> {pct(topic.after)}%</> : LAST[topic.lastOutcome ?? "partial"]}
+                {topic.attempts === 0 ? "Not started" : topic.attempts < 3 ? `${LAST[topic.lastOutcome ?? "partial"]}, ${topic.attempts} ${topic.attempts === 1 ? "try" : "tries"}` : pct(topic.before) !== pct(topic.after) ? <>{pct(topic.before)}% <ArrowRight /> {pct(topic.after)}%</> : LAST[topic.lastOutcome ?? "partial"]}
               </span>
               {topic.attempts >= 3 ? <span className={styles.bar} aria-hidden="true"><i style={{ width: `${pct(topic.after)}%` }} /></span> : <span className={styles.bar} aria-hidden="true" style={{ visibility: "hidden" }} />}
             </li>
@@ -82,14 +82,14 @@ export function ProgressView({ concepts, events, nowIso, daysToExam, targetPerce
     return (
       <div className={styles.page}>
         <RecallMap concepts={concepts} activities={activities} nowIso={nowIso} />
-        <Link href="/sheet" className={styles.sheetLink}>Read your revision sheet: every topic in your own words <ArrowRight /></Link>
+        <Link href="/sheet" className={styles.sheetLink}>Open your revision sheet</Link>
         <section className={styles.group} aria-labelledby="progress-headline">
           <h2 id="progress-headline" className={styles.earlyHeading}>{summary.practised.length} of {concepts.length} topics tried</h2>
           <ul>
             {summary.practised.map((topic) => (
               <li key={topic.id}>
                 <strong>{topic.name}</strong>
-                <span className={styles.move}>{EARLY[topic.lastOutcome ?? "partial"]} · {comesBackLine(byId.get(topic.id)?.nextReviewAt, nowIso).replace(/^Comes back/, "back")}</span>
+                <span className={styles.move}>{EARLY[topic.lastOutcome ?? "partial"]}, {comesBackLine(byId.get(topic.id)?.nextReviewAt, nowIso).replace(/^Comes back/, "back")}</span>
                 <span className={styles.bar} aria-hidden="true" style={{ visibility: "hidden" }} />
               </li>
             ))}
@@ -104,7 +104,7 @@ export function ProgressView({ concepts, events, nowIso, daysToExam, targetPerce
   return (
     <div className={styles.page}>
       <RecallMap concepts={concepts} activities={activities} nowIso={nowIso} />
-      <Link href="/sheet" className={styles.sheetLink}>Read your revision sheet: every topic in your own words <ArrowRight /></Link>
+      <Link href="/sheet" className={styles.sheetLink}>Open your revision sheet</Link>
       <motion.section className={styles.lead} initial={reduce ? false : { opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: reduce ? 0 : 0.3, ease: [0.22, 1, 0.36, 1] }} aria-labelledby="progress-headline">
         {/* Before there are enough answers there is no trend to talk about: the counts below say where you are. */}
         <h2 id="progress-headline">{fresh ? "Your progress starts with a first answer." : progressHeadline(summary)}</h2>
