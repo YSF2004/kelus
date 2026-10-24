@@ -18,8 +18,10 @@ export function GoogleAnalyticsPageViews() {
     if (new URLSearchParams(search).get("via") === "invite") trackEvent({ name: "invite_opened" });
     trackEvent({
       name: "page_view",
-      page_path: `${pathname}${query}`,
-      page_location: `${window.location.origin}${pathname}${query}`,
+      // Query strings can contain auth codes or other private values. Cohort
+      // and invite markers are handled separately without sending the URL.
+      page_path: pathname,
+      page_location: `${window.location.origin}${pathname}`,
       page_title: document.title,
       send_to: GA_MEASUREMENT_ID,
     });

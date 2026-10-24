@@ -50,6 +50,16 @@ function sendEvent(event: KelusAnalyticsEvent) {
   if (typeof window.gtag !== "function") return;
   const { name, ...parameters } = event;
   const gaParameters: Record<string, GoogleAnalyticsParameter> = { ...parameters };
+  // Never send URL query strings or fragments with a page view: callback URLs
+  // may contain authentication codes or other private values.
+  if (name === "page_view") {
+    if (typeof gaParameters.page_path === "string") {
+      gaParameters.page_path = gaParameters.page_path.split(/[?#]/, 1)[0] || "/";
+    }
+    if (typeof gaParameters.page_location === "string") {
+      gaParameters.page_location = gaParameters.page_location.split(/[?#]/, 1)[0];
+    }
+  }
   // GA4 treats `source` as traffic attribution. Our source is the in-product
   // entry point (for example `pricing_page`), not a referring campaign.
   if ("source" in gaParameters) {

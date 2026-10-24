@@ -21,7 +21,7 @@ test("a real-course milestone waits for GA bootstrap instead of being dropped", 
   }
 });
 
-test("a landing page view and pilot cohort survive delayed GA bootstrap", async () => {
+test("a landing page view and pilot cohort survive delayed GA bootstrap without leaking query values", async () => {
   process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID = "G-TEST";
   const listeners = new Map();
   const calls = [];
@@ -40,7 +40,7 @@ test("a landing page view and pilot cohort survive delayed GA bootstrap", async 
     assert.deepEqual(calls, [
       ["set", "user_properties", { pilot_cohort: "lycee-2b" }],
       ["event", "material_upload_completed", { role: "notes", course_type: "real" }],
-      ["event", "page_view", { page_path: "/?pilot=lycee-2b", page_location: "https://kelus.me/?pilot=lycee-2b", page_title: "Kelus", send_to: "G-TEST" }],
+      ["event", "page_view", { page_path: "/", page_location: "https://kelus.me/", page_title: "Kelus", send_to: "G-TEST" }],
     ]);
   } finally {
     globalThis.window = before;
