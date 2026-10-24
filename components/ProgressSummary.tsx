@@ -82,7 +82,8 @@ export function ProgressSummary({ concepts, activities, events, nowIso, openTopi
   const inTopics = (list: typeof rows, count: (row: (typeof rows)[number]) => number) => list.filter((row) => count(row) > 0).map((row) => `${count(row)} ${count(row) === 1 ? "line" : "lines"} in ${row.name}`);
   const improvedLines = inTopics(rows, (row) => row.recalled);
   const againLines = inTopics(rows, (row) => row.missed);
-  const names2 = (list: string[]) => list.length <= 2 ? list.join(" and ") : `${list.slice(0, -1).join(", ")} and ${list[list.length - 1]}`;
+  // Three named at most, so the sentence stays one glance: the sheet below has every topic.
+  const names2 = (list: string[]) => list.length <= 2 ? list.join(" and ") : list.length <= 3 ? `${list.slice(0, -1).join(", ")} and ${list[2]}` : `${list.slice(0, 3).join(", ")} and ${list.length - 3} more ${list.length - 3 === 1 ? "topic" : "topics"}`;
   const names = (list: typeof rows) => list.length <= 2 ? list.map((row) => row.name).join(" and ") : `${list.slice(0, -1).map((row) => row.name).join(", ")} and ${list[list.length - 1].name}`;
   const note = (row: (typeof rows)[number]) => {
     if (!row.tried) return row.id === openTopicId ? "Started, not finished yet" : "Not practised yet";

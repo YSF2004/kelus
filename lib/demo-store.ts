@@ -1,4 +1,4 @@
-import { createDemoSnapshot } from "../data/demo-seed";
+import { createDemoLines, createDemoSnapshot } from "../data/demo-seed";
 import { ALGORITHM_KIND, SELF_RATING_MASTERY } from "../domain/constants";
 import { advanceDemoClock, isDemoClockEnabled } from "../domain/demo-clock";
 import { recomputeConceptCache, withCachedState } from "../domain/learner-model";
@@ -269,11 +269,16 @@ export function resetDemoState(nowMs = Date.now()) {
 
 export function loadAminaDemo(nowMs = Date.now()) {
   const nowIso = new Date(nowMs).toISOString();
+  const snapshot = refreshCaches(createDemoSnapshot(nowMs), nowIso);
+  // The sample arrives with its lines answered as its history says, so its notes on Progress are already marked.
+  const lines = createDemoLines(snapshot, nowMs);
   const state: DemoState = {
-    snapshot: refreshCaches(createDemoSnapshot(nowMs), nowIso),
+    snapshot,
     nowIso,
     onboardingCompleted: true,
     diagnosisCompleted: true,
+    knownLines: lines.known,
+    missedLines: lines.missed,
   };
   persistDemoState(state, true, true); // A fresh start: no lines carried over from before.
   if (typeof window !== "undefined") {

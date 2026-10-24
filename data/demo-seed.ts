@@ -1,3 +1,5 @@
+import { recallMap } from "../domain/recall-map";
+import type { MissedLine } from "../domain/return-visit";
 import { recomputeConceptCache, withCachedState } from "../domain/learner-model";
 import type { Concept, LearnerSnapshot, LearningEvent, RetrievalOutcome } from "../domain/types";
 import { createDemoLearningActivities } from "./demo-learning-activities";
@@ -88,4 +90,28 @@ export function createDemoSnapshot(nowMs = Date.now()): LearnerSnapshot {
     events,
     sessions: [],
   };
+}
+
+/**
+ * The sample's lines, answered the way its topic history says: a topic's share of recalled lines follows its result,
+ * and a topic whose last answer was not a pass has its next line missed, to come back first. Derived from the same
+ * history the topics carry, so the marked notes on Progress and the topic results never disagree. Sample only.
+ */
+export function createDemoLines(snapshot: LearnerSnapshot, nowMs = Date.now()): { known: MissedLine[]; missed: MissedLine[] } {
+  const nowIso = iso(nowMs);
+  const map = recallMap({ concepts: snapshot.concepts, activities: snapshot.learningActivities ?? [], known: [], missed: [], nowIso });
+  const known: MissedLine[] = [];
+  const missed: MissedLine[] = [];
+  for (const item of MICROECONOMICS_CONCEPTS) {
+    const topic = map.topics.find((entry) => entry.id === item.id);
+    if (!topic) continue;
+    const quotes = topic.lines.map((line) => line.quote);
+    const at = iso(nowMs, item.lastReviewedDays);
+    const streak = Math.max(1, item.history.filter((outcome) => outcome === "success").length);
+    const recalled = Math.min(quotes.length, Math.round(item.mastery * quotes.length));
+    quotes.slice(0, recalled).forEach((quote) => known.push({ conceptId: item.id, name: item.name, quote, at, streak }));
+    const last = item.history[item.history.length - 1];
+    if (last !== "success" && recalled < quotes.length) missed.push({ conceptId: item.id, name: item.name, quote: quotes[recalled], at });
+  }
+  return { known, missed };
 }

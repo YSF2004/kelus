@@ -1,4 +1,5 @@
 import { isDrillable } from "./practice-check";
+import { buildPractice } from "./content-engine";
 import type { MissedLine } from "./return-visit";
 import type { Concept, LearningActivity } from "./types";
 
@@ -7,6 +8,27 @@ export type RecallTopic = { id: string; name: string; lines: Array<{ quote: stri
 export type RecallMap = { topics: RecallTopic[]; total: number; recalled: number; back: number; thisWeek: number };
 
 const key = (quote: string) => quote.trim().toLocaleLowerCase();
+
+/** Questions written when a session opens (the built-in sample stores none), built the same way, once per activity. */
+const written = new Map<string, string[]>();
+function askedLines(activity: LearningActivity, concept: Concept, siblingNames: string[]) {
+  if (activity.practice?.length) return activity.practice.filter(isDrillable).map((item) => item.sourceQuote);
+  const excerpt = [activity.learn.explanation, ...activity.learn.keyPoints].join("\n");
+  // Keyed by what the questions are made from, so a reloaded or copied state does not build them again.
+  const id = `${activity.conceptId}|${concept.name}|${siblingNames.join(",")}|${excerpt}`;
+  const cached = written.get(id);
+  if (cached) return cached;
+  const lines = buildPractice({
+    conceptId: activity.conceptId,
+    name: concept.name,
+    excerpt,
+    locator: activity.sourceReferences?.[0]?.locator ?? "this page",
+    siblingNames,
+  }).filter(isDrillable).map((item) => item.sourceQuote);
+  if (written.size > 400) written.clear();
+  written.set(id, lines);
+  return lines;
+}
 
 /**
  * Every line Kelus can ask about, topic by topic in the order of the notes, and where each one stands: recalled (answered
@@ -21,8 +43,9 @@ export function recallMap(input: { concepts: Concept[]; activities: LearningActi
   const seen = new Set<string>();
   const topics = input.concepts.map((concept) => {
     const activity = input.activities.find((item) => item.conceptId === concept.id);
+    const siblings = input.concepts.filter((item) => item.courseId === concept.courseId).map((item) => item.name);
     const quotes = [
-      ...(activity?.practice ?? []).filter(isDrillable).map((item) => item.sourceQuote),
+      ...(activity?.learn ? askedLines(activity, concept, siblings) : (activity?.practice ?? []).filter(isDrillable).map((item) => item.sourceQuote)),
       activity?.retrieve.modelAnswer ?? "",
     ];
     const lines: RecallTopic["lines"] = [];
