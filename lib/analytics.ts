@@ -46,6 +46,19 @@ const pendingEvents: KelusAnalyticsEvent[] = [];
 let waitingForBootstrap = false;
 let pendingCohort: string | null = null;
 
+function sendEvent(event: KelusAnalyticsEvent) {
+  if (typeof window.gtag !== "function") return;
+  const { name, ...parameters } = event;
+  // GA4 treats `source` as traffic attribution. Our source is the in-product
+  // entry point (for example `pricing_page`), not a referring campaign.
+  if ("source" in parameters) {
+    const { source, ...rest } = parameters;
+    window.gtag("event", name, { ...rest, interaction_source: source });
+  } else {
+    window.gtag("event", name, parameters);
+  }
+}
+
 function flushPendingEvents() {
   if (typeof window.gtag !== "function") return;
   if (pendingCohort) {
@@ -53,8 +66,7 @@ function flushPendingEvents() {
     pendingCohort = null;
   }
   for (const pending of pendingEvents.splice(0)) {
-    const { name, ...parameters } = pending;
-    window.gtag("event", name, parameters);
+    sendEvent(pending);
   }
 }
 
@@ -75,8 +87,7 @@ export function trackEvent(event: KelusAnalyticsEvent) {
     return;
   }
   flushPendingEvents();
-  const { name, ...parameters } = event;
-  window.gtag("event", name, parameters);
+  sendEvent(event);
 }
 
 /** Tags every later event from this browser with its pilot group, so a pilot's numbers can be filtered. */

@@ -46,3 +46,17 @@ test("a landing page view and pilot cohort survive delayed GA bootstrap", async 
     globalThis.window = before;
   }
 });
+
+test("in-product event source does not overwrite GA4 traffic attribution", async () => {
+  process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID = "G-TEST";
+  const calls = [];
+  const before = globalThis.window;
+  globalThis.window = { gtag: (...args) => calls.push(args) };
+  try {
+    const { trackEvent } = await import("../lib/analytics.ts");
+    trackEvent({ name: "pricing_viewed", source: "pricing_page" });
+    assert.deepEqual(calls, [["event", "pricing_viewed", { interaction_source: "pricing_page" }]]);
+  } finally {
+    globalThis.window = before;
+  }
+});
