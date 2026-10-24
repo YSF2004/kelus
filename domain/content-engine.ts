@@ -1,6 +1,7 @@
 import { hintInNotesLanguage, inNotesLanguage, noteLanguage } from "./note-language";
 import type { PracticeItem } from "./types";
 import { lintQuestion, standsAlone } from "./question-lint";
+import { explainMatch } from "./answer-evaluation";
 import { contrastChoices, effectQuestions, framePairs, notMatching, termFromMeaning, whyChoices } from "./question-types";
 
 /**
@@ -568,7 +569,8 @@ export function ownWordsLead(input: { name: string; excerpt: string; round?: num
     const conditional = sentence.match(/^(?:when|if|whenever|once)\s+([^,]{6,}),\s*(.+)$/i);
     if (conditional) {
       const condition = conditional[1].trim();
-      const consequence = stripEnd(conditional[2]);
+      // "…; if it is larger, …" is a second case: the answer is the first one only.
+      const consequence = stripEnd(conditional[2].split(/;\s*/)[0]);
       if (!LEAD_PRONOUN.test(condition) && longEnough(condition, 3) && longEnough(consequence, 4)) {
         leads.push({ kind: "apply", prompt: `Suppose ${condition}. What happens, according to your notes, and why?`, answer: consequence, quote: sentence, lines: [sentence], given: `${name} ${condition}` });
         continue;
@@ -604,7 +606,8 @@ export function ownWordsLead(input: { name: string; excerpt: string; round?: num
   }
 
   // Each needs enough of the notes' own words left to compare fairly, or it would be a grade from nothing.
-  const fair = leads.filter((lead) => explainKeys(lead.answer, lead.given) >= (lead.kind === "explain" ? 5 : 3));
+  // Counted exactly as the answer will be checked, so a question is never offered that the check cannot measure.
+  const fair = leads.filter((lead) => explainKeys(lead.answer, lead.given) >= (lead.kind === "explain" ? 5 : 3) && explainMatch("", lead.answer, `${name} ${lead.given}`).keys >= (lead.kind === "explain" ? 5 : 3));
   if (!fair.length) return null;
   const rank = { apply: 0, why: 1, explain: 2 } as const;
   const ordered = [...fair].sort((x, y) => rank[x.kind] - rank[y.kind]);
