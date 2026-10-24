@@ -1,5 +1,5 @@
 import { expect, test, type Page } from "@playwright/test";
-import { confirmImportedTopics, gotoStart, playQuickRun, skipReading } from "./helpers";
+import { passOwnWords, confirmImportedTopics, gotoStart, playQuickRun, readFirst, skipReading } from "./helpers";
 
 const notes = "Cell biology\n\nOsmosis\nOsmosis is the movement of water across a partially permeable membrane from a dilute solution to a more concentrated solution. In a hypotonic solution a plant cell gains water and becomes turgid because the cell wall pushes back. In a hypertonic solution the cell loses water and becomes plasmolysed.\n\nEnzymes\nEnzymes are biological catalysts that speed up reactions without being used up. Each enzyme has an active site with a specific shape, so it only binds one substrate. High temperatures denature an enzyme because the active site changes shape.\n\nDiffusion\nDiffusion is the net movement of particles from an area of higher concentration to an area of lower concentration. It is a passive process, so it needs no energy from the cell. The rate of diffusion increases with a steeper concentration gradient.";
 const shots = process.env.RPR_SHOTS;
@@ -15,6 +15,8 @@ async function begin(page: Page) {
 
 test("a new topic is read first, one line at a time, then asked; the recall count rises with a right answer", async ({ page }) => {
   await begin(page);
+  // The first question opens at once; reading the lines first is one tap beside it.
+  await readFirst(page);
   const reading = page.getByRole("region", { name: "Read it first" });
   await expect(reading).toBeVisible();
   await expect(reading.locator("li")).toHaveCount(1);
@@ -26,6 +28,8 @@ test("a new topic is read first, one line at a time, then asked; the recall coun
     if (shots && guard === 0) await page.screenshot({ path: `${shots}/read-2.png` });
     await reading.getByRole("button", { name: /^(Continue|Now from memory)/ }).click();
   }
+  // The reading leads into the topic's first question: its own-words question when the notes hold one, then checks.
+  await passOwnWords(page);
   await expect(page.getByLabel(/^Check 1 of \d$/)).toBeVisible();
   // Nothing recalled yet: no count in the bar until the first line comes back.
   const counter = page.getByLabel(/lines? from your notes answered correctly/);

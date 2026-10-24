@@ -292,7 +292,7 @@ test("a real PDF becomes a first question, then Today, topics and a full session
   await page.screenshot({ path: "/tmp/kelus-session-mobile.png", fullPage: true });
   await playQuickRun(page, "I cannot yet explain the mechanism from memory.", "Missed it");
   await expect(page.getByRole("heading", { name: /^(Needs another attempt|Partly there)\.$/ })).toBeVisible();
-  await expect(page.getByText(/first (?:check|try)/)).toBeVisible();
+  await expect(page.getByText(/^\d of \d checks? right/)).toBeVisible();
   // The next step is named once: by the "Continue to …" button, or the route line when the plan has news.
   await expect(page.getByRole("button", { name: /^Continue to / }).or(page.getByRole("status").filter({ hasText: /(Next: |last topic for now)/ })).first()).toBeVisible();
   for (const width of [320, 375, 414]) {
@@ -304,7 +304,8 @@ test("a real PDF becomes a first question, then Today, topics and a full session
   await skipReading(page);
   await expect(page.getByLabel(/^Check 1 of \d$/)).toBeVisible();
   await playQuickRun(page, "I still cannot explain it.", "Missed it");
-  await expect(page.getByText(/try 2/)).toBeVisible();
+  // The second try gets its own verdict, from its own answers.
+  await expect(page.getByRole("heading", { name: /^(Needs another attempt|Partly there)\.$/ })).toBeVisible();
   await page.getByRole("button", { name: /Continue to/ }).click();
   await expect(page.locator(".reroute-view h1, section[aria-label^=\"Check 1 of\"], .session-learn h1").first()).toBeVisible();
   await expect(page.locator(".reroute-lines")).toHaveCount(0);
