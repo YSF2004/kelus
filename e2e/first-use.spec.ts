@@ -122,6 +122,31 @@ test("a reviewed PDF opens its first question, and is still there after a refres
   await expect(page.getByText("Cell Membranes").first()).toBeVisible();
 });
 
+for (const fixture of [
+  { file: "econ-lecture-4-elasticity.pdf", topic: "Price elasticity of demand", language: "en" },
+  { file: "history-causes-ww1-handout.pdf", topic: "Militarism", language: "en" },
+  { file: "fiche-photosynthese.pdf", topic: "Définition", language: "fr" },
+]) {
+  test(`${fixture.file} reaches a source-backed first study question`, async ({ page }) => {
+    await gotoStart(page);
+    await page.locator('input[type="file"]').setInputFiles(`tests/fixtures/course-pdfs/${fixture.file}`);
+    const review = page.locator(".first-source-review");
+    await expect(review.getByRole("heading", { name: "Check the topics Kelus found." })).toBeVisible({ timeout: 45_000 });
+    await expect(review.getByRole("listitem").filter({ hasText: fixture.topic })).toBeVisible();
+    await confirmImportedTopics(page);
+    await startBuiltPlan(page);
+    await expect(page).toHaveURL(/\/session/, { timeout: 30_000 });
+    await skipReading(page);
+    await expect(page.getByLabel(fixture.language === "fr" ? /^Question 1 sur \d$/ : /^Check 1 of \d$/).or(page.locator("#run-explain"))).toBeVisible();
+    if (fixture.language === "fr") {
+      await expect(page.getByRole("list", { name: /^Étape 2 sur \d$/ })).toBeVisible();
+      await expect(page.getByRole("button", { name: "Plus d’options pour cette séance" })).toBeVisible();
+    }
+    await page.goto("/today?section=materials");
+    await expect(page.getByText(fixture.topic).first()).toBeVisible();
+  });
+}
+
 test("first import shows source coverage and lets the student reject a topic before routing", async ({ page }) => {
   await gotoStart(page);
   await page.locator('input[type="file"]').setInputFiles({ name: "cell-biology-lecture.pdf", mimeType: "application/pdf", buffer: biologyPdf() });

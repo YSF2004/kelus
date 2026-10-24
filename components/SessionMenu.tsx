@@ -18,7 +18,7 @@ export type SessionMenuItem = {
  * the block. It opens from the button it belongs to, closes on Escape or a click outside, and asks before anything
  * that cannot be undone.
  */
-export function SessionMenu({ items, footer, label = "More" }: { items: SessionMenuItem[]; /** Something set under the items, such as the appearance switch. */ footer?: ReactNode; /** The trigger's word, in the notes' language. */ label?: string }) {
+export function SessionMenu({ items, footer, label = "More", accessibleLabel = "More session options", optionsLabel = "Session options", keepLabel = "Keep" }: { items: SessionMenuItem[]; /** Something set under the items, such as the appearance switch. */ footer?: ReactNode; /** The trigger's word, in the notes' language. */ label?: string; accessibleLabel?: string; optionsLabel?: string; keepLabel?: string }) {
   const reduce = useReducedMotion() === true;
   const [open, setOpen] = useState(false);
   const [asking, setAsking] = useState<SessionMenuItem | null>(null);
@@ -51,7 +51,7 @@ export function SessionMenu({ items, footer, label = "More" }: { items: SessionM
         className={styles.trigger}
         aria-expanded={open}
         aria-controls={id}
-        aria-label="More session options"
+        aria-label={accessibleLabel}
         onClick={() => (open ? close() : setOpen(true))}
       >
         {label}
@@ -62,7 +62,7 @@ export function SessionMenu({ items, footer, label = "More" }: { items: SessionM
             id={id}
             className={styles.panel}
             role="group"
-            aria-label={asking ? asking.confirm?.question : "Session options"}
+            aria-label={asking ? asking.confirm?.question : optionsLabel}
             initial={reduce ? { opacity: 0 } : { opacity: 0, scale: 0.96, y: -4 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={reduce ? { opacity: 0 } : { opacity: 0, scale: 0.98, y: -2 }}
@@ -72,7 +72,7 @@ export function SessionMenu({ items, footer, label = "More" }: { items: SessionM
               <div className={styles.confirm}>
                 <p>{asking.confirm.question}</p>
                 <div>
-                  <button type="button" className={styles.keep} onClick={() => setAsking(null)}>Keep</button>
+                  <button type="button" className={styles.keep} onClick={() => setAsking(null)}>{keepLabel}</button>
                   <button type="button" className={styles.yes} onClick={() => choose(asking)} autoFocus>{asking.confirm.yes}</button>
                 </div>
               </div>
