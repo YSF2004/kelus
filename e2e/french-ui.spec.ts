@@ -9,6 +9,8 @@ test("French notes get French buttons and feedback, not only French questions", 
   await page.locator("#paste-notes").fill(fiche);
   await page.getByRole("button", { name: "Use these notes" }).click();
   await startBuiltPlan(page);
+  // The reading is offered in French beside the first question, and skipped back from in French.
+  await page.getByRole("button", { name: "Lire la source d’abord" }).click();
   await page.getByRole("button", { name: "Passer aux questions" }).click();
   await expect(page.getByText(/^Sujet \d sur \d$/)).toBeVisible();
   await expect(page.getByRole("button", { name: "Je ne sais pas" })).toBeVisible();

@@ -1,5 +1,5 @@
 import { expect, test, type Page } from "@playwright/test";
-import { confirmImportedTopics, startBuiltPlan, sectionsNav, closeToToday, gotoStart, startFromFile, skipReading } from "./helpers";
+import { answerRun, confirmImportedTopics, startBuiltPlan, sectionsNav, closeToToday, gotoStart, startFromFile, skipReading, openTopics } from "./helpers";
 
 function biologyPdf() {
   const text = [
@@ -74,22 +74,7 @@ async function expectNoHorizontalOverflow(page: Page) {
 
 /** Answers every quick check (a wrong gap word, or option 1), then explains and rates itself. */
 async function playQuickRun(page: Page, explanation: string, grade: string) {
-  for (let guard = 0; guard < 6; guard += 1) {
-    // The previous card animates out first: wait for something that can actually be used.
-    await expect(page.locator('#run-explain, input[id^="run-gap"]:not([disabled]), [role="group"][aria-label="Choose one"] button:not([disabled])').first()).toBeVisible();
-    if (await page.locator("#run-explain").count()) break;
-    const gap = page.locator(`input[id^="run-gap"]:not([disabled])`);
-    if (await gap.count()) {
-      await gap.fill("zzz");
-      await page.getByRole("button", { name: "Check", exact: true }).click();
-    } else {
-      await page.getByRole("group", { name: "Choose one" }).getByRole("button").first().click();
-    }
-    await page.getByRole("button", { name: /^(Next|Now say it yourself)/ }).click();
-  }
-  await page.locator("#run-explain").fill(explanation);
-  await page.getByRole("button", { name: /Compare with the page/ }).click();
-  await page.getByRole("button", { name: new RegExp(grade) }).click();
+  await answerRun(page, { explanation, grade });
 }
 
 test("the start screen is one clear screen on phone, tablet and desktop", async ({ page }) => {
@@ -133,7 +118,8 @@ test("first import shows source coverage and lets the student reject a topic bef
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
   await page.screenshot({ path: "/tmp/kelus-source-review-mobile.png", fullPage: true });
   await review.getByRole("listitem").filter({ hasText: "Osmosis" }).getByRole("checkbox").uncheck();
-  await expect(review.getByRole("button", { name: "Use 2 topics" })).toBeEnabled();
+  await expect(review.getByRole("button", { name: "Start revising" })).toBeEnabled();
+  await expect(review).toContainText("2 topics selected");
   await confirmImportedTopics(page);
   await startBuiltPlan(page);
   await expect(page).toHaveURL(/\/session/);
@@ -186,7 +172,8 @@ test("course workspace fills the viewport without a blank footer band", async ({
   const workspace = page.locator(".kelus-space.is-studio");
   await expect(workspace).toBeVisible();
   expect(await workspace.evaluate((element) => element.getBoundingClientRect().bottom)).toBeGreaterThanOrEqual(899);
-  // Where the course stands, as a path: topics started and the days still ahead.
+  // Where the course stands, as a path: topics started and the days still ahead. It is on Progress, off Study.
+  await sectionsNav(page).getByRole("button", { name: "Progress", exact: true }).click();
   const pulse = page.getByRole("group", { name: "Your path through the course" });
   await expect(pulse).toContainText(/\d+\/\d+topics/);
   await expect(pulse).toContainText(/days? to exam|study days? left|Ready by|All solid/);
@@ -230,7 +217,7 @@ test("sample course without an original PDF gives the route room and makes uploa
   await page.setViewportSize({ width: 390, height: 844 });
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
   await expect(page.locator(".material-add-page[open] input[type='file']")).toBeVisible();
-  await sectionsNav(page).getByRole("button", { name: "Study plan" }).click();
+  await sectionsNav(page).getByRole("button", { name: "Study", exact: true }).click();
   await page.locator('button[data-action="start-topic"]').click();
   await expect(page.locator("main.study-shell.is-source-missing")).toBeVisible();
   await expect(page.locator(".session-workspace-source")).toHaveCount(0);
@@ -245,14 +232,14 @@ test("a real PDF becomes a first question, then Today, topics and a full session
   await closeToToday(page);
   await expect(page).toHaveURL(/\/today/);
   await expect(page.getByRole("region", { name: "Revision workbench" })).toBeVisible();
-  await expect(sectionsNav(page).getByRole("button", { name: "Study plan", exact: true })).toBeVisible();
+  await expect(sectionsNav(page).getByRole("button", { name: "Study", exact: true })).toBeVisible();
   await expect(page.locator("#today-title")).toBeVisible();
   // The PDF itself opens in Materials, page by page; Today stays one column.
   await expect(page.locator(".core-source-reader")).toHaveCount(0);
   await sectionsNav(page).getByRole("button", { name: "Materials", exact: true }).click();
   await expect(page.locator(".core-source-reader canvas")).toBeVisible();
   await page.screenshot({ path: "/tmp/kelus-core-source-desktop.png", fullPage: true });
-  await sectionsNav(page).getByRole("button", { name: "Study plan", exact: true }).click();
+  await sectionsNav(page).getByRole("button", { name: "Study", exact: true }).click();
   await expect(page.getByRole("heading", { name: "Today", exact: true })).toHaveCount(0);
   // The course is named after the file until the learner renames it (no form asks for a name any more).
   await expect(page.getByText(/cell biology lecture/i).first()).toBeVisible();
@@ -260,7 +247,7 @@ test("a real PDF becomes a first question, then Today, topics and a full session
     await page.setViewportSize({ width, height: 900 });
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
   }
-  await sectionsNav(page).getByRole("button", { name: "Topics", exact: true }).click();
+  await openTopics(page);
   await expect(page).toHaveURL(/\/today\/?\?section=map/);
   await expect(page.getByRole("list", { name: "Topics, in the order of your notes" })).toBeVisible();
   await expect(page.locator(".index-toc > li").first()).toBeVisible();
@@ -276,7 +263,7 @@ test("a real PDF becomes a first question, then Today, topics and a full session
   await expect(page).toHaveURL(/section=map/);
   await page.evaluate(() => window.scrollTo(0, 0));
   await page.screenshot({ path: "/tmp/kelus-map-mobile.png", fullPage: true });
-  await sectionsNav(page).getByRole("button", { name: "Study plan", exact: true }).click();
+  await sectionsNav(page).getByRole("button", { name: "Study", exact: true }).click();
   await expect(page).toHaveURL(/\/today\/?$/);
   await expect(page).not.toHaveURL(/section=/);
   await expect(page.locator(".today-evidence-disclosure")).toHaveCount(0);
@@ -305,7 +292,7 @@ test("a real PDF becomes a first question, then Today, topics and a full session
   await page.screenshot({ path: "/tmp/kelus-session-mobile.png", fullPage: true });
   await playQuickRun(page, "I cannot yet explain the mechanism from memory.", "Missed it");
   await expect(page.getByRole("heading", { name: /^(Needs another attempt|Partly there)\.$/ })).toBeVisible();
-  await expect(page.getByText(/first (?:check|try)/)).toBeVisible();
+  await expect(page.getByText(/^\d of \d checks? right/)).toBeVisible();
   // The next step is named once: by the "Continue to …" button, or the route line when the plan has news.
   await expect(page.getByRole("button", { name: /^Continue to / }).or(page.getByRole("status").filter({ hasText: /(Next: |last topic for now)/ })).first()).toBeVisible();
   for (const width of [320, 375, 414]) {
@@ -317,7 +304,8 @@ test("a real PDF becomes a first question, then Today, topics and a full session
   await skipReading(page);
   await expect(page.getByLabel(/^Check 1 of \d$/)).toBeVisible();
   await playQuickRun(page, "I still cannot explain it.", "Missed it");
-  await expect(page.getByText(/try 2/)).toBeVisible();
+  // The second try gets its own verdict, from its own answers.
+  await expect(page.getByRole("heading", { name: /^(Needs another attempt|Partly there)\.$/ })).toBeVisible();
   await page.getByRole("button", { name: /Continue to/ }).click();
   await expect(page.locator(".reroute-view h1, section[aria-label^=\"Check 1 of\"], .session-learn h1").first()).toBeVisible();
   await expect(page.locator(".reroute-lines")).toHaveCount(0);

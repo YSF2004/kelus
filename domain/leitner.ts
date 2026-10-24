@@ -42,3 +42,24 @@ export function leitner(input: { concepts: Concept[]; activities: LearningActivi
   const movedThisWeek = input.known.filter((line) => Date.parse(line.at) >= weekAgo).length;
   return { lines, byBox, total: lines.length, recalled: lines.filter((line) => line.state === "recalled").length, movedThisWeek };
 }
+
+/** When a line in each box is asked again, said the way a student would say it. */
+const COMES_BACK: Record<LeitnerLine["box"], string> = { 1: "in your next review", 2: "in 2 days", 3: "in 4 days", 4: "in 9 days", 5: "in about a month" };
+
+export type LineMove = { from: LeitnerLine["box"]; to: LeitnerLine["box"]; text: string };
+
+/**
+ * What one answer does to one line, before the answer is saved: the box it was in, the box it goes to, and when it
+ * comes back. The same rule the five boxes use: a right answer on a new day moves a line one box right; a second
+ * right answer the same day does not; a miss, or an answer that could not be measured, sends it to Box 1.
+ */
+export function lineMove(input: { quote: string; result: "right" | "missed" | "review"; known: MissedLine[]; nowIso: string }): LineMove {
+  const previous = input.known.find((line) => key(line.quote) === key(input.quote));
+  const from = (previous ? Math.min(5, 1 + (previous.streak ?? 1)) : 1) as LeitnerLine["box"];
+  if (input.result === "review") return { from, to: 1, text: `Needs review: Kelus can’t measure this answer fairly, so the line ${from > 1 ? `goes back from Box ${from} to Box 1` : "stays in Box 1"} and comes back in your next review.` };
+  if (input.result === "missed") return { from, to: 1, text: from > 1 ? `This line goes back from Box ${from} to Box 1. It comes back first in your next review.` : "This line stays in Box 1. It comes back first in your next review." };
+  const sameDay = Boolean(previous) && previous!.at.slice(0, 10) === input.nowIso.slice(0, 10);
+  const to = (sameDay ? from : Math.min(5, from + 1)) as LeitnerLine["box"];
+  if (to === from) return { from, to, text: `Already answered right today, so it stays in Box ${to} and comes back ${COMES_BACK[to]}.` };
+  return { from, to, text: `This line moves from Box ${from} to Box ${to}. Kelus asks it again ${COMES_BACK[to]}.` };
+}

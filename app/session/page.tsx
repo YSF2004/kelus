@@ -26,6 +26,7 @@ import { LoopSteps } from "@/components/LoopSteps";
 import { MarkStamp } from "@/components/MarkStamp";
 import { QuickResult, type QuickStats } from "@/components/QuickResult";
 import { comesBackLine, planLine } from "@/lib/verdict";
+import { routeChange } from "@/lib/route-change";
 import { dayKey, habitSummary } from "@/domain/habit";
 import { MinuteShift, RouteShift } from "@/components/RouteShift";
 import { PracticeDrill } from "@/components/PracticeDrill";
@@ -41,6 +42,7 @@ import { CourseSourceReader } from "@/components/CourseSourceReader";
 import { SessionMenu } from "@/components/SessionMenu";
 import { BlockOutline } from "@/components/BlockOutline";
 import { addMissedLines } from "@/lib/missed-lines";
+import { saveLineResult } from "@/lib/line-results";
 import { addKnownLines, forgetKnownLines, getKnownLines, getServerKnownLines, knownCount, subscribeKnownLines } from "@/lib/known-lines";
 import { trackEvent } from "@/lib/analytics";
 
@@ -186,6 +188,9 @@ function SessionBody() {
   // Fixed when the topic opens, like the run itself: the counter moves with this run's answers, not under them.
   // eslint-disable-next-line react-hooks/exhaustive-deps
   const knownAtOpen = useMemo(() => ({ set: new Set(knownLines.map((line) => line.quote)), count: knownCount(knownLines, courseConceptIds) }), [conceptId, runKey]);
+  // The lines with their streaks as the topic opened: where this run's answers move each line in the five boxes.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  const knownLinesAtOpen = useMemo(() => knownLines, [conceptId, runKey]);
   const total = session?.plannedConceptIds.length ?? 0;
   const focusStep = useCallback((node: HTMLElement | null) => {
     if (!node || (["retrieve", "apply"] as Phase[]).includes(phase)) return;
@@ -408,6 +413,13 @@ function SessionBody() {
   // The topic your answer pulled forward, named, so "the plan changed" is something you can see.
   const movedUpId = routeOrderChanged ? nextRemaining.find((id) => previousRemaining.includes(id) && nextRemaining.indexOf(id) < previousRemaining.indexOf(id)) : undefined;
   const movedUpName = state.snapshot.concepts.find((item) => item.id === movedUpId)?.name;
+  // The rest of the session before and after this answer, with the planner's reasons: shown only when it moved.
+  const reorder = routeOrderChanged ? routeChange({
+    before: previousRemaining,
+    after: nextRemaining,
+    names: new Map(state.snapshot.concepts.map((item) => [item.id, item.name])),
+    reasons: new Map(session.latestRoute.allocations.map((allocation) => [String(allocation.conceptId), allocation.reasons])),
+  }) : null;
   const nextConceptName = state.snapshot.concepts.find((item) => item.id === session.plannedConceptIds[index + 1])?.name;
   const goalToday = habitSummary({ events: state.snapshot.events, concepts: state.snapshot.concepts.filter((item) => item.courseId === concept?.courseId) });
   const checkCount = state.snapshot.events.filter((event) => event.conceptId === concept.id && event.kind === "retrieval").length;
@@ -685,6 +697,7 @@ function SessionBody() {
                 comesBack={comesBackLine(concept.nextReviewAt, state.nowIso)}
                 routeLine={planLine({ next: nextConceptName, movedUp: movedUpName, orderChanged: routeOrderChanged })}
                 nextName={nextConceptName}
+                reorder={reorder}
                 path={{
                   practised: state.snapshot.concepts.filter((item) => item.courseId === concept.courseId && item.retrievalAttempts > 0).length,
                   total: courseConceptIds.size,
@@ -796,6 +809,10 @@ function SessionBody() {
                 readFirst={round === 0}
                 known={knownAtOpen.set}
                 recalled={knownAtOpen.count}
+                knownLines={knownLinesAtOpen}
+                nowIso={state.nowIso}
+                // Each answer is saved as it is given: closing mid-topic, or a refresh, keeps it.
+                onLine={(quotes, result) => saveLineResult({ conceptId: concept.id, name: concept.name, quotes, result, at: state.nowIso })}
                 // A topic Kelus misnamed is renamed right here, the way the course is: tap the name (⌘Z undoes it).
                 context={<p className="study-topic-kicker"><b><InlineName value={concept.name} onSave={(next) => renameTopic(concept.id, next)} label="Rename this topic" /></b>{total > 1 ? <span>{uiw.topicOf(index + 1, total)}</span> : null}</p>}
               />

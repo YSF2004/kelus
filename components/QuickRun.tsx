@@ -4,7 +4,6 @@ import { ArrowRight, Cross, Tick } from "@/components/Marks";
 import type { ReactNode } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { useEffect, useRef, useState, useSyncExternalStore } from "react";
-import { LineMove } from "@/components/LineMove";
 import { checkAnswer, type CheckVerdict } from "@/domain/practice-check";
 import { explainMatch, looksLikeWords } from "@/domain/answer-evaluation";
 import { PackArt } from "@/components/PackArt";
@@ -17,6 +16,8 @@ import { FLAG_REASONS, flagQuestion, sendFlaggedQuestion, type FlagReason } from
 import { Octicon } from "@/components/Octicon";
 import { uiWords } from "@/lib/ui-words";
 import { noteLanguage } from "@/domain/note-language";
+import { lineMove } from "@/domain/leitner";
+import type { MissedLine } from "@/domain/return-visit";
 import styles from "./QuickRun.module.css";
 
 /** `missed` holds the page lines behind the checks that were wrong or not sure, so the result can point back to them. */
@@ -50,8 +51,38 @@ function acceptedNote(how: NonNullable<CheckVerdict["how"]>, word: string) {
   return `Counted. The gap was just “${word}”.`;
 }
 
-export function QuickRun({ run, onRevealSource, onShowLine, onFinish, onChecksDone, context, readFirst = false, known, recalled, courseType = "real" }: {
+/** The words of a line worth marking for this question: the answer itself when the line holds it. */
+function Highlight({ line, words }: { line: string; words: string[] }) {
+  const usable = words.filter((word) => word && word.length >= 3 && line.toLocaleLowerCase().includes(word.toLocaleLowerCase()));
+  if (!usable.length) return <>{line}</>;
+  const pattern = new RegExp(`(${usable.map((word) => word.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")).join("|")})`, "giu");
+  return <>{line.split(pattern).map((part, index) => (index % 2 ? <mark key={index} className={styles.hl}>{part}</mark> : part))}</>;
+}
+
+/** Neighbouring key words the answer used, read as phrases: "hydrophobic core", not two separate words. */
+function saidPhrases(parts: Array<{ text: string; key: boolean; hit: boolean }>) {
+  const out: string[] = [];
+  let run: string[] = [];
+  const flush = () => { if (run.length) out.push(run.join(" ")); run = []; };
+  for (const part of parts) {
+    if (/^\s+$/.test(part.text)) continue;
+    if (part.key && part.hit) run.push(part.text.replace(/[^\p{L}\p{N}-]+/gu, ""));
+    else flush();
+  }
+  flush();
+  // A single short word ("lets", "cell") is not an idea from the notes on its own: only phrases and real terms count.
+  return [...new Set(out.map((phrase) => phrase.toLocaleLowerCase()))].filter((phrase) => phrase.includes(" ") || phrase.length >= 6);
+}
+
+const listed = (items: string[]) => items.length <= 1 ? items.join("") : `${items.slice(0, -1).join(", ")} and ${items[items.length - 1]}`;
+
+export function QuickRun({ run, onRevealSource, onShowLine, onFinish, onChecksDone, context, readFirst = false, known, recalled, courseType = "real", knownLines = [], nowIso, onLine }: {
   run: Run;
+  /** The lines recalled so far, with their streaks: where each answer moves its line in the five boxes. */
+  knownLines?: MissedLine[];
+  nowIso?: string;
+  /** Saves one answer's lines the moment it is given, so closing mid-topic keeps what was answered. */
+  onLine?: (quotes: string[], result: "right" | "missed") => void;
   courseType?: "real" | "sample";
   /** A topic met for the first time: its lines are read, one at a time, before anything is asked. */
   readFirst?: boolean;
@@ -76,14 +107,23 @@ export function QuickRun({ run, onRevealSource, onShowLine, onFinish, onChecksDo
   // Lines a student hid as not worth reading stay out of the reading for good, on this device.
   const [lines, setLines] = useState(() => (readFirst ? readingLines(run).filter((line) => !hiddenLines().has(line)) : []));
   // -1 once reading is over (or there is nothing to read); otherwise the last line shown so far.
-  const [reading, setReading] = useState(() => (lines.length >= 2 ? 0 : -1));
+  // Reading the lines first is offered, never imposed: the first question opens at once, with "Read the source first"
+  // beside it for anyone who wants the page before answering.
+  const [reading, setReading] = useState(-1);
   const [knownNow, setKnownNow] = useState<string[]>([]);
   const [change, setChange] = useState<"+1" | "−1">("+1");
   const [bump, setBump] = useState(0);
   const started = useRef(0);
   const firstResponseTracked = useRef(false);
   const total = run.checks.length;
-  const [step, setStep] = useState(0); // 0..total-1 = checks, total = explain
+  // The own-words question opens the run when the notes hold one (step 0); otherwise it closes it (step `total`).
+  const explainFirst = Boolean(run.explainFirst) && !onChecksDone;
+  const [step, setStep] = useState(0);
+  const checkAt = explainFirst ? step - 1 : step;
+  // The explanation's self-rating and coverage, kept while the checks after it are answered.
+  const [explainDone, setExplainDone] = useState<null | { self: SelfGrade; coverage: { hits: number; keys: number } | null }>(null);
+  const now = nowIso ?? new Date().toISOString();
+  const move = (quote: string, result: "right" | "missed" | "review") => lineMove({ quote, result, known: knownLines, nowIso: now });
   const [picked, setPicked] = useState<number | null>(null);
   const [typed, setTyped] = useState("");
   const [answered, setAnswered] = useState<null | { right: boolean; how?: CheckVerdict["how"]; unsure?: boolean; elsewhere?: string | null; given?: string; picked?: boolean; firstEver?: boolean }>(null);
@@ -109,11 +149,11 @@ export function QuickRun({ run, onRevealSource, onShowLine, onFinish, onChecksDo
     nextRef.current?.scrollIntoView({ block: "nearest", behavior: reduce ? "auto" : "smooth" });
   }, [answered, reduce]);
 
-  const onChecks = step < total;
-  const match = compared ? explainMatch(explained, run.explainAnswer, run.topic) : null;
+  const onChecks = checkAt >= 0 && checkAt < total;
+  const match = compared ? explainMatch(explained, run.explainAnswer, `${run.topic} ${run.explainGiven ?? ""}`.trim()) : null;
   // Below three key words there is too little to compare fairly, so nothing is highlighted or suggested.
   const useful = match && match.keys >= 3 && explained.trim() ? match : null;
-  const item = onChecks ? run.checks[step] : null;
+  const item = onChecks ? run.checks[checkAt] : null;
   const chips = item ? gapChoices(item, run) : [];
 
   /** A light tap on phones: a short one when right, a slightly longer one when not. Never on desktop. */
@@ -132,6 +172,8 @@ export function QuickRun({ run, onRevealSource, onShowLine, onFinish, onChecksDo
     // The very first line a student ever recalls: the moment to say what Kelus does with it.
     const firstEver = ok && !fromChips && known !== undefined && known.size === 0 && knownNow.length === 0;
     setAnswered({ right: ok, how: verdict.how, given, picked: fromChips, firstEver, elsewhere: ok ? null : whereAnswerBelongs(item, given, run.sentences) });
+    // A word tapped from four is recognised, not recalled: it moves no line, up or down.
+    if (!(ok && fromChips)) onLine?.([item.sourceQuote], ok ? "right" : "missed");
     if (ok) {
       setRight((count) => count + 1);
       if (!fromChips) { setKnownNow((list) => [...list, item.sourceQuote]); if (!known?.has(item.sourceQuote)) { setBump((count) => count + 1); setChange("+1"); } }
@@ -148,6 +190,7 @@ export function QuickRun({ run, onRevealSource, onShowLine, onFinish, onChecksDo
     if (!item || answered) return;
     recordFirstResponse("quick_check");
     setAnswered({ right: false, unsure: true });
+    onLine?.([item.sourceQuote], "missed");
     setUnsure((count) => count + 1);
     setMissed((list) => [...list, item.sourceQuote]);
     if (known?.has(item.sourceQuote) && !missed.includes(item.sourceQuote)) { setDrop((count) => count + 1); setChange("−1"); }
@@ -155,6 +198,8 @@ export function QuickRun({ run, onRevealSource, onShowLine, onFinish, onChecksDo
 
   function next() {
     if (onChecksDone && step + 1 >= total) { onChecksDone({ right, total, missed, known: knownNow }); return; }
+    // The own-words question came first: the last check ends the run, with the explanation's rating kept.
+    if (explainFirst && checkAt + 1 >= total) { finishWith(explainDone?.self ?? "partly", explainDone?.coverage ?? null, performance.now()); return; }
     setAnswered(null); setPicked(null); setTyped(""); setTapped(null); setFlag(null); setAround(false);
     setStep((current) => current + 1);
   }
@@ -166,6 +211,11 @@ export function QuickRun({ run, onRevealSource, onShowLine, onFinish, onChecksDo
     if (explained.trim() && !looksLikeWords(explained)) { setNudge(true); return; }
     recordFirstResponse("own_words");
     setCompared(true);
+    // A weak or unmeasurable answer is saved now, as the comparison shows it: closing before rating it keeps it.
+    // Only a rating can raise a line, and only with the comparison's agreement.
+    const lines = run.explainLines ?? [];
+    const now = explainMatch(explained, run.explainAnswer, `${run.topic} ${run.explainGiven ?? ""}`.trim());
+    if (lines.length && !(explained.trim() && now.keys >= 3 && now.suggest === "nailed")) onLine?.(lines, "missed");
     if (typeof window !== "undefined" && window.matchMedia("(min-width: 768px)").matches) onRevealSource();
   }
 
@@ -175,8 +225,20 @@ export function QuickRun({ run, onRevealSource, onShowLine, onFinish, onChecksDo
     trackEvent({ name: "study_response_recorded", format, read_first: readFirst, course_type: courseType });
   }
 
+  function finishWith(self: SelfGrade, coverage: { hits: number; keys: number } | null, at: number) {
+    onFinish({ right, total, unsure, self, explained, elapsedMs: Math.max(0, Math.round(at - started.current)), missed, known: knownNow, coverage });
+  }
+
+  /** The explanation rated: its lines saved by what the comparison showed, then on to the checks or the end. */
   function finish(self: SelfGrade, at: number) {
-    onFinish({ right, total, unsure, self, explained, elapsedMs: Math.max(0, Math.round(at - started.current)), missed, known: knownNow, coverage: useful ? { hits: useful.hits, keys: useful.keys } : null });
+    const coverage = useful ? { hits: useful.hits, keys: useful.keys } : null;
+    const lines = run.explainLines?.length ? run.explainLines : [];
+    // Only the comparison can put a line in a higher box, and only when the student agrees; a rating alone never does.
+    if (lines.length) onLine?.(lines, useful && useful.suggest === "nailed" && self === "nailed" ? "right" : "missed");
+    if (!explainFirst || total === 0) { finishWith(self, coverage, at); return; }
+    setExplainDone({ self, coverage });
+    setCompared(false);
+    setStep(1);
   }
 
   // In the explanation: ⌘↵ (Ctrl+Enter) compares; once compared, 1, 2 and 3 pick how close it was.
@@ -286,7 +348,8 @@ export function QuickRun({ run, onRevealSource, onShowLine, onFinish, onChecksDo
             </div>
           </motion.section>
         ) : item ? (
-          <motion.section key={`check-${step}`} className={styles.card} {...motionProps} aria-label={`Check ${step + 1} of ${total}`}>
+          <motion.section key={`check-${step}`} className={styles.card} {...motionProps} aria-label={`Check ${checkAt + 1} of ${total}`}>
+            {step === 0 && run.explainNote ? <p className={styles.thin}>{run.explainNote}</p> : null}
             {/* "Which idea does this describe? “…”": the ask as a small line, the quoted line as the title. */}
             {(() => {
               const at = item.prompt.indexOf("“");
@@ -313,10 +376,10 @@ export function QuickRun({ run, onRevealSource, onShowLine, onFinish, onChecksDo
                       // The picked answer answers back: a right one lifts for a beat, a wrong one shakes its head.
                       animate={reduce || !answered || picked !== index ? { opacity: 1, y: 0, scale: 1, x: 0 } : answered.right ? { opacity: 1, y: 0, scale: [1, 1.025, 1], x: 0 } : { opacity: 1, y: 0, scale: 1, x: [0, -5, 5, -3, 3, 0] }}
                       transition={reduce ? { duration: 0 } : answered && picked === index ? { duration: 0.34, ease: "easeOut" } : { duration: 0.22, ease: [0.22, 1, 0.36, 1], delay: 0.03 + index * 0.03 }}
-                      whileTap={reduce || answered ? undefined : { scale: 0.985 }}
+                      whileTap={reduce || answered ? undefined : { scale: 0.98 }}
                     >
                       {/* The number becomes the verdict in place, so the eye does not have to travel. */}
-                      <kbd aria-hidden="true">{isRight ? <motion.span className={styles.kbdMark} initial={reduce ? false : { scale: 0, rotate: -30 }} animate={{ scale: 1, rotate: 0 }} transition={{ type: "spring", bounce: 0.4, duration: 0.4 }}><Tick size={12} /></motion.span> : isWrong ? <Cross size={12} /> : index + 1}</kbd>
+                      <kbd aria-hidden="true">{isRight ? <motion.span className={styles.kbdMark} initial={reduce ? false : { scale: 0, rotate: -30 }} animate={{ scale: 1, rotate: 0 }} transition={{ type: "spring", bounce: 0, duration: 0.3 }}><Tick size={12} /></motion.span> : isWrong ? <Cross size={12} /> : index + 1}</kbd>
                       <span>{choice}</span>
                     </motion.button>
                   );
@@ -348,34 +411,45 @@ export function QuickRun({ run, onRevealSource, onShowLine, onFinish, onChecksDo
               </div>
             ) : null}
 
-            {!answered ? <button type="button" className={styles.unsure} onClick={notSure}>{w.notSure}</button> : null}
+            {!answered ? (
+              <div className={styles.beforeAnswer}>
+                <button type="button" className={styles.unsure} onClick={notSure}>{w.notSure}</button>
+                {step === 0 && lines.length >= 2 ? <button type="button" className={styles.unsure} onClick={() => setReading(0)}>{w.readFirst}</button> : null}
+              </div>
+            ) : null}
 
             {answered ? (
-              <motion.div className={`${styles.feedback} ${answered.right ? styles.ok : answered.unsure ? styles.unsure : styles.no}`} role="status" initial={reduce ? false : touch ? { opacity: 1, y: "100%" } : { opacity: 0, y: 8, scale: 0.98 }} animate={{ opacity: 1, y: 0, scale: 1 }} transition={touch ? { type: "spring", bounce: 0, duration: 0.38 } : { type: "spring", bounce: 0, duration: 0.28 }}>
+              <motion.div className={`${styles.feedback} ${answered.right ? styles.ok : answered.unsure ? styles.unsure : styles.no}`} role="status" initial={reduce ? false : { opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.2, ease: [0.22, 1, 0.36, 1] }}>
                 <strong>{answered.right ? <PackArt name="check" className={styles.mark} /> : null}{answered.unsure ? (item.kind === "cloze" ? w.itWas(item.modelAnswer) : w.lineFrom) : answered.right ? (answered.picked ? w.picked : answered.firstEver ? w.firstRight : w.right) : item.kind === "cloze" ? w.notQuiteWas(item.modelAnswer) : w.notQuite}</strong>
-                {/* Where this answer puts the line in the five boxes, moved as you watch. Not for a shrug: nothing was tried. */}
-                {answered.unsure ? null : <LineMove quote={item.sourceQuote} right={answered.right} nowIso={new Date().toISOString()} />}
+                {/* The mistaken idea in one sentence, from the notes alone: what this line is about, and what was picked. */}
+                {!answered.right && !answered.unsure && item.kind === "choice" && item.modelAnswer.split(/\s+/).length <= 5 ? (
+                  <p className={styles.why}>This line is about <b>{item.modelAnswer}</b>{answered.given && answered.given !== item.modelAnswer ? <>, not {answered.given}</> : null}.{answered.elsewhere ? <> {answered.given} is a different line of your notes, shown below.</> : null}</p>
+                ) : null}
+                {/* The supporting line, with the words that answer the question marked. */}
                 {around && linesAround(run, item.sourceQuote) ? (
                   <div className={styles.around} aria-label="This line in your notes">
                     {linesAround(run, item.sourceQuote)!.before ? <p>{linesAround(run, item.sourceQuote)!.before}</p> : null}
-                    <p className={styles.aroundLine}>{linesAround(run, item.sourceQuote)!.line}</p>
+                    <p className={styles.aroundLine}><Highlight line={linesAround(run, item.sourceQuote)!.line} words={item.modelAnswer.split(/\s+/).length <= 5 ? [item.modelAnswer] : []} /></p>
                     {linesAround(run, item.sourceQuote)!.after ? <p>{linesAround(run, item.sourceQuote)!.after}</p> : null}
                   </div>
-                ) : <p className={styles.quote}>“{item.sourceQuote}”</p>}
-                {/* Accepted on purpose, and said so: the student sees the notes' own word, not a silent pass. */}
-                {answered.right && item.kind === "cloze" && answered.how && answered.how !== "exact" ? <p className={styles.accepted}>{acceptedNote(answered.how, item.modelAnswer)}</p> : null}
-                {answered.firstEver ? <p className={styles.firstNote}><PackArt name="ranking" className={styles.firstArt} size={64} /><span>Kelus brings it back in a few days, just before you’d forget it, so it sticks for the exam.</span></p> : null}
-                <div className={styles.lineTools}>
-                  <ListenButton key={`listen-q-${step}`} text={item.sourceQuote} className={styles.listen} label={w.listen} stopLabel={w.stop} />
-                  {!answered.right && onShowLine ? <button type="button" className={styles.listen} onClick={() => onShowLine(item.sourceQuote)}>{w.seeOnPage}</button> : !answered.right && !around && linesAround(run, item.sourceQuote) ? <button type="button" className={styles.listen} onClick={() => setAround(true)}>{w.showInNotes}</button> : null}
-                </div>
+                ) : <p className={styles.quote}>“<Highlight line={item.sourceQuote} words={item.modelAnswer.split(/\s+/).length <= 5 ? [item.modelAnswer] : []} />”</p>}
                 {answered.elsewhere ? (
                   <div className={styles.elsewhere}>
                     <span>{answered.given && !/\s/.test(answered.given) ? w.belongsWord(answered.given) : w.belongs}</span>
                     <p>“{answered.elsewhere}”</p>
                   </div>
                 ) : null}
-                <button ref={nextRef} type="button" className={`k-btn ${styles.primary}`} onClick={next}>{step + 1 >= total ? (onChecksDone ? w.seeHow : w.sayIt) : w.next} <ArrowRight /></button>
+                {/* Accepted on purpose, and said so: the student sees the notes' own word, not a silent pass. */}
+                {answered.right && item.kind === "cloze" && answered.how && answered.how !== "exact" ? <p className={styles.accepted}>{acceptedNote(answered.how, item.modelAnswer)}</p> : null}
+                {/* What Kelus does with this answer, from the same rule the five boxes use. */}
+                <p className={styles.consequence} data-result={answered.right ? "right" : "missed"}>
+                  {answered.right && answered.picked ? "Tapped from four words, so it counts for this check but doesn’t move the line." : move(item.sourceQuote, answered.right ? "right" : "missed").text}
+                </p>
+                <div className={styles.lineTools}>
+                  <ListenButton key={`listen-q-${step}`} text={item.sourceQuote} className={styles.listen} label={w.listen} stopLabel={w.stop} />
+                  {!answered.right && onShowLine ? <button type="button" className={styles.listen} onClick={() => onShowLine(item.sourceQuote)}>{w.seeOnPage}</button> : !answered.right && !around && linesAround(run, item.sourceQuote) ? <button type="button" className={styles.listen} onClick={() => setAround(true)}>{w.showInNotes}</button> : null}
+                </div>
+                <button ref={nextRef} type="button" className={`k-btn ${styles.primary}`} onClick={next}>{checkAt + 1 >= total ? (onChecksDone || explainFirst ? w.seeHow : w.sayIt) : w.next} <ArrowRight /></button>
                 {/* A bad question is the student's to call. One tap counts it and drops it from later runs; its words
                     go to the Kelus team only on a second, explicit tap. */}
                 <div className={styles.flag}>
@@ -413,39 +487,50 @@ export function QuickRun({ run, onRevealSource, onShowLine, onFinish, onChecksDo
             {!compared ? (
               <div className={styles.row}>
                 <button type="button" className={`k-btn ${styles.primary}`} onClick={compare}>{w.compare}<kbd className={styles.key} aria-hidden="true">{modKey}↵</kbd></button>
-                {!explained.trim() || nudge ? <button type="button" className={styles.link} onClick={() => { recordFirstResponse("own_words"); setExplained(""); setNudge(false); setCompared(true); }}>{w.dontRemember}</button> : null}
+                {!explained.trim() || nudge ? <button type="button" className={styles.link} onClick={() => { recordFirstResponse("own_words"); setExplained(""); setNudge(false); setCompared(true); if (run.explainLines?.length) onLine?.(run.explainLines, "missed"); }}>{w.dontRemember}</button> : null}
+                {explainFirst && step === 0 && lines.length >= 2 ? <button type="button" className={styles.link} onClick={() => setReading(0)}>{w.readFirst}</button> : null}
               </div>
             ) : (
-              <motion.div className={styles.compare} initial={reduce ? false : { opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.25 }}>
-                <div>
-                  <span>{w.yourWords}</span>
-                  <p>{explained.trim() || "Nothing written."}</p>
-                </div>
-                <div>
-                  <span>{w.pageSays}</span>
-                  <p>
-                    {useful
-                      ? useful.parts.map((part, index) => (part.key ? <mark key={index} className={part.hit ? styles.hit : part.flip ? styles.flip : styles.miss} title={part.flip ? `You wrote “${part.flip}”` : undefined} style={{ animationDelay: `${120 + index * 18}ms` }}>{part.text}</mark> : part.text))
-                      : run.explainAnswer}
-                  </p>
-                </div>
-                {useful ? (
-                  // How much of the page's idea you said, as a meter and the words you left out as chips: no sentence.
-                  <div className={styles.coverage} role="status" aria-label={`You used ${useful.hits} of ${useful.keys} key words.${useful.missed.length ? ` Left out: ${useful.missed.slice(0, 3).join(", ")}.` : ""}`}>
-                    <span className={styles.meter} aria-hidden="true">
-                      <b>{useful.hits}<small>/{useful.keys}</small></b>
-                      <span className={styles.meterTrack}><motion.i initial={reduce ? false : { scaleX: 0 }} animate={{ scaleX: useful.keys ? useful.hits / useful.keys : 0 }} transition={{ type: "spring", bounce: 0, duration: 0.7, delay: 0.2 }} /></span>
-                      <span>{w.keyWords}</span>
-                    </span>
-                    {useful.missed.length ? (
-                      <span className={styles.missedWords} aria-hidden="true">
-                        <em>{w.leftOut}</em>
-                        {useful.missed.slice(0, 3).map((word, index) => <motion.span key={word} initial={reduce ? false : { opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.35 + index * 0.06, duration: 0.2 }}>{word}</motion.span>)}
-                      </span>
-                    ) : useful.flipped.length ? null : <span className={styles.allIn} aria-hidden="true"><Octicon name="check-circle" size={14} /> {w.allIn}</span>}
-                    {useful.flipped.length ? <p className={styles.flipNote}>Check the direction: you wrote <b>{useful.flipped[0].said}</b> where your notes say <b>{useful.flipped[0].page}</b>.</p> : null}
-                  </div>
-                ) : null}
+              <motion.div className={styles.compare} initial={reduce ? false : { opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}>
+                {(() => {
+                  const said = useful ? saidPhrases(useful.parts) : [];
+                  const lines = run.explainLines?.length ? run.explainLines : [run.explainQuote];
+                  const result: "right" | "missed" | "review" = !explained.trim() ? "missed" : !useful ? "review" : useful.suggest === "nailed" ? "right" : "missed";
+                  const plural = lines.length > 1;
+                  const said2 = (text: string) => (plural ? text.replace(/^This line/, "These lines").replace(/\b(moves|stays|goes|comes)\b/g, (verb) => verb.slice(0, -1)).replace(/the line /, "the lines ") : text);
+                  const consequence = said2(move(lines[0], result).text);
+                  const at = useful ? run.explainQuote.indexOf(run.explainAnswer) : -1;
+                  return (
+                    <>
+                      <strong className={styles.verdict} data-result={result}>{!explained.trim() ? "Nothing written yet." : !useful ? "Needs review." : useful.suggest === "nailed" ? "Your answer has the key ideas." : useful.suggest === "partly" ? "Partly there." : "Not yet."}</strong>
+                      {/* 1. What was right, in the notes' own words. */}
+                      {said.length ? <p className={styles.gotRight}>You said {listed(said.slice(0, 4).map((phrase) => `“${phrase}”`))}.</p> : null}
+                      {/* 2. What is missing or reversed, in one or two sentences. */}
+                      {useful && useful.missed.length ? <p className={styles.why}>Your answer leaves out {listed(useful.missed.slice(0, 3).map((phrase) => `“${phrase}”`))}.</p> : null}
+                      {useful?.flipped.length ? <p className={styles.why}>Check the direction: you wrote <b>{useful.flipped[0].said}</b> where your notes say <b>{useful.flipped[0].page}</b>.</p> : null}
+                      {!useful && explained.trim() ? <p className={styles.why}>There are too few key words in this part of your notes to compare your answer fairly, so Kelus won’t grade it. Compare it with the passage yourself.</p> : null}
+                      <div className={styles.yours}>
+                        <span>{w.yourWords}</span>
+                        <p>{explained.trim() || "Nothing written."}</p>
+                      </div>
+                      {/* 3. The passage it is checked against, with the key words marked: used, left out, or reversed. */}
+                      <div className={styles.passage}>
+                        <span>{w.pageSays}</span>
+                        <p>
+                          {useful && at >= 0 ? (
+                            <>
+                              {run.explainQuote.slice(0, at)}
+                              {useful.parts.map((part, index) => (part.key ? <mark key={index} className={part.hit ? styles.hit : part.flip ? styles.flip : styles.miss} title={part.flip ? `You wrote “${part.flip}”` : undefined} style={{ animationDelay: `${80 + index * 14}ms` }}>{part.text}</mark> : part.text))}
+                              {run.explainQuote.slice(at + run.explainAnswer.length)}
+                            </>
+                          ) : run.explainQuote}
+                        </p>
+                      </div>
+                      {/* 4. What Kelus does with it. A right answer needs the student's agreement as well as the comparison. */}
+                      <p className={styles.consequence} data-result={result}>{result === "right" ? `Mark it “Nailed it” and ${consequence.charAt(0).toLowerCase()}${consequence.slice(1)}` : consequence}</p>
+                    </>
+                  );
+                })()}
                 {!explained.trim() ? (
                   <div className={styles.grades}>
                     <p>No answer to rate yet. This line will come back.</p>

@@ -8,8 +8,8 @@ test("a CV is not turned into a study plan without asking, and the student can s
   await page.getByRole("button", { name: "Use these notes" }).click();
   await expect(page.getByRole("heading", { name: "Is this a file to revise?" })).toBeVisible();
   await expect(page.locator(".first-source-kind")).toContainText("This looks like a CV, not course notes.");
-  await expect(page.getByRole("button", { name: /^Use \d+ topics?$/ })).toBeHidden();
+  await expect(page.getByRole("button", { name: "Start revising" })).toBeHidden();
   await page.getByRole("button", { name: "Use it anyway" }).click();
   await expect(page.getByRole("heading", { name: "Check the topics Kelus found." })).toBeVisible();
-  await expect(page.getByRole("button", { name: /^Use \d+ topics?$/ })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Start revising" })).toBeVisible();
 });

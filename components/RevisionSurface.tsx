@@ -19,6 +19,7 @@ import { AutoStart } from "@/components/AutoStart";
 import { ankiCards } from "@/domain/anki-export";
 import { PackArt, type PackArtName } from "@/components/PackArt";
 import { AppTabBar } from "@/components/AppTabBar";
+import { ProgressSummary } from "@/components/ProgressSummary";
 import { AiSetting } from "@/components/AiConsent";
 import { AiPrefetch } from "@/components/AiPrefetch";
 import { InlineName } from "@/components/InlineName";
@@ -42,11 +43,15 @@ import { removeRemoteMaterial } from "@/lib/material-sync";
 export type SurfaceMode = "today" | "materials" | "map" | "progress";
 
 const MODES: Array<{ id: SurfaceMode; label: string; art: PackArtName; tone: "green" | "marigold" | "iris" }> = [
-  { id: "today", label: "Study plan", art: "list-check", tone: "green" },
+  { id: "today", label: "Study", art: "list-check", tone: "green" },
   { id: "materials", label: "Materials", art: "folder", tone: "marigold" },
   { id: "map", label: "Topics", art: "diagram-project", tone: "iris" },
   { id: "progress", label: "Progress", art: "award", tone: "iris" },
 ];
+/** Three destinations a student understands at once. Topics (rename, remove, Anki, checkpoints) opens from Materials,
+ * where the topics come from; its address still works and keeps Materials lit. */
+const NAV = MODES.filter((item) => item.id !== "map");
+const navActive = (mode: SurfaceMode) => (mode === "map" ? "materials" : mode);
 
 
 const pressSpring = { type: "spring", bounce: 0, duration: 0.24 } as const;
@@ -103,6 +108,20 @@ export function RevisionSurface({ topicId }: { /** A topic's own page, opened in
   const searchKeys = useSyncExternalStore(noSubscribe, searchKeysNow, () => "");
   const materials = useSyncExternalStore(subscribeMaterials, getMaterialsSnapshot, getServerMaterialsSnapshot);
   const mode = topicId ? "map" : modeFromSection(searchParams.get("section"));
+  // A section opened from the sidebar starts at its heading, with focus there, never halfway down where the last one
+  // was scrolled. Back and Forward leave the browser's own scroll restoring alone.
+  const switched = useRef(false);
+  useEffect(() => {
+    if (!switched.current) return;
+    switched.current = false;
+    window.scrollTo({ top: 0, behavior: "auto" });
+    document.querySelectorAll<HTMLElement>(".studio-main, .revision-surface-main, main#main").forEach((node) => { node.scrollTop = 0; });
+    const heading = document.getElementById(mode === "today" ? "today-title" : "section-title");
+    if (heading) {
+      if (!heading.hasAttribute("tabindex")) heading.setAttribute("tabindex", "-1");
+      heading.focus({ preventScroll: true });
+    }
+  }, [mode]);
   // The tab says where you are, like any good app: "Topics · Cell biology — Kelus".
   const tabSection = topicId ? state.snapshot.concepts.find((item) => item.id === topicId)?.name : MODES.find((item) => item.id === mode)?.label;
   const tabCourse = state.snapshot.courses[0]?.name;
@@ -212,6 +231,7 @@ export function RevisionSurface({ topicId }: { /** A topic's own page, opened in
 
   function setMode(next: SurfaceMode) {
     if (next === mode && !topicId) return;
+    switched.current = true;
     // A real step in history, so the browser's Back returns to the section you came from.
     router.push(hrefForMode(next, selectedMaterialId, sourceBesidePlan), { scroll: false });
   }
@@ -268,8 +288,8 @@ export function RevisionSurface({ topicId }: { /** A topic's own page, opened in
           {searchKeys ? <kbd>{searchKeys}</kbd> : null}
         </button>
         <nav className="studio-nav revision-surface-modes" aria-label="Revision sections">
-          {MODES.map((item) => {
-            const active = item.id === mode;
+          {NAV.map((item) => {
+            const active = item.id === navActive(mode);
             return (
               <motion.button
                 key={item.id}
@@ -370,7 +390,11 @@ export function RevisionSurface({ topicId }: { /** A topic's own page, opened in
             <div className="kelus-space-identity">
               {/* Sections swap at once, as pages do in Notion: no waiting for the old one to leave. */}
               <h1 id="section-title">{modeMeta.label}</h1>
-            </div>          </header>
+            </div>
+            {/* Topics lives inside Materials: one quiet way in, one way back. */}
+            {mode === "materials" ? <button type="button" className="text-btn studio-section-link" onClick={() => setMode("map")}>Edit topics</button> : null}
+            {mode === "map" ? <button type="button" className="text-btn studio-section-link" onClick={() => setMode("materials")}>Back to Materials</button> : null}
+          </header>
         ) : null}
 
         {/* The new section is on screen the frame after the click; a short settle of its ink, never an exit to wait for. */}
@@ -421,10 +445,39 @@ export function RevisionSurface({ topicId }: { /** A topic's own page, opened in
             ) : null}
             {mode === "materials" ? <div className={`core-workspace-grid is-materials${hasReadableSource ? "" : " is-source-missing"}`}>{hasReadableSource ? <CourseSourceReader key={selectedMaterial.id} material={selectedMaterial} /> : null}<div className="core-workspace-action"><MaterialLibrary embedded incomingFile={incomingSource} onIncomingFileHandled={() => setIncomingSource(null)} interceptFile={isSampleCourse ? (file) => { setSampleFile(file); return true; } : undefined} /></div></div> : null}
             {mode === "map" ? <TopicMapPanel /> : null}
-            {mode === "progress" ? <ProgressView concepts={concepts} activities={snapshot.learningActivities} events={snapshot.events} nowIso={nowIso} daysToExam={days} targetPercent={exam.targetPercent} examDatePending={examDatePending} /> : null}
+            {mode === "progress" ? (
+              <div className="progress-simple">
+                <ProgressSummary concepts={concepts} activities={snapshot.learningActivities} events={snapshot.events} nowIso={nowIso} openTopicId={openSession ? String(resumeAllocation?.conceptId ?? "") : undefined} />
+                {/* What comes after Study's one topic: tomorrow, the next topics, the exam date and reminders. */}
+                <TodayRoute
+                  part="later"
+                  route={route}
+                  concepts={concepts}
+                  activities={snapshot.learningActivities}
+                  events={snapshot.events}
+                  sessions={snapshot.sessions}
+                  examTarget={exam.target}
+                  targetPercent={exam.targetPercent}
+                  daysToExam={days}
+                  isSampleCourse={isSampleCourse}
+                  hasCoursePdf={hasCoursePdf}
+                  examDatePending={examDatePending}
+                  onSetExamDate={setExamDate}
+                  reminder={{ courseName: course.name, examDate: exam.examDate.slice(0, 10), minutes: exam.availableMinutes }}
+                  onStart={openSession ? resume : begin}
+                  focus={resumeAllocation}
+                  relationships={snapshot.relationships}
+                />
+                {/* The machinery, for anyone who wants it: the review schedule, the five boxes, the counts. */}
+                <details className="progress-details">
+                  <summary>Review schedule and details</summary>
+                  <ProgressView concepts={concepts} activities={snapshot.learningActivities} events={snapshot.events} nowIso={nowIso} daysToExam={days} targetPercent={exam.targetPercent} examDatePending={examDatePending} />
+                </details>
+              </div>
+            ) : null}
           </motion.div>}
         </main>
-        <AppTabBar tabs={MODES} active={mode} onSelect={setMode} />
+        <AppTabBar tabs={NAV} active={navActive(mode)} onSelect={setMode} />
       </div>
       {sampleFile ? (
         <SampleReplaceConfirm

@@ -11,7 +11,7 @@ for (const viewport of [{ width: 1440, height: 900 }, { width: 390, height: 844 
     await expect(lead).toHaveCSS("border-right-style", "none");
     await expect(lead).toHaveCSS("box-shadow", "none");
     await expect(lead).toHaveCSS("background-color", "rgba(0, 0, 0, 0)");
-    await expect(page.locator('[data-block="today-page-folio"] li').first()).toHaveCSS("background-color", "rgba(0, 0, 0, 0)");
+    await expect(page.locator('[data-block="today-page-folio"]')).toHaveCSS("background-color", "rgba(0, 0, 0, 0)");
     await expect(page.locator('[data-action="start-topic"]')).toBeVisible();
     await page.screenshot({ path: `/tmp/kelus-quiet-today-${viewport.width}.png`, fullPage: true });
 
