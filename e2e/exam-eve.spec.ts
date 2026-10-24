@@ -10,6 +10,8 @@ test("three days before the exam the plan opens on a calm countdown counted from
   await expect(page.getByRole("region", { name: /lines\.$/ })).toHaveCount(0);
   // Two days out: three can land on a fourth calendar day near midnight, outside the window.
   await saveExamDate(page, 2);
+  // The date is set on Progress; the countdown opens Study.
+  await page.goto("/today");
   const eve = page.getByRole("region", { name: /^You can recall \d+ of \d+ lines\.$/ });
   await expect(eve).toBeVisible();
   await expect(eve).toContainText(/\d days to your exam|Your exam is tomorrow/);

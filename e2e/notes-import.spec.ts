@@ -1,6 +1,6 @@
 import { readFileSync } from "node:fs";
 import { expect, test } from "@playwright/test";
-import { nudgesAlreadyOn, startBuiltPlan, closeToToday, expectFirstPrompt, gotoStart, startFromFile, startFromPaste, topicNames, skipReading } from "./helpers";
+import { openSection, nudgesAlreadyOn, startBuiltPlan, closeToToday, expectFirstPrompt, gotoStart, startFromFile, startFromPaste, topicNames, skipReading } from "./helpers";
 
 const notion = readFileSync("tests/fixtures/notion-export.md", "utf8");
 const mdFile = { name: "cell-biology.md", mimeType: "text/markdown", buffer: Buffer.from(notion) };
@@ -29,7 +29,7 @@ test("skipping a memory answer cannot be marked as mastered", async ({ page }) =
   await expect(page.getByText("No answer to rate yet. This line will come back.")).toBeVisible();
   await expect(page.getByRole("button", { name: /Nailed it|Partly/ })).toHaveCount(0);
   await page.getByRole("button", { name: /^Continue/ }).click();
-  await expect(page.getByText(/Needs another attempt/).first()).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Needs another attempt." })).toBeVisible();
 });
 
 test("notes too short to study from get a plain reason, and nothing is saved", async ({ page }) => {
@@ -82,16 +82,17 @@ test("the original notes stay within reach of the study plan", async ({ page }) 
   await notesButton.click();
   await expect(page.locator(".core-workspace-grid.is-notes-open .core-source-reader")).toBeVisible();
   await expect(page.locator(".core-workspace-grid.is-notes-open .core-source-reader")).toContainText("cell biology");
-  await expect.poll(async () => page.locator('[data-block="today-next"]').evaluate((section) => {
+  // Beside the open notes, the next topic and its action still fit their column.
+  await expect.poll(async () => page.locator('[data-block="today-lead"]').evaluate((section) => {
     const edge = section.getBoundingClientRect();
-    return [...section.querySelectorAll("li strong")].every((name) => {
+    return [...section.querySelectorAll("#today-title, button")].every((name) => {
       const rect = name.getBoundingClientRect();
       return rect.left >= edge.left - 1 && rect.right <= edge.right + 1;
     });
   })).toBe(true);
   await page.screenshot({ path: "/tmp/kelus-today-with-notes-desktop.png", fullPage: true });
   await page.getByRole("button", { name: "Materials", exact: true }).first().click();
-  await page.getByRole("button", { name: "Study plan", exact: true }).first().click();
+  await page.getByRole("button", { name: "Study", exact: true }).first().click();
   await expect(page.locator(".core-workspace-grid.is-notes-open .core-source-reader")).toBeVisible();
   await page.getByRole("button", { name: "Hide notes" }).click();
   await expect(page.locator(".core-workspace-grid.is-notes-open")).toHaveCount(0);
@@ -123,6 +124,8 @@ test("the daily reminder waits for a real exam date, then repeats until it", asy
   await closeToToday(page);
   // No date yet: Kelus asks for it instead of offering a reminder that would end on a made-up day.
   await expect(page.getByRole("region", { name: "Make it a daily habit" })).toHaveCount(0);
+  // The exam date, and the reminder that follows it, are asked on Progress.
+  await openSection(page, "Progress");
   const ask = page.getByRole("region", { name: "When is your exam?" });
   await expect(ask).toBeVisible();
   const exam = new Date(Date.now() + 9 * 86_400_000).toISOString().slice(0, 10);
@@ -222,7 +225,7 @@ test("a topic that is not real can be removed from the question screen, and undo
   const before = await topicNames(page);
   expect(before).toContain(title);
   await page.goto("/today");
-  await page.getByRole("button", { name: /Start this topic|Continue/ }).first().click();
+  await page.getByRole("button", { name: /^(Start|Continue) revising/ }).first().click();
   await expect(page).toHaveURL(/\/session/);
   const more = page.getByRole("button", { name: "More session options" });
   await more.click();
@@ -238,6 +241,7 @@ test("a topic that is not real can be removed from the question screen, and undo
 test("the exam date is asked after the first run, not before, and a real date turns on the countdown", async ({ page }) => {
   await startFromFile(page, mdFile);
   await closeToToday(page);
+  await openSection(page, "Progress");
   await expect(page.getByRole("group", { name: "Your path through the course" })).toContainText(/About \d+ study days? of work/);
   await expect(page.getByText(/days? to exam/)).toHaveCount(0);
   const ask = page.getByRole("region", { name: "When is your exam?" });

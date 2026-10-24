@@ -1,0 +1,67 @@
+/* Progress as a marked page: the student's notes on a sheet, a highlighter over every line answered right, a red
+   wavy underline under every miss, and a pen mark in the margin for each topic. */
+.wrap { display: grid; gap: 20px; }
+
+.head { display: grid; gap: 8px; max-width: 760px; }
+.wrap .big { margin: 0; color: var(--k-ink); font-family: var(--font-source-serif), Literata, Georgia, serif !important; font-size: clamp(1.625rem, 1.8vw + 1rem, 2.25rem) !important; font-weight: 500 !important; letter-spacing: -0.01em; line-height: 1.2; text-wrap: balance; }
+.num { color: var(--k-green); font-variant-numeric: tabular-nums; }
+.sub { margin: 0; color: var(--k-text-2); font-size: 0.9375rem; line-height: 1.55; }
+
+/* The sheet: paper with a ruled margin, set in the notes' own serif. */
+.sheet {
+  --hl: color-mix(in srgb, var(--k-green) 26%, transparent);
+  --rule: color-mix(in srgb, var(--k-coral) 28%, transparent);
+  position: relative;
+  display: grid;
+  gap: 4px;
+  margin-top: 8px;
+  padding: 36px 44px 32px 0;
+  border: 1px solid var(--k-line);
+  border-radius: 12px;
+  background: linear-gradient(to right, transparent 71px, var(--rule) 71px, var(--rule) 72px, transparent 72px), transparent;
+  box-shadow: 0 1px 0 var(--k-line), 0 18px 40px -28px rgba(14, 21, 18, 0.28);
+}
+.topic { display: grid; grid-template-columns: 72px minmax(0, 1fr); padding: 14px 0; }
+.topic + .topic { border-top: 1px dashed var(--k-line); }
+.margin { display: flex; justify-content: center; padding-top: 2px; }
+.body { min-width: 0; padding-left: 24px; }
+
+.body h3 { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 14px; margin: 0 0 6px; font-family: var(--font-source-serif), Literata, Georgia, serif !important; font-size: 1.1875rem !important; font-weight: 600 !important; }
+.body h3 a { color: var(--k-ink); text-decoration: none; }
+.body h3 a:hover { text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 3px; }
+.note { color: var(--k-text-2); font-family: var(--font-inter), system-ui, sans-serif; font-size: 0.8125rem; font-weight: 500; }
+.topic[data-standing="solid"] .note { color: var(--k-green); }
+.topic[data-standing="partly"] .note { color: var(--k-marigold-text); }
+.topic[data-standing="work"] .note { color: var(--k-coral); }
+
+.lines { margin: 0; color: var(--k-text-2); font-family: var(--font-source-serif), Literata, Georgia, serif; font-size: 1rem; line-height: 1.75; max-width: 68ch; }
+.line[data-state="recalled"], .line[data-state="missed"] { color: var(--k-ink); }
+.ink { -webkit-box-decoration-break: clone; box-decoration-break: clone; padding: 0 3px; margin: 0 -3px; border-radius: 2px 6px 3px 5px; }
+/* The highlighter: a band swept left to right. */
+.line[data-state="recalled"] .ink { background-image: linear-gradient(var(--hl), var(--hl)); background-repeat: no-repeat; background-position: 0 86%; background-size: 100% 58%; }
+.line[data-state="missed"] .ink { text-decoration-line: underline; text-decoration-style: wavy; text-decoration-color: var(--k-coral); text-decoration-thickness: 1.5px; text-underline-offset: 4px; }
+.more { color: var(--k-text-2); font-family: var(--font-inter), system-ui, sans-serif; font-size: 0.8125rem; white-space: nowrap; }
+
+/* The margin mark: a single pen stroke. */
+.mark { width: 30px; height: 28px; overflow: visible; }
+.mark path { fill: none; stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; }
+.mark[data-standing="solid"] path { stroke: var(--k-green); }
+.mark[data-standing="partly"] path { stroke: var(--k-marigold-edge); }
+.mark[data-standing="work"] path { stroke: var(--k-coral); }
+
+.key { display: flex; flex-wrap: wrap; gap: 6px 22px; margin: 0; color: var(--k-text-2); font-size: 0.8125rem; }
+.key mark { padding: 0 3px; color: var(--k-ink); background: linear-gradient(color-mix(in srgb, var(--k-green) 26%, transparent), color-mix(in srgb, var(--k-green) 26%, transparent)) no-repeat 0 86% / 100% 58%; }
+.key u { color: var(--k-ink); text-decoration-style: wavy; text-decoration-color: var(--k-coral); text-underline-offset: 3px; }
+
+@media (max-width: 650px) {
+  .sheet { padding: 20px 18px 18px 0; background: linear-gradient(to right, transparent 43px, var(--rule) 43px, var(--rule) 44px, transparent 44px), transparent; }
+  .topic { grid-template-columns: 44px minmax(0, 1fr); }
+  .body { padding-left: 14px; }
+  .mark { width: 24px; height: 22px; }
+}
+
+/* Three counts that never blur: recalled, missed, not attempted. Each with the mark the sheet uses for it. */
+.tally { display: flex; flex-wrap: wrap; gap: 6px 22px; margin: 2px 0 0; padding: 0; list-style: none; color: var(--k-text-2); font-size: 0.9375rem; }
+.tally b { color: var(--k-ink); font-weight: 600; font-variant-numeric: tabular-nums; }
+.tally li[data-state="recalled"] b { padding: 0 3px; background: linear-gradient(color-mix(in srgb, var(--k-green) 26%, transparent), color-mix(in srgb, var(--k-green) 26%, transparent)) no-repeat 0 86% / 100% 58%; }
+.tally li[data-state="missed"] b { text-decoration: underline wavy var(--k-coral) 1.5px; text-underline-offset: 4px; }

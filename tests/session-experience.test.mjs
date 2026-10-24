@@ -91,7 +91,7 @@ test("today leads with one topic and shows evidence and next stops as secondary"
   assert.match(today, /id="today-title"/);
   assert.match(today, /today-page-folio/);
   assert.match(today, /whileTap/);
-  assert.match(today, /startLabel \?\? "Start this topic"/);
+  assert.match(today, /startLabel \? "Continue revising" : "Start revising"/);
   assert.match(today, /today-decision/);
   assert.match(today, /today-next/);
   assert.doesNotMatch(today, /today-plan-list|confidenceLabel|From your course/);

@@ -243,3 +243,22 @@ html body .pricing-page[data-marketing] :is(.cta, .k-btn, button) > span[aria-hi
 /* Pricing cards: hairline panels; the planned plan sits in a well. */
 html body .pricing-page[data-marketing] .pricing-plan-shell > * { border-radius: 16px !important; border-color: #e3e8e5 !important; }
 html body .pricing-page[data-marketing] .pricing-plan-shell:nth-child(2) > * { background: #f5f7f6 !important; }
+
+/* ── The session, simplified ───────────────────────────────────────────────────────────────────────────
+   Only the question, the answer, the correction from the source and the next action. The block's topic outline and
+   the separate sound button leave the screen; sound stays in the session's More menu. */
+html body.is-session-booklet :is(.block-outline-float, .session-workspace-rail) { display: none !important; }
+html body.is-session-booklet main#main.study-shell.is-focus { grid-template-columns: minmax(0, 1fr) !important; }
+html body.is-session-booklet [class*="QuickRun"][class*="mute"] { display: none !important; }
+
+/* ── Progress and Materials, simplified ────────────────────────────────────────────────────────────────
+   Progress: what improved and what needs work, then what comes next, then the details on request. */
+html body.is-course-studio .progress-simple { display: grid; gap: 40px; max-width: 1000px; margin: 28px 44px 56px; }
+html body.is-course-studio .progress-simple [class*="TodayQuiet"][class*="page"] { margin: 0 !important; padding: 0 !important; max-width: none !important; }
+html body.is-course-studio .progress-details { border-top: 1px solid var(--k-line); padding-top: 16px; }
+html body.is-course-studio .progress-details > summary { cursor: pointer; width: fit-content; min-height: 44px; display: inline-flex; align-items: center; color: var(--k-text-2); font-size: 0.9375rem; font-weight: 500; }
+html body.is-course-studio .progress-details > summary:hover { color: var(--k-ink); }
+html body.is-course-studio .progress-details[open] > summary { margin-bottom: 16px; }
+html body.is-course-studio .progress-details [class*="ProgressView"][class*="page"] { margin: 0 !important; width: auto !important; max-width: none !important; }
+html body.is-course-studio .studio-section-head .studio-section-link { margin-left: auto; min-height: 44px; color: var(--k-text-2); font-size: 0.9375rem; font-weight: 500; }
+@media (max-width: 650px) { html body.is-course-studio .progress-simple { margin: 16px 16px 40px; gap: 32px; } }

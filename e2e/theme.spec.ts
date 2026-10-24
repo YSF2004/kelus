@@ -22,5 +22,5 @@ test("switching appearance twice leaves the workspace usable and on the final ch
   await appearance.getByRole("radio", { name: "Dark" }).click();
   await appearance.getByRole("radio", { name: "Light" }).click();
   await expect(page.locator("html")).toHaveAttribute("data-theme", "light");
-  await expect(page.getByRole("button", { name: "Start this topic" })).toBeEnabled();
+  await expect(page.getByRole("button", { name: "Start revising" })).toBeEnabled();
 });

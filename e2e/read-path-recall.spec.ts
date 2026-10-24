@@ -10,7 +10,6 @@ async function begin(page: Page) {
   await page.locator("#paste-notes").fill(notes);
   await page.getByRole("button", { name: "Use these notes" }).click();
   await confirmImportedTopics(page);
-  await page.getByRole("button", { name: /^Start$/ }).click();
   await expect(page).toHaveURL(/\/session/, { timeout: 30_000 });
 }
 

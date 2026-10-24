@@ -290,3 +290,5 @@ html { -webkit-tap-highlight-color: transparent; }
 /* Opened from the home screen: no browser around it, so the page itself respects the notch and the home bar. */
 html.is-installed-app body { padding-top: env(safe-area-inset-top); }
 html.is-installed-app body { overscroll-behavior-y: none; }
+/* A heading focused after a section switch takes the focus quietly for a pointer, visibly for a keyboard. */
+h1[tabindex="-1"]:focus:not(:focus-visible), h2[tabindex="-1"]:focus:not(:focus-visible) { outline: none; }

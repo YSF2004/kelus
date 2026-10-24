@@ -1,5 +1,5 @@
 import { expect, test } from "@playwright/test";
-import { saveExamDate, startFromPaste, topicNames } from "./helpers";
+import { openTopics, saveExamDate, startFromPaste, topicNames } from "./helpers";
 
 const notes = "Cell biology\n\nOsmosis\nOsmosis is the movement of water across a partially permeable membrane from a dilute solution to a more concentrated solution. In a hypotonic solution a plant cell gains water and becomes turgid because the cell wall pushes back.\n\nEnzymes\nEnzymes are biological catalysts that speed up reactions without being used up. Each enzyme has an active site with a specific shape, so it only binds one substrate.\n\nDiffusion\nDiffusion is the net movement of particles from an area of higher concentration to an area of lower concentration. It is a passive process, so it needs no energy from the cell.";
 
@@ -22,7 +22,7 @@ test("Back returns to the section you came from", async ({ page }) => {
   await startFromPaste(page, notes);
   await page.goto("/today");
   const nav = page.locator('nav[aria-label="Revision sections"]');
-  await nav.getByRole("button", { name: "Topics", exact: true }).click();
+  await openTopics(page);
   await expect(page).toHaveURL(/section=map/);
   await nav.getByRole("button", { name: "Progress", exact: true }).click();
   await expect(page).toHaveURL(/section=progress/);
@@ -98,9 +98,9 @@ test("a section is on screen at once: no waiting for the old one to fade out", a
   // Watch every frame from the click: the first frame with the new section must already show it (no fade up from
   // nothing), and the old section must never sit on screen beside it while it leaves.
   const seen = await page.evaluate(() => new Promise<{ opacity: number; panels: number }>((resolve) => {
-    document.querySelector<HTMLButtonElement>('nav[aria-label="Revision sections"] button[data-mode="map"]')!.click();
+    document.querySelector<HTMLButtonElement>('nav[aria-label="Revision sections"] button[data-mode="materials"]')!.click();
     const tick = () => {
-      const row = document.querySelector(".revision-surface-panel .index-toc-row");
+      const row = document.querySelector(".revision-surface-panel .core-workspace-grid");
       if (row) resolve({ opacity: Number(getComputedStyle(row.closest(".revision-surface-panel")!).opacity), panels: document.querySelectorAll(".revision-surface-panel").length });
       else requestAnimationFrame(tick);
     };
@@ -127,15 +127,17 @@ test("⌘Z also takes back a rename, and a topic's page keeps the course sidebar
   await page.locator(".index-toc-row").first().click();
   await expect(page).toHaveURL(/\/concept/);
   const nav = page.locator('nav[aria-label="Revision sections"]');
-  await expect(nav.getByRole("button", { name: "Topics", exact: true })).toHaveAttribute("aria-pressed", "true");
+  // Topics opens from Materials, so a topic's page keeps Materials lit and one click goes back to it.
+  await expect(nav.getByRole("button", { name: "Materials", exact: true })).toHaveAttribute("aria-pressed", "true");
   await expect(page.getByRole("button", { name: /Study this topic|Study it again/ })).toBeVisible();
-  await nav.getByRole("button", { name: "Topics", exact: true }).click();
-  await expect(page).toHaveURL(/section=map/);
+  await nav.getByRole("button", { name: "Materials", exact: true }).click();
+  await expect(page).toHaveURL(/section=materials/);
 });
 
 test("⌘Z takes back a newly set exam date", async ({ page }) => {
   await startFromPaste(page, notes);
-  await page.goto("/today");
+  // The exam date and the pace are on Progress, with what comes after today's topic.
+  await page.goto("/today?section=progress");
   const pace = page.getByRole("group", { name: "Your path through the course" });
   await expect(page.getByRole("region", { name: "When is your exam?" })).toBeVisible();
   await saveExamDate(page, 9);

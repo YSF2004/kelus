@@ -15,7 +15,6 @@ test("reading shows the topics it found; a line can be listened to; a miss shows
   await expect(found).toContainText("Diffusion");
   if (shots) { await page.waitForTimeout(700); await page.screenshot({ path: `${shots}/found.png` }); }
   await confirmImportedTopics(page);
-  await page.getByRole("button", { name: /^Start$/ }).click();
   await expect(page.getByRole("region", { name: "Read it first" }).getByRole("button", { name: "Listen" })).toBeVisible();
   if (shots) await page.screenshot({ path: `${shots}/read-listen.png` });
   await skipReading(page);

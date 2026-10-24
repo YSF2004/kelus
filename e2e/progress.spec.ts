@@ -1,5 +1,5 @@
 import { expect, test, type Page } from "@playwright/test";
-import { closeToToday, startFromPaste, skipReading } from "./helpers";
+import { answerRun, closeToToday, openProgressDetails, startFromPaste, skipReading } from "./helpers";
 
 const notes = `# Osmosis
 Osmosis is the movement of water across a selectively permeable membrane from a region of low solute concentration to a region of high solute concentration. Water moves toward the side with more solute because the solute lowers the water potential there.
@@ -17,23 +17,18 @@ async function newCourse(page: Page) {
 
 async function playRun(page: Page) {
   await skipReading(page);
-  for (let guard = 0; guard < 6; guard += 1) {
-    await expect(page.locator('#run-explain, input[id^="run-gap"]:not([disabled]), [role="group"][aria-label="Choose one"] button:not([disabled])').first()).toBeVisible();
-    if (await page.locator("#run-explain").count()) break;
-    const gap = page.locator('input[id^="run-gap"]:not([disabled])');
-    if (await gap.count()) { await gap.fill("zzz"); await page.getByRole("button", { name: "Check", exact: true }).click(); }
-    else await page.getByRole("group", { name: "Choose one" }).getByRole("button").first().click();
-    await page.getByRole("button", { name: /^(Next|Now say it yourself)/ }).click();
-  }
-  await page.locator("#run-explain").fill("It moves water toward more solute.");
-  await page.getByRole("button", { name: /Compare with the page/ }).click();
-  await page.getByRole("button", { name: /Nailed it/ }).click();
+  await answerRun(page, { explanation: "It moves water toward more solute.", grade: "Nailed it" });
 }
 
 test("a brand-new course says it is too early instead of inventing a trend", async ({ page }) => {
   await newCourse(page);
   await page.getByRole("navigation", { name: "Revision sections" }).getByRole("button", { name: "Progress" }).click();
   await expect(page.getByRole("heading", { name: "Progress", level: 1 })).toBeVisible();
+  // Up top, in plain words: nothing practised yet. The schedule and counts are one closed row below.
+  await expect(page.getByText("Nothing practised yet. Answer a question and its line lights up here.")).toBeVisible();
+  // The sheet is the notes themselves, every topic on it, nothing marked yet.
+  await expect(page.getByRole("article", { name: "Your notes, marked by your answers" })).toContainText("Osmosis");
+  await openProgressDetails(page);
   await expect(page.locator("#progress-headline")).toHaveText("Your progress starts with a first answer.");
   await expect(page.locator("#progress-headline")).toBeVisible();
   // No estimate and no exam date: no row of dashes.
@@ -61,6 +56,7 @@ test("after answering, the screen counts the answers but still does not claim a 
 test("the sample course has history, so it shows a real trend with a chart and a pace line", async ({ page }) => {
   await page.goto("/today?sample=1");
   await page.getByRole("navigation", { name: "Revision sections" }).getByRole("button", { name: "Progress" }).click();
+  await openProgressDetails(page);
   await expect(page.locator("#progress-headline")).not.toContainText("Too early");
   await expect(page.getByRole("img", { name: /Estimated readiness over 14 days/ })).toBeVisible();
   await expect(page.getByRole("region", { name: "Pace to your target" })).toContainText("a day");
@@ -74,5 +70,7 @@ test("Progress is one click from Today, in the sections", async ({ page }) => {
   await newCourse(page);
   await page.locator('nav[aria-label="Revision sections"]').getByRole("button", { name: "Progress", exact: true }).click();
   await expect(page).toHaveURL(/section=progress/);
+  await expect(page.getByRole("article", { name: "Your notes, marked by your answers" })).toBeVisible();
+  await openProgressDetails(page);
   await expect(page.locator("#progress-headline")).toBeVisible();
 });
