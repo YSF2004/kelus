@@ -1,4 +1,5 @@
 import Script from "next/script";
+import { Suspense } from "react";
 import { GA_MEASUREMENT_ID } from "@/lib/analytics";
 import { GoogleAnalyticsPageViews } from "@/components/GoogleAnalyticsPageViews";
 
@@ -29,7 +30,9 @@ window.dispatchEvent(new Event("kelus-analytics-ready"));
     <>
       <Script src={`https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`} strategy="afterInteractive" />
       <Script id="kelus-ga-bootstrap" strategy="afterInteractive" dangerouslySetInnerHTML={{ __html: bootstrap }} />
-      <GoogleAnalyticsPageViews />
+      <Suspense fallback={null}>
+        <GoogleAnalyticsPageViews />
+      </Suspense>
     </>
   );
 }

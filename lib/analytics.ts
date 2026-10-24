@@ -3,6 +3,7 @@ export const GA_MEASUREMENT_ID =
 
 export type KelusAnalyticsEvent =
   | { name: "setup_started" }
+  | { name: "page_view"; page_path: string; page_location: string; page_title: string; send_to: string }
   | { name: "setup_completed"; available_minutes: number }
   | { name: "waitlist_joined"; source: string }
   | { name: "question_submitted"; source: string; delivery?: "remote" | "local" | "needs_activation" }
@@ -43,23 +44,34 @@ export function analyticsEnabled() {
 
 const pendingEvents: KelusAnalyticsEvent[] = [];
 let waitingForBootstrap = false;
+let pendingCohort: string | null = null;
 
 function flushPendingEvents() {
   if (typeof window.gtag !== "function") return;
+  if (pendingCohort) {
+    window.gtag("set", "user_properties", { pilot_cohort: pendingCohort });
+    pendingCohort = null;
+  }
   for (const pending of pendingEvents.splice(0)) {
     const { name, ...parameters } = pending;
     window.gtag("event", name, parameters);
   }
 }
 
+function waitForBootstrap() {
+  if (waitingForBootstrap) return;
+  waitingForBootstrap = true;
+  window.addEventListener("kelus-analytics-ready", () => {
+    waitingForBootstrap = false;
+    flushPendingEvents();
+  }, { once: true });
+}
+
 export function trackEvent(event: KelusAnalyticsEvent) {
   if (!analyticsEnabled()) return;
   if (typeof window.gtag !== "function") {
     if (pendingEvents.length < 100) pendingEvents.push(event);
-    if (!waitingForBootstrap) {
-      waitingForBootstrap = true;
-      window.addEventListener("kelus-analytics-ready", flushPendingEvents, { once: true });
-    }
+    waitForBootstrap();
     return;
   }
   flushPendingEvents();
@@ -69,6 +81,8 @@ export function trackEvent(event: KelusAnalyticsEvent) {
 
 /** Tags every later event from this browser with its pilot group, so a pilot's numbers can be filtered. */
 export function setPilotCohort(cohort: string | null) {
-  if (!cohort || !analyticsEnabled() || typeof window.gtag !== "function") return;
-  window.gtag("set", "user_properties", { pilot_cohort: cohort });
+  if (!cohort || !analyticsEnabled()) return;
+  pendingCohort = cohort;
+  if (typeof window.gtag === "function") flushPendingEvents();
+  else waitForBootstrap();
 }
