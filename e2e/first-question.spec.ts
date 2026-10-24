@@ -26,8 +26,13 @@ test("an existing course opens on a question worth thinking about; a wrong answe
   await expect(first.getByText(/^Your answer leaves out “hydrophobic core”/)).toBeVisible();
   await expect(first.getByText(/selectively permeable because its hydrophobic core lets small nonpolar molecules pass/)).toBeVisible();
   await expect(first.getByText("This line stays in Box 1. It comes back first in your next review.")).toBeVisible();
+  // Clear-cut: no three-way rating to make, one Continue goes on; the student can still rate it themselves.
+  await expect(first.getByRole("button", { name: /Nailed it/ })).toHaveCount(0);
+  await expect(first.getByRole("button", { name: "Continue" })).toBeVisible();
+  await first.getByRole("button", { name: "Rate it myself" }).click();
+  await expect(first.getByRole("button", { name: /Partly/ })).toBeVisible();
   // A single short word is not credited as a key idea.
-  await expect(first.getByText(/^You said/)).toHaveCount(0);
+  await expect(first.getByText(/^You covered/)).toHaveCount(0);
 
   // Close mid-topic: Study says what happened and what it means for the plan.
   await closeToToday(page);
@@ -49,7 +54,9 @@ test("a wrong quick check names the mistaken idea, marks the answer in the line,
   // Past the own-words question, to the checks.
   await page.locator("#run-explain").fill("Its hydrophobic core lets small nonpolar molecules pass but blocks ions and large polar molecules.");
   await page.getByRole("button", { name: /Compare with the page/ }).click();
-  await page.getByRole("button", { name: /Nailed it/ }).click();
+  // Every key idea, nothing reversed: one tap moves the line up, no self-rating asked.
+  await expect(page.getByText(/^This line moves from Box 1 to Box 2\. Kelus asks it again in 2 days\.$/)).toBeVisible();
+  await page.keyboard.press("Enter");
   const check = page.getByLabel(/^Check 1 of \d$/);
   await expect(check).toBeVisible();
   const gap = check.locator('input[id^="run-gap"]');

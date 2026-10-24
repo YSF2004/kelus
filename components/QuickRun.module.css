@@ -772,3 +772,6 @@
 .consequence[data-result="right"] { color: var(--k-ink); }
 .thin { margin: 0 0 10px; color: var(--k-text-2); font-size: 0.875rem; line-height: 1.5; }
 :global(html[data-theme="dark"]) .hl, :global(html.dark) .hl { background: linear-gradient(transparent 45%, color-mix(in srgb, var(--color-kelus) 45%, transparent) 45%); }
+/* One tap on when the comparison is clear-cut; rating it yourself is one quiet link away. */
+.compare > div.oneTap:not(.grades):not(.coverage) { padding: 0; border: 0; background: transparent; }
+.oneTap { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 18px; }

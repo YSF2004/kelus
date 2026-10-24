@@ -113,7 +113,7 @@ export async function answerRun(page: Page, input: { explanation: string; grade:
       explained = true;
       await page.locator("#run-explain").fill(input.explanation);
       await page.getByRole("button", { name: /Compare with the page/ }).click();
-      await page.getByRole("button", { name: new RegExp(input.grade) }).click();
+      await rateAnswer(page, input.grade);
       continue;
     }
     const gap = page.locator('input[id^="run-gap"]:not([disabled])');
@@ -157,7 +157,7 @@ export async function passOwnWords(page: Page, grade = "Missed it") {
   if (!(await explain.count())) return;
   await explain.fill("I am not sure what the notes say here.");
   await page.getByRole("button", { name: /Compare with the page/ }).click();
-  await page.getByRole("button", { name: new RegExp(grade) }).click();
+  await rateAnswer(page, grade);
   await expect(page.getByLabel(/^Check 1 of \d$/).or(page.getByRole("button", { name: /^(Continue to |Finish block)/ })).first()).toBeVisible();
 }
 
@@ -177,4 +177,16 @@ export async function shrugRun(page: Page) {
     await page.getByRole("button", { name: "I’m not sure" }).click();
     await page.getByRole("button", { name: /^(Next|Now say it yourself|See how it went)/ }).click();
   }
+}
+
+/**
+ * Rates an own-words answer. When the comparison is clear-cut the run offers one "Continue" instead of three choices;
+ * "Rate it myself" opens them, so a test can still give the rating it means to.
+ */
+export async function rateAnswer(page: Page, grade: string) {
+  const choice = page.getByRole("button", { name: new RegExp(grade) });
+  const myself = page.getByRole("button", { name: "Rate it myself" });
+  await choice.or(myself).first().waitFor();
+  if (await myself.count()) await myself.click();
+  await choice.click();
 }

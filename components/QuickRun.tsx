@@ -153,6 +153,10 @@ export function QuickRun({ run, onRevealSource, onShowLine, onFinish, onChecksDo
   const match = compared ? explainMatch(explained, run.explainAnswer, `${run.topic} ${run.explainGiven ?? ""}`.trim()) : null;
   // Below three key words there is too little to compare fairly, so nothing is highlighted or suggested.
   const useful = match && match.keys >= 3 && explained.trim() ? match : null;
+  // Clear-cut either way, the comparison decides and one tap goes on: every key idea and nothing reversed, or almost
+  // none of them. Anything between, or unmeasurable, the student rates it. "Rate it myself" always overrides.
+  const clear: SelfGrade | null = useful && !useful.flipped.length && useful.hits === useful.keys ? "nailed" : useful && useful.hits / useful.keys < 0.2 ? "missed" : null;
+  const [rateMyself, setRateMyself] = useState(false);
   const item = onChecks ? run.checks[checkAt] : null;
   const chips = item ? gapChoices(item, run) : [];
 
@@ -237,6 +241,7 @@ export function QuickRun({ run, onRevealSource, onShowLine, onFinish, onChecksDo
     if (lines.length) onLine?.(lines, useful && useful.suggest === "nailed" && self === "nailed" ? "right" : "missed");
     if (!explainFirst || total === 0) { finishWith(self, coverage, at); return; }
     setExplainDone({ self, coverage });
+    setRateMyself(false);
     setCompared(false);
     setStep(1);
   }
@@ -246,6 +251,7 @@ export function QuickRun({ run, onRevealSource, onShowLine, onFinish, onChecksDo
     if (item || reading >= 0) return;
     const onKey = (event: KeyboardEvent) => {
       if (!compared && event.key === "Enter" && (event.metaKey || event.ctrlKey)) { event.preventDefault(); compare(); return; }
+      if (compared && clear && !rateMyself && event.key === "Enter" && !event.metaKey && !event.ctrlKey && !(event.target instanceof HTMLButtonElement)) { event.preventDefault(); finish(clear, event.timeStamp); return; }
       if (compared && !event.metaKey && !event.ctrlKey && !event.altKey && /^[123]$/.test(event.key) && !(event.target instanceof HTMLTextAreaElement)) {
         if (!explained.trim() && event.key !== "3") return;
         event.preventDefault(); finish(GRADES[Number(event.key) - 1].value, event.timeStamp);
@@ -254,7 +260,7 @@ export function QuickRun({ run, onRevealSource, onShowLine, onFinish, onChecksDo
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [item, compared, explained, reading]);
+  }, [item, compared, explained, reading, clear, rateMyself]);
 
   // Reading: Enter shows the next line, then opens the first check.
   useEffect(() => {
@@ -504,7 +510,8 @@ export function QuickRun({ run, onRevealSource, onShowLine, onFinish, onChecksDo
                     <>
                       <strong className={styles.verdict} data-result={result}>{!explained.trim() ? "Nothing written yet." : !useful ? "Needs review." : useful.suggest === "nailed" ? "Your answer has the key ideas." : useful.suggest === "partly" ? "Partly there." : "Not yet."}</strong>
                       {/* 1. What was right, in the notes' own words. */}
-                      {said.length ? <p className={styles.gotRight}>You said {listed(said.slice(0, 4).map((phrase) => `“${phrase}”`))}.</p> : null}
+                      {/* In the notes' words, since the student may have used their own: "covered", never "you said". */}
+                      {useful && useful.hits === useful.keys && !useful.flipped.length ? <p className={styles.gotRight}>You covered every key idea in this line, in your own words.</p> : said.length ? <p className={styles.gotRight}>You covered {listed(said.slice(0, 4).map((phrase) => `“${phrase}”`))}.</p> : null}
                       {/* 2. What is missing or reversed, in one or two sentences. */}
                       {useful && useful.missed.length ? <p className={styles.why}>Your answer leaves out {listed(useful.missed.slice(0, 3).map((phrase) => `“${phrase}”`))}.</p> : null}
                       {useful?.flipped.length ? <p className={styles.why}>Check the direction: you wrote <b>{useful.flipped[0].said}</b> where your notes say <b>{useful.flipped[0].page}</b>.</p> : null}
@@ -527,7 +534,7 @@ export function QuickRun({ run, onRevealSource, onShowLine, onFinish, onChecksDo
                         </p>
                       </div>
                       {/* 4. What Kelus does with it. A right answer needs the student's agreement as well as the comparison. */}
-                      <p className={styles.consequence} data-result={result}>{result === "right" ? `Mark it “Nailed it” and ${consequence.charAt(0).toLowerCase()}${consequence.slice(1)}` : consequence}</p>
+                      <p className={styles.consequence} data-result={result}>{result === "right" && (!clear || rateMyself) ? `Mark it “Nailed it” and ${consequence.charAt(0).toLowerCase()}${consequence.slice(1)}` : consequence}</p>
                     </>
                   );
                 })()}
@@ -535,6 +542,11 @@ export function QuickRun({ run, onRevealSource, onShowLine, onFinish, onChecksDo
                   <div className={styles.grades}>
                     <p>No answer to rate yet. This line will come back.</p>
                     <button type="button" onClick={(event) => finish("missed", event.timeStamp)}>Continue <kbd className={styles.gradeKey} aria-hidden="true">3</kbd></button>
+                  </div>
+                ) : clear && !rateMyself ? (
+                  <div className={styles.oneTap}>
+                    <button type="button" className={`k-btn ${styles.primary}`} autoFocus onClick={(event) => finish(clear, event.timeStamp)}>{w.continue}<kbd className={styles.key} aria-hidden="true">↵</kbd></button>
+                    <button type="button" className={styles.link} onClick={() => setRateMyself(true)}>Rate it myself</button>
                   </div>
                 ) : (
                   <fieldset className={styles.grades}>
