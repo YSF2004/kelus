@@ -20,3 +20,57 @@ test("a real-course milestone waits for GA bootstrap instead of being dropped", 
     globalThis.window = before;
   }
 });
+
+test("a landing page view and pilot cohort survive delayed GA bootstrap without leaking query values", async () => {
+  process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID = "G-TEST";
+  const listeners = new Map();
+  const calls = [];
+  const before = globalThis.window;
+  globalThis.window = {
+    addEventListener: (name, callback) => listeners.set(name, callback),
+  };
+  try {
+    const { setPilotCohort, trackEvent } = await import("../lib/analytics.ts");
+    trackEvent({ name: "material_upload_completed", role: "notes", course_type: "real" });
+    setPilotCohort("lycee-2b");
+    trackEvent({ name: "page_view", page_path: "/?pilot=lycee-2b", page_location: "https://kelus.me/?pilot=lycee-2b", page_title: "Kelus", send_to: "G-TEST" });
+    assert.equal(calls.length, 0);
+    globalThis.window.gtag = (...args) => calls.push(args);
+    listeners.get("kelus-analytics-ready")();
+    assert.deepEqual(calls, [
+      ["set", "user_properties", { pilot_cohort: "lycee-2b" }],
+      ["event", "material_upload_completed", { role: "notes", course_type: "real" }],
+      ["event", "page_view", { page_path: "/", page_location: "https://kelus.me/", page_title: "Kelus", send_to: "G-TEST" }],
+    ]);
+  } finally {
+    globalThis.window = before;
+  }
+});
+
+test("in-product event source does not overwrite GA4 traffic attribution", async () => {
+  process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID = "G-TEST";
+  const calls = [];
+  const before = globalThis.window;
+  globalThis.window = { gtag: (...args) => calls.push(args) };
+  try {
+    const { trackEvent } = await import("../lib/analytics.ts");
+    trackEvent({ name: "pricing_viewed", source: "pricing_page" });
+    assert.deepEqual(calls, [["event", "pricing_viewed", { interaction_source: "pricing_page" }]]);
+  } finally {
+    globalThis.window = before;
+  }
+});
+
+test("study-session ordinal does not use GA4's reserved session_number", async () => {
+  process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID = "G-TEST";
+  const calls = [];
+  const before = globalThis.window;
+  globalThis.window = { gtag: (...args) => calls.push(args) };
+  try {
+    const { trackEvent } = await import("../lib/analytics.ts");
+    trackEvent({ name: "session_started", session_number: 2, course_type: "real", sample: false });
+    assert.deepEqual(calls, [["event", "session_started", { study_session_index: 2, course_type: "real", sample: false }]]);
+  } finally {
+    globalThis.window = before;
+  }
+});
