@@ -60,3 +60,17 @@ test("in-product event source does not overwrite GA4 traffic attribution", async
     globalThis.window = before;
   }
 });
+
+test("study-session ordinal does not use GA4's reserved session_number", async () => {
+  process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID = "G-TEST";
+  const calls = [];
+  const before = globalThis.window;
+  globalThis.window = { gtag: (...args) => calls.push(args) };
+  try {
+    const { trackEvent } = await import("../lib/analytics.ts");
+    trackEvent({ name: "session_started", session_number: 2, course_type: "real", sample: false });
+    assert.deepEqual(calls, [["event", "session_started", { study_session_index: 2, course_type: "real", sample: false }]]);
+  } finally {
+    globalThis.window = before;
+  }
+});

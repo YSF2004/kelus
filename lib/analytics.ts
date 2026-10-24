@@ -49,14 +49,20 @@ let pendingCohort: string | null = null;
 function sendEvent(event: KelusAnalyticsEvent) {
   if (typeof window.gtag !== "function") return;
   const { name, ...parameters } = event;
+  const gaParameters: Record<string, GoogleAnalyticsParameter> = { ...parameters };
   // GA4 treats `source` as traffic attribution. Our source is the in-product
   // entry point (for example `pricing_page`), not a referring campaign.
-  if ("source" in parameters) {
-    const { source, ...rest } = parameters;
-    window.gtag("event", name, { ...rest, interaction_source: source });
-  } else {
-    window.gtag("event", name, parameters);
+  if ("source" in gaParameters) {
+    gaParameters.interaction_source = gaParameters.source;
+    delete gaParameters.source;
   }
+  // `session_number` is reserved by GA4 and cannot be registered as a custom
+  // dimension. Keep Kelus's study-session ordinal distinct from GA sessions.
+  if ("session_number" in gaParameters) {
+    gaParameters.study_session_index = gaParameters.session_number;
+    delete gaParameters.session_number;
+  }
+  window.gtag("event", name, gaParameters);
 }
 
 function flushPendingEvents() {

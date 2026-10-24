@@ -16,17 +16,17 @@ event from that student carries `pilot_cohort = lycee-2b`, even when they come b
 
 In GA4 → Admin → Custom definitions, add:
 
-| Name             | Scope | Parameter / property |
-| ---------------- | ----- | -------------------- |
-| Pilot cohort     | User  | `pilot_cohort`       |
-| Session number   | Event | `session_number`     |
-| Days since first | Event | `days_since_first`   |
-| Return day       | Event | `day`                |
-| Helpful          | Event | `helpful`            |
-| Sample           | Event | `sample`             |
-| Invite method    | Event | `method`             |
-| Milestone        | Event | `milestone`          |
-| Flag reason      | Event | `reason`             |
+| Name                | Scope | Parameter / property |
+| ------------------- | ----- | -------------------- |
+| Pilot cohort        | User  | `pilot_cohort`       |
+| Study session index | Event | `study_session_index` |
+| Days since first    | Event | `days_since_first`   |
+| Return day          | Event | `day`                |
+| Helpful             | Event | `helpful`            |
+| Sample              | Event | `sample`             |
+| Invite method       | Event | `method`             |
+| Milestone           | Event | `milestone`          |
+| Flag reason         | Event | `reason`             |
 
 Data only shows from the day a definition is added, so add these before the pilot starts.
 
@@ -36,10 +36,10 @@ Filter every report to `Pilot cohort = <your group>` and `Sample ≠ true`.
 
 | Question                          | How it is counted                                                                      |
 | --------------------------------- | -------------------------------------------------------------------------------------- |
-| Did they finish a first session?  | Users with `session_completed` where `session_number = 1`, over users with `session_started` where `session_number = 1` |
+| Did they finish a first session?  | Users with `session_completed` where `study_session_index = 1`, over users with `session_started` where `study_session_index = 1` |
 | Did they come back within 7 days? | Users with `learner_returned` where `day ≤ 7`, over users with a first `session_completed` |
-| Did they keep using it?           | Users with `session_completed` where `session_number ≥ 2` (and `≥ 3`)                  |
-| Did they find it useful?          | `session_usefulness_rated`: share with `helpful = true`, and by `session_number`       |
+| Did they keep using it?           | Users with `session_completed` where `study_session_index ≥ 2` (and `≥ 3`)             |
+| Did they find it useful?          | `session_usefulness_rated`: share with `helpful = true`, and by `study_session_index`  |
 
 A free-form exploration in GA4 (Explore → Funnel exploration) gives the first three as one funnel:
 `session_started (n=1)` → `session_completed (n=1)` → `learner_returned (day ≤ 7)` → `session_completed (n ≥ 2)`.
