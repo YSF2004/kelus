@@ -131,7 +131,8 @@ for (const fixture of [
     await gotoStart(page);
     await page.locator('input[type="file"]').setInputFiles(`tests/fixtures/course-pdfs/${fixture.file}`);
     const review = page.locator(".first-source-review");
-    await expect(review.getByRole("heading", { name: "Check the topics Kelus found." })).toBeVisible({ timeout: 45_000 });
+    await expect(review.getByRole("heading", { name: "Start with a question." })).toBeVisible({ timeout: 45_000 });
+    await review.getByText("Review or remove topics").click();
     await expect(review.getByRole("listitem").filter({ hasText: fixture.topic })).toBeVisible();
     await confirmImportedTopics(page);
     await startBuiltPlan(page);
@@ -157,8 +158,9 @@ test("first import shows source coverage and lets the student reject a topic bef
   await page.setViewportSize({ width: 390, height: 844 });
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
   await page.screenshot({ path: "/tmp/kelus-source-review-mobile.png", fullPage: true });
+  await review.getByText("Review or remove topics").click();
   await review.getByRole("listitem").filter({ hasText: "Osmosis" }).getByRole("checkbox").uncheck();
-  await expect(review.getByRole("button", { name: "Use 2 topics" })).toBeEnabled();
+  await expect(review.getByRole("button", { name: "Start first question" })).toBeEnabled();
   await confirmImportedTopics(page);
   await startBuiltPlan(page);
   await expect(page).toHaveURL(/\/session/);

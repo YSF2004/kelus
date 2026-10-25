@@ -8,10 +8,10 @@ export async function gotoStart(page: Page) {
   await expect(page.getByRole("heading", { name: "Start with your notes." })).toBeVisible();
 }
 
-/** After import, the student checks what Kelus read before the first question. */
+/** After import, the student explicitly chooses to begin the first question. */
 export async function confirmImportedTopics(page: Page) {
-  await expect(page.getByRole("heading", { name: "Check the topics Kelus found." })).toBeVisible({ timeout: 45_000 });
-  await page.getByRole("button", { name: /^Use \d+ topics?$/ }).click();
+  await expect(page.getByRole("heading", { name: "Start with a question." })).toBeVisible({ timeout: 45_000 });
+  await page.getByRole("button", { name: "Start first question" }).click();
 }
 
 /** After notes are read, Kelus shows what it built; one tap starts the first topic. */
@@ -24,8 +24,8 @@ export async function skipReading(page: Page) {
 
 export async function startBuiltPlan(page: Page) {
   const start = page.getByRole("button", { name: /^Start$/ });
-  const review = page.getByRole("heading", { name: "Check the topics Kelus found." });
-  await review.or(start).or(page.getByLabel(/^Check 1 of \d$/)).or(page.getByRole("region", { name: "Read it first" })).or(page.locator("#run-explain")).first().waitFor({ timeout: 45_000 });
+  const review = page.getByRole("heading", { name: "Start with a question." });
+  await review.or(start).or(page.getByLabel(/^(Check 1 of|Question 1 sur) \d$/)).or(page.getByRole("region", { name: /^(Read it first|Lis d’abord)$/ })).or(page.locator("#run-explain")).first().waitFor({ timeout: 45_000 });
   if (await review.count()) await confirmImportedTopics(page);
   if (await start.count()) await start.click();
 }

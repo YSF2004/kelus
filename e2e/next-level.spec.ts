@@ -10,12 +10,12 @@ test("reading shows the topics it found; a line can be listened to; a miss shows
   await page.locator("#paste-notes").fill(notes);
   await page.getByRole("button", { name: "Use these notes" }).click();
   // Before studying, students can inspect the topics against the lines Kelus read.
+  await page.getByText("Review or remove topics").click();
   const found = page.locator(".first-source-review-list");
   await expect(found).toContainText("Osmosis");
   await expect(found).toContainText("Diffusion");
   if (shots) { await page.waitForTimeout(700); await page.screenshot({ path: `${shots}/found.png` }); }
   await confirmImportedTopics(page);
-  await page.getByRole("button", { name: /^Start$/ }).click();
   await expect(page.getByRole("region", { name: "Read it first" }).getByRole("button", { name: "Listen" })).toBeVisible();
   if (shots) await page.screenshot({ path: `${shots}/read-listen.png` });
   await skipReading(page);

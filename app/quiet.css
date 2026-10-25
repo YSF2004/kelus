@@ -275,7 +275,12 @@ html body.is-course-studio .surface-map ol.index-toc a[class*="TopicMapPanel_ste
 .first-source-review h2 { font-family: var(--font-sans); font-size: clamp(1.65rem, 3vw, 2.5rem); font-weight: 600; letter-spacing: -0.035em; line-height: 1.15; }
 .first-source-review header > p:not(.kicker) { color: var(--q-text-2); line-height: 1.5; }
 .first-source-review .read-coverage { color: var(--q-ink) !important; font-size: 0.875rem; }
+.first-source-topics { border-top: 1px solid var(--q-line); border-bottom: 1px solid var(--q-line); }
+.first-source-topics summary { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 18px 0; cursor: pointer; font-weight: 600; }
+.first-source-topics summary span { color: var(--q-text-2); font-size: 0.875rem; font-weight: 400; white-space: nowrap; }
+.first-source-topics[open] summary { border-bottom: 1px solid var(--q-line); }
 .first-source-review-list { list-style: none; margin: 0; padding: 0; border-top: 1px solid var(--q-line); }
+.first-source-topics .first-source-review-list { border-top: 0; }
 .first-source-review-list li { border-bottom: 1px solid var(--q-line); }
 .first-source-review-list label { display: flex; align-items: flex-start; gap: 16px; padding: 18px 0; cursor: pointer; }
 .first-source-review-list input { flex: none; width: 18px; height: 18px; margin: 3px 0 0; accent-color: var(--color-kelus); }

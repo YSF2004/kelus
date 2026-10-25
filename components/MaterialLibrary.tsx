@@ -607,7 +607,7 @@ export function MaterialLibrary({ embedded = false, incomingFile = null, onIncom
   }
 
   /** Confirms the student's reviewed topics and moves on. */
-  function confirmProposals(selected: ProposedConcept[], pages: ExtractedMaterialPage[]) {
+  function confirmProposals(selected: ProposedConcept[], pages: ExtractedMaterialPage[], startFirstQuestion = false) {
     try {
       const normalizedNames = selected.map((proposal) => proposal.name.toLocaleLowerCase());
       if (new Set(normalizedNames).size !== normalizedNames.length) {
@@ -628,6 +628,9 @@ export function MaterialLibrary({ embedded = false, incomingFile = null, onIncom
         conceptCount: selected.length,
         firstName: first?.name ?? selected[0]?.name ?? null,
       });
+      if (startFirstQuestion) {
+        try { sessionStorage.setItem("kelus-start-after-import", "1"); } catch { /* The ordinary start screen remains available. */ }
+      }
       // Continue the booklet: diagnosis is next — do not park on a ready interstitial.
       router.replace("/today");
       return true;
@@ -645,7 +648,8 @@ export function MaterialLibrary({ embedded = false, incomingFile = null, onIncom
     const selected = analysis.proposals
       .filter((proposal) => selectedIds.has(proposal.id))
       .map((proposal) => ({ ...proposal, name: draftNames[proposal.id]?.trim() || proposal.name }));
-    if (!confirmProposals(selected, analysis.pages)) return;
+    // This click is the student's explicit choice to begin studying. Skip the second start screen.
+    if (!confirmProposals(selected, analysis.pages, quiet && embedded)) return;
     if (quiet && selected.length) {
       const firstTopics = !state.snapshot.concepts.some((concept) => concept.courseId === course.id);
       const name = documentTitle(analysis.pages, { fromLayout: analysis.material.kind !== "text" }) ?? (/^pasted notes$/i.test(analysis.material.title) ? null : analysis.material.title);
@@ -655,7 +659,7 @@ export function MaterialLibrary({ embedded = false, incomingFile = null, onIncom
     }
   }
 
-  // First run: show the exact source-backed proposals before any topic changes the route.
+  // First run: let students inspect and correct source-backed proposals without making it a required chore.
   const kind = analysis ? sourceKind(analysis.pages.map((page) => page.text).join("\n")) : "notes";
   const notNotes = kind === "notes" ? null : kind;
   const asking = Boolean(notNotes && !useAnyway);
@@ -663,11 +667,11 @@ export function MaterialLibrary({ embedded = false, incomingFile = null, onIncom
     if (analysis) return (
       <section className="first-source-review" aria-labelledby="first-source-review-title">
         <header>
-          <p className="kicker">Before you study</p>
-          <h2 id="first-source-review-title" tabIndex={-1} ref={focusPhaseHeading}>{asking ? "Is this a file to revise?" : "Check the topics Kelus found."}</h2>
+          <p className="kicker">Your notes are ready</p>
+          <h2 id="first-source-review-title" tabIndex={-1} ref={focusPhaseHeading}>{asking ? "Is this a file to revise?" : "Start with a question."}</h2>
           {asking ? null : <>
             {analysis.coverage ? <ReadCoverage coverage={analysis.coverage} found={analysis.proposals.length} /> : null}
-            <p>These come from {analysis.material.fileName ?? analysis.material.title}. Remove anything that is not part of your exam.</p>
+            <p>Kelus found {analysis.proposals.length} {analysis.proposals.length === 1 ? "topic" : "topics"} in {analysis.material.fileName ?? analysis.material.title}. You can review them now or adjust them later in Topics.</p>
             <AiNote />
           </>}
         </header>
@@ -681,7 +685,7 @@ export function MaterialLibrary({ embedded = false, incomingFile = null, onIncom
             </div>
           </div>
         ) : null}
-        {asking ? null : <ol className="first-source-review-list">
+        {asking ? null : <details className="first-source-topics"><summary>Review or remove topics <span>{selectedIds.size} selected</span></summary><ol className="first-source-review-list">
           {analysis.proposals.map((proposal) => (
             <li key={proposal.id}>
               <label>
@@ -690,9 +694,9 @@ export function MaterialLibrary({ embedded = false, incomingFile = null, onIncom
               </label>
             </li>
           ))}
-        </ol>}
+        </ol></details>}
         <div className="first-source-review-actions" hidden={asking}>
-          <button type="button" className="cta" disabled={!selectedIds.size} onClick={buildMap}>Use {selectedIds.size} {selectedIds.size === 1 ? "topic" : "topics"} <ArrowRight /></button>
+          <button type="button" className="cta" disabled={!selectedIds.size} onClick={buildMap}>Start first question <ArrowRight /></button>
           {previewUrl ? <a href={previewUrl} target="_blank" rel="noreferrer">Open original PDF ↗</a> : null}
           {onStartOver ? <button type="button" className="text-btn" onClick={onStartOver}>Choose another file</button> : null}
         </div>
