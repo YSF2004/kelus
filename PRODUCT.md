@@ -30,12 +30,13 @@ next, with the reason stated in the student's own results. Local-first and free,
   checks from the notes → one explanation in the student's words, compared with the page → result → next topic.
 - Return visit: missed lines come back first as a one-minute warm-up, then the next topic.
 - Sections: Study plan, Materials, Topics, Progress. Questions can be exported to Anki.
-- Marketing surfaces: homepage `/`, How it works `/route/`, pricing `/pricing/`.
+- Marketing surfaces: homepage `/`, How it works `/route/`, pricing `/pricing/`, and PDF practice `/pdf-to-practice-questions/`.
 
 ## Capabilities and Constraints
 
-- Reading, topic finding and question writing run in the browser; notes stay on the device unless the student signs in
-  to sync. Scans are read with on-device OCR.
+- Reading and topic finding run in the browser; scans use on-device OCR. Files stay on the device unless the student
+  chooses to sync. If a hosted question-writing model is available, text from studied topics can be sent one topic at
+  a time to the model by default; students can turn this off in Course options.
 - Kelus Plus ($4.99/month) is planned, not built, with no launch date; Free is everything in Kelus today.
 - Results come from evidence (checks right, key ideas used); a self-rating can lower a result, never raise it.
 - Questions are worded in English even for French notes (a known limitation).
