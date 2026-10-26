@@ -4,6 +4,7 @@ import { SEARCH_PAGES } from "@/lib/search-pages";
 
 const links = [
   { href: "/route", label: "How it works" },
+  { href: "/pdf-to-practice-questions", label: "PDF to practice questions" },
   { href: "/pricing", label: "Pricing" },
   { href: "/questions", label: "Questions" },
   { href: "/waitlist", label: "Waitlist" },
