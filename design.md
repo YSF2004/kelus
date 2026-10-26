@@ -18,7 +18,7 @@ Kelus is paper, ink, and one pass-mark green. Marketing and product share the sa
 
 ### Marketing typography exception
 
-`/`, `/route/` and `/pricing/` use the same pair as the product. Major headings use
+`/`, `/route/`, `/pricing/` and `/pdf-to-practice-questions/` use the same pair as the product. Major headings use
 `--font-marketing-heading` (Literata, optical sizing, tracking -0.02em); body, nav,
 buttons and footer use `--font-marketing-sans` (Inter). Both are
 self-hosted by next/font with swap.
