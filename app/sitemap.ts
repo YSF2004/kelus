@@ -17,6 +17,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: `${BASE_URL}/pdf-to-flashcards/`, changeFrequency: "monthly", priority: 0.8 },
     { url: `${BASE_URL}/pdf-to-anki/`, changeFrequency: "monthly", priority: 0.8 },
     { url: `${BASE_URL}/lecture-slides-to-flashcards/`, changeFrequency: "monthly", priority: 0.8 },
+    { url: `${BASE_URL}/fr/`, changeFrequency: "monthly", priority: 0.9, alternates: { languages: { fr: `${BASE_URL}/fr/`, en: `${BASE_URL}/` } } },
     { url: `${BASE_URL}/fr/examen-national/`, changeFrequency: "monthly", priority: 0.8 },
   ];
   return staticPages;
