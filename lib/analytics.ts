@@ -12,6 +12,8 @@ export type KelusAnalyticsEvent =
   | { name: "match_round_done"; pairs: number; misses: number }
   | { name: "material_upload_completed"; role: string; course_type: "real" }
   | { name: "material_upload_failed"; role: string; course_type: "real" }
+  | { name: "material_processing_completed"; source_type: "pdf" | "notes"; topic_count: number; used_ocr: boolean; course_type: "real" }
+  | { name: "material_processing_failed"; source_type: "pdf" | "notes"; reason: "ocr" | "extraction" | "cancelled"; course_type: "real" }
   | { name: "concept_review_started"; concept_count: number }
   | { name: "concept_review_updated"; action: "selected" | "removed" }
   | { name: "diagnosis_completed"; retrieval_count: number }
