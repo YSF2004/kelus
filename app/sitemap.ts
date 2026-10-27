@@ -13,7 +13,8 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: `${BASE_URL}/waitlist/`, changeFrequency: "monthly", priority: 0.5 },
     { url: `${BASE_URL}/questions/`, changeFrequency: "monthly", priority: 0.5 },
     { url: `${BASE_URL}/pricing/`, changeFrequency: "monthly", priority: 0.6 },
-    // In French, for students preparing Morocco's national bac exam: most visitors are there.
+    // The French homepage, and the page for Morocco's national bac exam: most visitors are there.
+    { url: `${BASE_URL}/fr/`, changeFrequency: "monthly", priority: 0.9, alternates: { languages: { fr: `${BASE_URL}/fr/`, en: `${BASE_URL}/` } } },
     { url: `${BASE_URL}/fr/examen-national/`, changeFrequency: "monthly", priority: 0.8, alternates: { languages: { fr: `${BASE_URL}/fr/examen-national/`, en: `${BASE_URL}/` } } },
   ];
   return staticPages;
