@@ -7,7 +7,7 @@ import { SiteFooter } from "@/components/SiteFooter";
 export const metadata: Metadata = {
   title: "Revise from Your Course Notes for Exams | Kelus",
   description: "Turn your course notes or PDFs into exam revision. Practise recall, check your answers, and see which topic to review next with Kelus.",
-  alternates: { canonical: "/" },
+  alternates: { canonical: "/", languages: { en: "/", fr: "/fr/", "x-default": "/" } },
   openGraph: {
     title: "Revise from Your Course Notes for Exams | Kelus",
     description: "Practise recall from your own notes. Check your answers and see which topic to review next.",
