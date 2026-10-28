@@ -4,21 +4,19 @@ import styles from "./LeitnerHero.module.css";
 import brands from "./HeroBrands.module.css";
 
 /**
- * Topics from the Cell Transport chapter (tests/fixtures/course-pdfs), in the boxes they sit in a few days in. Short
- * names, so every chip reads whole. Diffusion is the one being asked: it waits in Box 1 and moves when answered.
+ * Questions Kelus writes from page 1 of the Cell Transport chapter (tests/fixtures/course-pdfs), each one from a line
+ * that is marked on the page with the same number.
  */
-const BOXES: Array<{ box: number; every: string; lines: Array<{ text: string; state?: "ok" | "miss" }> }> = [
-  { box: 1, every: "Every day", lines: [{ text: "Osmosis", state: "miss" }, { text: "Root hairs" }, { text: "Villi" }] },
-  { box: 2, every: "Every 2 days", lines: [{ text: "Carriers", state: "ok" }] },
-  { box: 3, every: "Every 4 days", lines: [{ text: "Membranes", state: "ok" }, { text: "Gradients", state: "ok" }, { text: "Surface area", state: "ok" }] },
-  { box: 4, every: "Every 9 days", lines: [{ text: "Alveoli", state: "ok" }] },
-  { box: 5, every: "Monthly", lines: [{ text: "Turgid cells", state: "ok" }] },
+const QUESTIONS = [
+  { n: 1, where: "Page 1 · 7.1 Diffusion", ask: ["Diffusion moves particles from a region of ", " concentration to a lower one."], answer: "higher" },
+  { n: 2, where: "Page 1 · 7.1 Diffusion", ask: ["Does diffusion need energy from respiration?"] },
+  { n: 3, where: "Page 1 · 7.2 Osmosis", ask: ["Osmosis moves water from a dilute solution to a more ", " one."] },
 ];
 
 /**
- * The first viewport says what Kelus does and shows it working: a question written from a line of the notes, the right
- * answer picked, the line it came from shown with its page, and that topic sliding from Box 1 to Box 2. The
- * demonstration is labelled as an example course.
+ * The first viewport says what Kelus does and shows its key step working: a page of the student's notes, three of its
+ * lines marked in turn, a question written from each with its page, and the first one answered and checked against
+ * the line it came from. The demonstration is labelled as an example course.
  */
 export function KelusHero() {
   return (
@@ -37,53 +35,39 @@ export function KelusHero() {
         </div>
       </div>
 
-      <figure className={styles.panel} aria-label="Example: a line answered correctly moves from Box 1 to Box 2">
-        <div className={styles.panelHead}><b>Cell Transport</b><span>Example course, 10 lines</span></div>
-        <div className={styles.question} aria-hidden="true">
-          <small>Which idea from your notes does this describe?</small>
-          <p>“The net movement of particles from high to low concentration, down a gradient.”</p>
-          <div className={styles.options}><span>Osmosis</span><span>Active transport</span><span className={styles.right}>Diffusion</span></div>
-          {/* The check: the line the question came from, with its page, appears once the answer is in. */}
-          <div className={styles.check}>
-            <p className={styles.hint}>Pick one, and the line it came from opens here.</p>
-            <p className={styles.source}>
-              <span>Your notes, page 1</span>
-              Diffusion is the net movement of particles from a region of higher concentration to a region of lower concentration.
+      <figure className={styles.panel} aria-label="Example: three lines of a page become questions, and an answer is checked against its line">
+        <div className={styles.panelHead}><b>Cell Transport.pdf</b><span>Example course, page 1 of 1</span></div>
+        <div className={styles.stage} aria-hidden="true">
+          {/* The page as it was dropped in: real text, with the lines Kelus asks about marked in the order it reads them. */}
+          <div className={styles.sheet}>
+            <p className={styles.chapter}>7 Cell Transport</p>
+            <p className={styles.intro}>Every cell must exchange substances with its surroundings. Oxygen and glucose must enter, and carbon dioxide and urea must leave.</p>
+            <p className={styles.section}>7.1 Diffusion</p>
+            <p>
+              <mark className={styles.mark} data-n="1">Diffusion is the net movement of particles from a region of higher concentration to a region of lower concentration</mark>, down a concentration gradient.{" "}
+              <mark className={styles.mark} data-n="2">It is a passive process, so it needs no energy from respiration.</mark>
+            </p>
+            <p className={styles.section}>7.2 Osmosis</p>
+            <p>
+              <mark className={styles.mark} data-n="3">Osmosis is the net movement of water molecules from a dilute solution to a more concentrated solution</mark>{" "}
+              through a partially permeable membrane.
             </p>
           </div>
+          <ol className={styles.cards}>
+            {QUESTIONS.map(({ n, where, ask, answer }) => (
+              <li key={n} className={styles.card} data-n={n}>
+                <small><i>{n}</i>{where}</small>
+                <p>
+                  {ask[0]}
+                  {ask.length > 1 ? <span className={styles.blank}>{answer ? <span className={styles.fill}>{answer}</span> : null}</span> : null}
+                  {ask[1]}
+                </p>
+                {answer ? <span className={styles.checked}><b>Right.</b> It matches the line on page 1.</span> : null}
+              </li>
+            ))}
+          </ol>
         </div>
-        <ol className={styles.boxes} aria-hidden="true">
-          {BOXES.map(({ box, every, lines }) => (
-            <li key={box} className={styles.box}>
-              <b>Box {box}</b>
-              <small>{every}</small>
-              <span className={styles.marks}>
-                {box <= 2 ? <i className={styles.gap} /> : null}
-                {lines.map((line) => <i key={line.text} data-state={line.state}>{line.text}</i>)}
-              </span>
-              {/* Boxes 1 and 2 count before and after the move; the swap lands with the chip. */}
-              {box <= 2 ? (
-                <span className={styles.count}>
-                  <span className={styles.before}>{lines.length + (box === 1 ? 1 : 0)}</span>
-                  <span className={styles.after}>{lines.length + (box === 2 ? 1 : 0)}</span>
-                </span>
-              ) : (
-                <span className={styles.count}>{lines.length}</span>
-              )}
-            </li>
-          ))}
-          <i className={styles.mover}>Diffusion</i>
-        </ol>
-        <figcaption className={styles.panelFoot}>
-          <span className={styles.footSwap}>
-            <span className={styles.before}>Diffusion is due today, in Box 1</span>
-            <span className={styles.after}>Right: Diffusion moves to Box 2, back in 2 days</span>
-          </span>
-          <span className={styles.footSwap}>
-            <span className={styles.before}><b>6</b> of 10 past Box 1</span>
-            <span className={styles.after}><b>7</b> of 10 past Box 1</span>
-          </span>
-        </figcaption>
+        <figcaption className={styles.panelFoot}><span>Every question points back to its line.</span><span><b>3</b> lines marked so far</span></figcaption>
       </figure>
 
       {/* The tools students already keep notes in, by their own marks (simple-icons, in each brand's colour). */}
