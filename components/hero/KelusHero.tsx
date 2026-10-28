@@ -26,8 +26,8 @@ export function KelusHero() {
           Questions from your notes. <span>Checked against the page.</span>
         </h1>
         <p className={styles.lede}>
-          Drop in a PDF or paste your notes. Kelus asks you about your own lines. Recall one and it moves to a later box;
-          miss it and it comes back first tomorrow.
+          Drop in a PDF or paste your notes. Kelus marks the lines that matter, asks you about each one, and checks your
+          answer against the page.
         </p>
         <div className={styles.actions}>
           <Link href="/today" className={styles.primary}>Add your notes</Link>
@@ -36,38 +36,42 @@ export function KelusHero() {
       </div>
 
       <figure className={styles.panel} aria-label="Example: three lines of a page become questions, and an answer is checked against its line">
-        <div className={styles.panelHead}><b>Cell Transport.pdf</b><span>Example course, page 1 of 1</span></div>
+        <div className={styles.panelHead}><b>Cell Transport.pdf</b><span>Example course</span></div>
         <div className={styles.stage} aria-hidden="true">
           {/* The page as it was dropped in: real text, with the lines Kelus asks about marked in the order it reads them. */}
           <div className={styles.sheet}>
             <p className={styles.chapter}>7 Cell Transport</p>
-            <p className={styles.intro}>Every cell must exchange substances with its surroundings. Oxygen and glucose must enter, and carbon dioxide and urea must leave.</p>
+            <p className={styles.intro}>Every cell must exchange substances with its surroundings.</p>
             <p className={styles.section}>7.1 Diffusion</p>
             <p>
               <mark className={styles.mark} data-n="1">Diffusion is the net movement of particles from a region of higher concentration to a region of lower concentration</mark>, down a concentration gradient.{" "}
               <mark className={styles.mark} data-n="2">It is a passive process, so it needs no energy from respiration.</mark>
             </p>
-            <p className={styles.section}>7.2 Osmosis</p>
-            <p>
-              <mark className={styles.mark} data-n="3">Osmosis is the net movement of water molecules from a dilute solution to a more concentrated solution</mark>{" "}
-              through a partially permeable membrane.
+            <p className={`${styles.section} ${styles.third}`}>7.2 Osmosis</p>
+            <p className={styles.third}>
+              <mark className={styles.mark} data-n="3">Osmosis is the net movement of water molecules from a dilute solution to a more concentrated solution</mark>
+              {" "}through a partially permeable membrane.
             </p>
           </div>
-          <ol className={styles.cards}>
-            {QUESTIONS.map(({ n, where, ask, answer }) => (
-              <li key={n} className={styles.card} data-n={n}>
-                <small><i>{n}</i>{where}</small>
-                <p>
-                  {ask[0]}
-                  {ask.length > 1 ? <span className={styles.blank}>{answer ? <span className={styles.fill}>{answer}</span> : null}</span> : null}
-                  {ask[1]}
-                </p>
-                {answer ? <span className={styles.checked}><b>Right.</b> It matches the line on page 1.</span> : null}
-              </li>
-            ))}
-          </ol>
+          <div className={styles.side}>
+            <ol className={styles.cards}>
+              {QUESTIONS.map(({ n, where, ask, answer }) => (
+                <li key={n} className={styles.card} data-n={n}>
+                  <small><i>{n}</i>{where}</small>
+                  <p>
+                    {ask[0]}
+                    {ask.length > 1 ? <span className={styles.blank}>{answer ? <span className={styles.fill}>{answer}</span> : null}</span> : null}
+                    {ask[1]}
+                  </p>
+                  {answer ? <span className={styles.checked}><b>Right.</b> It matches the line on page 1.</span> : null}
+                </li>
+              ))}
+            </ol>
+            {/* What happens next, once the answer is checked: the plan the boxes keep, said in one line. */}
+            <p className={styles.next}>Right answers wait longer before they come back. A miss comes back tomorrow.</p>
+          </div>
         </div>
-        <figcaption className={styles.panelFoot}><span>Every question points back to its line.</span><span><b>3</b> lines marked so far</span></figcaption>
+        <figcaption className={styles.panelFoot}>Every question points back to the line it came from.</figcaption>
       </figure>
 
       {/* The tools students already keep notes in, by their own marks (simple-icons, in each brand's colour). */}
