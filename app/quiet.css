@@ -797,3 +797,12 @@ html body .k-btn--paper:active:not(:disabled) { box-shadow: inset 0 0 0 1px var(
     width: auto;
   }
 }
+
+/* The homepage header is one bordered tile inside the page margin, as on link.com: solid white, so it never turns
+   muddy over the dark band. */
+body.is-booklet-system .site-header.is-home { top: 10px; width: auto; margin: 10px 64px 0; border: 1px solid #e5e5e5 !important; border-radius: 8px; background: #fff !important; box-shadow: none !important; -webkit-backdrop-filter: none !important; backdrop-filter: none !important; }
+body.is-booklet-system .site-header.is-home .site-header-inner { width: auto; max-width: none; padding-inline: 20px; }
+@media (max-width: 960px) {
+  body.is-booklet-system .site-header.is-home { top: 8px; margin: 8px 16px 0; }
+  body.is-booklet-system .site-header.is-home .site-header-inner { min-height: 56px !important; padding: 4px 12px !important; grid-template-rows: auto; row-gap: 0; align-items: center; }
+}
