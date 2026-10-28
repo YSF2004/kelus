@@ -31,10 +31,13 @@ export function KelusHero() {
         </p>
         <div className={styles.actions}>
           <Link href="/today" className={styles.primary}>Add your notes</Link>
-          <span className={styles.free}>Free. No account needed.</span>
+          <Link href="/route" className={styles.secondary}>How it works</Link>
         </div>
+        <p className={styles.free}>Free. No account needed.</p>
       </div>
 
+      {/* The demonstration on one grey tile, a product moment rather than a card on the page. */}
+      <div className={styles.set}>
       <figure className={styles.panel} aria-label="Example: three lines of a page become questions, and an answer is checked against its line">
         <div className={styles.panelHead}><b>Cell Transport.pdf</b><span>Example course</span></div>
         <div className={styles.stage} aria-hidden="true">
@@ -73,6 +76,7 @@ export function KelusHero() {
         </div>
         <figcaption className={styles.panelFoot}>Every question points back to the line it came from.</figcaption>
       </figure>
+      </div>
 
       {/* The tools students already keep notes in, by their own marks (simple-icons, in each brand's colour). */}
       <div className={`${brands.works} ${styles.works}`}>

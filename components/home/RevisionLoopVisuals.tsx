@@ -8,7 +8,8 @@ import styles from "./FollowThrough.module.css";
 const ease = [0.22, 1, 0.36, 1] as const;
 
 /**
- * The homepage middle: one real line from a student's notes, followed through the four things Kelus does with it.
+ * The homepage middle: one real line from a student's notes, followed through the four things Kelus does with it,
+ * as four tiles in a 2-by-2 grid (a title, one grey line, and the fragment on a grey stage).
  * Each step is drawn in the product's own type and colours, not an illustration of it, and the steps happen in order
  * as the section comes into view: the line is marked, the blank fills, the opposite word is caught, the plan moves.
  */
@@ -35,7 +36,9 @@ export function RevisionLoopVisuals() {
       <div ref={root} className={styles.track}>
         <motion.article {...appear(0)} className={styles.step} data-revision-step="01">
           <h3><span>1</span> Your notes</h3>
-          <div className={styles.sheet}>
+          <p className={styles.body}>Kelus reads your PDF or notes and marks the lines worth knowing.</p>
+          {/* The fragment on a grey stage, as a product moment. */}
+          <div className={styles.shot}><div className={styles.sheet}>
             <p className={styles.page}>
               Osmosis is the movement of water across a{" "}
               {/* A marker stroke drawn along the words, wrapping with them like a real highlighter. */}
@@ -50,12 +53,14 @@ export function RevisionLoopVisuals() {
               from a dilute solution to a more concentrated one.
             </p>
             <p className={styles.where}>Biology, page 2</p>
-          </div>
+          </div></div>
         </motion.article>
 
         <motion.article {...appear(1)} className={styles.step} data-revision-step="02">
           <h3><span>2</span> A question from that line</h3>
-          <div className={styles.sheet}>
+          <p className={styles.body}>Each question is written from one of those lines, and points back to it.</p>
+          {/* The fragment on a grey stage, as a product moment. */}
+          <div className={styles.shot}><div className={styles.sheet}>
             {/* The answer is typed into the blank of the sentence itself, as on a worksheet: no box in a box. */}
             <p className={styles.ask}>
               Water moves from a dilute solution to a more{" "}
@@ -78,12 +83,14 @@ export function RevisionLoopVisuals() {
             >
               <Tick size={14} /> Right: that’s the line on page 2.
             </motion.p>
-          </div>
+          </div></div>
         </motion.article>
 
         <motion.article {...appear(2)} className={styles.step} data-revision-step="03">
           <h3><span>3</span> Your words, checked</h3>
-          <div className={styles.sheet}>
+          <p className={styles.body}>Explain it your way. Kelus lays your words beside the page and catches what’s off.</p>
+          {/* The fragment on a grey stage, as a product moment. */}
+          <div className={styles.shot}><div className={styles.sheet}>
             <p className={styles.said}>
               “Water goes through the membrane to the{" "}
               <span className={styles.flipWrap}>
@@ -100,12 +107,14 @@ export function RevisionLoopVisuals() {
               side.”
             </p>
             <p className={styles.note}>Check the direction: you wrote <b>weaker</b> where your notes say <b>more concentrated</b>.</p>
-          </div>
+          </div></div>
         </motion.article>
 
         <motion.article {...appear(3)} className={styles.step} data-revision-step="04">
           <h3><span>4</span> Your plan moves</h3>
-          <div className={styles.sheet}>
+          <p className={styles.body}>A miss comes back tomorrow. A right answer waits longer before it returns.</p>
+          {/* The fragment on a grey stage, as a product moment. */}
+          <div className={styles.shot}><div className={styles.sheet}>
             <ol className={styles.plan} aria-label="Your plan after this answer">
               <motion.li
                 className={styles.moved}
@@ -129,7 +138,7 @@ export function RevisionLoopVisuals() {
                 <span>Box 4, next week</span>
               </li>
             </ol>
-          </div>
+          </div></div>
         </motion.article>
       </div>
     </section>

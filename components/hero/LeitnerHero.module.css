@@ -1,25 +1,32 @@
 /* The homepage hero in the Leitner Box world: the promise on the left, the instrument working on the right. */
 .hero {
   --ink: #0e1512; --t2: #4a5550; --t3: #5c6661; --line: #e3e8e5; --strong: #d6ddd9; --well: #f5f7f6; --due: #eef5f1; --due-edge: #cfe2d7; --green: #1f6b45; --miss: #c4492e; --miss-ink: #9b3622;
-  /* The promise and its tools on the left, the instrument across both rows on the right. On a phone the tools move
-     under the instrument, so the demonstration shows in the first screen. */
-  display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 640px); grid-template-areas: ". panel" "copy panel" "works panel" ". panel";
-  grid-template-rows: 1fr auto auto 1fr; column-gap: 56px; align-items: center;
-  max-width: 1360px; margin: 0 auto; padding: 72px 40px 64px;
+  /* Tiled, as on link.com: the promise and its tools on the left, the demonstration on a grey tile across both rows
+     on the right; 64px page margin and 16px gaps, like every tile below. On a phone the tools move under the
+     demonstration's tile, so it starts in the first screen. */
+  display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); grid-template-areas: ". set" "copy set" "works set" ". set";
+  grid-template-rows: 1fr auto auto 1fr; column-gap: 16px; align-items: center;
+  min-height: min(780px, calc(100svh - 104px)); margin: 0; padding: 16px 64px 0;
   color: var(--ink); font-variant-numeric: tabular-nums;
 }
 .headline { margin: 0; font-size: clamp(44px, 4.8vw, 68px) !important; line-height: 1.04 !important; text-wrap: balance; color: var(--ink); }
 .headline span { color: var(--t3); }
 .lede { max-width: 30em; margin: 22px 0 0; font-size: 18px; line-height: 1.55; color: var(--t2); }
-.actions { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 18px; margin-top: 32px; }
-.primary { display: inline-flex; align-items: center; height: 50px; padding: 0 22px; border-radius: 11px; background: var(--green); color: #fff; font-size: 16px; font-weight: 600; text-decoration: none; box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.16), 0 0 0 1px #17573a, 0 6px 16px -6px rgba(31, 107, 69, 0.55); transition: background-color 160ms, transform 120ms; }
+.actions { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 32px; }
+.primary, .secondary { display: inline-flex; align-items: center; height: 46px; padding: 0 22px; border-radius: 10px; font-size: 16px; font-weight: 600; text-decoration: none; transition: background-color 160ms, transform 120ms; }
+.secondary { border: 1px solid #e5e5e5; background: #f5f5f5; color: var(--ink); }
+.secondary:hover { background: #ececec; }
+.secondary:active { transform: scale(0.985); }
+.secondary:focus-visible { outline: 2px solid var(--green); outline-offset: 3px; }
+.primary { display: inline-flex; align-items: center; height: 46px; padding: 0 22px; border-radius: 10px; background: var(--green); color: #fff; font-size: 16px; font-weight: 600; text-decoration: none; box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.16), 0 0 0 1px #17573a, 0 6px 16px -6px rgba(31, 107, 69, 0.55); transition: background-color 160ms, transform 120ms; }
 .primary:hover { background: #237a4f; }
 .primary:active { transform: translateY(0.5px) scale(0.985); }
 .primary:focus-visible { outline: 2px solid var(--green); outline-offset: 3px; }
-.free { font-size: 14px; color: var(--t3); }
-.copy { grid-area: copy; }
-.works { grid-area: works; }
-.panel { grid-area: panel; }
+.free { margin: 14px 0 0; font-size: 14px; color: var(--t3); }
+.copy { grid-area: copy; padding-right: 48px; }
+.works { grid-area: works; padding-right: 48px; }
+.set { grid-area: set; align-self: stretch; display: grid; place-items: center; padding: 48px 40px; border: 1px solid #e5e5e5; border-radius: 8px; background: #f4f4f4; }
+.panel { width: min(640px, 100%); }
 
 /* No frame around the demonstration: the page and the questions sit on the hero itself, one level deep. */
 .panel { margin: 0; }
@@ -43,7 +50,7 @@
 
 .side { display: flex; flex-direction: column; gap: 12px; }
 .cards { display: grid; align-content: start; gap: 10px; margin: 0; padding: 0; list-style: none; }
-.card { padding: 12px 14px; border-radius: 10px; background: var(--well); animation: kelusHeroCard 9s infinite both; }
+.card { padding: 12px 14px; border-radius: 10px; background: #fff; box-shadow: 0 0 0 1px #e5e5e5; animation: kelusHeroCard 9s infinite both; }
 .card[data-n="2"] { animation-name: kelusHeroCard2; }
 .card[data-n="3"] { animation-name: kelusHeroCard3; }
 .card small { display: flex; align-items: center; gap: 6px; font-size: 11.5px; color: var(--t3); }
@@ -74,7 +81,10 @@
 }
 @media (max-width: 960px) {
   /* The tools sit under the action again, one quiet row; the demonstration follows, short enough to see whole. */
-  .hero { grid-template-columns: minmax(0, 1fr); grid-template-areas: "copy" "works" "panel"; grid-template-rows: none; row-gap: 0; padding: 28px 18px 48px; }
+  .hero { grid-template-columns: minmax(0, 1fr); grid-template-areas: "copy" "works" "set"; grid-template-rows: none; row-gap: 0; min-height: 0; padding: 12px 16px 0; }
+  .copy, .works { padding-right: 0; }
+  .copy { padding-top: 24px; }
+  .set { padding: 16px 12px; }
   .headline { font-size: clamp(38px, 10.5vw, 52px) !important; }
   .lede { margin-top: 16px; font-size: 16.5px; }
   .actions { margin-top: 24px; }
