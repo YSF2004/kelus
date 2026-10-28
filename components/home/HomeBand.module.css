@@ -1,33 +1,30 @@
-/* The dark band, after link.com's: one claim in white with one bright phrase, and what goes in fanned around the mark. */
+/* The dark band, after link.com's: one claim in white with one bright phrase, and the proof beside it, which here is
+   what Kelus really found in four course files. */
 .band {
   --deep: #0c2016; --bright: #5fd394;
-  display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); align-items: center; gap: 32px;
-  min-height: 600px; margin: 16px 64px 0; padding: 56px; overflow: hidden;
-  border-radius: 8px; background: var(--deep); color: #fff;
+  display: grid; grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr); align-items: center; gap: 48px;
+  margin: 16px 64px 0; padding: 56px; border-radius: 8px; background: var(--deep); color: #fff;
 }
-.band h2 { max-width: 10em; margin: 0; font-family: var(--font-source-serif), Georgia, serif !important; font-size: clamp(40px, 4.6vw, 64px) !important; font-weight: 500 !important; line-height: 1.02 !important; letter-spacing: -0.03em !important; color: #fff !important; text-wrap: balance; }
-.band h2 span { color: var(--bright); }
-.files { display: flex; align-items: center; gap: 20px; }
-.core { display: grid; flex: none; place-items: center; width: 96px; height: 96px; border-radius: 50%; background: var(--bright); color: var(--deep); }
-.core :global(svg) { width: 40px; height: 40px; }
-.files ul { display: grid; gap: 12px; margin: 0; padding: 0; list-style: none; }
-.files li { display: flex; align-items: center; gap: 14px; width: max-content; max-width: 100%; padding: 10px 22px 10px 10px; border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 999px; background: rgba(255, 255, 255, 0.05); font-size: 14px; color: rgba(255, 255, 255, 0.62); }
-/* The middle file is in focus; the others recede with distance, as on a dial: smaller and quieter, never faded
-   below readable contrast. */
-.files li[data-i="0"], .files li[data-i="4"] { margin-left: 64px; padding-block: 8px; font-size: 13px; background: rgba(255, 255, 255, 0.03); }
-.files li[data-i="0"] b, .files li[data-i="4"] b { color: rgba(255, 255, 255, 0.8); }
-.files li[data-i="0"] i, .files li[data-i="4"] i { width: 34px; height: 34px; }
-.files li[data-i="1"], .files li[data-i="3"] { margin-left: 22px; }
-.files li[data-i="2"] { padding: 14px 28px 14px 14px; background: rgba(255, 255, 255, 0.1); font-size: 15px; }
-.files li b { display: block; overflow: hidden; color: #fff; font-weight: 500; text-overflow: ellipsis; white-space: nowrap; }
-.files i { display: grid; flex: none; place-items: center; width: 40px; height: 40px; border-radius: 10px; font-style: normal; }
-.pdf { background: #c4492e; color: #fff; font-size: 11px; font-weight: 700; letter-spacing: 0.02em; }
-.brandTile { background: #fff; color: #111; }
-.files li[data-i="2"] i { width: 48px; height: 48px; }
+.claim h2 { max-width: 9em; margin: 0; font-family: var(--font-source-serif), Georgia, serif !important; font-size: clamp(38px, 4.2vw, 60px) !important; font-weight: 500 !important; line-height: 1.02 !important; letter-spacing: -0.03em !important; color: #fff !important; text-wrap: balance; }
+.claim h2 span { color: var(--bright); }
+.claim p { max-width: 30em; margin: 20px 0 0; font-size: 17px; line-height: 1.45; color: rgba(255, 255, 255, 0.78) !important; }
+.action { display: inline-flex; align-items: center; height: 48px; margin-top: 28px; padding: 0 22px; border-radius: 8px; background: var(--bright); color: var(--deep); font-size: 16px; font-weight: 600; text-decoration: none; transition: background-color 160ms, transform 120ms; }
+.action:hover { background: #79dca7; }
+.action:active { transform: scale(0.985); }
+.action:focus-visible { outline: 2px solid var(--bright); outline-offset: 3px; }
+
+.files { display: grid; gap: 1px; margin: 0; padding: 0; overflow: hidden; border-radius: 8px; background: rgba(255, 255, 255, 0.1); list-style: none; }
+.files li { display: grid; grid-template-columns: minmax(0, 13rem) minmax(0, 1fr); align-items: center; gap: 20px; padding: 16px 18px; background: #102a1d; }
+.file { display: flex; align-items: center; gap: 12px; min-width: 0; }
+.file i { display: grid; flex: none; place-items: center; width: 36px; height: 36px; border-radius: 8px; background: #c4492e; color: #fff; font-size: 10.5px; font-style: normal; font-weight: 700; letter-spacing: 0.02em; }
+.file span { min-width: 0; font-size: 13px; color: rgba(255, 255, 255, 0.72); }
+.file b { display: block; color: #fff; font-family: var(--font-source-serif), Georgia, serif !important; font-size: 16px; font-weight: 500; }
+.topics { display: flex; flex-wrap: wrap; gap: 6px; }
+.topics em { padding: 4px 10px; border-radius: 999px; background: rgba(95, 211, 148, 0.14); color: #c9f1da; font-size: 13px; font-style: normal; white-space: nowrap; }
+.topics .more { background: none; color: rgba(255, 255, 255, 0.72); }
 @media (max-width: 960px) {
-  .band { grid-template-columns: minmax(0, 1fr); min-height: 0; margin: 12px 16px 0; padding: 36px 20px; }
-  .files { flex-direction: column; align-items: flex-start; }
-  .core { width: 64px; height: 64px; }
-  .files li[data-i] { margin-left: 0; }
-  .files ul { width: 100%; }
+  .band { grid-template-columns: minmax(0, 1fr); gap: 32px; margin: 12px 16px 0; padding: 32px 20px; }
+  .files li { grid-template-columns: minmax(0, 1fr); gap: 10px; }
+  /* A phone shows each file's first three topics; the rest are one tap away in Kelus. */
+  .topics em:nth-child(n + 4):not(.more) { display: none; }
 }

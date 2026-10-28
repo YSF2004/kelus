@@ -13,19 +13,19 @@
 .headline span { color: var(--t3); }
 .lede { max-width: 30em; margin: 22px 0 0; font-size: 18px; line-height: 1.55; color: var(--t2); }
 .actions { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 32px; }
-.primary, .secondary { display: inline-flex; align-items: center; height: 46px; padding: 0 22px; border-radius: 10px; font-size: 16px; font-weight: 600; text-decoration: none; transition: background-color 160ms, transform 120ms; }
+.primary, .secondary { display: inline-flex; align-items: center; height: 48px; padding: 0 22px; border-radius: 8px; font-size: 16px; font-weight: 600; text-decoration: none; transition: background-color 160ms, transform 120ms; }
 .secondary { border: 1px solid #e5e5e5; background: #f5f5f5; color: var(--ink); }
 .secondary:hover { background: #ececec; }
 .secondary:active { transform: scale(0.985); }
 .secondary:focus-visible { outline: 2px solid var(--green); outline-offset: 3px; }
-.primary { display: inline-flex; align-items: center; height: 46px; padding: 0 22px; border-radius: 10px; background: var(--green); color: #fff; font-size: 16px; font-weight: 600; text-decoration: none; box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.16), 0 0 0 1px #17573a, 0 6px 16px -6px rgba(31, 107, 69, 0.55); transition: background-color 160ms, transform 120ms; }
+.primary { display: inline-flex; align-items: center; height: 48px; padding: 0 22px; border-radius: 8px; background: var(--green); color: #fff; font-size: 16px; font-weight: 600; text-decoration: none; box-shadow: 0 0 0 1px #17573a; transition: background-color 160ms, transform 120ms; }
 .primary:hover { background: #237a4f; }
 .primary:active { transform: translateY(0.5px) scale(0.985); }
 .primary:focus-visible { outline: 2px solid var(--green); outline-offset: 3px; }
 .free { margin: 14px 0 0; font-size: 14px; color: var(--t3); }
 .copy { grid-area: copy; padding-right: 48px; }
 .works { grid-area: works; padding-right: 48px; }
-.set { grid-area: set; align-self: stretch; display: grid; place-items: center; padding: 48px 40px; border: 1px solid #e5e5e5; border-radius: 8px; background: #f4f4f4; }
+.set { grid-area: set; align-self: stretch; display: grid; place-items: center; align-content: center; gap: 12px; padding: 48px 40px; border: 1px solid #e5e5e5; border-radius: 8px; background: #f4f4f4; }
 .panel { width: min(640px, 100%); }
 
 /* No frame around the demonstration: the page and the questions sit on the hero itself, one level deep. */
@@ -37,42 +37,44 @@
 /* The page on the left, the questions it gives on the right. One 9-second loop: lines are marked one by one, each
    question arrives just after its line, then the first is answered and checked. */
 .stage { display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr); gap: 16px; margin-top: 16px; }
-.sheet { position: relative; padding: 22px; border: 1px solid var(--line); border-radius: 10px; background: #fff; box-shadow: 0 1px 2px rgba(14, 21, 18, 0.04), 0 24px 48px -28px rgba(14, 21, 18, 0.3); color: var(--t2); font-size: 12px; line-height: 1.6; }
+.sheet { position: relative; padding: 22px; border-radius: 8px; background: #fff; color: var(--t2); font-size: 12px; line-height: 1.6; }
 .sheet .chapter { margin: 0 0 8px; font-family: var(--font-source-serif), Georgia, serif !important; font-size: 19px; font-weight: 500; letter-spacing: -0.01em; color: var(--ink); }
 .sheet .section { margin: 12px 0 4px; font-size: 12.5px; font-weight: 600; color: var(--ink); }
 .sheet p { margin: 0; }
 .sheet .chapter { margin-bottom: 8px; }
 .sheet .section { margin: 12px 0 4px; }
-.mark { position: relative; padding: 1px 0; color: var(--ink); background: linear-gradient(rgba(243, 210, 122, 0.65), rgba(243, 210, 122, 0.65)) no-repeat 0 0 / 0% 100%; -webkit-box-decoration-break: clone; box-decoration-break: clone; animation: kelusHeroMark 9s infinite; }
+.mark { position: relative; padding: 1px 0; color: var(--ink); background: linear-gradient(rgba(243, 210, 122, 0.65), rgba(243, 210, 122, 0.65)) no-repeat 0 0 / 0% 100%; -webkit-box-decoration-break: clone; box-decoration-break: clone; animation: kelusHeroMark 4.8s 1 both; }
 .mark[data-n="2"] { animation-name: kelusHeroMark2; }
 .mark[data-n="3"] { animation-name: kelusHeroMark3; }
 .mark::before { content: attr(data-n); color: var(--ink) !important; display: inline-grid; place-items: center; width: 15px; height: 15px; margin-right: 4px; border-radius: 50%; box-shadow: inset 0 0 0 1px currentColor; color: var(--t2); font-size: 9.5px; font-weight: 700; vertical-align: 1px; }
 
 .side { display: flex; flex-direction: column; gap: 12px; }
 .cards { display: grid; align-content: start; gap: 10px; margin: 0; padding: 0; list-style: none; }
-.card { padding: 12px 14px; border-radius: 10px; background: #fff; box-shadow: 0 0 0 1px #e5e5e5; animation: kelusHeroCard 9s infinite both; }
+.card { padding: 12px 14px; border-radius: 8px; background: #fff; box-shadow: 0 0 0 1px #e5e5e5; animation: kelusHeroCard 4.8s 1 both; }
 .card[data-n="2"] { animation-name: kelusHeroCard2; }
 .card[data-n="3"] { animation-name: kelusHeroCard3; }
 .card small { display: flex; align-items: center; gap: 6px; font-size: 11.5px; color: var(--t3); }
 .card small i { display: inline-grid; place-items: center; width: 15px; height: 15px; border-radius: 50%; box-shadow: inset 0 0 0 1px currentColor; color: var(--t2); font-size: 9.5px; font-weight: 700; font-style: normal; }
 .card p { margin: 6px 0 0; font-size: 14px; font-weight: 600; letter-spacing: -0.01em; line-height: 1.4; color: var(--ink); }
 .blank { display: inline-block; min-width: 4.6em; margin: 0 2px; border-bottom: 2px solid var(--strong); line-height: 1.2; vertical-align: baseline; }
-.fill { color: var(--green); animation: kelusHeroFill 9s infinite steps(6, end); clip-path: inset(0 100% 0 0); display: inline-block; }
-.card[data-n="1"] .blank { animation: kelusHeroBlank 9s infinite step-end; }
-.checked { display: block; margin-top: 8px; font-size: 12.5px; color: var(--green); animation: kelusHeroChecked 9s infinite; }
+.fill { color: var(--green); animation: kelusHeroFill 4.8s 1 both steps(6, end); clip-path: inset(0 100% 0 0); display: inline-block; }
+.card[data-n="1"] .blank { animation: kelusHeroBlank 4.8s 1 both step-end; }
+.checked { display: block; margin-top: 8px; font-size: 12.5px; color: var(--green); animation: kelusHeroChecked 4.8s 1 both; }
 .checked b { font-weight: 600; }
-.next { margin: auto 0 0; padding: 10px 2px 0; border-top: 1px solid var(--line); font-size: 12.5px; line-height: 1.5; color: var(--t2); animation: kelusHeroChecked 9s infinite; }
+.next { margin: auto 0 0; padding: 10px 2px 0; border-top: 1px solid var(--line); font-size: 12.5px; line-height: 1.5; color: var(--t2); animation: kelusHeroChecked 4.8s 1 both; }
 .panelFoot { margin-top: 14px; font-size: 13px; color: var(--t2); }
 
-@keyframes kelusHeroMark { 0%, 6% { background-size: 0% 100%; } 14%, 94% { background-size: 100% 100%; } 100% { background-size: 0% 100%; } }
-@keyframes kelusHeroMark2 { 0%, 20% { background-size: 0% 100%; } 26%, 94% { background-size: 100% 100%; } 100% { background-size: 0% 100%; } }
-@keyframes kelusHeroMark3 { 0%, 32% { background-size: 0% 100%; } 40%, 94% { background-size: 100% 100%; } 100% { background-size: 0% 100%; } }
-@keyframes kelusHeroCard { 0%, 12% { opacity: 0; transform: translateY(6px); } 17%, 94% { opacity: 1; transform: none; } 100% { opacity: 0; } }
-@keyframes kelusHeroCard2 { 0%, 25% { opacity: 0; transform: translateY(6px); } 30%, 94% { opacity: 1; transform: none; } 100% { opacity: 0; } }
-@keyframes kelusHeroCard3 { 0%, 38% { opacity: 0; transform: translateY(6px); } 43%, 94% { opacity: 1; transform: none; } 100% { opacity: 0; } }
-@keyframes kelusHeroFill { 0%, 52% { clip-path: inset(0 100% 0 0); } 60%, 100% { clip-path: inset(0 0 0 0); } }
-@keyframes kelusHeroBlank { 0% { border-bottom-color: var(--strong); } 60% { border-bottom-color: var(--green); } }
-@keyframes kelusHeroChecked { 0%, 62% { opacity: 0; transform: translateY(3px); } 66%, 94% { opacity: 1; transform: none; } 100% { opacity: 0; } }
+/* One pass in under five seconds (WCAG 2.2.2 needs no pause control below that), ending on the checked answer and
+   holding there; "Play it again" remounts the demonstration to replay it. */
+@keyframes kelusHeroMark { 0%, 6% { background-size: 0% 100%; } 16%, 100% { background-size: 100% 100%; } }
+@keyframes kelusHeroMark2 { 0%, 22% { background-size: 0% 100%; } 32%, 100% { background-size: 100% 100%; } }
+@keyframes kelusHeroMark3 { 0%, 38% { background-size: 0% 100%; } 48%, 100% { background-size: 100% 100%; } }
+@keyframes kelusHeroCard { 0%, 12% { opacity: 0; transform: translateY(6px); } 20%, 100% { opacity: 1; transform: none; } }
+@keyframes kelusHeroCard2 { 0%, 28% { opacity: 0; transform: translateY(6px); } 36%, 100% { opacity: 1; transform: none; } }
+@keyframes kelusHeroCard3 { 0%, 44% { opacity: 0; transform: translateY(6px); } 52%, 100% { opacity: 1; transform: none; } }
+@keyframes kelusHeroFill { 0%, 60% { clip-path: inset(0 100% 0 0); } 74%, 100% { clip-path: inset(0 0 0 0); } }
+@keyframes kelusHeroBlank { 0% { border-bottom-color: var(--strong); } 74% { border-bottom-color: var(--green); } }
+@keyframes kelusHeroChecked { 0%, 78% { opacity: 0; transform: translateY(3px); } 88%, 100% { opacity: 1; transform: none; } }
 @media (prefers-reduced-motion: reduce) {
   .mark, .card, .fill, .checked, .next, .card[data-n="1"] .blank { animation: none; }
   .mark { background-size: 100% 100%; }
@@ -95,3 +97,9 @@
   .sheet .intro, .third, .card[data-n="3"] { display: none; }
 }
 /* The marketing sheets set every [data-marketing] h1 in the book serif; the hero is the product's own face. */
+
+.replay { justify-self: end; min-height: 44px; padding: 0 4px; border: 0; background: none; color: var(--green); font: inherit; font-size: 14px; font-weight: 600; cursor: pointer; }
+.replay:hover { text-decoration: underline; text-underline-offset: 3px; }
+.replay:active { transform: scale(0.97); }
+.replay:focus-visible { outline: 2px solid var(--green); outline-offset: 2px; border-radius: 4px; }
+@media (prefers-reduced-motion: reduce) { .replay { display: none; } }

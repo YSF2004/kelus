@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { BrandIcon } from "@/components/BrandIcon";
+import { HeroReplay } from "./HeroReplay";
 import styles from "./LeitnerHero.module.css";
 import brands from "./HeroBrands.module.css";
 
@@ -38,6 +39,7 @@ export function KelusHero() {
 
       {/* The demonstration on one grey tile, a product moment rather than a card on the page. */}
       <div className={styles.set}>
+      <HeroReplay className={styles.replay}>
       <figure className={styles.panel} aria-label="Example: three lines of a page become questions, and an answer is checked against its line">
         <div className={styles.panelHead}><b>Cell Transport.pdf</b><span>Example course</span></div>
         <div className={styles.stage} aria-hidden="true">
@@ -76,6 +78,7 @@ export function KelusHero() {
         </div>
         <figcaption className={styles.panelFoot}>Every question points back to the line it came from.</figcaption>
       </figure>
+      </HeroReplay>
       </div>
 
       {/* The tools students already keep notes in, by their own marks (simple-icons, in each brand's colour). */}
