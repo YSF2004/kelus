@@ -6,6 +6,8 @@ const buildId = existsSync("public/version.json") ? JSON.parse(readFileSync("pub
 
 const nextConfig: NextConfig = {
   reactStrictMode: true,
+  // Isolate an explicitly ported E2E server from an existing local next dev session.
+  distDir: process.env.KELUS_E2E_PORT ? `.next-e2e-${process.env.KELUS_E2E_PORT}` : ".next",
   output: "export",
   images: { unoptimized: true },
   trailingSlash: true,
