@@ -78,7 +78,7 @@ export function KelusHero() {
           <li><BrandIcon brand="notion" size={18} />Notion</li>
           <li><BrandIcon brand="obsidian" size={18} />Obsidian</li>
           <li><BrandIcon brand="markdown" size={18} />Markdown</li>
-          <li><BrandIcon brand="anki" size={18} />Anki export</li>
+          <li><BrandIcon brand="anki" size={18} />Anki</li>
         </ul>
       </div>
     </section>
