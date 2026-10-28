@@ -772,3 +772,18 @@ html body .k-btn--paper:active:not(:disabled) { box-shadow: inset 0 0 0 1px var(
 .start-page .setup-first-upload { grid-template-columns: auto minmax(0, 1fr); align-items: center; column-gap: 20px !important; row-gap: 2px !important; padding: 26px 28px !important; }
 .start-page .setup-first-upload .setup-upload-mark { grid-row: 1 / span 2; width: 44px !important; height: 44px !important; margin: 0 !important; }
 .start-page .setup-first-upload { min-height: 0 !important; }
+
+/* The homepage header on a phone: with no account button beside it, the nav fits on the mark's row, so the first
+   screen is not two header rows before the headline. */
+@media (max-width: 720px) {
+  body.is-booklet-system .site-header.is-home .site-header-inner:has(.site-header-cluster:empty) {
+    grid-template-areas: "mark nav";
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+  body.is-booklet-system .site-header.is-home .site-header-inner:has(.site-header-cluster:empty) .site-nav {
+    grid-area: nav;
+    justify-self: end;
+    justify-content: flex-end;
+    width: auto;
+  }
+}
