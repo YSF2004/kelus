@@ -1,0 +1,89 @@
+/* link.com's system, measured on 2026-10-28: 64px page margin, 16px gaps, 8px tiles with a 1px #e5e5e5 border, one
+   sans at weight 500 with tight tracking, grey #525252 text, 40px buttons with a 10px radius. Kelus green replaces
+   Link green; the dark band is Kelus ink-green. */
+.page {
+  --ink: #171717; --t2: #525252; --t3: #737373; --line: #e5e5e5; --tile: #f4f4f4;
+  --green: #1f6b45; --green-bright: #3fbf7a; --deep: #0c2016;
+  display: grid; gap: 16px; padding: 16px 64px 0;
+  color: var(--ink); background: #fff;
+  font-family: var(--font-tile), system-ui, sans-serif !important;
+}
+/* Outranks the marketing pages' serif heading rule (quiet.css: html body [data-marketing] :is(h1, h2)). */
+html body [data-marketing] .page :is(h1, h2, h3, p, b, small, span, a, li, #home-hero-title) { font-family: var(--font-tile), system-ui, sans-serif !important; font-optical-sizing: auto; }
+
+/* ── Hero: words on the left, one product moment on a grey tile on the right ───────────────────────────── */
+.hero { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 16px; min-height: min(760px, calc(100svh - 112px)); }
+.copy { display: flex; flex-direction: column; justify-content: center; padding: 48px 48px 48px 0; }
+.pill { align-self: flex-start; margin: 0 0 20px; padding: 3px 9px; border: 1px solid var(--line); border-radius: 999px; font-size: 14px; font-weight: 500; letter-spacing: -0.01em; }
+.copy h1 { max-width: 11.5em; margin: 0; font-size: clamp(48px, 5.6vw, 80px) !important; font-weight: 500 !important; line-height: 0.92 !important; letter-spacing: -0.035em !important; color: var(--ink); text-wrap: balance; }
+.copy h1 span { color: var(--green); }
+.lede { max-width: 25em; margin: 24px 0 0; font-size: 20px; line-height: 1.2; letter-spacing: -0.01em; color: var(--ink); }
+.actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 32px; }
+.primary, .secondary { display: inline-flex; align-items: center; height: 44px; padding: 0 24px; border-radius: 10px; font-size: 15px; font-weight: 500; letter-spacing: -0.01em; text-decoration: none; transition: background-color 160ms, transform 120ms; }
+.primary { background: var(--deep); color: #fff; }
+.primary:hover { background: #163a28; }
+.secondary { border: 1px solid var(--line); background: #f5f5f5; color: var(--ink); }
+.secondary:hover { background: #ececec; }
+.primary:active, .secondary:active { transform: scale(0.985); }
+.primary:focus-visible, .secondary:focus-visible { outline: 2px solid var(--green); outline-offset: 3px; }
+
+.stage { display: grid; place-items: center; margin: 0; padding: 32px; border: 1px solid var(--line); border-radius: 8px; background: var(--tile); }
+.moment { width: min(420px, 100%); padding: 20px; border-radius: 24px; background: #fff; box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04), 0 24px 60px -24px rgba(0, 0, 0, 0.18); animation: tileRise 0.7s cubic-bezier(0.22, 1, 0.36, 1) 0.2s both; }
+.source { display: flex; align-items: center; gap: 12px; padding: 14px; border: 1px solid var(--line); border-radius: 14px; }
+.file { display: grid; place-items: center; width: 44px; height: 44px; border-radius: 10px; background: #c4492e; color: #fff; font-size: 12px; font-weight: 600; letter-spacing: 0.02em; }
+.source b { display: block; font-size: 17px; font-weight: 500; letter-spacing: -0.01em; }
+.source small { display: block; margin-top: 1px; font-size: 15px; color: var(--t3); }
+.line { margin: 16px 4px 0; font-size: 15px; line-height: 1.45; color: var(--t2); }
+.line mark { padding: 1px 0; color: var(--ink); background: linear-gradient(rgba(243, 210, 122, 0.7), rgba(243, 210, 122, 0.7)) no-repeat 0 0 / 0% 100%; -webkit-box-decoration-break: clone; box-decoration-break: clone; animation: tileMark 0.9s cubic-bezier(0.22, 1, 0.36, 1) 0.8s both; }
+.ask { margin-top: 16px; padding: 16px; border-radius: 14px; background: #f5f5f5; }
+.ask p { margin: 0; font-size: 17px; font-weight: 500; line-height: 1.3; letter-spacing: -0.015em; }
+.blank { display: inline-block; min-width: 4.8em; border-bottom: 2px solid var(--green); }
+.blank span { display: inline-block; color: var(--green); animation: tileType 0.5s steps(6, end) 1.9s both; }
+.right { display: block; margin-top: 10px; font-size: 14px; font-weight: 500; color: var(--green); animation: tileRise 0.4s cubic-bezier(0.22, 1, 0.36, 1) 2.5s both; }
+
+/* ── The dark band: the claim on the left, the courses a student brings orbiting the Kelus mark ────────── */
+.band { position: relative; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); align-items: center; min-height: 630px; padding: 56px; overflow: hidden; border-radius: 8px; background: var(--deep); color: #fff; }
+.band h2 { max-width: 9.5em; margin: 0; font-size: clamp(40px, 4.4vw, 64px) !important; font-weight: 500 !important; line-height: 0.96 !important; letter-spacing: -0.03em !important; color: #fff !important; }
+.band h2 span { color: var(--green-bright); }
+.orbit { position: relative; display: flex; align-items: center; gap: 20px; }
+.core { display: grid; flex: none; place-items: center; width: 100px; height: 100px; border-radius: 50%; background: var(--green-bright); color: var(--deep); }
+.core :global(svg) { width: 44px; height: 44px; }
+.orbit ul { display: grid; gap: 12px; margin: 0; padding: 0; list-style: none; }
+.orbit li { display: flex; align-items: center; gap: 14px; width: max-content; padding: 10px 22px 10px 10px; border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 999px; background: rgba(255, 255, 255, 0.04); color: rgba(255, 255, 255, 0.55); font-size: 15px; }
+/* The middle course is the one in focus; the others fade with distance, as on a dial. */
+.orbit li[data-i="0"], .orbit li[data-i="4"] { margin-left: 72px; opacity: 0.55; }
+.orbit li[data-i="1"], .orbit li[data-i="3"] { margin-left: 24px; opacity: 0.8; }
+.orbit li[data-i="2"] { padding: 14px 30px 14px 14px; background: rgba(255, 255, 255, 0.1); color: rgba(255, 255, 255, 0.75); font-size: 16px; }
+.orbit li i { display: grid; flex: none; place-items: center; width: 44px; height: 44px; border-radius: 50%; background: #10301f; color: var(--green-bright); font-size: 17px; font-style: normal; font-weight: 600; }
+.orbit li[data-i="2"] i { width: 56px; height: 56px; font-size: 20px; }
+.orbit li b { display: block; color: #fff; font-weight: 500; letter-spacing: -0.01em; }
+
+/* ── What Kelus does: four tiles, title and grey text at the top, the drawing at the bottom ─────────────── */
+.grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+.tile { display: flex; flex-direction: column; min-height: 450px; padding: 16px; border: 1px solid var(--line); border-radius: 8px; }
+.tile h3 { margin: 0; font-size: 28px !important; font-weight: 500 !important; line-height: 1.04 !important; letter-spacing: -0.02em !important; color: var(--ink); }
+.tile p { max-width: 26em; margin: 8px 0 0; font-size: 18px; line-height: 1.12; letter-spacing: -0.01em; color: var(--t2); }
+.art { align-self: center; max-width: 70%; height: auto; margin: auto 0 24px; }
+
+@keyframes tileRise { from { opacity: 0; translate: 0 12px; } }
+@keyframes tileMark { to { background-size: 100% 100%; } }
+@keyframes tileType { from { clip-path: inset(0 100% 0 0); } to { clip-path: inset(0 0 0 0); } }
+@media (prefers-reduced-motion: reduce) {
+  .moment, .right, .blank span { animation: none; }
+  .line mark { animation: none; background-size: 100% 100%; }
+}
+
+@media (max-width: 960px) {
+  .page { gap: 12px; padding: 12px 16px 0; }
+  .hero, .band, .grid { grid-template-columns: minmax(0, 1fr); }
+  .hero { min-height: 0; }
+  .copy { padding: 32px 0 24px; }
+  .copy h1 { font-size: clamp(42px, 11vw, 56px) !important; }
+  .lede { font-size: 18px; }
+  .stage { padding: 20px 12px; }
+  .band { min-height: 0; gap: 40px; padding: 40px 20px; }
+  .orbit { flex-direction: column; align-items: flex-start; }
+  .core { width: 72px; height: 72px; }
+  .orbit li[data-i="0"], .orbit li[data-i="4"], .orbit li[data-i="1"], .orbit li[data-i="3"] { margin-left: 0; }
+  .tile { min-height: 360px; }
+}
