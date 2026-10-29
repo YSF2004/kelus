@@ -9,6 +9,8 @@ import { useLearner } from "@/components/LearnerProvider";
 import { HabitStrip } from "@/components/HabitStrip";
 import { generateRoute } from "@/domain/routing-engine";
 import { BlockRing } from "@/components/BlockRing";
+import { MatchRound } from "@/components/MatchRound";
+import { buildMatchRound } from "@/domain/match-round";
 import { WaitlistForm } from "@/components/WaitlistForm";
 import { SoftUpgradePrompt } from "@/components/SoftUpgradePrompt";
 import { downloadTomorrowStudyIcs } from "@/lib/study-reminder";
@@ -126,6 +128,7 @@ function CompleteBody() {
   const missedToday = (state.missedLines ?? []).filter((line) => line.at >= session.startedAt && practised.some((event) => event.conceptId === line.conceptId)).length;
   const nextFresh = nextStopId ? { conceptId: nextStopId } : undefined;
   const allGood = practised.length > 0 && practised.every((event) => event.outcome === "success");
+  const matchPairs = buildMatchRound(practised.map((event) => event.conceptId), state.snapshot.concepts, state.snapshot.learningActivities);
 
   return (
     <>
@@ -179,6 +182,9 @@ function CompleteBody() {
             </motion.li>
           ))}
         </ul>
+
+        {/* A quick bonus round on the topics just practised, when there are three or more to match. */}
+        {matchPairs.length ? <MatchRound pairs={matchPairs} seed={session.id} /> : null}
 
         <HabitStrip events={state.snapshot.events} concepts={courseConcepts} compact />
 
