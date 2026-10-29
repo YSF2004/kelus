@@ -235,7 +235,7 @@ export function QuickRun({ run, onRevealSource, onShowLine, onFinish, onChecksDo
   return (
     <div className={styles.run}>
       <header className={styles.top}>
-        <ol className={styles.steps} aria-label={`Step ${Math.min(at + 1, segments)} of ${segments}`}>
+        <ol className={styles.steps} aria-label={w.stepOf(Math.min(at + 1, segments), segments)}>
           {Array.from({ length: segments }, (_, index) => (
             <li key={index} className={index < at ? styles.done : index === at ? styles.now : undefined} aria-current={index === at ? "step" : undefined} />
           ))}
@@ -244,29 +244,29 @@ export function QuickRun({ run, onRevealSource, onShowLine, onFinish, onChecksDo
         <div className={styles.context} data-topic-hidden={item && asksForTheTopic(item) && !answered ? "" : undefined}>{context}</div>
         {/* Nothing to count yet on a first visit: the count appears with the first correct line. */}
         {count == null || (count === 0 && !drop) ? <span /> : (
-          <p className={styles.recall} aria-label={`${count} ${count === 1 ? "line" : "lines"} from your notes answered correctly`}>
+          <p className={styles.recall} aria-label={w.correctLines(count)}>
             <span className={styles.recallNumber}>
               <motion.b key={count} initial={reduce || !(bump || drop) ? false : { y: bump ? -6 : 6, opacity: 0.4 }} animate={{ y: 0, opacity: 1 }} transition={{ type: "spring", bounce: 0, duration: 0.35 }}>{count}</motion.b>
               <AnimatePresence>{(bump || drop) && !reduce ? <motion.i key={`${bump}-${drop}`} aria-hidden="true" className={change === "−1" ? styles.minus : undefined} initial={{ opacity: 1, y: 0 }} animate={{ opacity: 0, y: -12 }} transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1] }}>{change}</motion.i> : null}</AnimatePresence>
             </span>
-            <span aria-hidden="true"><span className={styles.recallLong}>{count === 1 ? "line" : "lines"} answered correctly</span><span className={styles.recallShort}>correct</span></span>
+            <span aria-hidden="true"><span className={styles.recallLong}>{w.correctLinesShort(count)}</span><span className={styles.recallShort}>{w.correct}</span></span>
           </p>
         )}
         {/* Sounds are on by default, the way a study app answers you; one tap here silences them for good. */}
-        <button type="button" className={styles.mute} onClick={() => setSounds(!soundOn)} aria-pressed={!soundOn} aria-label={soundOn ? "Mute sounds" : "Turn sounds on"} title={soundOn ? "Mute sounds" : "Turn sounds on"}>
+        <button type="button" className={styles.mute} onClick={() => setSounds(!soundOn)} aria-pressed={!soundOn} aria-label={soundOn ? w.muteSounds : w.turnSoundsOn} title={soundOn ? w.muteSounds : w.turnSoundsOn}>
           <Octicon name={soundOn ? "unmute" : "mute"} size={16} />
         </button>
       </header>
 
       <AnimatePresence mode="wait" initial={false}>
         {readingNow ? (
-          <motion.section key="read" className={styles.card} {...motionProps} aria-label="Read it first">
+          <motion.section key="read" className={styles.card} {...motionProps} aria-label={w.readRegion}>
             <h1 className={styles.prompt}>{w.readTitle}</h1>
             <ol className={styles.readLines} aria-live="polite">
               {lines.slice(0, reading + 1).map((line, index) => (
                 <motion.li key={line} initial={reduce || index === 0 ? false : { opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}>
                   <Marked line={line} words={keyWordsIn(line, run)} />
-                  <button type="button" className={styles.hideLine} aria-label="Hide this line: it isn’t worth reading" title="Not worth reading" onClick={() => {
+                  <button type="button" className={styles.hideLine} aria-label={w.hideLine} title={w.notWorthReading} onClick={() => {
                     hideLine(line);
                     const rest = lines.filter((kept) => kept !== line);
                     setLines(rest);
@@ -286,7 +286,7 @@ export function QuickRun({ run, onRevealSource, onShowLine, onFinish, onChecksDo
             </div>
           </motion.section>
         ) : item ? (
-          <motion.section key={`check-${step}`} className={styles.card} {...motionProps} aria-label={`Check ${step + 1} of ${total}`}>
+          <motion.section key={`check-${step}`} className={styles.card} {...motionProps} aria-label={w.checkOf(step + 1, total)}>
             {/* "Which idea does this describe? “…”": the ask as a small line, the quoted line as the title. */}
             {(() => {
               const at = item.prompt.indexOf("“");
@@ -297,7 +297,7 @@ export function QuickRun({ run, onRevealSource, onShowLine, onFinish, onChecksDo
             })()}
 
             {item.kind === "choice" ? (
-              <div className={styles.choices} role="group" aria-label="Choose one">
+              <div className={styles.choices} role="group" aria-label={w.chooseOne}>
                 {item.choices?.map((choice, index) => {
                   const isRight = answered && index === item.correctIndex;
                   const isWrong = answered && !isRight && index === picked;
@@ -316,7 +316,7 @@ export function QuickRun({ run, onRevealSource, onShowLine, onFinish, onChecksDo
                       whileTap={reduce || answered ? undefined : { scale: 0.985 }}
                     >
                       {/* The number becomes the verdict in place, so the eye does not have to travel. */}
-                      <kbd aria-hidden="true">{isRight ? <motion.span className={styles.kbdMark} initial={reduce ? false : { scale: 0, rotate: -30 }} animate={{ scale: 1, rotate: 0 }} transition={{ type: "spring", bounce: 0.4, duration: 0.4 }}><Tick size={12} /></motion.span> : isWrong ? <Cross size={12} /> : index + 1}</kbd>
+                      <kbd aria-hidden="true">{isRight ? <motion.span className={styles.kbdMark} initial={reduce ? false : { scale: 0, rotate: -30 }} animate={{ scale: 1, rotate: 0 }} transition={{ type: "spring", bounce: 0, duration: 0.4 }}><Tick size={12} /></motion.span> : isWrong ? <Cross size={12} /> : index + 1}</kbd>
                       <span>{choice}</span>
                     </motion.button>
                   );
@@ -330,7 +330,7 @@ export function QuickRun({ run, onRevealSource, onShowLine, onFinish, onChecksDo
                 animate={!reduce && answered && !answered.right && !answered.unsure ? { x: [0, -6, 6, -4, 4, 0] } : { x: 0 }}
                 transition={{ duration: 0.32, ease: "easeOut" }}
               >
-                <label htmlFor={`run-gap-${step}`} className="sr-only">Your answer, one word</label>
+                <label htmlFor={`run-gap-${step}`} className="sr-only">{w.oneWordAnswer}</label>
                 <span className={styles.field} data-state={answered ? (answered.right ? "right" : answered.unsure ? "unsure" : "wrong") : undefined}>
                   <input id={`run-gap-${step}`} value={typed} onChange={(event) => { setTyped(event.target.value); setTapped(null); }} disabled={Boolean(answered)} autoComplete="off" autoFocus={!(touch && chips.length)} placeholder={w.oneWord} />
                   {answered?.right ? <motion.span className={styles.fieldMark} aria-hidden="true" initial={reduce ? false : { scale: 0.4, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={{ type: "spring", stiffness: 520, damping: 26 }}><Tick size={16} /></motion.span> : null}
@@ -340,7 +340,7 @@ export function QuickRun({ run, onRevealSource, onShowLine, onFinish, onChecksDo
             )}
             {/* On a phone, typing one word is the slow part: tap the word instead. On a keyboard, recall it. */}
             {touch && !answered && chips.length ? (
-              <div className={styles.chips} role="group" aria-label="Or tap the word">
+              <div className={styles.chips} role="group" aria-label={w.tapWord}>
                 {/* A tap puts the word in the gap; Check commits it, so a slip of the thumb costs nothing. */}
                 {chips.map((word) => (
                   <motion.button key={word} type="button" className={styles.chip} aria-pressed={tapped === word} onClick={() => { setTyped(word); setTapped(word); }} whileTap={reduce ? undefined : { scale: 0.96 }}>{word}</motion.button>
@@ -356,7 +356,7 @@ export function QuickRun({ run, onRevealSource, onShowLine, onFinish, onChecksDo
                 {/* Where this answer puts the line in the five boxes, moved as you watch. Not for a shrug: nothing was tried. */}
                 {answered.unsure ? null : <LineMove quote={item.sourceQuote} right={answered.right} nowIso={new Date().toISOString()} />}
                 {around && linesAround(run, item.sourceQuote) ? (
-                  <div className={styles.around} aria-label="This line in your notes">
+                  <div className={styles.around} aria-label={w.lineInNotes}>
                     {linesAround(run, item.sourceQuote)!.before ? <p>{linesAround(run, item.sourceQuote)!.before}</p> : null}
                     <p className={styles.aroundLine}>{linesAround(run, item.sourceQuote)!.line}</p>
                     {linesAround(run, item.sourceQuote)!.after ? <p>{linesAround(run, item.sourceQuote)!.after}</p> : null}

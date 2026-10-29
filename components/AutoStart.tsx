@@ -8,13 +8,18 @@ import { KelusLogoMark } from "@/components/KelusLogoMark";
 import styles from "./AutoStart.module.css";
 
 const FLAG = "kelus-start-first-run";
+const DIRECT_FLAG = "kelus-start-after-import";
 
 function flagged() {
   try { return window.sessionStorage.getItem(FLAG) === "1"; } catch { return false; }
 }
 
 function clearFlag() {
-  try { window.sessionStorage.removeItem(FLAG); } catch { /* Harmless. */ }
+  try { window.sessionStorage.removeItem(FLAG); window.sessionStorage.removeItem(DIRECT_FLAG); } catch { /* Harmless. */ }
+}
+
+function directAfterImport() {
+  try { return window.sessionStorage.getItem(DIRECT_FLAG) === "1"; } catch { return false; }
 }
 
 export type BuiltPlan = { course: string; topics: number; questions: number; minutes: number; firstName: string; /** Topic names, the first one first. */ names?: string[] };
@@ -27,6 +32,7 @@ export function AutoStart({ ready, plan, showPlan, onStart }: { ready: boolean; 
   const reduce = useReducedMotion() === true;
   // Mounted only after the notes are read (never in the server HTML), so reading storage here is safe.
   const [open, setOpen] = useState(() => typeof window !== "undefined" && flagged());
+  const [direct] = useState(() => typeof window !== "undefined" && directAfterImport());
   const fired = useRef(false);
   const mark = useRef<SVGSVGElement>(null);
   const [carried] = useState(() => typeof window !== "undefined" && !reduce && hasReadingMark());
@@ -49,16 +55,16 @@ export function AutoStart({ ready, plan, showPlan, onStart }: { ready: boolean; 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, ready, showPlan]);
   useEffect(() => {
-    if (!open || showPlan || !ready || fired.current) return;
+    if (!open || (showPlan && !direct) || !ready || fired.current) return;
     fired.current = true;
     clearFlag();
     onStart();
     // Once, when Today is ready.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [open, showPlan, ready]);
+  }, [open, showPlan, ready, direct]);
   if (!open || !ready) return null;
   // Going straight on: a plain cover for the instant before the question opens, so Today never flashes.
-  if (!showPlan) return createPortal(<div className={styles.cover} />, document.body);
+  if (!showPlan || direct) return createPortal(<div className={styles.cover} />, document.body);
 
   // Time from what there is to do: about 40 seconds a question and a minute and a half to explain each topic.
   const minutes = Math.max(2, Math.ceil(plan.questions * 0.7 + plan.topics * 1.5));

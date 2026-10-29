@@ -493,18 +493,21 @@ function SessionBody() {
         <div className="study-folio-actions">
           <SessionMenu
             label={uiw.more}
+            accessibleLabel={uiw.moreOptions}
+            optionsLabel={uiw.sessionOptions}
+            keepLabel={uiw.keep}
             footer={<ThemeSwitch compact />}
             items={[
               {
-                label: soundsEnabled ? "Turn sounds off" : "Turn sounds on",
+                label: soundsEnabled ? uiw.turnSoundsOff : uiw.turnSoundsOn,
                 onSelect: () => setSounds(!soundsEnabled),
               },
               ...(quickMode && hasReadableSource ? [{
-                label: notesOpen ? "Hide your notes" : recallWithoutLooking ? "Peek at the notes" : "See your notes",
+                label: notesOpen ? uiw.hideNotes : recallWithoutLooking ? uiw.peekNotes : uiw.seeNotes,
                 onSelect: () => { setSourceRevealed(true); setNotesOpen((open) => !open); },
               }] : []),
               ...(quickMode ? [{
-                label: "Remove this topic",
+                label: uiw.removeTopic,
                 danger: true,
                 // No "are you sure": it can be undone from the note that appears.
                 // The page lifts away first, then the topic goes, so the removal reads as one gesture.
@@ -516,9 +519,9 @@ function SessionBody() {
                 },
               }] : []),
               {
-                label: "Discard block",
+                label: uiw.discardBlock,
                 danger: true,
-                confirm: { question: "Discard this block? Your answers so far are kept.", yes: "Discard" },
+                confirm: { question: uiw.discardQuestion, yes: uiw.discard },
                 onSelect: () => { trackEvent({ name: "session_abandoned" }); abandon(session.id); router.push("/today"); },
               },
             ]}

@@ -12,7 +12,11 @@ test("French notes get French buttons and feedback, not only French questions", 
   await page.getByRole("button", { name: "Passer aux questions" }).click();
   await expect(page.getByText(/^Sujet \d sur \d$/)).toBeVisible();
   await expect(page.getByRole("button", { name: "Je ne sais pas" })).toBeVisible();
-  await expect(page.getByRole("button", { name: "More session options" })).toHaveText("Plus");
+  await expect(page.getByRole("button", { name: "Plus d’options pour cette séance" })).toHaveText("Plus");
+  await page.getByRole("button", { name: "Plus d’options pour cette séance" }).click();
+  await expect(page.getByRole("button", { name: "Supprimer ce sujet" })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Quitter cette séance" })).toBeVisible();
+  await page.getByRole("button", { name: "Plus d’options pour cette séance" }).click();
   await page.getByRole("button", { name: "Je ne sais pas" }).click();
   await expect(page.getByRole("button", { name: /^(Suivant|À toi de l’expliquer)/ })).toBeVisible();
 });
