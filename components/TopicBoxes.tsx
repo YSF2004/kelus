@@ -14,6 +14,12 @@ const noSnapshot = () => null;
  * Where one topic's lines stand after this session: five boxes in a row, each line a mark, recalled lines filled green
  * and missed ones outlined. The end of a topic shows what the answers did, not a score.
  */
+const KEY = [
+  { state: "recalled", label: "recalled" },
+  { state: "missed", label: "missed" },
+  { state: "new", label: "not asked yet" },
+] as const;
+
 export function TopicBoxes({ conceptId }: { conceptId: string }) {
   const reduce = useReducedMotion() === true;
   const snapshot = useSyncExternalStore(subscribeDemoState, getDemoSnapshot, noSnapshot);
@@ -49,6 +55,12 @@ export function TopicBoxes({ conceptId }: { conceptId: string }) {
           </li>
         ))}
       </ol>
+      {/* What a square is: a line from the notes. Only the kinds on screen are named. */}
+      <p className={styles.key} aria-hidden="true">
+        {KEY.filter(({ state: kind }) => state.lines.some((line) => (line.state ?? "new") === kind)).map(({ state: kind, label }) => (
+          <span key={kind}><i data-state={kind} />{label}</span>
+        ))}
+      </p>
     </section>
   );
 }

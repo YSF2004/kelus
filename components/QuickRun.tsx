@@ -297,7 +297,7 @@ export function QuickRun({ run, onRevealSource, onShowLine, onFinish, onChecksDo
             })()}
 
             {item.kind === "choice" ? (
-              <div className={styles.choices} role="group" aria-label="Choose one">
+              <div className={`${styles.choices}${item.variant === "truefalse" ? ` ${styles.trueFalse}` : ""}`} role="group" aria-label="Choose one">
                 {item.choices?.map((choice, index) => {
                   const isRight = answered && index === item.correctIndex;
                   const isWrong = answered && !isRight && index === picked;

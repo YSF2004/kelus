@@ -271,6 +271,36 @@ function safeFlip(original: string, changed: string) {
  * "Which of these does NOT match your notes?": three lines exactly as written, and one with its key word turned
  * around (increases → decreases). Finding the odd one out means knowing what the notes really say.
  */
+/**
+ * True or false: one line from the notes, shown either as it is or with one word turned around (the same safe flips
+ * "does NOT match" uses), so the answer is never "always true". Quick to answer, and the flip tests the direction of
+ * an idea, not just its words.
+ */
+export function trueOrFalse(ctx: Ctx, flip: (sentence: string) => string | null): Draft[] {
+  const usable = ctx.sentences.filter((sentence) => sentence.length >= 40 && sentence.length <= 170 && !PRONOUN_START.test(sentence));
+  for (const sentence of shuffle(usable, `${ctx.conceptId}tf`)) {
+    const changed = flip(sentence);
+    if (!changed || !safeFlip(sentence, changed)) continue;
+    // Which way it is shown comes from the line itself, so it is stable across visits but not always the same.
+    const showTrue = shuffle([true, false], `${ctx.conceptId}tf${sentence}`)[0];
+    const shown = showTrue ? sentence : changed;
+    const choices = ["True", "False"];
+    return [{
+      kind: "choice",
+      variant: "truefalse",
+      level: "understand",
+      prompt: `True or false, from your notes: “${shown}”`,
+      modelAnswer: showTrue ? "True" : "False",
+      hint: "Read it slowly: one word can turn the idea around.",
+      explanation: showTrue ? `That is what the notes say: “${sentence}”` : `The notes say: “${sentence}”`,
+      sourceQuote: sentence,
+      choices,
+      correctIndex: showTrue ? 0 : 1,
+    }];
+  }
+  return [];
+}
+
 export function notMatching(ctx: Ctx, flip: (sentence: string) => string | null): Draft[] {
   const usable = ctx.sentences.filter((sentence) => sentence.length <= 170 && !PRONOUN_START.test(sentence));
   for (const sentence of shuffle(usable, `${ctx.conceptId}n`)) {

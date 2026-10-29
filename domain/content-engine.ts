@@ -1,7 +1,7 @@
 import { hintInNotesLanguage, inNotesLanguage, noteLanguage } from "./note-language";
 import type { PracticeItem } from "./types";
 import { lintQuestion, standsAlone } from "./question-lint";
-import { contrastChoices, effectQuestions, framePairs, notMatching, termFromMeaning, whyChoices } from "./question-types";
+import { contrastChoices, effectQuestions, framePairs, notMatching, trueOrFalse, termFromMeaning, whyChoices } from "./question-types";
 
 /**
  * Builds teaching facts and varied practice from a topic's own page text, with no outside knowledge.
@@ -385,7 +385,7 @@ export function buildPractice(input: {
   // 3b. Understanding you can check instantly: why, how two ideas differ, which term a definition belongs to.
   const terms = [...new Set(sentences.map((sentence) => pickGapWord(sentence, name, excerpt, true)).filter((term): term is string => Boolean(term) && !/^\d/.test(term as string)))];
   const ctx = { conceptId, name, locator, sentences, siblingNames: input.siblingNames, others, terms };
-  for (const draft of [...whyChoices(ctx), ...effectQuestions(ctx, flipOneWord), ...notMatching(ctx, flipOneWord), ...contrastChoices(ctx), ...framePairs(ctx), ...termFromMeaning(ctx)]) add(draft);
+  for (const draft of [...whyChoices(ctx), ...effectQuestions(ctx, flipOneWord), ...notMatching(ctx, flipOneWord), ...trueOrFalse(ctx, flipOneWord), ...contrastChoices(ctx), ...framePairs(ctx), ...termFromMeaning(ctx)]) add(draft);
 
   // 4. Fill the gap in a key sentence: up to four, from different sentences with different words. A looser pass runs
   // only when the strict one leaves fewer than two, so a sparse topic still gets a short run.
