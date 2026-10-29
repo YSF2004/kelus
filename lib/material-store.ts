@@ -27,7 +27,9 @@ export function normalizeMaterial(value: unknown): CourseMaterial | null {
     && MATERIAL_KINDS.includes(item.kind)
     && ["local", "url"].includes(item.storage)
     && item.addedAt
-    && (item.storage === "local" || typeof item.sourceUrl === "string"),
+    // A saved link needs its address, except the sample course's built-in example, which is seeded without one: it
+    // was dropped on every read, so the sample's Materials showed nothing.
+    && (item.storage === "local" || typeof item.sourceUrl === "string" || String(item.id).startsWith("material-demo-")),
   );
   if (!valid) return null;
   return {
