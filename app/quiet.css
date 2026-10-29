@@ -806,3 +806,13 @@ body.is-booklet-system .site-header.is-home .site-header-inner { width: auto; ma
   body.is-booklet-system .site-header.is-home { top: 8px; margin: 8px 16px 0; }
   body.is-booklet-system .site-header.is-home .site-header-inner { min-height: 56px !important; padding: 4px 12px !important; grid-template-rows: auto; row-gap: 0; align-items: center; }
 }
+
+/* Start screen: photos of notes, a page at a time. A quiet text action until there are pages, then a small tray. */
+.start-page .photo-notes { margin-top: 12px; }
+.start-page .photo-notes-start, .start-page .photo-notes-more { min-height: 44px; padding: 0; border: 0; background: none; color: var(--color-kelus, #1f6b45); font: inherit; font-weight: 600; text-decoration: underline; text-decoration-color: color-mix(in srgb, currentColor 45%, transparent); text-underline-offset: 0.22em; cursor: pointer; transition: text-decoration-color 160ms cubic-bezier(0.22, 1, 0.36, 1); }
+.start-page .photo-notes-start:hover, .start-page .photo-notes-more:hover { text-decoration-color: currentColor; }
+.start-page .photo-notes-start:active, .start-page .photo-notes-more:active { transform: scale(0.97); }
+.start-page .photo-notes-pages { padding: 14px 16px; border: 1px solid #e5e5e5; border-radius: 8px; background: #fff; }
+.start-page .photo-notes-pages p { margin: 0 0 10px; font-size: 14px; }
+.start-page .photo-notes-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 18px; }
+@media (prefers-reduced-motion: reduce) { .start-page .photo-notes-start, .start-page .photo-notes-more { transition: none; } }

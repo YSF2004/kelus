@@ -54,7 +54,11 @@ function layoutTitle(page: ExtractedMaterialPage | undefined) {
   const blocks = page?.blocks ?? [];
   if (blocks.length < 3) return null;
   const body = bodyFontSize(blocks);
-  const [top, ...rest] = blocks;
+  // A running header or page number set smaller than the text ("Chapter 7 - Cell Transport" above the title on a
+  // scan) is page furniture, not the first line.
+  const start = blocks.findIndex((block) => block.fontSize >= body * 0.85);
+  const [top, ...rest] = start > 0 ? blocks.slice(start) : blocks;
+  if (!top) return null;
   const text = cleanCandidate(top.text);
   if (text.length < 3 || text.length > 90 || top.fontSize < body * 1.35) return null;
   if (rest.some((block) => block.fontSize >= top.fontSize * 0.95)) return null;
