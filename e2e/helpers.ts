@@ -25,9 +25,14 @@ export async function skipReading(page: Page) {
 export async function startBuiltPlan(page: Page) {
   const start = page.getByRole("button", { name: /^Start$/ });
   const review = page.getByRole("heading", { name: "Check the topics Kelus found." });
-  await review.or(start).or(page.getByLabel(/^Check 1 of \d$/)).or(page.getByRole("region", { name: "Read it first" })).or(page.locator("#run-explain")).first().waitFor({ timeout: 45_000 });
-  if (await review.count()) await confirmImportedTopics(page);
-  if (await start.count()) await start.click();
+  const use = page.getByRole("button", { name: /^Use \d+ topics?$/ });
+  const inSession = page.getByLabel(/^Check 1 of \d$/).or(page.getByRole("region", { name: "Read it first" })).or(page.locator("#run-explain"));
+  await review.or(start).or(inSession).first().waitFor({ timeout: 45_000 });
+  // Act on what is on screen now: the topic check may still be closing when this is called right after confirming.
+  if (await use.isVisible()) await use.click();
+  // The ready card ("Let's start with …") opens a moment after the topics are confirmed: wait for it, not a snapshot.
+  await start.or(inSession).first().waitFor({ timeout: 30_000 });
+  if (await start.isVisible()) await start.click();
 }
 
 /** Sparse notes can support an own-words explanation but no fair instant check. */
