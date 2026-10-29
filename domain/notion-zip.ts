@@ -59,11 +59,24 @@ async function collect(entries: ZipEntry[], depth: number, out: Array<{ path: st
   }
 }
 
-export type NotesFromZip = { markdown: string; pages: number; skipped: number };
+export type NotesSource = "notion" | "obsidian";
+export type NotesFromZip = { markdown: string; pages: number; skipped: number; source: NotesSource };
+
+/** An Obsidian vault keeps its settings in a ".obsidian" folder; anything else exported as a zip is read as Notion's. */
+export function sourceOfPaths(paths: string[]): NotesSource {
+  return paths.some((path) => /(^|\/)\.obsidian(\/|$)/.test(path)) ? "obsidian" : "notion";
+}
 
 export async function notesFromZip(data: ArrayBuffer | Uint8Array): Promise<NotesFromZip> {
+  const entries = listZip(data);
   const found: Array<{ path: string; text: string }> = [];
-  await collect(listZip(data), 0, found, { bytes: MAX_TOTAL_BYTES });
+  await collect(entries, 0, found, { bytes: MAX_TOTAL_BYTES });
+  return notesFromTexts(found, sourceOfPaths(entries.map((entry) => entry.path)));
+}
+
+/** Note files from a zip or a dropped vault folder, as one Markdown document with one heading per note. */
+export function notesFromTexts(files: Array<{ path: string; text: string }>, source: NotesSource): NotesFromZip {
+  const found = files.filter((file) => NOTE_FILE.test(file.path) && !ignored(file.path)).slice(0, MAX_FILES);
   found.sort((a, b) => a.path.localeCompare(b.path, undefined, { numeric: true }));
 
   const parts: string[] = [];
@@ -75,6 +88,10 @@ export async function notesFromZip(data: ArrayBuffer | Uint8Array): Promise<Note
     const title = pageTitleFromPath(file.path);
     parts.push(/^\s{0,3}#{1,6}\s/.test(body) ? body : `# ${title}\n\n${body}`);
   }
-  if (!parts.length) throw new ZipError("No pages with text were found. In Notion choose Export, then Markdown & CSV, and try again.");
-  return { markdown: parts.join("\n\n"), pages: parts.length, skipped };
+  if (!parts.length) {
+    throw new ZipError(source === "obsidian"
+      ? "No notes with text were found in this vault. Choose a folder of notes with some writing in them."
+      : "No pages with text were found. In Notion choose Export, then Markdown & CSV, and try again.");
+  }
+  return { markdown: parts.join("\n\n"), pages: parts.length, skipped, source };
 }

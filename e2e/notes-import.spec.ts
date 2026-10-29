@@ -44,7 +44,7 @@ test("notes too short to study from get a plain reason, and nothing is saved", a
 test("a file that is neither a PDF nor notes is refused with a clear reason", async ({ page }) => {
   await gotoStart(page);
   await page.locator('input[type="file"]').setInputFiles({ name: "picture.png", mimeType: "image/png", buffer: Buffer.from("x") });
-  await expect(page.getByText("Choose a PDF, notes as a .md or .txt file, or a Notion export (.zip).")).toBeVisible();
+  await expect(page.getByText("Choose a PDF, notes as a .md or .txt file, a Notion export or an Obsidian vault (.zip or a folder).")).toBeVisible();
 });
 
 test("a notes source is still there after the page is reloaded", async ({ page }) => {

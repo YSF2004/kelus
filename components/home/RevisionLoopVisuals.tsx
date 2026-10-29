@@ -20,10 +20,11 @@ export function RevisionLoopVisuals() {
   const on = reduce || inView;
   // Step n starts when the one before has had its moment: about a third of a second apart.
   const at = (step: number, extra = 0) => (reduce ? 0 : 0.15 + step * 0.32 + extra);
-  const appear = (step: number) => ({
+  const appear = () => ({
     initial: reduce ? false : { opacity: 0, y: 10 },
     animate: on ? { opacity: 1, y: 0 } : undefined,
-    transition: { duration: 0.5, delay: at(step), ease },
+    // The grid arrives as one; the order belongs to each tile's own motion (at(step, …) below), not to the tiles.
+    transition: { duration: 0.5, delay: at(0), ease },
   });
 
   return (
@@ -34,7 +35,7 @@ export function RevisionLoopVisuals() {
       </div>
 
       <div ref={root} className={styles.track}>
-        <motion.article {...appear(0)} className={styles.step} data-revision-step="01">
+        <motion.article {...appear()} className={styles.step} data-revision-step="01">
           <h3><span>1</span> Your notes</h3>
           <p className={styles.body}>Kelus reads your PDF or notes and marks the lines worth knowing.</p>
           {/* The fragment on a grey stage, as a product moment. */}
@@ -56,7 +57,7 @@ export function RevisionLoopVisuals() {
           </div></div>
         </motion.article>
 
-        <motion.article {...appear(1)} className={styles.step} data-revision-step="02">
+        <motion.article {...appear()} className={styles.step} data-revision-step="02">
           <h3><span>2</span> A question from that line</h3>
           <p className={styles.body}>Each question is written from one of those lines, and points back to it.</p>
           {/* The fragment on a grey stage, as a product moment. */}
@@ -86,7 +87,7 @@ export function RevisionLoopVisuals() {
           </div></div>
         </motion.article>
 
-        <motion.article {...appear(2)} className={styles.step} data-revision-step="03">
+        <motion.article {...appear()} className={styles.step} data-revision-step="03">
           <h3><span>3</span> Your words, checked</h3>
           <p className={styles.body}>Explain it your way. Kelus lays your words beside the page and catches what’s off.</p>
           {/* The fragment on a grey stage, as a product moment. */}
@@ -110,7 +111,7 @@ export function RevisionLoopVisuals() {
           </div></div>
         </motion.article>
 
-        <motion.article {...appear(3)} className={styles.step} data-revision-step="04">
+        <motion.article {...appear()} className={styles.step} data-revision-step="04">
           <h3><span>4</span> Your plan moves</h3>
           <p className={styles.body}>A miss comes back tomorrow. A right answer waits longer before it returns.</p>
           {/* The fragment on a grey stage, as a product moment. */}

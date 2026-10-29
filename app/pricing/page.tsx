@@ -9,7 +9,7 @@ import { authConfigured } from "@/lib/auth-config";
 import { foundingPaymentConfigured } from "@/lib/founding";
 import { LateralPage } from "@/components/PageTransition";
 import { PricingPlanMotion } from "@/components/PricingPlanMotion";
-import { Rise, RiseList } from "@/components/PricingReveal";
+import { Rise } from "@/components/PricingReveal";
 
 export const metadata: Metadata = {
   title: "Kelus Pricing | Free Exam Revision & Planned Plus",
@@ -35,38 +35,38 @@ export default function PricingPage() {
       <PricingViewTracker />
       <section className="legal-panel pricing-booklet">
         {/* From the Kelus illustration pack: monthly, cancel any time, no trial that runs out. */}
-        <Rise className="pricing-hero-art-wrap" delay={0.2}><PackArt name="time-flies" className="pricing-hero-art" size={190} /></Rise>
-        <Rise delay={0.06} y={16} scale={0.98}><h1>Start revising. Stay in control.</h1></Rise>
-        <Rise delay={0.14}><p className="legal-lede">
+        <PackArt name="time-flies" className="pricing-hero-art k-rise" size={190} />
+        <h1>Start revising. Stay in control.</h1>
+        <p className="legal-lede">
           Revise your own course for free. Kelus Plus is planned at $4.99/month.
           {syncReady
             ? " Free sign-in can sync your revision progress; source-file sync is still being tested."
             : " Your progress stays on this device."}
-        </p></Rise>
+        </p>
 
         <div className="pricing-booklet-stack pricing-grid" role="list">
-          <PricingPlanMotion delay={0.22}>
+          <PricingPlanMotion delay={0.1}>
             <article className="pricing-offer is-free pricing-plan">
               <div className="pricing-offer-head">
                 <div className="pricing-plan-name"><h2 className="kicker">Free</h2><span className="pricing-availability">Available now</span></div>
                 <p className="pricing-price">$0<span>/month</span></p>
               </div>
               <p className="pricing-offer-lede">Everything in Kelus today, with no limits.</p>
-              <RiseList delay={0.4} items={[
-                "Add your PDFs, slides or notes",
-                "Questions written from your own lines",
-                "A plan that moves with your answers",
-                "Export every question to Anki",
-                "No account required",
-                syncReady ? "Optional free sign-in to sync revision progress" : "Saved on this device",
-              ]} />
+              <ul>
+                <li>Add your PDFs, slides or notes</li>
+                <li>Questions written from your own lines</li>
+                <li>A plan that moves with your answers</li>
+                <li>Export every question to Anki</li>
+                <li>No account required</li>
+                <li>{syncReady ? "Optional free sign-in to sync revision progress" : "Saved on this device"}</li>
+              </ul>
               <Link className="cta" href="/today">
                 Start revising <span aria-hidden="true">→</span>
               </Link>
             </article>
           </PricingPlanMotion>
 
-          <PricingPlanMotion delay={0.32}>
+          <PricingPlanMotion delay={0.18}>
             <article className={`pricing-offer is-pass pricing-plan is-founding${paymentReady ? "" : " is-upcoming"}`}>
               <div className="pricing-offer-head">
                 <div className="pricing-plan-name"><h2 className="kicker">Kelus Plus</h2><span className="pricing-availability">{paymentReady ? "Available now" : "Coming soon"}</span></div>
@@ -75,20 +75,20 @@ export default function PricingPage() {
                 </p>
               </div>
               <p className="pricing-offer-lede">Planned, not built yet. What we’re making for it:</p>
-              <RiseList delay={0.5} items={[
-                "Everything in Free",
-                "Clearer reading of scanned and handwritten pages",
-                "Several courses side by side for exam season",
-                "Email support from a person, within a day",
-                "Monthly; cancel any time",
-              ]} />
+              <ul>
+                <li>Everything in Free</li>
+                <li>Clearer reading of scanned and handwritten pages</li>
+                <li>Several courses side by side for exam season</li>
+                <li>Email support from a person, within a day</li>
+                <li>Monthly; cancel any time</li>
+              </ul>
               <FoundingCta source="pricing" form={false} />
             </article>
           </PricingPlanMotion>
         </div>
 
         {paymentReady ? null : (
-          <Rise inView y={14}>
+          <Rise>
             <section className="pricing-notify" aria-labelledby="pricing-notify-title">
               <h2 id="pricing-notify-title">Hear when Plus opens</h2>
               <WaitlistForm source="pricing" compact />
@@ -96,7 +96,7 @@ export default function PricingPage() {
           </Rise>
         )}
 
-        <Rise inView y={14}>
+        <Rise>
         <section className="pricing-faq" aria-labelledby="pricing-faq-title">
           <h2 id="pricing-faq-title">Good to know</h2>
           <dl>

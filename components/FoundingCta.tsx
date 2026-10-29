@@ -38,7 +38,16 @@ export function FoundingCta({ source = "pricing", form = true }: { source?: stri
       <p className="founding-cta-status">Checkout isn’t live yet</p>
       <p className="founding-cta-note">
         {!form
-          ? "No date yet: it opens once sync is built and tested. Leave your email below for one note when it does."
+          ? (
+            <>
+              No date yet: it opens once sync is built and tested.{" "}
+              {/* The way down to the waitlist: it glides there, the form brightens for a moment and the email field is ready. */}
+              <a href="#pricing-notify-title" className="founding-cta-jump" onClick={() => window.setTimeout(() => document.querySelector<HTMLInputElement>(".pricing-notify input")?.focus({ preventScroll: true }), 450)}>
+                Leave your email below
+              </a>{" "}
+              for one note when it does.
+            </>
+          )
           : waitlistReady
             ? "Join the list for one launch update. Free revision stays available."
             : "Ask us when Plus opens. Free revision stays available."}

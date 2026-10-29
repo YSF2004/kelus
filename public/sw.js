@@ -92,10 +92,48 @@ function pageKey(url) {
   return new Request(new URL(path, url.origin).href);
 }
 
+/**
+ * "Share to Kelus" from another app (manifest share_target): keep the shared file on this device, in the IndexedDB
+ * store lib/shared-file.ts reads, then open Today, which imports it like a dropped file. Shared text long enough to be
+ * notes becomes a .txt; anything else just opens Kelus.
+ */
+async function receiveShare(request) {
+  try {
+    const form = await request.formData();
+    const file = form.getAll("file").find((item) => item && typeof item === "object" && item.size > 0);
+    const text = [form.get("title"), form.get("text")].filter((part) => typeof part === "string" && part.trim()).join("\n\n");
+    const shared = file
+      ? { name: file.name || "Shared notes.pdf", type: file.type || "application/pdf", blob: file }
+      : text.length >= 40 ? { name: "Shared notes.txt", type: "text/plain", blob: new Blob([text], { type: "text/plain" }) } : null;
+    if (shared) {
+      const db = await new Promise((resolve, reject) => {
+        const open = indexedDB.open("kelus-share", 1);
+        open.onupgradeneeded = () => open.result.createObjectStore("files");
+        open.onsuccess = () => resolve(open.result);
+        open.onerror = () => reject(open.error);
+      });
+      await new Promise((resolve) => {
+        const tx = db.transaction("files", "readwrite");
+        tx.objectStore("files").put(shared, "shared");
+        tx.oncomplete = resolve;
+        tx.onerror = resolve;
+      });
+      return Response.redirect("/today/?shared=1", 303);
+    }
+  } catch {
+    /* A share Kelus cannot read still opens Kelus. */
+  }
+  return Response.redirect("/today/", 303);
+}
+
 self.addEventListener("fetch", (event) => {
   const request = event.request;
-  if (request.method !== "GET") return;
   const url = new URL(request.url);
+  if (request.method === "POST" && url.origin === self.location.origin && url.pathname.replace(/\/$/, "") === "/share-target") {
+    event.respondWith(receiveShare(request));
+    return;
+  }
+  if (request.method !== "GET") return;
   if (url.origin !== self.location.origin) return;
 
   // Pages: network first, so you always get the newest Kelus online; the last copy opens it offline.
