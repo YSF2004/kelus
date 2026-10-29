@@ -9,3 +9,7 @@
 .name { font-size: 15px; font-weight: 500; letter-spacing: -0.01em; color: var(--lb-ink); }
 .count { justify-self: end; font-family: var(--font-geist-mono), ui-monospace, monospace; font-size: 13px; color: var(--lb-text-2); }
 @media (max-width: 650px) { .columns { display: none; } .topic { grid-template-columns: minmax(0, 1fr) auto; row-gap: 6px; padding: 10px 0; } .count { grid-column: 2; grid-row: 1; } }
+.list { display: grid; margin-top: 18px; }
+.list > h2 { margin: 0 0 12px !important; }
+.name { display: grid; gap: 2px; }
+.note { font-size: 13px; font-weight: 400; letter-spacing: 0; color: var(--lb-text-2); }

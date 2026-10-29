@@ -79,23 +79,38 @@ export function ProgressView({ concepts, events, nowIso, daysToExam, targetPerce
   if (!fresh && !summary.enough) {
     const byId = new Map(concepts.map((concept) => [concept.id, concept]));
     const rest = summary.notStarted.map((topic) => topic.name);
+    const tried = new Map(summary.practised.map((topic) => [topic.id, topic]));
+    // The topic rows under the boxes are the list: each says how it went and when it is back, so nothing is listed twice.
+    const noteFor = (id: string) => {
+      const topic = tried.get(id);
+      return topic ? `${EARLY[topic.lastOutcome ?? "partial"]}, ${comesBackLine(byId.get(id)?.nextReviewAt, nowIso).replace(/^Comes back/, "back")}` : "Not started";
+    };
+    const headline = <h2 id="progress-headline" className={styles.earlyHeading}>{summary.practised.length} of {concepts.length} topics tried</h2>;
     return (
       <div className={styles.page}>
-        <RecallMap concepts={concepts} activities={activities} nowIso={nowIso} />
+        <RecallMap
+          concepts={concepts}
+          activities={activities}
+          nowIso={nowIso}
+          heading={headline}
+          noteFor={noteFor}
+          fallback={
+            <section className={styles.group} aria-labelledby="progress-headline">
+              {headline}
+              <ul>
+                {summary.practised.map((topic) => (
+                  <li key={topic.id}>
+                    <strong>{topic.name}</strong>
+                    <span className={styles.move}>{noteFor(topic.id)}</span>
+                    <span className={styles.bar} aria-hidden="true" style={{ visibility: "hidden" }} />
+                  </li>
+                ))}
+              </ul>
+              {rest.length ? <p className={styles.rest}>Not started: {rest.length > 3 ? `${rest.slice(0, 2).join(", ")} and ${rest.length - 2} more` : rest.join(", ")}.</p> : null}
+            </section>
+          }
+        />
         <Link href="/sheet" className={styles.sheetLink}>Open your revision sheet</Link>
-        <section className={styles.group} aria-labelledby="progress-headline">
-          <h2 id="progress-headline" className={styles.earlyHeading}>{summary.practised.length} of {concepts.length} topics tried</h2>
-          <ul>
-            {summary.practised.map((topic) => (
-              <li key={topic.id}>
-                <strong>{topic.name}</strong>
-                <span className={styles.move}>{EARLY[topic.lastOutcome ?? "partial"]}, {comesBackLine(byId.get(topic.id)?.nextReviewAt, nowIso).replace(/^Comes back/, "back")}</span>
-                <span className={styles.bar} aria-hidden="true" style={{ visibility: "hidden" }} />
-              </li>
-            ))}
-          </ul>
-          {rest.length ? <p className={styles.rest}>Not started: {rest.length > 3 ? `${rest.slice(0, 2).join(", ")} and ${rest.length - 2} more` : rest.join(", ")}.</p> : null}
-        </section>
         <Link href="/today" className={`k-btn ${styles.cta}`}>Practise a topic <ArrowRight /></Link>
       </div>
     );
