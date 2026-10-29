@@ -896,3 +896,44 @@ html body .pricing-page .pricing-hero-art.k-rise { --rise-delay: 0.2s; }
 @keyframes kelusDepth { from { translate: 0 44px; } to { translate: 0 0; } }
 @keyframes kelusFileIn { from { opacity: 0.001; translate: 32px 0; } to { opacity: 1; translate: 0 0; } }
 @keyframes kelusSettleBack { from { scale: 1; } to { scale: 0.94; } }
+
+/* ── Scroll motion beyond the homepage, on the same rules ───────────────────────────────────────────────────────
+   Marketing pages: tiles lift in and product pieces travel a little further than their tile. Sections that
+   already reveal with JavaScript (pricing's waitlist and FAQ, How it works' chapters) get only the travel, never a
+   second fade. The study app is used every day, so it gets less: list rows rise a few pixels as they scroll into
+   view, nothing else. All of it follows the scroll position, loops nothing, and is off with reduced motion. */
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    /* Search pages: steps, the dark band and the questions tile lift in; the example's cards add depth. */
+    [data-marketing] :is([class*="SearchLanding"][class*="step"], [class*="SearchLanding"][class*="why"], [class*="SearchLanding"][class*="faq"]) {
+      animation: kelusTileUp linear both;
+      animation-timeline: view();
+      animation-range: entry 0% cover 28%;
+    }
+    [data-marketing] [class*="SearchLanding"][class*="stage"] > :is(ol, div, p) {
+      animation: kelusDepth linear both;
+      animation-timeline: view();
+      animation-range: entry 0% cover 40%;
+    }
+    /* How it works: each chapter's product picture travels in beside its words. */
+    [data-marketing] [class*="HowItWorks"][class*="visualWrap"] {
+      animation: kelusLift linear both;
+      animation-timeline: view();
+      animation-range: entry 0% cover 35%;
+    }
+    /* Pricing: the waitlist and Good to know settle in as they arrive. */
+    .pricing-page :is(.pricing-notify, .pricing-faq) {
+      animation: kelusLift linear both;
+      animation-timeline: view();
+      animation-range: entry 0% cover 25%;
+    }
+    /* Study app: the next topics and the topic list rise a little as they scroll into view. */
+    :is(body.is-course-studio) :is([data-block="today-next"] li, .index-toc > li) {
+      animation: kelusRowIn linear both;
+      animation-timeline: view();
+      animation-range: entry 0% entry 90%;
+    }
+  }
+}
+@keyframes kelusLift { from { translate: 0 48px; scale: 0.97; } to { translate: 0 0; scale: 1; } }
+@keyframes kelusRowIn { from { opacity: 0.001; translate: 0 14px; } to { opacity: 1; translate: 0 0; } }

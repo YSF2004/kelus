@@ -27,7 +27,7 @@
 .file .found { margin-left: auto; display: block; font-size: 13px; }
 .file .found b { font-size: 13px; color: var(--green); }
 .cards { display: grid; gap: 10px; margin: 0; padding: 0; list-style: none; }
-.card { display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr); border-radius: 8px; background: #fff; overflow: hidden; }
+.card { display: grid; grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr); border-radius: 8px; background: #fff; overflow: clip; }
 .front { margin: 0; padding: 14px 16px; font-size: 14.5px; font-weight: 500; line-height: 1.45; }
 .blank { display: inline-block; margin: 0 2px; color: transparent; border-bottom: 2px solid #d4d4d4; line-height: 1.1; }
 .back { display: grid; align-content: center; gap: 2px; margin: 0; padding: 14px 16px; border-left: 1px dashed var(--line); }
