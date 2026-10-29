@@ -23,8 +23,11 @@ Updated 2026-10-29. Read this before starting; it is how the project works now.
   `npm test`, `npx tsc --noEmit`, `npm run lint`, and the e2e specs you touched.
 - Shipping is from the Mac, not GitHub: `scripts/ship.sh` builds `origin/main`, tests it, publishes to Cloudflare
   and waits for `kelus.me/version.json`. It needs `.env.production.local` (gitignored) and `npx wrangler login` once.
-- e2e against a static build: the server must send `.mjs` as `text/javascript` (the PDF worker), or every PDF read
-  fails and import tests look broken when they are not.
+- e2e against a static build: `NEXT_PUBLIC_GA_MEASUREMENT_ID=G-TEST npm run build`, then
+  `npx playwright test -c playwright.static.config.ts` (it serves `out/` with `scripts/serve-out.mjs`). Any other
+  server must send `.mjs` as `text/javascript` (the PDF worker) and `.txt` as `text/plain` (Next's RSC payloads).
+  Without the first, every PDF read fails; without the second, every section switch becomes a full page load and
+  specs fail with "Execution context was destroyed". Neither is an app bug.
 
 ### Design
 - `DESIGN.md` is the source of truth. Literata for titles, topic names and large figures; Inter for text; Kelus green
