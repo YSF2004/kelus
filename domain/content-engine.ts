@@ -286,7 +286,7 @@ export function readsAsSentence(sentence: string) {
  * start of the sentence and appears nowhere else: replacing it inside a longer phrase ("Price elasticity of
  * demand" for the topic "Elasticity") would break the sentence, so no question is made instead.
  */
-function maskName(sentence: string, name: string) {
+export function maskName(sentence: string, name: string) {
   const escaped = name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
   const lead = new RegExp(`^(?:the\\s+)?${escaped}(?![\\p{L}])`, "iu");
   if (!lead.test(sentence)) return null;
