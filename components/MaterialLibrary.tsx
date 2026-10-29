@@ -269,6 +269,11 @@ function readableReadError(caught: unknown) {
   return message;
 }
 
+/** "biology-ch7-cell-transport.pdf" reads as "biology ch7 cell transport": no extension, dashes as spaces. */
+function readableFileName(name: string) {
+  return name.replace(/\.(pdf|md|markdown|txt|zip)$/i, "").replace(/[-_]+/g, " ").replace(/\s+/g, " ").trim() || name;
+}
+
 export function MaterialLibrary({ embedded = false, incomingFile = null, onIncomingFileHandled, interceptFile, quiet = false, onStartOver }: { embedded?: boolean; incomingFile?: File | null; onIncomingFileHandled?: () => void; interceptFile?: (file: File) => boolean; quiet?: boolean; onStartOver?: () => void } = {}) {
   const reduceMotion = useReducedMotion();
   const auth = useAuth();
@@ -663,11 +668,10 @@ export function MaterialLibrary({ embedded = false, incomingFile = null, onIncom
     if (analysis) return (
       <section className="first-source-review" aria-labelledby="first-source-review-title">
         <header>
-          <p className="kicker">Before you study</p>
           <h2 id="first-source-review-title" tabIndex={-1} ref={focusPhaseHeading}>{asking ? "Is this a file to revise?" : "Check the topics Kelus found."}</h2>
           {asking ? null : <>
             {analysis.coverage ? <ReadCoverage coverage={analysis.coverage} found={analysis.proposals.length} /> : null}
-            <p>These come from {analysis.material.fileName ?? analysis.material.title}. Remove anything that is not part of your exam.</p>
+            <p>These come from <b>{readableFileName(analysis.material.fileName ?? analysis.material.title)}</b>. Remove anything that is not part of your exam.</p>
             <AiNote />
           </>}
         </header>

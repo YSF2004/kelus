@@ -843,3 +843,11 @@ html body .pricing-page .pricing-hero-art.k-rise { --rise-delay: 0.2s; }
 .start-page .photo-notes-pages p { margin: 0 0 10px; font-size: 14px; }
 .start-page .photo-notes-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 18px; }
 @media (prefers-reduced-motion: reduce) { .start-page .photo-notes-start, .start-page .photo-notes-more { transition: none; } }
+
+/* The study plan on a phone: the top bar is one surface (white, a hairline under it), not a grey patch behind the
+   logo, and "Open notes" sits just above the course title instead of in a band of empty space. */
+@media (max-width: 760px) {
+  html body.is-course-studio.is-kelus-space aside.studio-rail.studio-rail { background: transparent !important; box-shadow: none !important; }
+  html body.is-course-studio .core-workspace-action { padding-top: 8px !important; }
+  html body.is-course-studio.is-kelus-space div.today-source-access.today-source-access { min-height: 0 !important; padding: 0 !important; margin-bottom: 0 !important; }
+}

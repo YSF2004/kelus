@@ -227,10 +227,13 @@ export function TodayRoute({
           <ul className={q.stats} role="group" aria-label="Your path through the course">
             {/* A sample says so on the page itself, now the top bar carries no labels. */}
             {isSampleCourse ? <li className={q.sample}>Sample course</li> : null}
-            <li className={habit.streak > 0 ? q.statOn : undefined} title={habit.restUsed ? "One missed day a week doesn’t break a streak." : undefined}>
-              <Octicon name="flame" className={q.ico} />
-              <strong>{habit.streak}</strong><span>day streak</span>
-            </li>
+            {/* A streak of zero is not news: it appears with the first day studied. */}
+            {habit.streak > 0 ? (
+              <li className={q.statOn} title={habit.restUsed ? "One missed day a week doesn’t break a streak." : undefined}>
+                <Octicon name="flame" className={q.ico} />
+                <strong>{habit.streak}</strong><span>day streak</span>
+              </li>
+            ) : null}
             <li className={habit.goalMet ? q.statOn : undefined}>
               <GoalRing done={Math.min(habit.topicsToday, habit.goal)} goal={habit.goal} reduce={reduceMotion === true} />
               <strong>{Math.min(habit.topicsToday, habit.goal)}/{habit.goal}</strong><span>today</span>

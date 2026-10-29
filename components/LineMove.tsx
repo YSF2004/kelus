@@ -29,7 +29,7 @@ export function LineMove({ quote, right, nowIso }: { quote: string; right: boole
           initial={reduce ? false : { left: `${(from - 1) * 20}%` }}
           animate={{ left: `${(to - 1) * 20}%` }}
           transition={{ duration: reduce ? 0 : 0.6, delay: reduce ? 0 : 0.25, ease: [0.16, 1, 0.3, 1] }}
-        />
+        >{to}</motion.i>
       </ol>
       <span className={styles.words}>{words}</span>
     </div>
