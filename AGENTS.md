@@ -43,9 +43,10 @@ Updated 2026-10-29. Read this before starting; it is how the project works now.
 - Marketing entrances: `.k-rise` + `rise()` for the top of a page (CSS, plays on a fresh load), `useReveal` for
   sections below the fold (`components/motion/entrance.tsx`).
 
-### Open questions
-- On `main`, a first PDF now lands on Today instead of opening the first question; 8 import/first-use e2e specs
-  expect the question. Decide which is intended before changing either.
+### Known test debt
+- A first PDF goes topic check → "Let's start with …" → Start → session; that works. Five import/first-use e2e specs
+  still fail on stale expectations: four look for the sample course's old name ("Built-in Microeconomics example"),
+  one for an undo message's old wording. The helper race that made eight fail is fixed in `e2e/helpers.ts`.
 
 <!-- BEGIN:nextjs-agent-rules -->
 
