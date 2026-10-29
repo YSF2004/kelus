@@ -270,23 +270,24 @@ export function TodayRoute({
       ) : null}
 
       <motion.section className={q.next} data-block="today-lead" data-tone={toneOf(first.conceptId, concepts)} aria-labelledby="today-title" {...settle(1)}>
-        <motion.p className={q.eyebrow} {...inCard(0)}>{startLabel ? "In progress" : goalDone ? "Extra for today" : "Due now"}</motion.p>
-        <motion.h2 id="today-title" className={q.topic} {...inCard(1)}>{firstName}</motion.h2>
-        {/* What the run holds, as marks a student reads in a glance: time, checks, the explanation, the page. */}
-        <motion.ul className={q.chips} data-block="today-page-folio" aria-label="What this topic holds" {...inCard(2)}>
+        <motion.h2 id="today-title" className={q.topic} {...inCard(0)}>{firstName}</motion.h2>
+        {/* Where this topic stands, then what the run holds: one line of marks read in a glance. The page is named on
+            the quote when there is one, so it is not said twice. */}
+        <motion.ul className={q.chips} data-block="today-page-folio" aria-label="What this topic holds" {...inCard(1)}>
+          <li className={q.status}>{startLabel ? "In progress" : goalDone ? "Extra for today" : "Due now"}</li>
           <li><Octicon name="clock" className={q.ico} />{first.minutes} min</li>
           {firstChecks ? <li><Octicon name="check-circle" className={q.ico} />{firstChecks} {firstChecks === 1 ? "check" : "checks"}</li> : null}
           <li><Octicon name="pencil" className={q.ico} />Explain it</li>
-          {firstSource?.locator && !/^Section\b/.test(firstSource.locator) ? <li><Octicon name="file" className={q.ico} />{firstSource.locator}</li> : null}
+          {!noteLine && firstSource?.locator && !/^Section\b/.test(firstSource.locator) ? <li><Octicon name="file" className={q.ico} />{firstSource.locator}</li> : null}
         </motion.ul>
         {noteLine ? (
-          <motion.figure className={q.quote} {...inCard(3)}>
-            <figcaption>Your notes{firstSource?.locator && !/^Section\b/.test(firstSource.locator) ? `, ${firstSource.locator.toLocaleLowerCase()}` : ""}</figcaption>
+          <motion.figure className={q.quote} {...inCard(2)}>
             <blockquote>{noteLine}</blockquote>
+            <figcaption>From your notes{firstSource?.locator && !/^Section\b/.test(firstSource.locator) ? `, ${firstSource.locator.toLocaleLowerCase()}` : ""}</figcaption>
           </motion.figure>
         ) : null}
-        <motion.p className={q.why} data-block="today-decision" aria-label="Why this topic is first" {...inCard(4)}>{decision[0]}</motion.p>
-        <motion.div className={q.action} {...inCard(5)}>
+        <motion.p className={q.why} data-block="today-decision" aria-label="Why this topic is first" {...inCard(3)}>{decision[0]}</motion.p>
+        <motion.div className={q.action} {...inCard(4)}>
           <motion.button
             type="button"
             data-action="start-topic"
@@ -299,7 +300,7 @@ export function TodayRoute({
           >
             {startLabel ?? "Start this topic"} <ArrowRight />
           </motion.button>
-          <span className={q.key} aria-hidden="true">or press <kbd>↵</kbd></span>
+          <span className={q.key} aria-hidden="true">or press <kbd>Enter</kbd></span>
         </motion.div>
       </motion.section>
 

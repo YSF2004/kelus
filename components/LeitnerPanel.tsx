@@ -1,7 +1,7 @@
 "use client";
 
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
-import { useId, useState } from "react";
+import { useEffect, useId, useState } from "react";
 import { BOXES, type LeitnerLine, type LeitnerState } from "@/domain/leitner";
 import styles from "./LeitnerPanel.module.css";
 
@@ -30,6 +30,13 @@ export function LeitnerPanel({ state }: { state: LeitnerState }) {
   const reduce = useReducedMotion() === true;
   const [open, setOpen] = useState<number | null>(null);
   const drawerId = useId();
+  // Escape puts an open pile back, the way it closes anything laid out on the page.
+  useEffect(() => {
+    if (open === null) return;
+    const onKey = (event: KeyboardEvent) => { if (event.key === "Escape") setOpen(null); };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [open]);
   if (!state.total) return null;
   const moved = state.lines.filter((line) => line.movedToday).length;
   const shown = open === null ? [] : state.byBox[open];
@@ -37,7 +44,7 @@ export function LeitnerPanel({ state }: { state: LeitnerState }) {
     <section className={styles.panel} aria-labelledby="leitner-title">
       <header className={styles.head}>
         <h2 id="leitner-title">Your {state.total} {state.total === 1 ? "line" : "lines"}</h2>
-        <p>Recall a line and it moves right</p>
+        <p>Recall a line and it moves right. Open a box to see its lines.</p>
       </header>
       <ol className={styles.boxes}>
         {BOXES.map(({ box, every }, index) => {

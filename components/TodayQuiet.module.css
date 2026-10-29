@@ -21,23 +21,10 @@
 }
 .title :global(.course-folder-icon) { display: none; }
 
-.stats { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 0; padding: 0; list-style: none; }
-.stats li {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  height: 32px;
-  padding: 0 12px;
-  border-radius: 999px;
-  background: var(--lb-well);
-  box-shadow: inset 0 0 0 1px var(--lb-line);
-  color: var(--lb-text-2);
-  font-size: 13px;
-  font-variant-numeric: tabular-nums;
-  white-space: nowrap;
-}
-.stats strong { color: var(--lb-ink); font-family: var(--font-geist-mono), ui-monospace, monospace; font-size: 13px; font-weight: 500; }
-.stats li.statOn { background: var(--k-marigold-wash, #fdf3df); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--k-marigold, #f3b23e) 35%, transparent); }
+/* The figures are quiet text beside the title, not a row of pills: only a running streak carries a colour. */
+.stats { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 20px; margin: 0; padding: 0; list-style: none; }
+.stats li { display: inline-flex; align-items: center; gap: 6px; min-height: 28px; color: var(--lb-text-2); font-size: 13.5px; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.stats strong { color: var(--lb-ink); font-family: var(--font-geist-mono), ui-monospace, monospace; font-size: 13.5px; font-weight: 500; }
 .stats li.statOn strong, .stats li.statOn .ico { color: var(--k-marigold-text, #8d5410); }
 .stats li.sample { font-style: italic; }
 .ring { width: 14px; height: 14px; flex: none; transform: rotate(-90deg); }
@@ -58,23 +45,11 @@
   overflow: hidden;
   padding: 28px 30px 30px;
   border: 1px solid var(--lb-line);
-  border-radius: 18px;
+  border-radius: 8px;
   background: var(--lb-surface);
-  box-shadow: 0 1px 2px rgba(14, 21, 18, 0.04), 0 24px 48px -30px rgba(14, 21, 18, 0.28) !important;
-}
-/* The topic's tone as a soft light in the card's corner, so each topic's card is its own. */
-.next::before {
-  content: "";
-  position: absolute;
-  inset: 0 0 auto;
-  z-index: -1;
-  height: 180px;
-  background: radial-gradient(120% 100% at 0% 0%, var(--topic-wash, var(--lb-due)) 0%, transparent 70%);
-  opacity: 0.9;
+  box-shadow: 0 14px 36px -22px rgba(14, 21, 18, 0.32) !important;
 }
 
-.eyebrow { display: inline-flex; align-items: center; gap: 8px; margin: 0 0 14px; color: var(--topic-ink, var(--lb-green-ink)); font-size: 13px; font-weight: 600; letter-spacing: 0; }
-.eyebrow::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: var(--topic, var(--lb-green)); box-shadow: 0 0 0 4px color-mix(in oklch, var(--topic, var(--lb-green)) 18%, transparent); }
 
 .topic {
   margin: 0;
@@ -95,33 +70,39 @@
   gap: 6px;
   height: 28px;
   padding: 0 10px;
-  border-radius: 8px;
-  background: color-mix(in srgb, var(--lb-surface) 70%, transparent);
+  border-radius: 6px;
+  background: var(--lb-surface);
   box-shadow: inset 0 0 0 1px var(--lb-line);
   color: var(--lb-text-2);
   font-size: 13px;
   font-weight: 500;
   font-variant-numeric: tabular-nums;
 }
-.chips .ico { width: 14px; height: 14px; color: var(--topic-ink, var(--lb-text-3)); }
+.chips .ico { width: 14px; height: 14px; color: var(--lb-text-3); }
+/* Where the topic stands leads the tags: its tone as a dot, the words in the topic's ink. */
+.chips li.status { padding-left: 9px; background: var(--topic-wash, var(--lb-due)); box-shadow: none; color: var(--topic-ink, var(--lb-green-ink)); font-weight: 600; }
+.chips li.status::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: var(--topic, var(--lb-green)); }
 
 /* A line from the student's own notes, set the way the homepage sets it: a green rule, the page, the words. */
-.quote { margin: 20px 0 0; padding: 14px 16px; border-left: 2px solid var(--lb-green); border-radius: 0 10px 10px 0; background: var(--lb-well); }
-.quote figcaption { margin: 0 0 4px; color: var(--lb-green-ink); font-size: 12.5px; font-weight: 600; }
-.quote blockquote { margin: 0; color: var(--lb-ink); font-size: 15px; line-height: 1.5; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+/* A line from the student's own notes, in the serif as a quotation, with where it comes from under it. */
+.quote { margin: 20px 0 0; padding: 16px 18px; border-radius: 8px; background: var(--lb-well); }
+.quote blockquote { margin: 0; color: var(--lb-ink); font-family: var(--font-marketing-heading), Georgia, serif; font-size: 17px; line-height: 1.5; letter-spacing: -0.005em; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+.quote blockquote::before { content: "“"; }
+.quote blockquote::after { content: "”"; }
+.quote figcaption { margin: 8px 0 0; color: var(--lb-green-ink); font-size: 12.5px; font-weight: 600; }
 
-.why { max-width: 52ch; margin: 16px 0 0; color: var(--lb-text-2); font-size: 14px; line-height: 1.5; }
+.why { max-width: 56ch; margin: 14px 0 0; color: var(--lb-text-2); font-size: 13.5px; line-height: 1.5; }
 .why:empty { display: none; }
 
 .action { display: flex; align-items: center; gap: 14px; margin-top: 24px; }
-.go { display: inline-flex !important; align-items: center; gap: 10px; width: auto; min-height: 48px !important; padding: 0 22px !important; border-radius: 12px !important; font-size: 15px !important; font-weight: 600 !important; }
+.go { display: inline-flex !important; align-items: center; gap: 10px; width: auto; min-height: 48px !important; padding: 0 22px !important; border-radius: 8px !important; font-size: 15px !important; font-weight: 600 !important; }
 .go svg { width: 16px; height: 16px; transition: transform 220ms cubic-bezier(0.22, 1, 0.36, 1); }
 .go:hover svg { transform: translateX(3px); }
 .key { display: inline-flex; align-items: center; gap: 6px; color: var(--lb-text-3); font-size: 12.5px; }
-.key kbd { display: inline-grid; place-items: center; min-width: 22px; height: 22px; padding: 0 6px; border-radius: 6px; background: var(--lb-well); box-shadow: inset 0 0 0 1px var(--lb-line-strong), 0 1px 0 var(--lb-line-strong); color: var(--lb-text-2); font: 500 11.5px/1 var(--font-geist-mono), ui-monospace, monospace; }
+.key kbd { display: inline-grid; place-items: center; height: 22px; padding: 0 7px; border-radius: 5px; background: var(--lb-well); box-shadow: inset 0 0 0 1px var(--lb-line-strong), 0 1px 0 var(--lb-line-strong); color: var(--lb-text-2); font: 500 11.5px/1 var(--font-geist-mono), ui-monospace, monospace; }
 
 /* ── Tomorrow: a quiet strip under the card ── */
-.tomorrow { display: flex; align-items: center; gap: 12px; margin: 0; padding: 12px 16px; border-radius: 14px; background: var(--lb-well); color: var(--lb-text-2); font-size: 14px; line-height: 1.45; }
+.tomorrow { display: flex; align-items: center; gap: 12px; margin: 0; padding: 12px 16px; border-radius: 8px; background: var(--lb-well); color: var(--lb-text-2); font-size: 14px; line-height: 1.45; }
 .tomorrow .ico { display: grid; place-items: center; width: 30px; height: 30px; padding: 7px; border-radius: 50%; background: var(--lb-surface); box-shadow: inset 0 0 0 1px var(--lb-line); color: var(--lb-green); box-sizing: border-box; }
 .tomorrow b { margin-right: 6px; color: var(--lb-ink); font-weight: 600; }
 .keep .ico { color: var(--k-marigold-text, #8d5410); }
@@ -129,21 +110,19 @@
 /* ── After that: the route's next stops ── */
 .then { margin: 12px 0 0; }
 .thenTitle { margin: 0 0 8px; color: var(--lb-text-3) !important; font-family: var(--font-inter), system-ui, sans-serif !important; font-size: 13px !important; font-weight: 600 !important; letter-spacing: 0 !important; }
-.then ol { display: grid; gap: 6px; margin: 0; padding: 0; list-style: none; }
+.then ol { margin: 0; padding: 0; list-style: none; border-top: 1px solid var(--lb-line); }
 .then li {
   display: grid;
   grid-template-columns: 28px minmax(0, 1fr) auto 3.5rem;
   align-items: center;
   gap: 14px;
   min-height: 56px;
-  padding: 0 16px 0 12px;
-  border-radius: 14px;
-  background: var(--lb-surface);
-  box-shadow: inset 0 0 0 1px var(--lb-line);
-  transition: translate 220ms cubic-bezier(0.22, 1, 0.36, 1), box-shadow 220ms cubic-bezier(0.22, 1, 0.36, 1);
+  padding: 0 4px;
+  border-bottom: 1px solid var(--lb-line);
+  transition: translate 220ms cubic-bezier(0.22, 1, 0.36, 1);
 }
-.then li:hover { translate: 0 -1px; box-shadow: inset 0 0 0 1px var(--lb-line-strong), 0 10px 24px -18px rgba(14, 21, 18, 0.35); }
-.then li strong { overflow: hidden; color: var(--lb-ink); font-size: 15px; font-weight: 500; letter-spacing: -0.005em; white-space: nowrap; text-overflow: ellipsis; }
+.then li:hover { translate: 3px 0; }
+.then li strong { overflow: hidden; color: var(--lb-ink); font-family: var(--font-marketing-heading), Georgia, serif !important; font-size: 16.5px; font-weight: 500 !important; letter-spacing: -0.01em; white-space: nowrap; text-overflow: ellipsis; }
 .then li em { color: var(--lb-text-3); font-family: var(--font-geist-mono), ui-monospace, monospace; font-size: 12.5px; font-style: normal; text-align: right; }
 .num { display: inline-grid; place-items: center; width: 28px; height: 28px; border-radius: 50%; background: var(--lb-well); color: var(--lb-text-2); font-family: var(--font-geist-mono), ui-monospace, monospace; font-size: 12px; font-style: normal; font-weight: 500; }
 .then li[data-tone] .num { background: var(--topic-wash); color: var(--topic-ink); }
@@ -153,7 +132,7 @@
 .pill[data-level="solid"], .pill[data-level="review"] { background: var(--lb-due); color: var(--lb-green-ink); }
 
 /* ── Exam eve: the last three days open on one calm page ── */
-.eve { margin: 0; padding: 24px 28px 26px; border: 1px solid color-mix(in srgb, var(--k-marigold, #f3b23e) 45%, var(--lb-line)); border-radius: 18px; background: var(--lb-surface); }
+.eve { margin: 0; padding: 24px 28px 26px; border: 1px solid color-mix(in srgb, var(--k-marigold, #f3b23e) 45%, var(--lb-line)); border-radius: 8px; background: var(--lb-surface); }
 .eveKicker { margin: 0 0 10px; color: var(--k-marigold-text); font-size: 13px; font-weight: 600; }
 .eveTitle { margin: 0; color: var(--lb-ink); font-family: var(--font-marketing-heading), Georgia, serif !important; font-size: clamp(1.75rem, 4.4vw, 2.375rem) !important; font-weight: 400 !important; letter-spacing: -0.025em !important; line-height: 1.1; }
 .eveTitle b { color: var(--k-marigold-text); font-weight: 500; }
@@ -170,13 +149,14 @@
   .head { flex-direction: column; align-items: flex-start; gap: 12px; margin-bottom: 20px; }
   .title, .title :global(*) { font-size: 24px !important; white-space: normal !important; }
   .stats { gap: 6px; }
-  .stats li { height: 30px; padding: 0 10px; font-size: 12.5px; }
-  .next { padding: 22px 20px 22px; border-radius: 16px; }
+  .stats { gap: 2px 16px; }
+  .stats li { min-height: 24px; font-size: 13px; }
+  .next { padding: 22px 20px 22px; }
   .topic { font-size: 36px !important; }
   .action { flex-direction: column; align-items: stretch; }
   .go { width: 100%; justify-content: center; }
   .key { display: none; }
-  .then li { grid-template-columns: 26px minmax(0, 1fr) auto; padding-right: 12px; gap: 10px; }
+  .then li { grid-template-columns: 26px minmax(0, 1fr) auto; gap: 10px; }
   .then li em { display: none; }
   .then li { padding-block: 10px; }
   .then li strong { white-space: normal; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; line-height: 1.3; }
