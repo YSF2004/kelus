@@ -22,3 +22,6 @@ public/version.json
 # Impeccable: the engine binary downloads itself on first run; hooks stay per-machine.
 .claude/settings.local.json
 .claude/skills/impeccable/scripts/bin/
+
+# Production values for scripts/ship.sh stay on this Mac.
+.env*.local

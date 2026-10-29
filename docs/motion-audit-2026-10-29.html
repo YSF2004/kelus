@@ -1,0 +1,210 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kelus motion audit</title>
+<style>
+  :root {
+    --bg: #ffffff; --fg: #171717; --mute: #525252; --border: #e5e5e5; --tile: #f4f4f4;
+    --accent: #1f6b45; --warn: #9a6700; --loop-dim: #d4d4d4;
+    --sans: Inter, system-ui, -apple-system, sans-serif; --mono: ui-monospace, SFMono-Regular, Menlo, monospace;
+    --ease: cubic-bezier(0.22, 1, 0.36, 1);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) { --bg: #111412; --fg: #ececec; --mute: #a3a3a3; --border: #2a2f2c; --tile: #1a1f1c; --accent: #5fd394; --warn: #e3b341; --loop-dim: #3a403c; }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--fg); font: 15px/1.55 var(--sans); }
+  main { max-width: 980px; margin: 0 auto; padding: 40px 16px 80px; }
+  h1 { margin: 0 0 6px; font-size: 30px; letter-spacing: -0.02em; }
+  h2 { margin: 48px 0 12px; font-size: 21px; letter-spacing: -0.01em; }
+  h3 { margin: 0 0 6px; font-size: 16px; }
+  p, li { color: var(--fg); }
+  .mute { color: var(--mute); }
+  code { font: 13px var(--mono); background: var(--tile); padding: 1px 5px; border-radius: 4px; }
+  .tally { display: flex; flex-wrap: wrap; gap: 8px; margin: 18px 0 0; }
+  .tally span { padding: 4px 10px; border: 1px solid var(--border); border-radius: 999px; font-size: 13px; }
+  .grid { display: grid; gap: 16px; }
+  .finding { border: 1px solid var(--border); border-radius: 8px; padding: 18px; }
+  .finding header { display: flex; flex-wrap: wrap; gap: 8px; align-items: baseline; justify-content: space-between; }
+  .sev { font-size: 12px; font-weight: 600; padding: 2px 8px; border-radius: 999px; background: var(--tile); }
+  .sev.important { color: var(--warn); }
+  .sev.opp { color: var(--accent); }
+  .where { font: 12.5px var(--mono); color: var(--mute); }
+  .lens { margin-top: 10px; font-size: 14px; color: var(--mute); }
+  ul { padding-left: 20px; }
+  table { width: 100%; border-collapse: collapse; font-size: 14px; }
+  th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--border); vertical-align: top; }
+
+  /* Demo cards: before and after, looping at 3s (about 2s of motion, 1s held). Only these animate. */
+  .demo { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin-top: 14px; }
+  .demo-card { position: relative; min-height: 150px; padding: 14px; border-radius: 8px; background: var(--tile); overflow: hidden; }
+  .demo-card small { display: block; margin-bottom: 10px; font-size: 12px; font-weight: 600; color: var(--mute); }
+  .chip { display: block; height: 22px; margin-bottom: 6px; border-radius: 6px; background: var(--bg); box-shadow: 0 0 0 1px var(--border); }
+  .line { display: block; height: 9px; margin: 6px 0; border-radius: 4px; background: var(--loop-dim); }
+  .head { display: block; width: 70%; height: 16px; margin-bottom: 10px; border-radius: 4px; background: var(--fg); opacity: 0.8; }
+  .frame { position: relative; height: 96px; border-radius: 6px; background: var(--bg); box-shadow: 0 0 0 1px var(--border); overflow: hidden; }
+  .fold { position: absolute; left: 0; right: 0; top: 46px; border-top: 1px dashed var(--mute); font-size: 10px; color: var(--mute); padding-left: 4px; }
+  @media (max-width: 640px) { .demo { grid-template-columns: minmax(0, 1fr); } }
+
+  /* 1 · demo runs below the fold vs starts in view */
+  .demo-card-1__motion-target { display: block; height: 12px; border-radius: 3px; background: #f3d27a; transform-origin: left; }
+  .demo-card-1.before .demo-card-1__motion-target { animation: motion-1-early 3s var(--ease) infinite; }
+  .demo-card-1.after .demo-card-1__motion-target { animation: motion-1-inview 3s var(--ease) infinite; }
+  .demo-card-1 .pane { position: absolute; left: 8px; right: 8px; }
+  .demo-card-1.before .pane { top: 58px; animation: motion-1-scroll 3s var(--ease) infinite; }
+  .demo-card-1.after .pane { top: 58px; animation: motion-1-scroll 3s var(--ease) infinite; }
+  @keyframes motion-1-scroll { 0%, 40% { transform: translateY(0); } 55%, 100% { transform: translateY(-40px); } }
+  @keyframes motion-1-early { 0% { transform: scaleX(0); } 30%, 100% { transform: scaleX(1); } }
+  @keyframes motion-1-inview { 0%, 55% { transform: scaleX(0); } 85%, 100% { transform: scaleX(1); } }
+
+  /* 2 · default ease vs the Kelus curve */
+  .demo-card-2__motion-target { display: block; width: 46px; height: 22px; border-radius: 6px; background: var(--accent); }
+  .demo-card-2.before .demo-card-2__motion-target { animation: motion-2-move 3s ease infinite; }
+  .demo-card-2.after .demo-card-2__motion-target { animation: motion-2-move 3s var(--ease) infinite; }
+  @keyframes motion-2-move { 0% { opacity: 0; transform: translateY(14px); } 40%, 100% { opacity: 1; transform: none; } }
+
+  /* 3 · stagger on every list vs the plan arriving as one */
+  .demo-card-3__motion-target { display: block; }
+  .demo-card-3.before .demo-card-3__motion-target { animation: motion-3-in 3s var(--ease) infinite both; }
+  .demo-card-3.before .demo-card-3__motion-target:nth-child(2) { animation-delay: 0.12s; }
+  .demo-card-3.before .demo-card-3__motion-target:nth-child(3) { animation-delay: 0.24s; }
+  .demo-card-3.before .demo-card-3__motion-target:nth-child(4) { animation-delay: 0.36s; }
+  .demo-card-3.before .demo-card-3__motion-target:nth-child(5) { animation-delay: 0.48s; }
+  .demo-card-3.before .demo-card-3__motion-target:nth-child(6) { animation-delay: 0.6s; }
+  .demo-card-3.after .group { animation: motion-3-in 3s var(--ease) infinite both; }
+  @keyframes motion-3-in { 0% { opacity: 0; transform: translateY(6px); } 25%, 100% { opacity: 1; transform: none; } }
+
+  /* 4 · a heading that rises in vs one that is simply there */
+  .demo-card-4__motion-target { display: block; }
+  .demo-card-4.before .demo-card-4__motion-target { animation: motion-4-rise 3s var(--ease) infinite both; }
+  .demo-card-4.after .demo-card-4__motion-target { animation: none; }
+  .demo-card-4.after .art { display: block; width: 40px; height: 30px; margin-top: 10px; border-radius: 6px; background: var(--loop-dim); animation: motion-4-art 3s var(--ease) infinite both; }
+  @keyframes motion-4-rise { 0% { opacity: 0; transform: translateY(16px) scale(0.98); } 35%, 100% { opacity: 1; transform: none; } }
+  @keyframes motion-4-art { 0% { opacity: 0; transform: translateY(8px); } 35%, 100% { opacity: 1; transform: none; } }
+
+  /* 5 · replay that snaps vs one that settles out first */
+  .demo-card-5__motion-target { display: block; }
+  .demo-card-5.before .demo-card-5__motion-target { animation: motion-5-snap 3s steps(1, end) infinite; }
+  .demo-card-5.after .demo-card-5__motion-target { animation: motion-5-soft 3s var(--ease) infinite; }
+  @keyframes motion-5-snap { 0%, 49% { opacity: 1; } 50%, 59% { opacity: 0; } 60%, 100% { opacity: 1; } }
+  @keyframes motion-5-soft { 0%, 40% { opacity: 1; transform: none; } 50% { opacity: 0; transform: translateY(-4px); } 60% { opacity: 0; transform: translateY(6px); } 75%, 100% { opacity: 1; transform: none; } }
+
+  @media (prefers-reduced-motion: reduce) {
+    [class*="__motion-target"], .pane, .group, .art { animation: none !important; transform: none !important; opacity: 1 !important; }
+  }
+</style>
+</head>
+<body>
+<main>
+  <h1>Kelus motion audit</h1>
+  <p class="mute">Homepage (hybrid tiles, main at <code>bfda1e8</code>), pricing and How it works, 29 October 2026. Written with the Design Motion Principles skill.</p>
+  <p>Weighting, agreed before the audit: <b>Jakub Krehel primary</b> (production polish for a marketing site), <b>Emil Kowalski secondary</b> (restraint; Kelus's "calm and short" principle, DESIGN.md's 80–400 ms), <b>Jhey Tompkins selective</b> (only the hero demonstration, where motion tells the method).</p>
+  <div class="tally"><span>🔴 0 Critical</span><span>🟡 5 Important</span><span>🟢 3 Opportunities</span><span>✓ 5 Working well</span></div>
+
+  <h2>Reconnaissance</h2>
+  <table>
+    <tr><th>Surface</th><th>Motion today</th></tr>
+    <tr><td>Hero demo</td><td>One CSS pass of 4.8 s (marks sweep, cards rise, blank types, check appears), holds, "Play it again" remounts it. Reduced motion shows the end state and hides the replay.</td></tr>
+    <tr><td>Four step tiles</td><td>Motion <code>appear()</code>: identical opacity + 10 px rise, 0.5 s, 0.32 s apart; then each tile's own micro-motion (marker, typing, wavy underline, plan spring).</td></tr>
+    <tr><td>Study moment, Tomorrow tiles</td><td><code>&lt;Reveal&gt;</code> with <code>initial={false}</code>: never animates.</td></tr>
+    <tr><td>Dark band, closing tile</td><td>None.</td></tr>
+    <tr><td>Pricing (#429 on main)</td><td>Art, h1 (rise + 0.98 scale) and lede rise; two plans rise; 11 list lines staggered 0.05 s; FAQ and waitlist rise in view; plans scale 1.018 on hover.</td></tr>
+    <tr><td>How it works</td><td>h1, lede, art rise; rows in all four chapters staggered 0.08 s.</td></tr>
+  </table>
+  <p class="mute">Motion gaps: none in primary UI. The band and closing tile are static content and need none. The only conditional swap on these pages, the hero replay, is finding 5.</p>
+
+  <h2>Important</h2>
+  <div class="grid">
+
+    <article class="finding">
+      <header><h3>1 · On a phone, the hero demo plays before anyone can see it</h3><span class="sev important">Important</span></header>
+      <p class="where">components/hero/LeitnerHero.module.css:46–64</p>
+      <p>The animations start on page load. At 390 px the demonstration sits below the first screen, so it has finished by the time a student scrolls to it: they meet the end state and never see a line become a question, the whole point of the hero.</p>
+      <p><b>Fix:</b> start the pass when the panel is half in view (an IntersectionObserver adds <code>data-play</code>; the keyframes run only under it). Desktop, where it is in view on load, is unchanged.</p>
+      <div class="demo">
+        <div class="demo-card demo-card-1 before"><small>Now: plays on load, off screen</small><div class="frame"><span class="fold">first screen ends</span><div class="pane"><span class="demo-card-1__motion-target"></span></div></div></div>
+        <div class="demo-card demo-card-1 after"><small>Fix: plays once it is in view</small><div class="frame"><span class="fold">first screen ends</span><div class="pane"><span class="demo-card-1__motion-target"></span></div></div></div>
+      </div>
+      <p class="lens">Through Jakub's lens: motion that happens where nobody looks is cost without polish. Through Jhey's: this is the one story moment on the page; let it start on its audience.</p>
+    </article>
+
+    <article class="finding">
+      <header><h3>2 · The hero's keyframes use the browser's default <code>ease</code></h3><span class="sev important">Important</span></header>
+      <p class="where">components/hero/LeitnerHero.module.css:46, 53, 62, 64</p>
+      <p><code>animation: kelusHeroCard 4.8s 1 both</code> names no timing function, so every card, mark and check runs on <code>ease</code>, while the rest of Kelus uses <code>cubic-bezier(0.22, 1, 0.36, 1)</code>. The cards drift in rather than arrive.</p>
+      <p><b>Fix:</b> add the Kelus curve to the mark, card, check and next-step animations (the typing keeps <code>steps()</code>).</p>
+      <div class="demo">
+        <div class="demo-card demo-card-2 before"><small>Now: ease</small><span class="demo-card-2__motion-target"></span></div>
+        <div class="demo-card demo-card-2 after"><small>Fix: Kelus curve</small><span class="demo-card-2__motion-target"></span></div>
+      </div>
+      <p class="lens">Through Emil's lens: easing is the most important part of an animation; the default lacks strength. Through Jakub's: one curve across the product is what makes it feel made by one hand.</p>
+    </article>
+
+    <article class="finding">
+      <header><h3>3 · Every list staggers</h3><span class="sev important">Important</span></header>
+      <p class="where">components/PricingReveal.tsx:53 (2 plan lists, 11 lines) · components/HowItWorks.tsx:20 (rows in 4 chapters)</p>
+      <p>Six lists across two pages arrive line by line. One staggered moment reads as care; six read as a template, and on pricing the visitor waits about a second to read a price list.</p>
+      <p><b>Fix:</b> plan lines arrive with their plan, in one piece. In How it works keep the stagger only where order is the message (the plan rows in chapter 3, which reorder) and let the other chapters' rows appear with their fragment.</p>
+      <div class="demo">
+        <div class="demo-card demo-card-3 before"><small>Now: line by line</small><span class="chip demo-card-3__motion-target"></span><span class="chip demo-card-3__motion-target"></span><span class="chip demo-card-3__motion-target"></span><span class="chip demo-card-3__motion-target"></span><span class="chip demo-card-3__motion-target"></span><span class="chip demo-card-3__motion-target"></span></div>
+        <div class="demo-card demo-card-3 after"><small>Fix: the plan arrives as one</small><span class="group" style="display:block"><span class="chip demo-card-3__motion-target"></span><span class="chip demo-card-3__motion-target"></span><span class="chip demo-card-3__motion-target"></span><span class="chip demo-card-3__motion-target"></span><span class="chip demo-card-3__motion-target"></span><span class="chip demo-card-3__motion-target"></span></span></div>
+      </div>
+      <p class="lens">Through Emil's lens: utility lists get no stagger. Through Jakub's: hierarchy, not uniformity; save sequence for the one place sequence means something.</p>
+    </article>
+
+    <article class="finding">
+      <header><h3>4 · Page titles rise in before they can be read</h3><span class="sev important">Important</span></header>
+      <p class="where">app/pricing/page.tsx:39 · components/HowItWorks.tsx (hero h1)</p>
+      <p>"Start revising. Stay in control." and "Your lessons become a better revision habit." fade, rise and scale in. A title is the first thing read; moving it only delays that.</p>
+      <p><b>Fix:</b> titles and ledes are simply there. The arrival moves to the illustration and the plans, which carry no reading.</p>
+      <div class="demo">
+        <div class="demo-card demo-card-4 before"><small>Now: the title moves</small><span class="demo-card-4__motion-target"><span class="head"></span><span class="line" style="width:90%"></span><span class="line" style="width:70%"></span></span></div>
+        <div class="demo-card demo-card-4 after"><small>Fix: the title is there; the art arrives</small><span class="demo-card-4__motion-target"><span class="head"></span><span class="line" style="width:90%"></span><span class="line" style="width:70%"></span></span><span class="art"></span></div>
+      </div>
+      <p class="lens">Through Emil's lens: animations should serve a purpose, not announce themselves. Through Jakub's: if people notice the heading's entrance, it is too much.</p>
+    </article>
+
+    <article class="finding">
+      <header><h3>5 · "Play it again" snaps the demo away</h3><span class="sev important">Important</span></header>
+      <p class="where">components/hero/HeroReplay.tsx</p>
+      <p>The replay remounts the demonstration, so the checked answer, the marks and the cards vanish in one frame before the pass restarts. The jump reads as a glitch.</p>
+      <p><b>Fix:</b> fade the finished state out over 150 ms (opacity and a 4 px lift, subtler than the entrance), then remount. Reduced motion keeps the button hidden, as now.</p>
+      <div class="demo">
+        <div class="demo-card demo-card-5 before"><small>Now: snaps</small><span class="demo-card-5__motion-target"><span class="chip"></span><span class="chip"></span><span class="chip"></span></span></div>
+        <div class="demo-card demo-card-5 after"><small>Fix: settles out, then replays</small><span class="demo-card-5__motion-target"><span class="chip"></span><span class="chip"></span><span class="chip"></span></span></div>
+      </div>
+      <p class="lens">Through Jakub's lens: exits are subtler than entrances, but they exist. Through Emil's: the action is user-initiated and rare, so a short, plain transition is right.</p>
+    </article>
+  </div>
+
+  <h2>Opportunities</h2>
+  <div class="grid">
+    <article class="finding"><header><h3>A · Remove the dead <code>&lt;Reveal&gt;</code> wrappers</h3><span class="sev opp">Opportunity</span></header>
+      <p class="where">components/home/HomeVisualChapters.tsx:12, 16 (and the second chapter)</p>
+      <p><code>initial={false}</code> with <code>whileInView={{ opacity: 1 }}</code> never animates. Either delete the wrappers (simplest, and these tiles are reading content) or let only the drawing arrive.</p></article>
+    <article class="finding"><header><h3>B · The four step tiles share one identical entrance</h3><span class="sev opp">Opportunity</span></header>
+      <p class="where">components/home/RevisionLoopVisuals.tsx:22–37</p>
+      <p>Four tiles, the same rise, 0.32 s apart, and then each has its own micro-motion. The micro-motions are the moment; the tile entrance competes with them. Let the grid appear as one and keep the four micro-motions in sequence.</p></article>
+    <article class="finding"><header><h3>C · One materialising moment in the hero</h3><span class="sev opp">Opportunity</span></header>
+      <p class="where">components/hero/LeitnerHero.module.css (kelusHeroCard)</p>
+      <p>The question cards could come into focus (opacity, 6 px rise and a 4 px blur clearing) as the line they come from is marked: one place on the site, so it stays a signal, not a template.</p></article>
+  </div>
+
+  <h2>Working well</h2>
+  <ul>
+    <li>The hero plays once, holds the checked answer and offers a replay: no endless loop (WCAG 2.2.2).</li>
+    <li>Every motion on these pages honours <code>prefers-reduced-motion</code> with its finished state.</li>
+    <li>The step micro-motions each show the step itself (the marker marks, the blank fills, the opposite word is caught, the plan reorders).</li>
+    <li>Hover growth appears once (the pricing plans) instead of on every card.</li>
+    <li>Only transform, opacity, clip-path and background-size animate; nothing animates layout.</li>
+  </ul>
+
+  <h2>By lens</h2>
+  <p><b>Through Jakub's lens:</b> the pages are close to production polish; the gaps are consistency (one curve, findings 2) and hierarchy (one sequence per page, findings 3 and B).</p>
+  <p><b>Through Emil's lens:</b> remove motion that only announces itself: the staggered lists and moving titles (3, 4), and the dead wrappers (A).</p>
+  <p><b>Through Jhey's lens:</b> the hero is the place to be expressive; make sure it plays where it is seen (1) and give it one materialising beat (C).</p>
+</main>
+</body>
+</html>

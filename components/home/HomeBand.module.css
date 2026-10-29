@@ -8,10 +8,11 @@
 .claim h2 { max-width: 9em; margin: 0; font-family: var(--font-source-serif), Georgia, serif !important; font-size: clamp(38px, 4.2vw, 60px) !important; font-weight: 500 !important; line-height: 1.02 !important; letter-spacing: -0.03em !important; color: #fff !important; text-wrap: balance; }
 .claim h2 span { font-family: inherit !important; color: var(--bright); }
 .claim p { max-width: 30em; margin: 20px 0 0; font-size: 17px; line-height: 1.45; color: rgba(255, 255, 255, 0.78) !important; }
-.action { display: inline-flex; align-items: center; height: 48px; margin-top: 28px; padding: 0 22px; border-radius: 8px; background: var(--bright); color: var(--deep); font-size: 16px; font-weight: 600; text-decoration: none; transition: background-color 160ms, transform 120ms; }
+.action { display: inline-flex; align-items: center; height: 48px; margin-top: 28px; padding: 0 22px; border-radius: 8px; background: var(--bright); color: var(--deep); font-size: 16px; font-weight: 600; text-decoration: none; outline: 2px solid transparent; outline-offset: 0; transition: background-color 160ms, transform 120ms cubic-bezier(0.22, 1, 0.36, 1), outline-color 160ms, outline-offset 160ms cubic-bezier(0.22, 1, 0.36, 1); }
 .action:hover { background: #79dca7; }
-.action:active { transform: scale(0.985); }
-.action:focus-visible { outline: 2px solid var(--bright); outline-offset: 3px; }
+.action:active { transform: scale(0.97); }
+.action:focus-visible { outline-color: var(--bright); outline-offset: 3px; }
+@media (prefers-reduced-motion: reduce) { .action { transition: none; } }
 
 .files { display: grid; gap: 1px; margin: 0; padding: 0; overflow: hidden; border-radius: 8px; background: rgba(255, 255, 255, 0.1); list-style: none; }
 .files li { display: grid; grid-template-columns: minmax(0, 14rem) minmax(0, 1fr); align-items: center; gap: 20px; padding: 16px 18px; background: #102a1d; }

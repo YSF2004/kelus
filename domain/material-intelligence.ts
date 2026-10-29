@@ -277,8 +277,15 @@ export function versusSides(name: string) {
   return { left: !/\s/.test(left) && tail ? `${left} ${tail}` : left, right, leftKey: left.split(/\s+/)[0], rightKey: right.split(/\s+/)[0] };
 }
 
-function centralClaim(name: string, excerpt: string) {
-  const sentences = units(excerpt);
+/** Sentences the student highlighted come first, in their own order; the rest keep theirs. */
+export function highlightedFirst(sentences: string[], highlights: string[] = []) {
+  if (!highlights.length) return sentences;
+  const marked = (sentence: string) => highlights.some((phrase) => sentence.includes(phrase));
+  return [...sentences.filter(marked), ...sentences.filter((sentence) => !marked(sentence))];
+}
+
+function centralClaim(name: string, excerpt: string, highlights: string[] = []) {
+  const sentences = highlightedFirst(units(excerpt), highlights);
   if (!sentences.length) return excerpt.slice(0, 220);
   const sides = versusSides(name);
   if (sides) {
@@ -292,6 +299,9 @@ function centralClaim(name: string, excerpt: string) {
   const pool = whole.length ? whole : sentences;
   // "Determinants of elasticity", "Causes of …": the answer is the list, not its first item.
   if (isListTopic(name) && whole.length >= 2) return whole.slice(0, 3).join(" ").slice(0, 360);
+  // A line the student highlighted is the one they decided matters: it is the answer, whatever else the page says.
+  const highlighted = highlights.length ? pool.find((sentence) => highlights.some((phrase) => sentence.includes(phrase))) : undefined;
+  if (highlighted) return clipAtPoint(highlighted, 260);
   const named = pool.find((sentence) => sentence.toLocaleLowerCase().includes(coreName(name).toLocaleLowerCase()));
   // A definition counts only near the heading; a later "… is the market equilibrium" belongs to another idea.
   const defined = pool.slice(0, 2).find((sentence) => DEFINITION_SIGNAL.test(sentence));
@@ -520,8 +530,8 @@ function frenchApply(prompt: string, name: string, claim: string) {
 }
 
 function buildActivity(concept: Concept, proposal: ProposedConcept, siblingNames: string[] = [], siblingFacts: string[] = []): LearningActivity {
-  const claim = centralClaim(concept.name, proposal.sourceExcerpt);
-  const practice = buildPractice({ conceptId: concept.id, name: concept.name, excerpt: proposal.sourceExcerpt, locator: proposal.locator, siblingNames, siblingFacts });
+  const claim = centralClaim(concept.name, proposal.sourceExcerpt, proposal.highlights);
+  const practice = buildPractice({ conceptId: concept.id, name: concept.name, excerpt: proposal.sourceExcerpt, locator: proposal.locator, siblingNames, siblingFacts, highlights: proposal.highlights });
   // The "Use" step asks something the page actually supports: a stated condition or reason, in the learner's words.
   const facts = teachingFacts(concept.name, proposal.sourceExcerpt);
   const furtherFact = facts.find((fact) => fact !== claim && fact.length >= 30);
@@ -701,6 +711,8 @@ export function proposeConceptsFromPages(input: {
       if (creditOnly(sourceExcerpt) || seenPassages.has(passageKey)) return;
       seenPassages.add(passageKey);
       seen.add(key);
+      const flatExcerpt = sourceExcerpt.replace(/\s+/g, " ");
+      const highlights = page.highlights?.filter((phrase) => flatExcerpt.includes(phrase));
       proposals.push({
         id: `proposal-${stablePart(`${input.materialId}:${key}`)}`,
         materialId: input.materialId,
@@ -708,6 +720,7 @@ export function proposeConceptsFromPages(input: {
         sourceLabel: input.sourceLabel,
         locator,
         sourceExcerpt,
+        ...(highlights?.length ? { highlights } : {}),
       });
     });
   }
@@ -860,8 +873,8 @@ export function buildConfirmedMaterialModel(input: {
     return {
       id: `p-${concept.id}`,
       conceptId: concept.id,
-      promptText: recallQuestion(concept.name, centralClaim(concept.name, proposal.sourceExcerpt), `From memory, explain the central claim about ${concept.name} from ${proposal.locator}.`),
-      modelAnswer: centralClaim(concept.name, proposal.sourceExcerpt),
+      promptText: recallQuestion(concept.name, centralClaim(concept.name, proposal.sourceExcerpt, proposal.highlights), `From memory, explain the central claim about ${concept.name} from ${proposal.locator}.`),
+      modelAnswer: centralClaim(concept.name, proposal.sourceExcerpt, proposal.highlights),
     };
   });
   const factsByTopic = new Map(input.proposals.map((proposal) => [proposal.name, teachingFacts(proposal.name, proposal.sourceExcerpt, 3)]));
