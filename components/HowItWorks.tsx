@@ -13,12 +13,15 @@ import sheets from "./how/HowSheets.module.css";
 
 type VisualProps = { hidden: boolean };
 
-/** Rows that settle in one after another once the chapter scrolls into view (see useReveal). */
-function useRows(hidden: boolean) {
+/**
+ * A chapter's rows arrive with it once it scrolls into view (see useReveal). Only where order is the message, the
+ * route reordering after an answer, do they come one after another.
+ */
+function useRows(hidden: boolean, inOrder = false) {
   return (index: number) => ({
     initial: false as const,
     animate: revealTarget(hidden, 6),
-    transition: { duration: 0.4, delay: 0.25 + index * 0.08, ease: kelusEase },
+    transition: { duration: 0.4, delay: 0.25 + (inOrder ? index * 0.08 : 0), ease: kelusEase },
   });
 }
 
@@ -62,7 +65,8 @@ function RecallVisual({ hidden }: VisualProps) {
 }
 
 function RerouteVisual({ hidden }: VisualProps) {
-  const row = useRows(hidden);
+  // The plan reordering after an answer: here the order is the point.
+  const row = useRows(hidden, true);
   return (
     <figure className={`${styles.visual} ${styles.rerouteVisual}`}>
       <div className={styles.art}>
@@ -140,11 +144,11 @@ export function HowItWorks() {
     <div className={styles.page}>
       <section className={styles.hero} aria-labelledby="how-title">
         {/* From the Kelus illustration pack: two people going over an answer together. */}
-        <span className={`${styles.heroArt} k-rise`} style={rise(0.2, { duration: 0.6 })} aria-hidden="true">
+        <span className={`${styles.heroArt} k-rise`} style={rise(0.1, { duration: 0.6 })} aria-hidden="true">
           <PackArt name="reviewing" size={340} />
         </span>
-        <h1 id="how-title" className="k-rise" style={rise(0.06, { y: 16, scale: 0.98, duration: 0.65 })}>Your lessons become <br />a better revision habit.</h1>
-        <div className={`${styles.heroBottom} k-rise`} style={rise(0.14, { duration: 0.5 })}>
+        <h1 id="how-title">Your lessons become <br />a better revision habit.</h1>
+        <div className={styles.heroBottom}>
           <p>Bring your course. Recall what you know. Let each answer shape what you practise next.</p>
           <Link className={styles.primaryAction} href="/today">Set up my course<span className={styles.primaryArrow} aria-hidden="true">→</span></Link>
         </div>

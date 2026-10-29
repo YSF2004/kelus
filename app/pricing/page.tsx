@@ -10,7 +10,6 @@ import { foundingPaymentConfigured } from "@/lib/founding";
 import { LateralPage } from "@/components/PageTransition";
 import { PricingPlanMotion } from "@/components/PricingPlanMotion";
 import { Rise } from "@/components/PricingReveal";
-import { rise } from "@/components/motion/rise";
 
 export const metadata: Metadata = {
   title: "Kelus Pricing | Free Exam Revision & Planned Plus",
@@ -37,8 +36,8 @@ export default function PricingPage() {
       <section className="legal-panel pricing-booklet">
         {/* From the Kelus illustration pack: monthly, cancel any time, no trial that runs out. */}
         <PackArt name="time-flies" className="pricing-hero-art k-rise" size={190} />
-        <h1 className="k-rise" style={rise(0.06, { y: 16, scale: 0.98 })}>Start revising. Stay in control.</h1>
-        <p className="legal-lede k-rise" style={rise(0.14)}>
+        <h1>Start revising. Stay in control.</h1>
+        <p className="legal-lede">
           Revise your own course for free. Kelus Plus is planned at $4.99/month.
           {syncReady
             ? " Free sign-in can sync your revision progress; source-file sync is still being tested."
@@ -46,7 +45,7 @@ export default function PricingPage() {
         </p>
 
         <div className="pricing-booklet-stack pricing-grid" role="list">
-          <PricingPlanMotion delay={0.18}>
+          <PricingPlanMotion delay={0.1}>
             <article className="pricing-offer is-free pricing-plan">
               <div className="pricing-offer-head">
                 <div className="pricing-plan-name"><h2 className="kicker">Free</h2><span className="pricing-availability">Available now</span></div>
@@ -54,12 +53,12 @@ export default function PricingPage() {
               </div>
               <p className="pricing-offer-lede">Everything in Kelus today, with no limits.</p>
               <ul>
-                <li className="k-rise" style={rise(0.3, { y: 6, duration: 0.32 })}>Add your PDFs, slides or notes</li>
-                <li className="k-rise" style={rise(0.33, { y: 6, duration: 0.32 })}>Questions written from your own lines</li>
-                <li className="k-rise" style={rise(0.36, { y: 6, duration: 0.32 })}>A plan that moves with your answers</li>
-                <li className="k-rise" style={rise(0.39, { y: 6, duration: 0.32 })}>Export every question to Anki</li>
-                <li className="k-rise" style={rise(0.42, { y: 6, duration: 0.32 })}>No account required</li>
-                <li className="k-rise" style={rise(0.45, { y: 6, duration: 0.32 })}>{syncReady ? "Optional free sign-in to sync revision progress" : "Saved on this device"}</li>
+                <li>Add your PDFs, slides or notes</li>
+                <li>Questions written from your own lines</li>
+                <li>A plan that moves with your answers</li>
+                <li>Export every question to Anki</li>
+                <li>No account required</li>
+                <li>{syncReady ? "Optional free sign-in to sync revision progress" : "Saved on this device"}</li>
               </ul>
               <Link className="cta" href="/today">
                 Start revising <span aria-hidden="true">→</span>
@@ -67,7 +66,7 @@ export default function PricingPage() {
             </article>
           </PricingPlanMotion>
 
-          <PricingPlanMotion delay={0.26}>
+          <PricingPlanMotion delay={0.18}>
             <article className={`pricing-offer is-pass pricing-plan is-founding${paymentReady ? "" : " is-upcoming"}`}>
               <div className="pricing-offer-head">
                 <div className="pricing-plan-name"><h2 className="kicker">Kelus Plus</h2><span className="pricing-availability">{paymentReady ? "Available now" : "Coming soon"}</span></div>
@@ -77,11 +76,11 @@ export default function PricingPage() {
               </div>
               <p className="pricing-offer-lede">Planned, not built yet. What we’re making for it:</p>
               <ul>
-                <li className="k-rise" style={rise(0.36, { y: 6, duration: 0.32 })}>Everything in Free</li>
-                <li className="k-rise" style={rise(0.39, { y: 6, duration: 0.32 })}>Clearer reading of scanned and handwritten pages</li>
-                <li className="k-rise" style={rise(0.42, { y: 6, duration: 0.32 })}>Several courses side by side for exam season</li>
-                <li className="k-rise" style={rise(0.45, { y: 6, duration: 0.32 })}>Email support from a person, within a day</li>
-                <li className="k-rise" style={rise(0.48, { y: 6, duration: 0.32 })}>Monthly; cancel any time</li>
+                <li>Everything in Free</li>
+                <li>Clearer reading of scanned and handwritten pages</li>
+                <li>Several courses side by side for exam season</li>
+                <li>Email support from a person, within a day</li>
+                <li>Monthly; cancel any time</li>
               </ul>
               <FoundingCta source="pricing" form={false} />
             </article>
