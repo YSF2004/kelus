@@ -2,10 +2,13 @@
 .studySection,
 .returnSection { overflow: clip; }
 
+/* Tiles, like everything above: inside the 64px page margin, 16px apart, an 8px corner and a hairline border. */
+.studySection,
+.returnSection { margin: 16px 64px 0; border: 1px solid #e5e5e5; border-radius: 8px; }
+
 .studySection {
   background: #fff;
   color: var(--ink);
-  border-block: 1px solid var(--color-frost);
 }
 
 .studyInner,
@@ -72,7 +75,6 @@
 
 .returnSection {
   background: #fff;
-  border-block: 1px solid var(--color-frost);
 }
 .returnInner { grid-template-columns: minmax(0, 0.78fr) minmax(0, 1.22fr); }
 .returnCopy { padding: clamp(4rem, 7vw, 7rem) 1rem clamp(4rem, 7vw, 7rem) clamp(1.5rem, 5vw, 5rem); }
@@ -96,6 +98,8 @@
 .greenDot { fill: var(--color-kelus); }
 
 @media (max-width: 760px) {
+  .studySection,
+  .returnSection { margin: 12px 16px 0; }
   .studyInner,
   .returnInner { grid-template-columns: minmax(0, 1fr); }
   .studyArt { min-height: 0; }
