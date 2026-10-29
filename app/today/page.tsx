@@ -12,6 +12,8 @@ import { addSourceMaterial, getMaterialsSnapshot, getServerMaterialsSnapshot, re
 import { removeRemoteMaterial, uploadMaterialPdf } from "@/lib/material-sync";
 import { useAuth } from "@/components/AuthProvider";
 import { CURRENT_COURSE_ID, type SetupInput } from "@/lib/setup";
+import { takeSharedFile } from "@/lib/shared-file";
+import { setPendingSetupFile } from "@/lib/pending-setup-file";
 
 const SAMPLE_COURSE_ID = "course-microeconomics";
 const SAMPLE_SESSION_KEY = "kelus-sample-open";
@@ -53,6 +55,23 @@ function TodayBody() {
     } catch { return wantsSample; }
   });
   const sampleBooting = wantsSample && !state.onboardingCompleted;
+  // A file shared from another app (Android share sheet): read from this device, then handed to the add-notes screen
+  // as if it had been dropped there; the hand-off can be taken once, so a screen that remounts never imports it twice.
+  // Until it is read, Today says it is opening the file.
+  const [sharedIntoCourse, setSharedIntoCourse] = useState(false);
+  const [openingShare, setOpeningShare] = useState(() => searchParams.get("shared") === "1");
+  useEffect(() => {
+    if (!openingShare) return;
+    let live = true;
+    void takeSharedFile().then((file) => {
+      if (!live) return;
+      if (file) { setPendingSetupFile(file); setSharedIntoCourse(true); trackEvent({ name: "material_shared_in", kind: file.type || "unknown" }); }
+      setOpeningShare(false);
+      // The link is spent: drop ?shared without a navigation, which would remount the screen holding the file.
+      window.history.replaceState(window.history.state, "", "/today/");
+    });
+    return () => { live = false; };
+  }, [openingShare]);
 
   useEffect(() => {
     if (!wantsSample) return;
@@ -128,6 +147,30 @@ function TodayBody() {
       removeMaterialSource(id);
       if (auth.user) await removeRemoteMaterial(auth.user.id, id, material).catch(() => undefined);
     }
+  }
+
+  if (openingShare) {
+    return (
+      <main id="main" className="destination-page">
+        <h1 className="destination-page-title" role="status">Opening your file…</h1>
+      </main>
+    );
+  }
+
+  // Shared into a course that already has topics: the same add-notes screen, already holding the file, and the
+  // materials section once it is in.
+  if (sharedIntoCourse && state.onboardingCompleted && state.snapshot.concepts.length && state.snapshot.courses[0]?.id !== SAMPLE_COURSE_ID) {
+    const course = state.snapshot.courses[0];
+    return (
+      <DropNotes
+        courseName={course?.name}
+        onFile={async (file) => {
+          await addNotes(file, course?.id ?? CURRENT_COURSE_ID);
+          setSharedIntoCourse(false);
+          router.push("/today?section=materials");
+        }}
+      />
+    );
   }
 
   if (sampleBooting) {

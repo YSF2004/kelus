@@ -8,6 +8,7 @@ export type KelusAnalyticsEvent =
   | { name: "question_submitted"; source: string; delivery?: "remote" | "local" | "needs_activation" }
   | { name: "material_confirmed"; concept_count: number }
   | { name: "material_upload_started"; role: string; course_type: "real" }
+  | { name: "material_shared_in"; kind: string }
   | { name: "material_upload_completed"; role: string; course_type: "real" }
   | { name: "material_upload_failed"; role: string; course_type: "real" }
   | { name: "concept_review_started"; concept_count: number }
