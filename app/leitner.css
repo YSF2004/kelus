@@ -244,3 +244,13 @@ html body .pricing-page[data-marketing] :is(.cta, .k-btn, button) > span[aria-hi
 /* Pricing cards: hairline panels; the planned plan sits in a well. */
 html body .pricing-page[data-marketing] .pricing-plan-shell > * { border-radius: 16px !important; border-color: #e3e8e5 !important; }
 html body .pricing-page[data-marketing] .pricing-plan-shell:nth-child(2) > * { background: #f5f7f6 !important; }
+/* The notes link sits level with the course title at the right, not on a row of its own above it: the page starts at
+   once. The head keeps room for it on the right. */
+html body.is-course-studio .core-workspace-grid.is-today-single > .core-workspace-action { position: relative; }
+html body.is-course-studio .core-workspace-grid.is-today-single > .core-workspace-action > .today-source-access { position: absolute; top: 26px; right: 44px; z-index: 2; min-height: 44px !important; margin: 0 !important; padding: 0 !important; }
+html body.is-course-studio .today-source-access ~ [class*="TodayQuiet"][class*="page"] [class*="TodayQuiet"][class*="head"] { justify-content: flex-start; padding-right: 220px; }
+@media (max-width: 650px) {
+  html body.is-course-studio .core-workspace-grid.is-today-single > .core-workspace-action > .today-source-access { top: 10px; right: 16px; }
+  html body.is-course-studio .today-source-access ~ [class*="TodayQuiet"][class*="page"] [class*="TodayQuiet"][class*="head"] { padding-right: 0; }
+  html body.is-course-studio .today-source-access ~ [class*="TodayQuiet"][class*="page"] [class*="TodayQuiet"][class*="title"] { padding-right: 96px; }
+}

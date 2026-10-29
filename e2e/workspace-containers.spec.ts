@@ -1,17 +1,15 @@
 import { expect, test } from "@playwright/test";
 
 for (const viewport of [{ width: 1440, height: 900 }, { width: 390, height: 844 }]) {
-  test(`ordinary study content stays unboxed at ${viewport.width}px`, async ({ page }) => {
+  test(`what is due now is the one raised card, and the rest stays flat, at ${viewport.width}px`, async ({ page }) => {
     await page.setViewportSize(viewport);
     await page.goto("/today?sample=1");
     await expect(page.locator("#today-title")).toBeVisible();
 
+    // The study plan leads with one card, as the homepage does: the topic due now, raised, with the green key.
     const lead = page.locator('[data-block="today-lead"]');
-    await expect(lead).toHaveCSS("border-top-style", "none");
-    await expect(lead).toHaveCSS("border-right-style", "none");
-    await expect(lead).toHaveCSS("box-shadow", "none");
-    await expect(lead).toHaveCSS("background-color", "rgba(0, 0, 0, 0)");
-    await expect(page.locator('[data-block="today-page-folio"] li').first()).toHaveCSS("background-color", "rgba(0, 0, 0, 0)");
+    await expect(lead).toHaveCSS("border-top-style", "solid");
+    await expect(lead).not.toHaveCSS("box-shadow", "none");
     await expect(page.locator('[data-action="start-topic"]')).toBeVisible();
     await page.screenshot({ path: `/tmp/kelus-quiet-today-${viewport.width}.png`, fullPage: true });
 

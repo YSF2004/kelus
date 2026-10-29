@@ -1,42 +1,100 @@
-/* The five-box strip: a precise instrument panel, one soft shadow, columns of marks, tabular counts. */
-.panel { border: 1px solid var(--lb-line); border-radius: 14px; padding: 22px 22px 18px; background: var(--lb-surface); box-shadow: 0 1px 2px rgba(14, 21, 18, 0.04), 0 12px 32px -18px rgba(14, 21, 18, 0.18); }
+/* The five boxes as piles of index cards on a desk: a flat grey stage, white cards on it, two levels and no more. A
+   pile's height is its lines; its top card shows one of them, tinted coral when a line in it was missed and green when
+   recalled (deeper with each box), white when not asked yet. */
+.panel { border-radius: 8px; padding: 22px 20px 18px; background: var(--lb-well); }
 .head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
-.head h2 { margin: 0; font-size: 15px !important; font-weight: 600 !important; letter-spacing: -0.01em !important; color: var(--lb-ink); }
+.head h2 { margin: 0; font-family: var(--font-marketing-heading), Georgia, serif !important; font-size: 20px !important; font-weight: 500 !important; letter-spacing: -0.015em !important; color: var(--lb-ink); }
 .head p { margin: 0; font-size: 13px; color: var(--lb-text-2); }
-.boxes { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 8px; margin: 18px 0 0; padding: 0; list-style: none; }
-.box { display: flex; flex-direction: column; min-height: 248px; padding: 12px 9px 12px; border-radius: 10px; background: var(--lb-well); }
-.box[data-due] { background: var(--lb-due); box-shadow: inset 0 0 0 1px var(--lb-due-edge); }
-.box b { font-size: 13px; font-weight: 600; color: var(--lb-ink); }
-.box small { margin-top: 1px; font-size: 11.5px; color: var(--lb-text-3); }
-.marks { display: grid; gap: 5px; margin: 14px 0 0; padding: 0; list-style: none; }
-.mark { height: 24px; padding: 0 7px; overflow: hidden; border-radius: 6px; background: var(--lb-surface); box-shadow: 0 0 0 1px var(--lb-line-strong); color: var(--lb-text-2); font-size: 11px; line-height: 24px; white-space: nowrap; text-overflow: ellipsis; }
-.mark[data-state="recalled"] { background: var(--lb-green); box-shadow: none; color: #fff; }
-.mark[data-state="missed"] { box-shadow: 0 0 0 1.5px var(--lb-miss); color: var(--lb-miss-ink); }
-.more { font-size: 11px; color: var(--lb-text-3); padding-left: 2px; }
-.empty { height: 24px; border-radius: 6px; box-shadow: inset 0 0 0 1px var(--lb-line); opacity: 0.7; }
-.count { margin-top: auto; padding-top: 12px; font-family: var(--font-geist-mono), ui-monospace, monospace; font-size: 20px; font-weight: 500; letter-spacing: -0.02em; color: var(--lb-ink); }
+
+.boxes { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 12px; margin: 20px 0 0; padding: 0; list-style: none; }
+.box { min-width: 0; }
+
+.pile {
+  display: grid;
+  width: 100%;
+  gap: 2px;
+  padding: 10px 8px 10px;
+  border: 0;
+  border-radius: 8px;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  transition: background-color 180ms cubic-bezier(0.22, 1, 0.36, 1), box-shadow 180ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+.box[data-due] .pile { background: var(--lb-surface); }
+.pile:hover:not([aria-disabled="true"]) { background: color-mix(in srgb, var(--lb-surface) 60%, transparent); }
+.box[data-due] .pile:hover { background: var(--lb-surface); }
+.pile[aria-expanded="true"] { box-shadow: inset 0 0 0 1.5px var(--lb-green); }
+.pile[aria-disabled="true"] { cursor: default; }
+.pile:focus-visible { outline: 2px solid color-mix(in srgb, var(--lb-green) 55%, transparent); outline-offset: 2px; }
+.pile:active:not([aria-disabled="true"]) { transform: scale(0.97); transition: transform 100ms ease-out; }
+
+/* The pile itself: cards stacked from the bottom, each a little off square, the top one lifting on hover. */
+.stack { position: relative; display: block; height: 106px; }
+.card {
+  position: absolute;
+  left: 2px;
+  right: 2px;
+  display: block;
+  height: 72px;
+  overflow: hidden;
+  padding: 9px 8px 0;
+  border-radius: 6px;
+  background: var(--lb-surface);
+  box-shadow: 0 0 0 1px var(--lb-line-strong), 0 2px 4px -2px rgba(14, 21, 18, 0.12);
+  transition: translate 220ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+.under { background: color-mix(in srgb, var(--lb-surface) 82%, var(--lb-well)); }
+.card[data-edge="missed"] { background: color-mix(in srgb, var(--lb-miss) 9%, var(--lb-surface)); box-shadow: 0 0 0 1px color-mix(in srgb, var(--lb-miss) 45%, var(--lb-surface)), 0 2px 4px -2px rgba(14, 21, 18, 0.12); }
+.card[data-edge="recalled"] { background: color-mix(in srgb, var(--lb-green) 8%, var(--lb-surface)); box-shadow: 0 0 0 1px color-mix(in srgb, var(--lb-green) 32%, var(--lb-surface)), 0 2px 4px -2px rgba(14, 21, 18, 0.12); }
+.card[data-edge="recalled"][data-box="3"] { background: color-mix(in srgb, var(--lb-green) 13%, var(--lb-surface)); }
+.card[data-edge="recalled"][data-box="4"] { background: color-mix(in srgb, var(--lb-green) 18%, var(--lb-surface)); }
+.card[data-edge="recalled"][data-box="5"] { background: color-mix(in srgb, var(--lb-green) 24%, var(--lb-surface)); }
+.card[data-edge="recalled"] .line { color: var(--lb-green-ink); }
+.pile:hover:not([aria-disabled="true"]) .card:not(.under) { translate: 0 -4px; }
+.line { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; color: var(--lb-text-2); font-size: 11.5px; line-height: 1.35; }
+.card[data-edge="missed"] .line { color: var(--lb-miss-ink); }
+
+/* An empty box is a place a card will go, not a hole. */
+.slot { position: absolute; left: 2px; right: 2px; bottom: 0; display: grid; place-items: center; height: 72px; padding: 0 6px; border: 1.5px dashed var(--lb-line-strong); border-radius: 6px; color: var(--lb-text-2); font-size: 11px; line-height: 1.3; text-align: center; }
+
+.count { margin-top: 10px; font-family: var(--font-geist-mono), ui-monospace, monospace; font-size: 22px; font-weight: 500; letter-spacing: -0.02em; line-height: 1; color: var(--lb-ink); }
 .count[data-zero] { color: var(--lb-text-3); }
+.name { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0 5px; font-size: 12px; line-height: 1.3; }
+.name b { color: var(--lb-ink); font-weight: 600; }
+.name small { color: var(--lb-text-2); font-size: 11.5px; white-space: nowrap; }
+
+/* The open pile, dealt out underneath. */
+.drawerWrap:empty { display: none; }
+.drawer { margin-top: 12px; padding: 14px 0 0; border-top: 1px solid var(--lb-line-strong); }
+.drawerHead { margin: 0 0 10px; color: var(--lb-text-2); font-size: 13px; }
+.drawerHead b { color: var(--lb-ink); font-weight: 600; }
+.spread { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 8px; margin: 0; padding: 0; list-style: none; }
+.spreadCard { position: relative; display: grid; gap: 6px; padding: 12px 12px 10px; overflow: hidden; border-radius: 6px; background: var(--lb-surface); box-shadow: 0 0 0 1px var(--lb-line-strong), 0 2px 4px -2px rgba(14, 21, 18, 0.12); }
+.spreadCard[data-state="missed"] { background: color-mix(in srgb, var(--lb-miss) 7%, var(--lb-surface)); box-shadow: 0 0 0 1px color-mix(in srgb, var(--lb-miss) 40%, var(--lb-surface)); }
+.spreadCard[data-state="recalled"] { background: color-mix(in srgb, var(--lb-green) 7%, var(--lb-surface)); box-shadow: 0 0 0 1px color-mix(in srgb, var(--lb-green) 30%, var(--lb-surface)); }
+.spreadLine { color: var(--lb-ink); font-size: 13px; line-height: 1.45; }
+.spreadCard small { color: var(--lb-text-2); font-size: 12px; }
+.more { margin: 8px 0 0; color: var(--lb-text-3); font-size: 12px; }
+
 .foot { display: flex; justify-content: space-between; gap: 12px; margin-top: 14px; font-size: 13px; color: var(--lb-text-2); }
 .foot b { color: var(--lb-green-ink); font-weight: 600; }
-@media (max-width: 900px) {
-  .boxes { grid-template-columns: repeat(5, minmax(56px, 1fr)); overflow-x: auto; }
-  .box { min-height: 180px; }
-}
-.mark { display: block; white-space: nowrap !important; text-wrap: nowrap !important; overflow: hidden; text-overflow: ellipsis; }
-.mark[data-moved] { position: relative; z-index: 1; box-shadow: 0 6px 14px -6px rgba(31, 107, 69, 0.55); }
-/* On a phone a trimmed line ("Pri…") says nothing and five text columns spill sideways: each line becomes a short
-   tally in its state's colour, the five boxes fit the width, and the line itself stays in the tooltip. */
+
+/* On a phone the piles are small: the top card keeps its edge and drops its words, and a tap deals the cards out. */
 @media (max-width: 560px) {
   .panel { padding: 18px 14px 14px; }
   .head { flex-direction: column; align-items: flex-start; gap: 2px; }
-  .boxes { grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 5px; overflow: visible; }
-  .box { min-height: 0; padding: 10px 6px; }
-  .box b { font-size: 12px; }
-  .box small { font-size: 10.5px; line-height: 1.3; }
-  .marks { gap: 4px; margin-top: 12px; }
-  .mark { height: 8px; padding: 0; border-radius: 3px; font-size: 0; line-height: 8px; }
-  .empty { height: 8px; border-radius: 3px; }
-  .more { font-size: 10.5px; padding-left: 0; }
-  .count { font-size: 17px; }
+  .boxes { gap: 6px; }
+  .pile { padding: 8px 5px; border-radius: 12px; }
+  .stack { height: 66px; }
+  .card { height: 44px; padding: 0; }
+  .line { display: none; }
+  .slot { height: 44px; font-size: 0; }
+  .count { font-size: 18px; margin-top: 8px; }
+  .name { font-size: 11.5px; }
+  .name small { font-size: 11px; }
+  .spread { grid-template-columns: minmax(0, 1fr); }
   .foot { flex-direction: column; gap: 2px; }
 }
