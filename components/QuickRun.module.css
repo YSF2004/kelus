@@ -24,15 +24,28 @@
 }
 
 .steps li {
+  position: relative;
   flex: 1;
   height: 6px;
+  overflow: hidden;
   border-radius: 3px;
   background: var(--color-frost);
   transition: background-color 220ms cubic-bezier(0.22, 1, 0.36, 1);
 }
 
-.steps li.done {
-  background: var(--color-kelus);
+/* A finished step fills from the left, like ink drawn along it, rather than switching colour in place. */
+.steps li::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: var(--step-fill, var(--color-kelus));
+  transform: scaleX(0);
+  transform-origin: left center;
+  transition: transform 360ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.steps li.done::after {
+  transform: scaleX(1);
 }
 
 .steps li.now {
@@ -438,7 +451,8 @@
   .choice,
   .primary,
   .grades button,
-  .steps li {
+  .steps li,
+  .steps li::after {
     transition: none;
   }
 }
@@ -705,7 +719,7 @@
 .firstArt { flex: none; width: 64px; height: auto; }
 
 /* In a run, the topic's tone marks how far you are: done steps fill in it. */
-:global(main[data-tone]) .steps li.done { background: var(--topic); }
+:global(main[data-tone]) .steps li { --step-fill: var(--topic); }
 
 /* The topic's colour carries the run: the topic's name, a choice under the pointer, the reading lines' rule. */
 :global(main[data-tone]) :global(.study-topic-kicker) b { color: var(--topic-ink); }

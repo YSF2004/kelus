@@ -31,7 +31,7 @@ export function HeroReplay({ children, className, waitClass, leaveClass }: { chi
   return (
     <>
       <div ref={root} key={run} className={`${waiting ? waitClass : ""} ${leaving ? leaveClass : ""}`} style={{ display: "contents" }}>{children}</div>
-      <button type="button" className={className} onClick={replay}>Play it again</button>
+      <button type="button" className={className} onClick={replay}><i aria-hidden="true">↻</i>Play it again</button>
     </>
   );
 }
