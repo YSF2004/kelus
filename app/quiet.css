@@ -843,3 +843,48 @@ html body .pricing-page .pricing-hero-art.k-rise { --rise-delay: 0.2s; }
 .start-page .photo-notes-pages p { margin: 0 0 10px; font-size: 14px; }
 .start-page .photo-notes-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 18px; }
 @media (prefers-reduced-motion: reduce) { .start-page .photo-notes-start, .start-page .photo-notes-more { transition: none; } }
+
+/* ── Homepage scroll motion ─────────────────────────────────────────────────────────────────────────────────────
+   Tied to scroll position, not to time: each tile lifts into place as it comes up the screen, the product piece
+   inside it travels a little further than its tile (a quiet depth), the dark band's files slide in one after
+   another, and the hero's demo settles back as you scroll past it. CSS scroll timelines only: no JavaScript on
+   scroll, nothing loops, and without support or with reduced motion the page is simply as it was. */
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .home :is([class*="FollowThrough"][class*="step"], [class*="HomeVisualChapters"][class*="studySection"], [class*="HomeVisualChapters"][class*="returnSection"], [class*="HomeBand"][class*="band"], [class*="HomeFinal"][class*="final"]) {
+      animation: kelusTileUp linear both;
+      animation-timeline: view();
+      animation-range: entry 0% cover 28%;
+    }
+    .home [class*="FollowThrough"][class*="shot"] > * {
+      animation: kelusDepth linear both;
+      animation-timeline: view();
+      animation-range: entry 0% cover 42%;
+    }
+    .home [class*="HomeVisualChapters"] img {
+      animation: kelusDepth linear both;
+      animation-timeline: view();
+      animation-range: entry 0% cover 45%;
+    }
+    /* The band's files arrive in order: each row's own range starts a little later down the screen. The row's
+       contents move, not the row, so the dark list stays solid behind them. */
+    .home [class*="HomeBand"][class*="files"] > li > * {
+      animation: kelusFileIn linear both;
+      animation-timeline: view();
+      animation-range: entry 10% cover 30%;
+    }
+    .home [class*="HomeBand"][class*="files"] > li:nth-child(2) > * { animation-range: entry 25% cover 34%; }
+    .home [class*="HomeBand"][class*="files"] > li:nth-child(3) > * { animation-range: entry 40% cover 38%; }
+    .home [class*="HomeBand"][class*="files"] > li:nth-child(4) > * { animation-range: entry 55% cover 42%; }
+    /* Scrolling past the hero, its demo settles back rather than simply sliding away. */
+    .home [data-hero] [class*="LeitnerHero"][class*="set"] {
+      animation: kelusSettleBack linear both;
+      animation-timeline: view();
+      animation-range: exit 10% exit 90%;
+    }
+  }
+}
+@keyframes kelusTileUp { from { opacity: 0.001; translate: 0 56px; scale: 0.965; } to { opacity: 1; translate: 0 0; scale: 1; } }
+@keyframes kelusDepth { from { translate: 0 44px; } to { translate: 0 0; } }
+@keyframes kelusFileIn { from { opacity: 0.001; translate: 32px 0; } to { opacity: 1; translate: 0 0; } }
+@keyframes kelusSettleBack { from { scale: 1; } to { scale: 0.94; } }
