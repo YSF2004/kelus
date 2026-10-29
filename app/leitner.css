@@ -108,9 +108,9 @@ html body.is-course-studio .core-workspace-grid.is-notes-open [class*="TodayQuie
    Feedback is a callout of its verdict (a wash and a hairline of green or coral), not a rule down the margin. Labels are
    sentence case, figures in tabular Inter. The result opens on a plain mark, its facts as figures, and
    ends on this topic's lines in their boxes. */
-html body.is-session-booklet [class*="QuickRun"][class*="feedback"] { padding: 18px 20px !important; border: 1px solid var(--lb-line) !important; border-left-width: 1px !important; border-radius: 12px !important; background: var(--lb-surface) !important; gap: 10px !important; }
-html body.is-session-booklet [class*="QuickRun"][class*="feedback"][class*="ok"] { border-color: color-mix(in oklch, var(--lb-green) 30%, var(--lb-line)) !important; background: color-mix(in oklch, var(--lb-green) 5%, var(--lb-surface)) !important; }
-html body.is-session-booklet [class*="QuickRun"][class*="feedback"][class*="no"] { border-color: color-mix(in oklch, var(--lb-miss) 30%, var(--lb-line)) !important; background: color-mix(in oklch, var(--lb-miss) 5%, var(--lb-surface)) !important; }
+html body.is-session-booklet [class*="QuickRun"][class*="feedback"] { padding: 18px 20px !important; border: 1px solid var(--lb-line) !important; border-left-width: 1px !important; border-radius: 12px !important; background: var(--lb-surface) !important; gap: 10px !important; --fb-bg: var(--lb-surface); }
+html body.is-session-booklet [class*="QuickRun"][class*="feedback"][class*="ok"] { border-color: color-mix(in oklch, var(--lb-green) 30%, var(--lb-line)) !important; background: color-mix(in oklch, var(--lb-green) 5%, var(--lb-surface)) !important; --fb-bg: color-mix(in oklch, var(--lb-green) 5%, var(--lb-surface)); }
+html body.is-session-booklet [class*="QuickRun"][class*="feedback"][class*="no"] { border-color: color-mix(in oklch, var(--lb-miss) 30%, var(--lb-line)) !important; background: color-mix(in oklch, var(--lb-miss) 5%, var(--lb-surface)) !important; --fb-bg: color-mix(in oklch, var(--lb-miss) 5%, var(--lb-surface)); }
 html body.is-session-booklet [class*="QuickRun"][class*="feedback"] strong { font-size: 18px !important; font-weight: 600 !important; letter-spacing: -0.015em !important; }
 html body.is-session-booklet [class*="QuickRun"][class*="feedback"] [class*="quote"] { font-size: 14.5px !important; color: var(--lb-text-2) !important; }
 html body.is-session-booklet [class*="QuickRun"][class*="steps"] li[class*="done"] { background: var(--lb-green) !important; }
