@@ -794,3 +794,15 @@
   .top :global(.study-topic-kicker) { flex: 1 1 0; }
   .top :global(.study-topic-kicker) b { max-width: 9.5rem; }
 }
+
+/* ── Thumb reach ─────────────────────────────────────────────────────────────────────────────────────────
+   On a phone held in one hand, the answers and the Continue row sit at the bottom of the screen, where a thumb rests;
+   the question reads from the top. Once an answer is picked the answers rise (a layout spring) above the verdict's
+   sheet, so the one you chose stays in view. */
+@media (max-width: 640px) and (pointer: coarse) {
+  .thumb { display: flex; flex-direction: column; gap: 14px; min-height: calc(100dvh - 280px - env(safe-area-inset-bottom)); }
+  .thumb > .choices, .thumb > .readRow { margin-top: auto; }
+  .thumb > .readLines { margin-bottom: 8px; }
+  .feedback { touch-action: pan-y; }
+}
+.swipeHint { order: 10; margin: -4px 0 0; color: var(--k-text-3, var(--color-slate)); font-size: 12.5px; text-align: center; }
