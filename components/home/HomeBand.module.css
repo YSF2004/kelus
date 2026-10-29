@@ -14,7 +14,7 @@
 .action:focus-visible { outline-color: var(--bright); outline-offset: 3px; }
 @media (prefers-reduced-motion: reduce) { .action { transition: none; } }
 
-.files { display: grid; gap: 1px; margin: 0; padding: 0; overflow: hidden; border-radius: 8px; background: rgba(255, 255, 255, 0.1); list-style: none; }
+.files { display: grid; gap: 1px; margin: 0; padding: 0; overflow: clip; border-radius: 8px; background: rgba(255, 255, 255, 0.1); list-style: none; }
 .files li { display: grid; grid-template-columns: minmax(0, 14rem) minmax(0, 1fr); align-items: center; gap: 20px; padding: 16px 18px; background: #102a1d; }
 .file { display: flex; align-items: center; gap: 12px; min-width: 0; }
 .file i { display: grid; flex: none; place-items: center; width: 36px; height: 36px; border-radius: 8px; background: #c4492e; color: #fff; font-size: 10.5px; font-style: normal; font-weight: 700; letter-spacing: 0.02em; }
