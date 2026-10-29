@@ -28,3 +28,16 @@ test("'does NOT match' shows three lines exactly as written and one with a direc
 test("the new questions pass the same quality checks as the rest", () => {
   for (const item of items.filter((i) => i.variant === "predict" || i.variant === "notone")) assert.deepEqual(lintQuestion(item), []);
 });
+
+test("true or false shows one line as written or with one word turned around, and the answer matches the notes", () => {
+  const q = items.find((item) => item.variant === "truefalse");
+  assert.ok(q, "a true-or-false question is written from this page");
+  assert.deepEqual(q.choices, ["True", "False"]);
+  assert.match(q.prompt, /^True or false, from your notes: “.+”$/);
+  const shown = q.prompt.slice(q.prompt.indexOf("“") + 1, -1);
+  // True exactly when the line is shown as the notes say it.
+  assert.equal(q.modelAnswer === "True", shown === q.sourceQuote);
+  assert.equal(q.choices[q.correctIndex], q.modelAnswer);
+  assert.ok(quoteIsOnPage(q.sourceQuote, page));
+  assert.deepEqual(lintQuestion(q), []);
+});

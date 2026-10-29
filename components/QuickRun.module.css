@@ -776,3 +776,21 @@
      its own green. Keyboard focus keeps its usual ring. */
   :global(html body) .feedback .primary:not(:focus-visible) { outline: 12px solid var(--fb-bg); outline-offset: 0; }
 }
+
+/* True or false: two big answers side by side, the way a quick round should feel: one glance, one tap. */
+.choices.trueFalse { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+.choices.trueFalse .choice { grid-template-columns: minmax(0, 1fr); justify-items: center; gap: 6px; min-height: 84px; padding: 14px 12px; text-align: center; }
+.choices.trueFalse .choice span { font-family: var(--font-source-serif), Georgia, serif; font-size: 1.375rem; font-weight: 500; letter-spacing: -0.01em; }
+.choices.trueFalse .choice kbd { order: 2; }
+
+/* A long topic name never widens the screen: on a phone it takes the room that is left and ends in an ellipsis
+   ("Determinants of elast…"); the full name is the page's own title a moment later. */
+.top { min-width: 0; }
+.top :global(.study-topic-kicker) { min-width: 0; overflow: hidden; white-space: nowrap; }
+.top :global(.study-topic-kicker) b { display: inline-block; max-width: 100%; overflow: hidden; text-overflow: ellipsis; vertical-align: bottom; }
+@media (max-width: 560px) {
+  .top { gap: 10px; }
+  .steps { flex: 0 0 auto; }
+  .top :global(.study-topic-kicker) { flex: 1 1 0; }
+  .top :global(.study-topic-kicker) b { max-width: 9.5rem; }
+}

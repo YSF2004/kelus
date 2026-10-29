@@ -8,7 +8,7 @@ import { Suspense, useEffect, useRef, useState } from "react";
 import { useLearner } from "@/components/LearnerProvider";
 import { HabitStrip } from "@/components/HabitStrip";
 import { generateRoute } from "@/domain/routing-engine";
-import { MarkStamp } from "@/components/MarkStamp";
+import { BlockRing } from "@/components/BlockRing";
 import { WaitlistForm } from "@/components/WaitlistForm";
 import { SoftUpgradePrompt } from "@/components/SoftUpgradePrompt";
 import { downloadTomorrowStudyIcs } from "@/lib/study-reminder";
@@ -126,8 +126,6 @@ function CompleteBody() {
   const missedToday = (state.missedLines ?? []).filter((line) => line.at >= session.startedAt && practised.some((event) => event.conceptId === line.conceptId)).length;
   const nextFresh = nextStopId ? { conceptId: nextStopId } : undefined;
   const allGood = practised.length > 0 && practised.every((event) => event.outcome === "success");
-  // The ring is the share of the block you got: a solid topic counts whole, a partly-there one half.
-  const credit = practised.length ? practised.reduce((sum, event) => sum + (event.outcome === "success" ? 1 : event.outcome === "partial" ? 0.5 : 0), 0) / practised.length : 0;
 
   return (
     <>
@@ -145,7 +143,7 @@ function CompleteBody() {
         animate={{ opacity: 1, y: 0 }}
         transition={reduceMotion ? { duration: 0.12 } : { duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
       >
-        <MarkStamp outcome={allGood ? "success" : credit === 0 ? "failure" : "partial"} fill={credit} label={allGood ? "Block done, all solid" : `Block done, ${known.length} of ${practised.length} solid`} />
+        <BlockRing done={practised.length} of={Math.max(practised.length, session.plannedConceptIds.length)} allSolid={allGood} />
         <h1>Done.</h1>
         <p className={styles.lede}>
           {practised.length} {practised.length === 1 ? "topic" : "topics"}{course ? ` from ${course.name}` : ""}. Your answers are saved.
@@ -155,7 +153,7 @@ function CompleteBody() {
         <section className={styles.changed} aria-label="What changed">
           <p>
             <span className={styles.changedLabel}>You now know</span>
-            {known.length ? <b>{known.map((event) => name(event.conceptId)).join(", ")}</b> : <span className={styles.none}>nothing solid yet, which is normal on a first pass</span>}
+            {known.length ? <b>{known.map((event) => name(event.conceptId)).join(", ")}</b> : <span className={styles.none}>nothing marked solid yet. That’s normal on a first pass: the second one is where lines stick</span>}
           </p>
           {weakest ? (
             <p>

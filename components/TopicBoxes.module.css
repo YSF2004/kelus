@@ -17,3 +17,10 @@
 .row { container-type: inline-size; }
 .marks i[data-moved] { position: relative; z-index: 1; animation: kelusLineArrive 700ms cubic-bezier(0.16, 1, 0.3, 1) 650ms both; }
 @keyframes kelusLineArrive { from { transform: translateX(calc(-1 * ((100cqw - 24px) / 5 + 6px))); } to { transform: none; } }
+
+/* The key under the boxes: each square is a line from the notes. */
+.key { display: flex; flex-wrap: wrap; gap: 4px 14px; margin: 10px 0 0; font-size: 12px; color: var(--lb-text-3); }
+.key span { display: inline-flex; align-items: center; gap: 6px; }
+.key i { width: 10px; height: 10px; border-radius: 3px; background: var(--lb-surface); box-shadow: 0 0 0 1px var(--lb-line-strong); }
+.key i[data-state="recalled"] { background: var(--lb-green); box-shadow: none; }
+.key i[data-state="missed"] { box-shadow: 0 0 0 1.5px var(--lb-miss); }
