@@ -199,7 +199,8 @@ html body.is-session-complete [class*="complete"][class*="changed"] { background
   html body.is-course-studio .studio-topbar {
     position: absolute !important;
     top: 0; right: 0; left: 120px;
-    height: 52px !important; min-height: 0 !important;
+    /* 51, not 52: the bar sits over the rail, and a full-height white bar hid the right two thirds of its bottom rule. */
+    height: 51px !important; min-height: 0 !important;
     padding: 0 16px 0 0 !important;
     display: flex !important; align-items: center !important; justify-content: flex-end !important; gap: 10px;
   }
@@ -937,3 +938,10 @@ html body .pricing-page .pricing-hero-art.k-rise { --rise-delay: 0.2s; }
 }
 @keyframes kelusLift { from { translate: 0 48px; scale: 0.97; } to { translate: 0 0; scale: 1; } }
 @keyframes kelusRowIn { from { opacity: 0.001; translate: 0 14px; } to { opacity: 1; translate: 0 0; } }
+
+/* Materials on a phone: the source's drawing is 36px now, so its column is too (it was 56, which pushed the name a
+   third of the way across), and the shelf sits closer to the reader above it. */
+@media (max-width: 650px) {
+  html body.is-course-studio .studio-panel .material-shelf.is-binder { padding-top: 32px !important; }
+  html body.is-course-studio .studio-panel .material-shelf.is-binder li.material-card { grid-template-columns: 36px minmax(0, 1fr) !important; column-gap: 14px !important; }
+}

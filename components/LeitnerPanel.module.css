@@ -24,3 +24,19 @@
 }
 .mark { display: block; white-space: nowrap !important; text-wrap: nowrap !important; overflow: hidden; text-overflow: ellipsis; }
 .mark[data-moved] { position: relative; z-index: 1; box-shadow: 0 6px 14px -6px rgba(31, 107, 69, 0.55); }
+/* On a phone a trimmed line ("Pri…") says nothing and five text columns spill sideways: each line becomes a short
+   tally in its state's colour, the five boxes fit the width, and the line itself stays in the tooltip. */
+@media (max-width: 560px) {
+  .panel { padding: 18px 14px 14px; }
+  .head { flex-direction: column; align-items: flex-start; gap: 2px; }
+  .boxes { grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 5px; overflow: visible; }
+  .box { min-height: 0; padding: 10px 6px; }
+  .box b { font-size: 12px; }
+  .box small { font-size: 10.5px; line-height: 1.3; }
+  .marks { gap: 4px; margin-top: 12px; }
+  .mark { height: 8px; padding: 0; border-radius: 3px; font-size: 0; line-height: 8px; }
+  .empty { height: 8px; border-radius: 3px; }
+  .more { font-size: 10.5px; padding-left: 0; }
+  .count { font-size: 17px; }
+  .foot { flex-direction: column; gap: 2px; }
+}

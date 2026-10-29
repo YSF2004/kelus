@@ -137,7 +137,8 @@ html body.is-session-booklet [class*="QuickResult"][class*="tiles"] b[class*="ti
 }
 html body.is-course-studio .surface-map.is-toc [class*="TopicMapPanel"][class*="path"]::before,
 html body.is-course-studio .surface-map.is-toc [class*="TopicMapPanel"][class*="step"]::before,
-html body.is-course-studio .surface-map.is-toc [class*="TopicMapPanel"][class*="step"]::after { display: none !important; }
+html body.is-course-studio .surface-map.is-toc [class*="TopicMapPanel"][class*="step"]::after,
+html body.is-course-studio .surface-map.is-toc [class*="TopicMapPanel"][class*="checkpoint"]::before { display: none !important; }
 html body.is-course-studio .surface-map.is-toc [class*="TopicMapPanel"][class*="node"] { display: none !important; }
 html body.is-course-studio .surface-map.is-toc ol[class*="TopicMapPanel"][class*="path"] { margin: 0 !important; padding: 0 !important; border-top: 1px solid var(--lb-line); }
 html body.is-course-studio .surface-map.is-toc li[class*="TopicMapPanel"][class*="step"] { display: block !important; margin: 0 !important; padding: 0 !important; border-bottom: 1px solid var(--lb-line); }
