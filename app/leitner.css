@@ -149,7 +149,8 @@ html body.is-course-studio .surface-map.is-toc .index-toc-meta { display: conten
 html body.is-course-studio .surface-map.is-toc .index-toc-meta > [class*="BoxStrip"] { grid-column: 2; }
 html body.is-course-studio .surface-map.is-toc .index-toc-meta [class*="TopicMapPanel"][class*="state"] { grid-column: 3; font-style: normal !important; font-size: 13.5px !important; font-weight: 500 !important; }
 html body.is-course-studio .surface-map.is-toc .index-toc-meta [class*="TopicMapPanel"][class*="metaSoft"] { grid-column: 4; justify-self: end; font-family: var(--font-geist-mono), ui-monospace, monospace; font-size: 12.5px !important; color: var(--lb-text-3) !important; }
-html body.is-course-studio .surface-map.is-toc .index-toc-meta [class*="TopicMapPanel"][class*="metaSoft"] + [class*="metaSoft"] { display: none; }
+/* The last column is the page in the notes for every row: a try count sat under the "Page" heading before. */
+html body.is-course-studio .surface-map.is-toc .index-toc-meta [class*="TopicMapPanel"][class*="metaSoft"]:has(+ [class*="metaSoft"]) { display: none; }
 html body.is-course-studio .surface-map.is-toc .index-toc-meta [class*="TopicMapPanel"][class*="icoSm"] { display: none; }
 html body.is-course-studio .surface-map.is-toc :is([class*="TopicMapPanel"][class*="why"], [class*="TopicMapPanel"][class*="due"]) { grid-column: 1 / -1; font-size: 13px; color: var(--lb-text-3); }
 html body.is-course-studio .surface-map.is-toc li[class*="TopicMapPanel"][class*="checkpoint"] { margin: 0 !important; padding: 14px 12px !important; border-bottom: 1px solid var(--lb-line); }
@@ -187,9 +188,10 @@ html body.is-course-studio [class*="ProgressView"][class*="sheetLink"] svg { dis
 
 /* ── Materials: the reader and the source list in the instrument's surfaces ────────────────────────── */
 html body.is-course-studio .material-card .material-name > strong { font-family: var(--font-geist), system-ui, sans-serif !important; font-size: 16px !important; font-weight: 600 !important; letter-spacing: -0.015em !important; }
-html body.is-course-studio .material-card-topics span { color: var(--lb-text-2) !important; font-size: 13px !important; }
-html body.is-course-studio .material-card-topics span[data-tone]::before { content: none !important; }
-html body.is-course-studio .material-card-topics { gap: 2px 12px !important; }
+/* The topics a source gave you are chips in each topic's own tone, the same marks they wear on the plan. */
+html body.is-course-studio .material-card-topics { gap: 6px !important; margin-top: 8px; }
+html body.is-course-studio .material-card-topics span { height: 26px; padding: 0 10px; border-radius: 999px; background: var(--topic-wash, var(--lb-well)); color: var(--topic-ink, var(--lb-text-2)) !important; font-size: 12.5px !important; font-weight: 500; }
+html body.is-course-studio .material-card-topics span[data-tone]::before { content: "" !important; width: 6px; height: 6px; border-radius: 50%; background: var(--topic); }
 html body.is-course-studio .material-shelf h2 { font-family: var(--font-geist), system-ui, sans-serif !important; font-size: 18px !important; font-weight: 600 !important; letter-spacing: -0.02em !important; }
 html body.is-course-studio .material-actions > :is(button, a) { border-radius: 8px !important; font-size: 13px !important; font-weight: 500 !important; color: var(--lb-text-2) !important; }
 html body.is-course-studio .material-actions > :is(button, a):hover { background: var(--q-hover) !important; color: var(--lb-ink) !important; }
@@ -254,3 +256,9 @@ html body.is-course-studio .today-source-access ~ [class*="TodayQuiet"][class*="
   html body.is-course-studio .today-source-access ~ [class*="TodayQuiet"][class*="page"] [class*="TodayQuiet"][class*="head"] { padding-right: 0; }
   html body.is-course-studio .today-source-access ~ [class*="TodayQuiet"][class*="page"] [class*="TodayQuiet"][class*="title"] { padding-right: 96px; }
 }
+
+/* A checkpoint is a stop on the path, not another topic: a soft band with its own corner, set apart from the rows. */
+html body.is-course-studio .surface-map.is-toc li[class*="TopicMapPanel"][class*="checkpoint"] { margin: 8px 0 !important; padding: 14px 16px !important; border: 0 !important; border-radius: 8px; background: var(--lb-well); }
+html body.is-course-studio .surface-map.is-toc li[class*="TopicMapPanel"][class*="checkpoint"] strong { font-family: var(--font-marketing-heading), Georgia, serif !important; font-size: 16.5px !important; font-weight: 500 !important; }
+/* A source in Materials is named in the serif, like a course. */
+html body.is-course-studio .studio-panel .material-shelf.is-binder .material-name strong { font-family: var(--font-marketing-heading), Georgia, serif !important; font-weight: 500 !important; letter-spacing: -0.01em !important; }

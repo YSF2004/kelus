@@ -110,8 +110,11 @@ export function ProgressView({ concepts, events, nowIso, daysToExam, targetPerce
             </section>
           }
         />
-        <Link href="/sheet" className={styles.sheetLink}>Open your revision sheet</Link>
-        <Link href="/today" className={`k-btn ${styles.cta}`}>Practise a topic <ArrowRight /></Link>
+        {/* The next step, then the quiet way to read it all back: one row, the green key first. */}
+        <div className={styles.actions}>
+          <Link href="/today" className={`k-btn ${styles.cta}`}>Practise a topic <ArrowRight /></Link>
+          <Link href="/sheet" className={styles.sheetLink}>Open your revision sheet</Link>
+        </div>
       </div>
     );
   }
