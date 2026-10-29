@@ -56,7 +56,7 @@
 .arrow { transition: transform 120ms ease; }
 .action:hover { background: #18573a; }
 .action:hover .arrow { transform: translateX(3px); }
-.action:active { transform: scale(0.98); box-shadow: none; }
+.action:active { transform: scale(0.97); box-shadow: none; }
 .action:focus-visible { outline: 2px solid color-mix(in srgb, #1f6b45 45%, transparent); outline-offset: 2px; }
 
 @media (max-width: 720px) {

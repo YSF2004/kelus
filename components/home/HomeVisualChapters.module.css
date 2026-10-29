@@ -63,13 +63,15 @@
   color: var(--color-kelus);
   font: 600 0.95rem/1.2 var(--font-marketing-sans);
   text-decoration: underline;
+  text-decoration-color: color-mix(in srgb, currentColor 45%, transparent);
   text-underline-offset: 0.28em;
   padding: 0.7rem 0;
   min-height: 44px;
   white-space: nowrap;
-  transition: opacity var(--dur-fast) var(--ease-standard);
+  transition: text-decoration-color 160ms var(--ease-standard);
 }
-.textLink:hover { opacity: 0.75; }
+/* The underline starts as a soft pencil line and inks in on hover. */
+.textLink:hover { text-decoration-color: currentColor; }
 .textLink:active { transform: scale(0.97); }
 .textLink:focus-visible { outline: 2px solid var(--color-kelus); outline-offset: 4px; }
 
