@@ -765,3 +765,14 @@
 /* Key hints are a quiet suffix, not a second button inside the button. */
 .key { padding: 0; background: transparent; opacity: 0.65; }
 .linkKey { padding: 0; border: 0; color: var(--k-text-3, var(--color-slate)); }
+
+/* On a phone the feedback can run past the fold with Next pinned at thumb height: a band of the panel's own colour
+   frames the button, so the text scrolls under it instead of colliding with it. */
+.feedback { --fb-bg: var(--k-surface-2); }
+.feedback.ok { --fb-bg: color-mix(in srgb, var(--color-kelus) 7%, var(--k-surface)); }
+.feedback.no { --fb-bg: var(--k-danger-wash); }
+@media (max-width: 767px) {
+  /* An outline of the panel's colour, not a pseudo-element: anything painted behind the button would also paint over
+     its own green. Keyboard focus keeps its usual ring. */
+  :global(html body) .feedback .primary:not(:focus-visible) { outline: 12px solid var(--fb-bg); outline-offset: 0; }
+}
