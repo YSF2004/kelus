@@ -1,9 +1,6 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { BrandIcon } from "@/components/BrandIcon";
-import { LateralPage } from "@/components/PageTransition";
-import { SiteFooter } from "@/components/SiteFooter";
-import styles from "./page.module.css";
+import { SearchLanding, searchStyles as styles } from "@/components/seo/SearchLanding";
 
 export const metadata: Metadata = {
   title: "PDF to Flashcards, Free: From Your Own Pages | Kelus",
@@ -44,72 +41,35 @@ const FAQ = [
 ] as const;
 
 export default function PdfToFlashcards() {
-  const faq = {
-    "@context": "https://schema.org",
-    "@type": "FAQPage",
-    mainEntity: FAQ.map(({ q, a }) => ({ "@type": "Question", name: q, acceptedAnswer: { "@type": "Answer", text: a } })),
-  };
   return (
-    <LateralPage>
-      <div className={`home ${styles.page}`} data-marketing="editorial">
-        <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(faq) }} />
-        <main id="main">
-          <section className={styles.hero} aria-labelledby="pdf-title">
-            <div className={styles.copy}>
-              <h1 id="pdf-title">PDF to flashcards, <span>from your own pages.</span></h1>
-              <p className={styles.lede}>Drop in a lecture PDF, slides or a chapter. Kelus finds its topics and writes flashcards from your own sentences, and every card shows the page it came from.</p>
-              <div className={styles.actions}>
-                <Link href="/today" className={styles.primary}>Turn a PDF into flashcards</Link>
-                <Link href="/route" className={styles.secondary}>How it works</Link>
-              </div>
-              <p className={styles.free}>Free. No account. Export to <BrandIcon brand="anki" size={14} /> Anki.</p>
-            </div>
-
-            {/* A real run, not a mock-up: the file, what Kelus found in it, and three of the cards it wrote. */}
-            <figure className={styles.stage} aria-labelledby="pdf-example">
-              <figcaption id="pdf-example" className={styles.file}>
-                <i aria-hidden="true">PDF</i>
-                <span><b>BIOL 101 Laboratory Manual</b>LibreTexts, 123 pages</span>
-                <span className={styles.found}><b>37</b> topics · <b>216</b> cards</span>
-              </figcaption>
-              <ol className={styles.cards}>
-                {CARDS.map(({ front, back, topic, page }) => (
-                  <li key={back} className={styles.card}>
-                    <p className={styles.front}>{front[0]}<span className={styles.blank} aria-label="blank">_____</span>{front[1]}</p>
-                    <p className={styles.back}><b>{back}</b><small>{topic} · Page {page}</small></p>
-                  </li>
-                ))}
-              </ol>
-            </figure>
-          </section>
-
-          <section className={styles.steps} aria-label="How a PDF becomes flashcards">
-            {STEPS.map(({ title, body }, index) => (
-              <article key={title} className={styles.step}>
-                <h2><span>{index + 1}</span>{title}</h2>
-                <p>{body}</p>
-              </article>
+    <SearchLanding
+      title={["PDF to flashcards,", "from your own pages."]}
+      lede="Drop in a lecture PDF, slides or a chapter. Kelus finds its topics and writes flashcards from your own sentences, and every card shows the page it came from."
+      action="Turn a PDF into flashcards"
+      note={<>Free. No account. Export to <BrandIcon brand="anki" size={14} /> Anki.</>}
+      exampleLabel="A real example: flashcards Kelus wrote from the LibreTexts BIOL 101 lab manual"
+      example={
+        <>
+          {/* A real run, not a mock-up: the file, what Kelus found in it, and three of the cards it wrote. */}
+          <div className={styles.file}>
+            <i aria-hidden="true">PDF</i>
+            <span><b>BIOL 101 Laboratory Manual</b>LibreTexts, 123 pages</span>
+            <span className={styles.found}><b>37</b> topics · <b>216</b> cards</span>
+          </div>
+          <ol className={styles.cards}>
+            {CARDS.map(({ front, back, topic, page }) => (
+              <li key={back} className={styles.card}>
+                <p className={styles.front}>{front[0]}<span className={styles.blank} aria-label="blank">_____</span>{front[1]}</p>
+                <p className={styles.back}><b>{back}</b><small>{topic} · Page {page}</small></p>
+              </li>
             ))}
-          </section>
-
-          <section className={styles.why} aria-labelledby="pdf-why">
-            <h2 id="pdf-why">Cards you can trust, because they quote you.</h2>
-            <p>Kelus only asks about what is on your page. The back of every card quotes the line it came from, and the cards you miss come back first, before anything new.</p>
-          </section>
-
-          <section className={styles.faq} aria-labelledby="pdf-faq">
-            <h2 id="pdf-faq">Questions</h2>
-            <dl>
-              {FAQ.map(({ q, a }) => (
-                <div key={q}><dt>{q}</dt><dd>{a}</dd></div>
-              ))}
-            </dl>
-            <Link href="/today" className={styles.primary}>Turn a PDF into flashcards</Link>
-            <p className={styles.credit}>Example: LibreTexts BIOL 101: General Biology I Laboratory Manual by Brad Basehore, Michelle A. Bucks and Christine M. Mummert, CC BY 4.0. Kelus is not affiliated with LibreTexts.</p>
-          </section>
-        </main>
-        <SiteFooter />
-      </div>
-    </LateralPage>
+          </ol>
+        </>
+      }
+      steps={STEPS}
+      why={{ title: "Cards you can trust, because they quote you.", body: "Kelus only asks about what is on your page. The back of every card quotes the line it came from, and the cards you miss come back first, before anything new." }}
+      faq={FAQ}
+      credit="Example: LibreTexts BIOL 101: General Biology I Laboratory Manual by Brad Basehore, Michelle A. Bucks and Christine M. Mummert, CC BY 4.0. Kelus is not affiliated with LibreTexts."
+    />
   );
 }

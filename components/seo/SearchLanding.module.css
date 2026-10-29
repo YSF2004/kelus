@@ -1,4 +1,4 @@
-/* A search landing page in the homepage's tile system: Literata titles, Inter text, Kelus green, 64px margin,
+/* Search landing pages (components/seo/SearchLanding.tsx), in the homepage's tile system: Literata titles, Inter text, Kelus green, 64px margin,
    16px gaps, 8px tiles, a grey stage for the real example. */
 .page { --ink: #0e1512; --t2: #4a5550; --t3: #5c6661; --line: #e5e5e5; --tile: #f4f4f4; --green: #1f6b45; background: #fff; color: var(--ink); }
 .page :is(h1, h2) { font-family: var(--font-source-serif), Georgia, serif !important; font-weight: 500 !important; letter-spacing: -0.02em !important; color: var(--ink); }
@@ -19,6 +19,7 @@
 .free { display: flex; align-items: center; gap: 6px; margin: 14px 0 0; font-size: 14px; color: var(--t3); }
 
 .stage { display: grid; align-content: center; gap: 12px; margin: 0; padding: 40px; border-radius: 8px; background: var(--tile); }
+.stage > * { min-width: 0; }
 .file { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; padding: 14px 16px; border-radius: 8px; background: #fff; }
 .file i { display: grid; flex: none; place-items: center; width: 38px; height: 38px; border-radius: 8px; background: #c4492e; color: #fff; font-size: 11px; font-style: normal; font-weight: 700; }
 .file span { display: grid; font-size: 13px; color: var(--t3); }
@@ -62,3 +63,15 @@
   .faq { margin: 12px 16px 40px; padding: 28px 20px; }
   .faq dl { grid-template-columns: minmax(0, 1fr); }
 }
+
+/* /pdf-to-anki: one exported card as Anki shows it, front over back. */
+.ankiCard { padding: 18px 20px; border-radius: 8px; background: #fff; text-align: center; }
+.ankiCard hr { margin: 14px 0; border: 0; border-top: 1px solid var(--line); }
+.ankiSide { margin: 0 0 6px; font-size: 11.5px; font-weight: 600; color: var(--t3); text-align: left; }
+.ankiFront { margin: 0; font-size: 15px; line-height: 1.5; }
+.ankiAnswer { margin: 0; font-size: 17px; font-weight: 700; color: var(--ink); }
+.ankiQuote { margin: 8px 0 0; font-size: 14px; font-style: italic; line-height: 1.5; color: var(--t2); }
+.ankiWhere { margin: 6px 0 0; font-size: 12.5px; color: var(--t3); }
+.ankiTags { margin: 0; font-size: 12.5px; color: var(--t3); }
+.ankiTags code { padding: 1px 6px; border-radius: 4px; background: #fff; font-size: 12px; color: var(--t2); }
+.file i.txt { background: #3b3f3c; }
