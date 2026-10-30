@@ -78,7 +78,7 @@ function creditOnly(excerpt: string) {
   const sentenceLines = excerpt.split(/\n+/).filter((line) => !CREDIT_LINE.test(line) && (line.match(/\p{L}{3,}/gu) ?? []).length >= 4);
   return sentenceLines.length < 3;
 }
-const ADMINISTRATIVE_EXCERPT = /\b(?:office hours?|instructor\s*:|attendance|grading\s*:)|e-?mail\s*:|\S+@\S+\.\S+|\b(?:nous soussign[ée]s?|je soussign[ée]e?|certifions|certifie que|fait pour servir et valoir|pour valoir ce que de droit)\b/i;
+const ADMINISTRATIVE_EXCERPT = /\b(?:office hours?|instructor\s*:|course directors?\s*:|attendance|grading\s*:)|e-?mail\s*:|\S+@\S+\.\S+|\b(?:nous soussign[ée]s?|je soussign[ée]e?|certifions|certifie que|fait pour servir et valoir|pour valoir ce que de droit)\b/i;
 /** Headings that structure a document but are not something to study on their own. */
 const GENERIC_HEADING =
   /^(?:(?:laboratory|lab|student|course) (?:manual|workbook|handbook)|workbook|study guide|materials?(?: and (?:methods|supplies))?(?: required| needed)?|methods|procedures?|licen[cs]ing|licen[cs]e|labs?|lab report|results|discussion|data(?: table)?|background|purpose|safety(?: notes?)?|equipment|pre-?lab(?: questions)?|post-?lab(?: questions)?|(?:questions for|review) (?:review|questions)|practical challenge(?: questions)?|(?:graph|interpret|record|analy[sz]e) (?:your )?(?:results|data)|performing the experiment|examples?|summary|overview|introduction|intro|conclusions?|notes?|references?|resources?|further reading|homework|exercises?|practice|questions?|review|recap|key points|takeaways|table of contents|contents|agenda|to-?do|links?|bibliography|appendix|glossary|extra|misc(?:ellaneous)?|(?:learning )?objectives|learning outcomes|outcomes|aims|goals|key terms|objectifs|plan|sommaire|outline|class material|course material|for today(?: and next week)?|next week|this week|today|to know(?: [-–—] .*)?|announcements?|logistics|reminders?|readings?|thank you|any questions\??|r[ée]sum[ée]|conclusion|exercices?|exemples?|bibliographie|annexes?|mots[- ]cl[ée]s)$/i;
@@ -161,7 +161,13 @@ function notATopic(value: string) {
     || /\((?:cont(?:’|')?d|cont\.|continued)\)|\bcontinued$/i.test(text)
     || /^examples?\b/i.test(text)
     || (text.match(/[<>=]/g) ?? []).length >= 2
-    || /^(?:dr|prof|professor|mr|mrs|ms)\.?\s+\p{Lu}/iu.test(text);
+    || /^(?:dr|prof|professor|mr|mrs|ms)\.?\s+\p{Lu}/iu.test(text)
+    // The institution on a title slide, "Harvard-MIT Division of Health Sciences and Technology": a named body before
+    // Division / Department / School of. "Division of Labour" alone is still a topic.
+    || /^(?:\p{Lu}[\p{L}.&'’-]*\s+){1,4}(?:division|department|school|faculty|institute|college|centre|center)\s+(?:of|for)\s+\p{Lu}/iu.test(text)
+    || /\b(?:university|college|institute of technology)$/i.test(text)
+    // A diagram's label with its unit in front, "L saliva", "mL plasma": one letter or a unit, then a lowercase word.
+    || /^(?:\p{L}|mL|ml|mg|kg|μL|µL)\s+\p{Ll}/u.test(text);
 }
 
 /**
