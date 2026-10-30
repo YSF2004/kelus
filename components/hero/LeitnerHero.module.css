@@ -65,7 +65,7 @@
 .panelFoot { margin-top: 14px; font-size: 13px; color: var(--t2); }
 
 /* One pass in under five seconds (WCAG 2.2.2 needs no pause control below that), ending on the checked answer and
-   holding there; "Play it again" remounts the demonstration to replay it. */
+   holding there. */
 @keyframes kelusHeroMark { 0%, 6% { background-size: 0% 100%; } 16%, 100% { background-size: 100% 100%; } }
 @keyframes kelusHeroMark2 { 0%, 22% { background-size: 0% 100%; } 32%, 100% { background-size: 100% 100%; } }
 @keyframes kelusHeroMark3 { 0%, 38% { background-size: 0% 100%; } 48%, 100% { background-size: 100% 100%; } }
@@ -98,23 +98,12 @@
 }
 /* The marketing sheets set every [data-marketing] h1 in the book serif; the hero is the product's own face. */
 
-.replay { justify-self: end; min-height: 44px; padding: 0 4px; border: 0; background: none; color: var(--green); font: inherit; font-size: 14px; font-weight: 600; cursor: pointer; }
-.replay:hover { text-decoration: underline; text-underline-offset: 3px; }
-.replay:active { transform: scale(0.97); }
-.replay:focus-visible { outline: 2px solid var(--green); outline-offset: 2px; border-radius: 4px; }
-@media (prefers-reduced-motion: reduce) { .replay { display: none; } }
 
 /* The pass waits, paused on its first frame, until the demonstration is half in view (HeroReplay). */
 .waiting :is(.mark, .card, .fill, .checked, .next, .blank) { animation-play-state: paused; }
-/* Play it again: the finished state settles out (subtler than the entrance) before the pass restarts. */
 .panel { transition: opacity 150ms cubic-bezier(0.22, 1, 0.36, 1), transform 150ms cubic-bezier(0.22, 1, 0.36, 1); }
-.leaving .panel { opacity: 0; transform: translateY(-4px); }
 
 /* A keyboard focus ring settles into place rather than snapping on. */
-.primary, .secondary, .replay { outline: 2px solid transparent; outline-offset: 0; transition: background-color 160ms, transform 120ms cubic-bezier(0.22, 1, 0.36, 1), outline-color 160ms, outline-offset 160ms cubic-bezier(0.22, 1, 0.36, 1); }
+.primary, .secondary { outline: 2px solid transparent; outline-offset: 0; transition: background-color 160ms, transform 120ms cubic-bezier(0.22, 1, 0.36, 1), outline-color 160ms, outline-offset 160ms cubic-bezier(0.22, 1, 0.36, 1); }
 .primary:focus-visible, .secondary:focus-visible { outline-color: var(--green); outline-offset: 3px; }
-/* Play it again: its arrow turns once, the way a replay control does. */
-.replay { display: inline-flex; align-items: center; gap: 6px; }
-.replay i { display: inline-block; font-style: normal; transition: transform 420ms cubic-bezier(0.22, 1, 0.36, 1); }
-.replay:active i { transform: rotate(-200deg); transition-duration: 0ms; }
-@media (prefers-reduced-motion: reduce) { .primary, .secondary, .replay, .replay i { transition: none; } }
+@media (prefers-reduced-motion: reduce) { .primary, .secondary { transition: none; } }
