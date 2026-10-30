@@ -35,6 +35,7 @@ const PROMPTS: Rule[] = [
   [/^Which word completes this statement from your notes\? (“.+”)$/s, (m) => `Quel mot complète cette phrase de tes notes ? ${m[1]}`],
   [/^Fill the gap: (“.+”)$/s, (m) => `Complète cette phrase : ${m[1]}`],
   [/^Fill the gap from (.+?): (“.+”)$/s, (m) => `Complète cette phrase de ${where(m[1])} : ${m[2]}`],
+  [/^Which of these is about .+\?$/s, (_m, name) => `Laquelle de ces phrases parle de ${named(name)} ?`],
   [/^Which of these is from your notes on .+\?$/s, (_m, name) => `Laquelle de ces phrases vient de tes notes sur ${named(name)} ?`],
   [/^Which of these does NOT match your notes on .+\?$/s, (_m, name) => `Laquelle de ces phrases ne correspond PAS à tes notes sur ${named(name)} ?`],
   [/^Which one matches: (“.+”)\?$/s, (m) => `Lequel de ces termes correspond : ${m[1]} ?`],

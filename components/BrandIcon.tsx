@@ -37,7 +37,9 @@ export function BrandIcon({ brand, size = 16, className, label, tile = false }: 
   );
 }
 
-/** Notes read from a Notion export carry `variant=notion` (see lib/zip-notes). Pasted notes are plain .md: no mark. */
+/** Notes read from a Notion export or an Obsidian vault carry `variant=notion` / `variant=obsidian` (see
+ * lib/zip-notes). Pasted notes are plain .md: no mark. */
 export function brandForFile(fileName?: string | null, mimeType?: string | null): Brand | null {
+  if (/variant=obsidian/i.test(mimeType ?? "")) return "obsidian";
   return /variant=notion/i.test(mimeType ?? "") || (fileName ?? "").toLocaleLowerCase().endsWith(".zip") ? "notion" : null;
 }

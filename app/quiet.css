@@ -199,7 +199,8 @@ html body.is-session-complete [class*="complete"][class*="changed"] { background
   html body.is-course-studio .studio-topbar {
     position: absolute !important;
     top: 0; right: 0; left: 120px;
-    height: 52px !important; min-height: 0 !important;
+    /* 51, not 52: the bar sits over the rail, and a full-height white bar hid the right two thirds of its bottom rule. */
+    height: 51px !important; min-height: 0 !important;
     padding: 0 16px 0 0 !important;
     display: flex !important; align-items: center !important; justify-content: flex-end !important; gap: 10px;
   }
@@ -383,16 +384,6 @@ html body .pricing-page .pricing-hero-art {
   pointer-events: none;
 }
 @media (max-width: 900px) { html body .pricing-page .pricing-hero-art { display: none; } }
-/* The art rises in with the heading: its motion wrapper takes the place, so the transform never moves its anchor. */
-html body .pricing-page .pricing-hero-art-wrap {
-  position: absolute;
-  top: clamp(40px, 6vw, 80px);
-  right: 0;
-  width: clamp(130px, 13vw, 170px);
-  pointer-events: none;
-}
-html body .pricing-page .pricing-hero-art-wrap .pricing-hero-art { position: static; width: 100%; }
-@media (max-width: 900px) { html body .pricing-page .pricing-hero-art-wrap { display: none; } }
 html body .pricing-page .pricing-plan-name .kicker { display: inline-flex; align-items: center; gap: 8px; }
 html body .pricing-page .pricing-plan-icon { width: 20px; height: 20px; }
 html body .pricing-page .pricing-faq { margin-top: clamp(40px, 6vw, 64px); }
@@ -696,6 +687,8 @@ html body .first-source-review-list small { display: -webkit-box; -webkit-line-c
 /* ── Alive: sections arrive, they don't appear ─────────────────────────────────────────────────────────
    Each section's column rises a few pixels as it opens, and the rows of its lists follow one after another. Plain CSS,
    so it costs nothing on a slow phone, runs once per opening, and is off with reduced motion. */
+/* The pricing art has no style prop: its start is set here, after the heading and lede (0.06s, 0.14s). */
+html body .pricing-page .pricing-hero-art.k-rise { --rise-delay: 0.2s; }
 @keyframes kelusRise { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
 @media (prefers-reduced-motion: no-preference) {
   html body.is-course-studio :is(.surface-map.is-toc, [class*="ProgressView"][class*="page"], [class*="TodayQuiet"][class*="page"]) > * { animation: kelusRise 420ms cubic-bezier(0.22, 1, 0.36, 1) both; }
@@ -798,8 +791,260 @@ html body .k-btn--paper:active:not(:disabled) { box-shadow: inset 0 0 0 1px var(
   }
 }
 
-/* Tiled homepage preview: the header is one bordered tile inside the 64px page margin, as on link.com. */
-@media (min-width: 961px) {
-  body.is-booklet-system .site-header.is-home { top: 10px; width: auto; margin: 10px 64px 0; border: 1px solid #e5e5e5 !important; border-radius: 8px; background: #fff; }
-  body.is-booklet-system .site-header.is-home .site-header-inner { width: auto; max-width: none; padding-inline: 20px; }
+/* The homepage header is one bordered tile inside the page margin, as on link.com: solid white, so it never turns
+   muddy over the dark band. */
+body.is-booklet-system .site-header.is-home { top: 10px; width: auto; margin: 10px 64px 0; border: 1px solid #e5e5e5 !important; border-radius: 8px; background: #fff !important; -webkit-backdrop-filter: none !important; backdrop-filter: none !important; }
+body.is-booklet-system .site-header.is-home .site-header-inner { width: auto; max-width: none; padding-inline: 20px; }
+@media (max-width: 960px) {
+  body.is-booklet-system .site-header.is-home { top: 8px; margin: 8px 16px 0; }
+  body.is-booklet-system .site-header.is-home .site-header-inner { min-height: 56px !important; padding: 4px 12px !important; grid-template-rows: auto; row-gap: 0; align-items: center; }
 }
+
+/* Once the page scrolls under it, the homepage header tile lifts with a soft shadow; at the top it sits flat.
+   Scroll-driven, so no JavaScript; browsers without scroll timelines keep the flat tile. */
+@supports (animation-timeline: scroll()) {
+  @media (prefers-reduced-motion: no-preference) {
+    body.is-booklet-system .site-header.is-home { animation: kelusHeaderLift linear both; animation-timeline: scroll(root); animation-range: 0 64px; }
+  }
+}
+@keyframes kelusHeaderLift {
+  from { box-shadow: 0 0 0 rgba(14, 21, 18, 0); }
+  to { box-shadow: 0 1px 2px rgba(14, 21, 18, 0.04), 0 10px 24px -16px rgba(14, 21, 18, 0.22); }
+}
+
+/* Pricing: the Plus plan's way down to the waitlist. The section stops clear of the header tile and brightens for a
+   moment when it is the link's target, so the eye lands on it (a ring only: the section keeps its own fill); reduced motion keeps the jump, no ring. */
+html body .pricing-page #pricing-notify-title { scroll-margin-top: 128px; }
+html body .pricing-page .founding-cta-jump { color: inherit; text-decoration: underline; text-decoration-color: color-mix(in srgb, currentColor 45%, transparent); text-underline-offset: 0.2em; transition: text-decoration-color 160ms cubic-bezier(0.22, 1, 0.36, 1); }
+html body .pricing-page .founding-cta-jump:hover { text-decoration-color: currentColor; }
+@media (prefers-reduced-motion: no-preference) {
+  html body .pricing-page .pricing-notify:has(#pricing-notify-title:target) { animation: kelusNotifyWash 1400ms cubic-bezier(0.22, 1, 0.36, 1) 250ms both; }
+}
+@keyframes kelusNotifyWash {
+  from { box-shadow: 0 0 0 0 rgba(31, 107, 69, 0); }
+  20% { box-shadow: 0 0 0 6px rgba(31, 107, 69, 0.16); }
+  to { box-shadow: 0 0 0 0 rgba(31, 107, 69, 0); }
+}
+
+/* Page entrances (components/motion/entrance.tsx): the top of How it works and pricing rises from the first frame.
+   Individual translate and scale, so the plans' hover zoom (a transform) composes with it. Ends visible without JS. */
+@media (prefers-reduced-motion: no-preference) {
+  .k-rise { animation: kelusRise var(--rise-duration, 0.55s) cubic-bezier(0.22, 1, 0.36, 1) var(--rise-delay, 0s) both; }
+}
+/* The pricing art has no style prop, so its start is set here; the title and lede beside it stay still. */
+html body .pricing-page .pricing-hero-art.k-rise { --rise-delay: 0.2s; }
+@keyframes kelusRise { from { opacity: 0; translate: 0 var(--rise-y, 12px); scale: var(--rise-scale, 1); } }
+
+/* Start screen: photos of notes, a page at a time. A quiet text action until there are pages, then a small tray. */
+.start-page .photo-notes { margin-top: 12px; }
+.start-page .photo-notes-start, .start-page .photo-notes-more { min-height: 44px; padding: 0; border: 0; background: none; color: var(--color-kelus, #1f6b45); font: inherit; font-weight: 600; text-decoration: underline; text-decoration-color: color-mix(in srgb, currentColor 45%, transparent); text-underline-offset: 0.22em; cursor: pointer; transition: text-decoration-color 160ms cubic-bezier(0.22, 1, 0.36, 1); }
+.start-page .photo-notes-start:hover, .start-page .photo-notes-more:hover { text-decoration-color: currentColor; }
+.start-page .photo-notes-start:active, .start-page .photo-notes-more:active { transform: scale(0.97); }
+.start-page .photo-notes-pages { padding: 14px 16px; border: 1px solid #e5e5e5; border-radius: 8px; background: #fff; }
+.start-page .photo-notes-pages p { margin: 0 0 10px; font-size: 14px; }
+.start-page .photo-notes-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 18px; }
+@media (prefers-reduced-motion: reduce) { .start-page .photo-notes-start, .start-page .photo-notes-more { transition: none; } }
+
+/* The study plan on a phone: the top bar is one surface (frosted white, a hairline once content passes under it),
+   not a grey patch behind the logo, and "Open notes" sits just above the course title instead of in a band of empty
+   space. */
+@media (max-width: 760px) {
+  html body.is-course-studio.is-kelus-space aside.studio-rail.studio-rail { background: color-mix(in srgb, var(--lb-surface) 92%, transparent) !important; box-shadow: none !important; border-right: 0 !important; }
+  html body.is-course-studio .core-workspace-action { padding-top: 8px !important; }
+  html body.is-course-studio.is-kelus-space div.today-source-access.today-source-access { min-height: 0 !important; padding: 0 !important; margin-bottom: 0 !important; }
+}
+
+/* ── Homepage scroll motion ─────────────────────────────────────────────────────────────────────────────────────
+   Tied to scroll position, not to time: each tile lifts into place as it comes up the screen, the product piece
+   inside it travels a little further than its tile (a quiet depth), the dark band's files slide in one after
+   another, and the hero's demo settles back as you scroll past it. CSS scroll timelines only: no JavaScript on
+   scroll, nothing loops, and without support or with reduced motion the page is simply as it was. */
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    .home :is([class*="FollowThrough"][class*="step"], [class*="HomeVisualChapters"][class*="studySection"], [class*="HomeVisualChapters"][class*="returnSection"], [class*="HomeBand"][class*="band"], [class*="HomeFinal"][class*="final"]) {
+      animation: kelusTileUp linear both;
+      animation-timeline: view();
+      animation-range: entry 0% cover 28%;
+    }
+    .home [class*="FollowThrough"][class*="shot"] > * {
+      animation: kelusDepth linear both;
+      animation-timeline: view();
+      animation-range: entry 0% cover 42%;
+    }
+    .home [class*="HomeVisualChapters"] img {
+      animation: kelusDepth linear both;
+      animation-timeline: view();
+      animation-range: entry 0% cover 45%;
+    }
+    /* The band's files arrive in order: each row's own range starts a little later down the screen. The row's
+       contents move, not the row, so the dark list stays solid behind them. */
+    .home [class*="HomeBand"][class*="files"] > li > * {
+      animation: kelusFileIn linear both;
+      animation-timeline: view();
+      animation-range: entry 10% cover 30%;
+    }
+    .home [class*="HomeBand"][class*="files"] > li:nth-child(2) > * { animation-range: entry 25% cover 34%; }
+    .home [class*="HomeBand"][class*="files"] > li:nth-child(3) > * { animation-range: entry 40% cover 38%; }
+    .home [class*="HomeBand"][class*="files"] > li:nth-child(4) > * { animation-range: entry 55% cover 42%; }
+    /* Scrolling past the hero, its demo settles back rather than simply sliding away. */
+    .home [data-hero] [class*="LeitnerHero"][class*="set"] {
+      animation: kelusSettleBack linear both;
+      animation-timeline: view();
+      animation-range: exit 10% exit 90%;
+    }
+  }
+}
+@keyframes kelusTileUp { from { opacity: 0.001; translate: 0 56px; scale: 0.965; } to { opacity: 1; translate: 0 0; scale: 1; } }
+@keyframes kelusDepth { from { translate: 0 44px; } to { translate: 0 0; } }
+@keyframes kelusFileIn { from { opacity: 0.001; translate: 32px 0; } to { opacity: 1; translate: 0 0; } }
+@keyframes kelusSettleBack { from { scale: 1; } to { scale: 0.94; } }
+
+/* ── Scroll motion beyond the homepage, on the same rules ───────────────────────────────────────────────────────
+   Marketing pages: tiles lift in and product pieces travel a little further than their tile. Sections that
+   already reveal with JavaScript (pricing's waitlist and FAQ, How it works' chapters) get only the travel, never a
+   second fade. The study app is used every day, so it gets less: list rows rise a few pixels as they scroll into
+   view, nothing else. All of it follows the scroll position, loops nothing, and is off with reduced motion. */
+@supports (animation-timeline: view()) {
+  @media (prefers-reduced-motion: no-preference) {
+    /* Search pages: steps, the dark band and the questions tile lift in; the example's cards add depth. */
+    [data-marketing] :is([class*="SearchLanding"][class*="step"], [class*="SearchLanding"][class*="why"], [class*="SearchLanding"][class*="faq"]) {
+      animation: kelusTileUp linear both;
+      animation-timeline: view();
+      animation-range: entry 0% cover 28%;
+    }
+    [data-marketing] [class*="SearchLanding"][class*="stage"] > :is(ol, div, p) {
+      animation: kelusDepth linear both;
+      animation-timeline: view();
+      animation-range: entry 0% cover 40%;
+    }
+    /* How it works: each chapter's product picture travels in beside its words. */
+    [data-marketing] [class*="HowItWorks"][class*="visualWrap"] {
+      animation: kelusLift linear both;
+      animation-timeline: view();
+      animation-range: entry 0% cover 35%;
+    }
+    /* Pricing: the waitlist and Good to know settle in as they arrive. */
+    .pricing-page :is(.pricing-notify, .pricing-faq) {
+      animation: kelusLift linear both;
+      animation-timeline: view();
+      animation-range: entry 0% cover 25%;
+    }
+    /* Study app: the next topics and the topic list rise a little as they scroll into view. */
+    :is(body.is-course-studio) :is([data-block="today-next"] li, .index-toc > li) {
+      animation: kelusRowIn linear both;
+      animation-timeline: view();
+      animation-range: entry 0% entry 90%;
+    }
+  }
+}
+@keyframes kelusLift { from { translate: 0 48px; scale: 0.97; } to { translate: 0 0; scale: 1; } }
+@keyframes kelusRowIn { from { opacity: 0.001; translate: 0 14px; } to { opacity: 1; translate: 0 0; } }
+
+/* Materials on a phone: the source's drawing is 36px now, so its column is too (it was 56, which pushed the name a
+   third of the way across), and the shelf sits closer to the reader above it. */
+@media (max-width: 650px) {
+  html body.is-course-studio .studio-panel .material-shelf.is-binder { padding-top: 32px !important; }
+  html body.is-course-studio .studio-panel .material-shelf.is-binder li.material-card { grid-template-columns: 36px minmax(0, 1fr) !important; column-gap: 14px !important; }
+}
+
+/* ── Phone: an app, not a web page ──────────────────────────────────────────────────────────────────
+   The top bar stays put as a frosted strip, content passing under it; its hairline appears only once something has
+   scrolled beneath it. The section's name settles into the bar as its big title scrolls away, the way iOS titles do.
+   Taps give no grey flash and never zoom the page. */
+@media (max-width: 650px) {
+  /* Sticky, not fixed: the page sits in an animated wrapper, and a transformed parent pins fixed bars to itself. */
+  html body.is-course-studio .studio-rail {
+    position: sticky !important;
+    top: 0;
+    z-index: 55;
+    height: calc(52px + env(safe-area-inset-top)) !important;
+    padding-top: env(safe-area-inset-top) !important;
+    border-bottom-color: transparent !important;
+    background: color-mix(in srgb, var(--lb-surface) 92%, transparent) !important;
+    -webkit-backdrop-filter: saturate(180%) blur(24px);
+    backdrop-filter: saturate(180%) blur(24px);
+  }
+  /* The top bar rides over the rail's right side and sticks with it. */
+  html body.is-course-studio .studio-topbar {
+    position: sticky !important;
+    top: env(safe-area-inset-top) !important;
+    z-index: 56;
+    margin: -52px 0 0 120px !important;
+  }
+  html body.is-course-studio .studio-main > header.studio-topbar { background: transparent !important; box-shadow: none !important; }
+  html body.is-course-studio .studio-topbar[data-title]::after {
+    content: attr(data-title);
+    position: absolute;
+    top: 0;
+    left: calc(50vw - 120px);
+    display: block;
+    line-height: 51px;
+    /* Clear of the logo on the left and the switch on the right, whatever the course is called. */
+    max-width: calc(100vw - 250px);
+    height: 51px;
+    overflow: hidden;
+    color: var(--lb-ink);
+    font-family: var(--font-marketing-heading), Georgia, serif;
+    font-size: 16px;
+    font-weight: 500;
+    letter-spacing: -0.01em;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    pointer-events: none;
+    opacity: 0;
+    translate: -50% 0;
+  }
+  @supports (animation-timeline: scroll()) {
+    html body.is-course-studio .studio-rail { animation: kelusBarEdge linear both; animation-timeline: scroll(root); animation-range: 0 24px; }
+    html body.is-course-studio .studio-topbar[data-title]::after { animation: kelusBarTitle linear both; animation-timeline: scroll(root); animation-range: 56px 104px; }
+  }
+  html, html body.is-course-studio { -webkit-tap-highlight-color: transparent; }
+  html body.is-course-studio :is(button, a, [role="button"], summary, label) { touch-action: manipulation; }
+}
+@keyframes kelusBarEdge { to { border-bottom-color: var(--lb-line); } }
+@keyframes kelusBarTitle { from { opacity: 0; translate: -50% 6px; } to { opacity: 1; translate: -50% 0; } }
+@keyframes kelusBarTitleFade { from { opacity: 0; } to { opacity: 1; } }
+@media (prefers-reduced-motion: reduce) and (max-width: 650px) {
+  html body.is-course-studio .studio-topbar[data-title]::after { animation-name: kelusBarTitleFade; }
+}
+@media (min-width: 651px) { html body.is-course-studio .studio-topbar[data-title]::after { content: none; } }
+/* Asked for less transparency, the bar is solid. */
+@media (prefers-reduced-transparency: reduce) and (max-width: 650px) {
+  html body.is-course-studio.is-kelus-space aside.studio-rail.studio-rail { background: var(--lb-surface) !important; -webkit-backdrop-filter: none; backdrop-filter: none; }
+}
+
+/* Pricing: Kelus Plus is named with the header's lockup (K mark, "kelus" in Inter with its tight tracking), Plus in
+   Kelus green beside it; the plan's status is a small badge. */
+html body .pricing-page .pricing-plan-name h2.pricing-plus-name { display: inline-flex; align-items: center; gap: 7px; margin: 0 !important; color: var(--q-ink) !important; font-family: var(--font-inter), system-ui, sans-serif !important; font-size: 22px !important; font-weight: 400 !important; line-height: 1 !important; letter-spacing: -0.065em !important; text-transform: none !important; }
+html body .pricing-page .pricing-plus-name .kelus-logo-mark { width: 23px; height: 23px; flex: none; color: currentColor; }
+html body .pricing-page .pricing-plus-name .pricing-plus-tier { margin-left: 2px; color: var(--q-green, #1f6b45); font-weight: 600; letter-spacing: -0.03em; }
+html body .pricing-page .pricing-plus-name .pricing-plus-tier.is-free { color: var(--q-ink); }
+html body.is-booklet-system .pricing-page.is-monthly-pricing .pricing-plan-name { align-items: center !important; }
+html body.is-booklet-system .pricing-page.is-monthly-pricing .pricing-availability { margin: 0 !important; line-height: 1 !important; }
+html body .pricing-page.is-monthly-pricing .is-pass .pricing-availability { display: inline-flex; align-items: center; height: 26px; padding: 0 10px; border-radius: 999px; background: color-mix(in srgb, var(--q-ink) 6%, transparent); color: var(--q-text-2) !important; font-size: 12.5px !important; font-weight: 500; }
+
+/* ── Buttons, the Link way ─────────────────────────────────────────────────────────────────────────────
+   One shape everywhere: 10px corners at rest that round into a pill under the pointer (200 ms, ease-in-out; 32px, just
+   past half the height, as Link does, so the rounding is seen across the whole move, not in its first frame) while the
+   fill steps one shade darker (200 ms, linear). No lift, no shadow, no glow. A press still answers at once with a small
+   squeeze, so a tap is felt. Hover only where there is a pointer, so a tapped button never stays a pill on a phone. */
+html body :is(.k-btn, .cta, [class*="LeitnerHero"][class*="primary"], [class*="LeitnerHero"][class*="secondary"], [class*="HomeBand"][class*="action"], [class*="HomeFinal"][class*="action"], [class*="TodayQuiet"][class*="go"], [class*="primaryAction"], [class*="SearchLanding"][class*="primary"], [class*="SearchLanding"][class*="secondary"]) {
+  border-radius: 10px !important;
+  box-shadow: none !important;
+  filter: none !important;
+  transition: border-radius 200ms ease-in-out, background-color 200ms linear, color 200ms linear, transform 100ms ease-out !important;
+}
+@media (hover: hover) and (pointer: fine) {
+  html body :is(.k-btn, .cta, [class*="LeitnerHero"][class*="primary"], [class*="LeitnerHero"][class*="secondary"], [class*="HomeBand"][class*="action"], [class*="HomeFinal"][class*="action"], [class*="TodayQuiet"][class*="go"], [class*="primaryAction"], [class*="SearchLanding"][class*="primary"], [class*="SearchLanding"][class*="secondary"]):hover:not(:disabled):not([aria-disabled="true"]) { border-radius: 32px !important; }
+  html body :is(.k-btn:not(.k-btn--paper):not(.k-btn--marigold), .cta, [class*="LeitnerHero"][class*="primary"], [class*="HomeFinal"][class*="action"], [class*="TodayQuiet"][class*="go"], [class*="primaryAction"], [class*="SearchLanding"][class*="primary"], [class*="SearchLanding"][class*="secondary"]):hover:not(:disabled) { background-color: #185638 !important; }
+  html body :is(.k-btn--paper, [class*="LeitnerHero"][class*="secondary"], [class*="SearchLanding"][class*="secondary"]):hover:not(:disabled) { background-color: #e5e5e5 !important; }
+  html body [class*="HomeBand"][class*="action"]:hover { background-color: #4cc585 !important; }
+}
+html body :is(.k-btn, .cta, [class*="LeitnerHero"][class*="primary"], [class*="LeitnerHero"][class*="secondary"], [class*="HomeBand"][class*="action"], [class*="HomeFinal"][class*="action"], [class*="TodayQuiet"][class*="go"], [class*="primaryAction"], [class*="SearchLanding"][class*="primary"], [class*="SearchLanding"][class*="secondary"]):active:not(:disabled) { transform: scale(0.97) !important; }
+html body :is(.k-btn, .cta, [class*="LeitnerHero"][class*="primary"], [class*="LeitnerHero"][class*="secondary"], [class*="HomeBand"][class*="action"], [class*="HomeFinal"][class*="action"], [class*="TodayQuiet"][class*="go"], [class*="primaryAction"], [class*="SearchLanding"][class*="primary"], [class*="SearchLanding"][class*="secondary"]):focus-visible { outline: 2px solid var(--color-kelus, #1f6b45) !important; outline-offset: 2px !important; }
+@media (prefers-reduced-motion: reduce) {
+  html body :is(.k-btn, .cta, [class*="LeitnerHero"][class*="primary"], [class*="LeitnerHero"][class*="secondary"], [class*="HomeBand"][class*="action"], [class*="HomeFinal"][class*="action"], [class*="TodayQuiet"][class*="go"], [class*="primaryAction"], [class*="SearchLanding"][class*="primary"], [class*="SearchLanding"][class*="secondary"]) { transition: background-color 120ms linear, color 120ms linear !important; }
+}
+:root[data-theme="dark"] body :is(.k-btn--paper, [class*="LeitnerHero"][class*="secondary"]):hover:not(:disabled) { background-color: #2a2f2c !important; }
+/* Older hover and press rules gave the green button a glow; the Link way has none in any state. */
+html body :is(.k-btn, .cta, [class*="LeitnerHero"][class*="primary"], [class*="LeitnerHero"][class*="secondary"], [class*="HomeBand"][class*="action"], [class*="HomeFinal"][class*="action"], [class*="TodayQuiet"][class*="go"], [class*="primaryAction"], [class*="SearchLanding"][class*="primary"], [class*="SearchLanding"][class*="secondary"]):is(:hover, :active, :focus) { box-shadow: none !important; filter: none !important; }

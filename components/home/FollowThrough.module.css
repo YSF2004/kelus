@@ -7,10 +7,11 @@
   --green: #1f6b45;
   --marigold: #f3d27a;
   --red: #b42318;
-  border-top: 1px solid var(--line);
+  --tile-line: #e5e5e5;
   background: #fff;
   color: var(--ink);
-  padding: clamp(4rem, 8vw, 6.5rem) max(1.5rem, calc((100vw - 76rem) / 2)) clamp(4rem, 7vw, 6rem);
+  /* The same 64px page margin and 16px gaps as the hero's tiles. */
+  padding: clamp(3.5rem, 7vw, 5.5rem) 64px 0;
 }
 
 .intro {
@@ -34,69 +35,73 @@
   line-height: 1.55;
 }
 
-/* Four steps in a row, joined by one thin line through their numbers. */
+/* Four tiles, two by two: each a numbered title and one grey line, with its fragment on a grey stage below. */
 .track {
-  position: relative;
   display: grid;
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: clamp(14px, 1.6vw, 22px);
-}
-
-.track::before {
-  content: "";
-  position: absolute;
-  top: 11px;
-  left: 12px;
-  right: 12px;
-  height: 1px;
-  background: var(--line);
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
 }
 
 .step {
-  position: relative;
   display: grid;
-  grid-template-rows: auto 1fr;
-  gap: 14px;
+  grid-template-rows: auto auto 1fr;
   margin: 0;
+  padding: 24px;
+  border-radius: 8px;
+  background: #f4f4f4;
 }
 
 .step h3 {
-  /* Sits on the joining line like a label on a rule: the line stops at the words. */
-  justify-self: start;
-  padding-right: 12px;
-  background: #fff;
   display: flex;
   align-items: center;
-  gap: 10px;
+  gap: 12px;
   margin: 0;
-  color: var(--text-2);
-  font-size: 0.875rem;
-  font-family: var(--font-marketing-sans), Inter, sans-serif;
+  color: var(--ink);
+  font-family: var(--font-source-serif), Georgia, serif !important;
+  font-size: 26px !important;
   font-weight: 500;
-  letter-spacing: 0;
-  line-height: 24px;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
 }
 
 .step h3 span {
   display: inline-grid;
+  flex: none;
   place-items: center;
-  width: 24px;
-  height: 24px;
-  border: 1px solid var(--line);
+  width: 28px;
+  height: 28px;
+  border: 1px solid #d4d4d4;
   border-radius: 50%;
   background: #fff;
-  color: var(--ink);
-  font-size: 0.75rem;
+  color: var(--text-2);
+  font-family: var(--font-inter), Inter, sans-serif;
+  font-size: 13px;
   font-weight: 600;
+  letter-spacing: 0;
+}
+
+.body {
+  max-width: 30em;
+  margin: 8px 0 0;
+  color: var(--text-2);
+  font-size: 17px;
+  line-height: 1.35;
+}
+
+.shot {
+  display: grid;
+  place-items: center;
+  min-height: 240px;
+  margin-top: 20px;
+  padding: 16px 0 8px;
 }
 
 .sheet {
   display: grid;
   align-content: start;
   gap: 12px;
-  min-height: 188px;
+  width: min(420px, 100%);
   padding: 18px 18px 16px;
-  border: 1px solid var(--line);
   border-radius: 8px;
   background: #fff;
 }
@@ -112,7 +117,7 @@
 .mark {
   padding: 0 2px;
   border-radius: 3px;
-  color: inherit;
+  color: var(--ink);
   background-color: transparent;
   background-image: linear-gradient(rgba(243, 210, 122, 0.6), rgba(243, 210, 122, 0.6));
   background-repeat: no-repeat;
@@ -211,29 +216,11 @@
 .plan span { color: var(--text-3); font-size: 0.8125rem; white-space: nowrap; }
 .moved span { color: var(--green); font-weight: 600; }
 
-/* Tablet: two by two. Phone: one column, the line running down the numbers. */
-@media (max-width: 1040px) {
-  .track { grid-template-columns: repeat(2, minmax(0, 1fr)); row-gap: 28px; }
-  .track::before { display: none; }
-}
-
-@media (max-width: 640px) {
-  .track {
-    grid-template-columns: minmax(0, 1fr);
-    row-gap: 22px;
-    padding-left: 0;
-  }
-  .track::before {
-    display: block;
-    top: 12px;
-    bottom: 12px;
-    left: 11px;
-    right: auto;
-    width: 1px;
-    height: auto;
-  }
-  .sheet {
-    min-height: 0;
-    margin-left: 34px;
-  }
+/* Phone: one column of tiles. */
+@media (max-width: 760px) {
+  .section { padding: 3rem 16px 0; }
+  .track { grid-template-columns: minmax(0, 1fr); gap: 12px; }
+  .step h3 { font-size: 24px !important; }
+  .step { padding: 20px 16px; }
+  .shot { min-height: 0; padding: 12px 0 4px; }
 }

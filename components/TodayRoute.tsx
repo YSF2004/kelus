@@ -213,8 +213,13 @@ export function TodayRoute({
       : `${path.daysLeft} study ${path.daysLeft === 1 ? "day" : "days"} left`;
   const ease = [0.22, 1, 0.36, 1] as const;
   // One soft settle for the whole page, in order, all done by about a quarter of a second.
-  const settle = (index: number) => (reduceMotion ? {} : { initial: { opacity: 0, y: 4 }, animate: { opacity: 1, y: 0 }, transition: { duration: 0.18, delay: index * 0.03, ease } });
-  const quietStart = warmupFirst || goalDone;
+  const settle = (index: number) => (reduceMotion ? {} : { initial: { opacity: 0, y: 10 }, animate: { opacity: 1, y: 0 }, transition: { duration: 0.3, delay: index * 0.04, ease } });
+  // Inside the card, its parts arrive in reading order a beat after the card itself.
+  const inCard = (index: number) => (reduceMotion ? {} : { initial: { opacity: 0, y: 6 }, animate: { opacity: 1, y: 0 }, transition: { duration: 0.26, delay: 0.06 + index * 0.03, ease } });
+  // The warm-up leads on a return, so the topic's button steps back; otherwise it is the one green key on the page.
+  const quietStart = warmupFirst;
+  // One line of the student's own notes on the card, as the homepage shows it: the page, then the words.
+  const noteLine = firstActivity?.teach?.facts?.find((fact) => fact.length >= 30 && fact.length <= 220) ?? null;
 
   return (
     <div className={q.page}>
@@ -227,10 +232,13 @@ export function TodayRoute({
           <ul className={q.stats} role="group" aria-label="Your path through the course">
             {/* A sample says so on the page itself, now the top bar carries no labels. */}
             {isSampleCourse ? <li className={q.sample}>Sample course</li> : null}
-            <li className={habit.streak > 0 ? q.statOn : undefined} title={habit.restUsed ? "One missed day a week doesn’t break a streak." : undefined}>
-              <Octicon name="flame" className={q.ico} />
-              <strong>{habit.streak}</strong><span>day streak</span>
-            </li>
+            {/* A streak of zero is not news: it appears with the first day studied. */}
+            {habit.streak > 0 ? (
+              <li className={q.statOn} title={habit.restUsed ? "One missed day a week doesn’t break a streak." : undefined}>
+                <Octicon name="flame" className={q.ico} />
+                <strong>{habit.streak}</strong><span>day streak</span>
+              </li>
+            ) : null}
             <li className={habit.goalMet ? q.statOn : undefined}>
               <GoalRing done={Math.min(habit.topicsToday, habit.goal)} goal={habit.goal} reduce={reduceMotion === true} />
               <strong>{Math.min(habit.topicsToday, habit.goal)}/{habit.goal}</strong><span>today</span>
@@ -262,28 +270,38 @@ export function TodayRoute({
       ) : null}
 
       <motion.section className={q.next} data-block="today-lead" data-tone={toneOf(first.conceptId, concepts)} aria-labelledby="today-title" {...settle(1)}>
-        <p className={q.eyebrow}>{startLabel ? "In progress" : goalDone ? "Extra for today" : "Due now"}</p>
-        <h2 id="today-title" className={q.topic}>{firstName}</h2>
-        {/* What the run holds, as marks a student reads in a glance: time, checks, the explanation, the page. */}
-        <ul className={q.chips} data-block="today-page-folio" aria-label="What this topic holds">
+        <motion.h2 id="today-title" className={q.topic} {...inCard(0)}>{firstName}</motion.h2>
+        {/* Where this topic stands, then what the run holds: one line of marks read in a glance. The page is named on
+            the quote when there is one, so it is not said twice. */}
+        <motion.ul className={q.chips} data-block="today-page-folio" aria-label="What this topic holds" {...inCard(1)}>
+          <li className={q.status}>{startLabel ? "In progress" : goalDone ? "Extra for today" : "Due now"}</li>
           <li><Octicon name="clock" className={q.ico} />{first.minutes} min</li>
           {firstChecks ? <li><Octicon name="check-circle" className={q.ico} />{firstChecks} {firstChecks === 1 ? "check" : "checks"}</li> : null}
           <li><Octicon name="pencil" className={q.ico} />Explain it</li>
-          {firstSource?.locator && !/^Section\b/.test(firstSource.locator) ? <li><Octicon name="file" className={q.ico} />{firstSource.locator}</li> : null}
-        </ul>
-        <p className={q.why} data-block="today-decision" aria-label="Why this topic is first">{decision[0]}</p>
-        <motion.button
-          type="button"
-          data-action="start-topic"
-          aria-keyshortcuts="Enter"
-          title="Enter"
-          className={`k-btn ${quietStart ? `k-btn--paper ${q.go}` : q.go}`}
-          onClick={onStart}
-          whileTap={reduceMotion ? undefined : { scale: 0.98 }}
-          transition={pressSpring}
-        >
-          {startLabel ?? "Start this topic"}
-        </motion.button>
+          {!noteLine && firstSource?.locator && !/^Section\b/.test(firstSource.locator) ? <li><Octicon name="file" className={q.ico} />{firstSource.locator}</li> : null}
+        </motion.ul>
+        {noteLine ? (
+          <motion.figure className={q.quote} {...inCard(2)}>
+            <blockquote>{noteLine}</blockquote>
+            <figcaption>From your notes{firstSource?.locator && !/^Section\b/.test(firstSource.locator) ? `, ${firstSource.locator.toLocaleLowerCase()}` : ""}</figcaption>
+          </motion.figure>
+        ) : null}
+        <motion.p className={q.why} data-block="today-decision" aria-label="Why this topic is first" {...inCard(3)}>{decision[0]}</motion.p>
+        <motion.div className={q.action} {...inCard(4)}>
+          <motion.button
+            type="button"
+            data-action="start-topic"
+            aria-keyshortcuts="Enter"
+            title="Enter"
+            className={`k-btn ${quietStart ? `k-btn--paper ${q.go}` : q.go}`}
+            onClick={onStart}
+            whileTap={reduceMotion ? undefined : { scale: 0.97 }}
+            transition={pressSpring}
+          >
+            {startLabel ?? "Start this topic"} <ArrowRight />
+          </motion.button>
+          <span className={q.key} aria-hidden="true">or press <kbd>Enter</kbd></span>
+        </motion.div>
       </motion.section>
 
       {/* Day two, shown on day one: what you missed today is what tomorrow opens with, so the plan says so now. */}

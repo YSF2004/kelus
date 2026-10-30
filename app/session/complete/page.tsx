@@ -8,7 +8,9 @@ import { Suspense, useEffect, useRef, useState } from "react";
 import { useLearner } from "@/components/LearnerProvider";
 import { HabitStrip } from "@/components/HabitStrip";
 import { generateRoute } from "@/domain/routing-engine";
-import { MarkStamp } from "@/components/MarkStamp";
+import { BlockRing } from "@/components/BlockRing";
+import { MatchRound } from "@/components/MatchRound";
+import { buildMatchRound } from "@/domain/match-round";
 import { WaitlistForm } from "@/components/WaitlistForm";
 import { SoftUpgradePrompt } from "@/components/SoftUpgradePrompt";
 import { downloadTomorrowStudyIcs } from "@/lib/study-reminder";
@@ -126,8 +128,7 @@ function CompleteBody() {
   const missedToday = (state.missedLines ?? []).filter((line) => line.at >= session.startedAt && practised.some((event) => event.conceptId === line.conceptId)).length;
   const nextFresh = nextStopId ? { conceptId: nextStopId } : undefined;
   const allGood = practised.length > 0 && practised.every((event) => event.outcome === "success");
-  // The ring is the share of the block you got: a solid topic counts whole, a partly-there one half.
-  const credit = practised.length ? practised.reduce((sum, event) => sum + (event.outcome === "success" ? 1 : event.outcome === "partial" ? 0.5 : 0), 0) / practised.length : 0;
+  const matchPairs = buildMatchRound(practised.map((event) => event.conceptId), state.snapshot.concepts, state.snapshot.learningActivities);
 
   return (
     <>
@@ -145,7 +146,7 @@ function CompleteBody() {
         animate={{ opacity: 1, y: 0 }}
         transition={reduceMotion ? { duration: 0.12 } : { duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
       >
-        <MarkStamp outcome={allGood ? "success" : credit === 0 ? "failure" : "partial"} fill={credit} label={allGood ? "Block done, all solid" : `Block done, ${known.length} of ${practised.length} solid`} />
+        <BlockRing done={practised.length} of={Math.max(practised.length, session.plannedConceptIds.length)} allSolid={allGood} />
         <h1>Done.</h1>
         <p className={styles.lede}>
           {practised.length} {practised.length === 1 ? "topic" : "topics"}{course ? ` from ${course.name}` : ""}. Your answers are saved.
@@ -153,10 +154,17 @@ function CompleteBody() {
 
         {/* What changed, the way a tutor would say it: what you now know, and the one thing to fix next. */}
         <section className={styles.changed} aria-label="What changed">
-          <p>
-            <span className={styles.changedLabel}>You now know</span>
-            {known.length ? <b>{known.map((event) => name(event.conceptId)).join(", ")}</b> : <span className={styles.none}>nothing solid yet, which is normal on a first pass</span>}
-          </p>
+          {known.length ? (
+            <p>
+              <span className={styles.changedLabel}>You now know</span>
+              <b>{known.map((event) => name(event.conceptId)).join(", ")}</b>
+            </p>
+          ) : (
+            <p>
+              <span className={styles.changedLabel}>So far</span>
+              <span className={styles.none}>No topic is solid yet. That’s normal on a first pass: the second one is where lines stick.</span>
+            </p>
+          )}
           {weakest ? (
             <p>
               <span className={styles.changedLabel}>Your weak spot</span>
@@ -181,6 +189,9 @@ function CompleteBody() {
             </motion.li>
           ))}
         </ul>
+
+        {/* A quick bonus round on the topics just practised, when there are three or more to match. */}
+        {matchPairs.length ? <MatchRound pairs={matchPairs} seed={session.id} /> : null}
 
         <HabitStrip events={state.snapshot.events} concepts={courseConcepts} compact />
 
@@ -214,7 +225,8 @@ function CompleteBody() {
               <button type="button" onClick={() => { setUsefulness(false); trackEvent({ name: "session_usefulness_rated", helpful: false, session_number: sessionNumber }); }}>Not yet</button>
             </p>
           ) : <p role="status">{usefulness ? "Thanks. Good to know." : "Thanks. That helps make it better."}</p>}
-          {session && !SAMPLE_COURSE_IDS.has(session.courseId) ? <ClassInvite sessionNumber={sessionNumber} /> : null}
+          {/* A first session ends on the plan and one question; sharing waits until Kelus has earned it. */}
+          {session && !SAMPLE_COURSE_IDS.has(session.courseId) && completedSessions >= 2 ? <ClassInvite sessionNumber={sessionNumber} /> : null}
           {completedSessions === 1 ? (
             <details>
               <summary>Want Kelus through to exam day?</summary>

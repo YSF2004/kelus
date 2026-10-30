@@ -1,89 +1,141 @@
-/* link.com's system, measured on 2026-10-28: 64px page margin, 16px gaps, 8px tiles with a 1px #e5e5e5 border, one
-   sans at weight 500 with tight tracking, grey #525252 text, 40px buttons with a 10px radius. Kelus green replaces
-   Link green; the dark band is Kelus ink-green. */
 .page {
-  --ink: #171717; --t2: #525252; --t3: #737373; --line: #e5e5e5; --tile: #f4f4f4;
-  --green: #1f6b45; --green-bright: #3fbf7a; --deep: #0c2016;
-  display: grid; gap: 16px; padding: 16px 64px 0;
-  color: var(--ink); background: #fff;
-  font-family: var(--font-tile), system-ui, sans-serif !important;
+  --ink: var(--color-midnight-ink);
+  --muted: var(--color-slate);
+  --line: var(--color-frost);
+  --green: var(--color-kelus);
+  --well: #f4f4f4;
+  display: grid;
+  gap: 16px;
+  padding: 16px 64px 0;
+  color: var(--ink);
+  background: #fff;
+  font-family: var(--font-marketing-sans), Arial, sans-serif;
 }
-/* Outranks the marketing pages' serif heading rule (quiet.css: html body [data-marketing] :is(h1, h2)). */
-html body [data-marketing] .page :is(h1, h2, h3, p, b, small, span, a, li, #home-hero-title) { font-family: var(--font-tile), system-ui, sans-serif !important; font-optical-sizing: auto; }
 
-/* ── Hero: words on the left, one product moment on a grey tile on the right ───────────────────────────── */
-.hero { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: 16px; min-height: min(760px, calc(100svh - 112px)); }
-.copy { display: flex; flex-direction: column; justify-content: center; padding: 48px 48px 48px 0; }
-.pill { align-self: flex-start; margin: 0 0 20px; padding: 3px 9px; border: 1px solid var(--line); border-radius: 999px; font-size: 14px; font-weight: 500; letter-spacing: -0.01em; }
-.copy h1 { max-width: 11.5em; margin: 0; font-size: clamp(48px, 5.6vw, 80px) !important; font-weight: 500 !important; line-height: 0.92 !important; letter-spacing: -0.035em !important; color: var(--ink); text-wrap: balance; }
-.copy h1 span { color: var(--green); }
-.lede { max-width: 25em; margin: 24px 0 0; font-size: 20px; line-height: 1.2; letter-spacing: -0.01em; color: var(--ink); }
-.actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 32px; }
-.primary, .secondary { display: inline-flex; align-items: center; height: 44px; padding: 0 24px; border-radius: 10px; font-size: 15px; font-weight: 500; letter-spacing: -0.01em; text-decoration: none; transition: background-color 160ms, transform 120ms; }
-.primary { background: var(--deep); color: #fff; }
-.primary:hover { background: #163a28; }
-.secondary { border: 1px solid var(--line); background: #f5f5f5; color: var(--ink); }
+.hero {
+  display: grid;
+  grid-template-columns: minmax(0, 0.92fr) minmax(0, 1.08fr);
+  gap: clamp(24px, 4vw, 64px);
+  align-items: center;
+  min-height: min(680px, calc(100svh - 112px));
+}
+.copy { max-width: 600px; padding: 48px 0; }
+.eyebrow { margin: 0 0 18px; color: var(--muted); font-size: 15px; line-height: 1.4; }
+.copy h1 {
+  max-width: 12ch;
+  margin: 0;
+  color: var(--ink);
+  font-family: var(--font-marketing-heading), Georgia, serif !important;
+  font-size: clamp(46px, 5.1vw, 68px) !important;
+  font-weight: 500 !important;
+  line-height: 1.04 !important;
+  letter-spacing: -0.035em !important;
+  text-wrap: balance;
+}
+.copy h1 span { color: var(--color-smoke); font-family: inherit !important; }
+.lede { max-width: 36ch; margin: 20px 0 0; color: var(--muted); font-size: 18px; line-height: 1.55; }
+.actions { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-top: 28px; }
+.primary, .secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 48px;
+  padding: 0 22px;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: background-color 160ms, transform 120ms cubic-bezier(0.22, 1, 0.36, 1), outline-color 160ms, outline-offset 160ms;
+}
+.primary { background: var(--green); color: #fff; }
+.primary:hover { background: var(--color-kelus-hover); }
+.secondary { border: 1px solid #e5e5e5; background: #f5f5f5; color: var(--ink); }
 .secondary:hover { background: #ececec; }
-.primary:active, .secondary:active { transform: scale(0.985); }
+.primary:active, .secondary:active { transform: scale(0.97); }
 .primary:focus-visible, .secondary:focus-visible { outline: 2px solid var(--green); outline-offset: 3px; }
-
-.stage { display: grid; place-items: center; margin: 0; padding: 32px; border: 1px solid var(--line); border-radius: 8px; background: var(--tile); }
-.moment { width: min(420px, 100%); padding: 20px; border-radius: 24px; background: #fff; box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04), 0 24px 60px -24px rgba(0, 0, 0, 0.18); animation: tileRise 0.7s cubic-bezier(0.22, 1, 0.36, 1) 0.2s both; }
-.source { display: flex; align-items: center; gap: 12px; padding: 14px; border: 1px solid var(--line); border-radius: 14px; }
-.file { display: grid; place-items: center; width: 44px; height: 44px; border-radius: 10px; background: #c4492e; color: #fff; font-size: 12px; font-weight: 600; letter-spacing: 0.02em; }
-.source b { display: block; font-size: 17px; font-weight: 500; letter-spacing: -0.01em; }
-.source small { display: block; margin-top: 1px; font-size: 15px; color: var(--t3); }
-.line { margin: 16px 4px 0; font-size: 15px; line-height: 1.45; color: var(--t2); }
-.line mark { padding: 1px 0; color: var(--ink); background: linear-gradient(rgba(243, 210, 122, 0.7), rgba(243, 210, 122, 0.7)) no-repeat 0 0 / 0% 100%; -webkit-box-decoration-break: clone; box-decoration-break: clone; animation: tileMark 0.9s cubic-bezier(0.22, 1, 0.36, 1) 0.8s both; }
-.ask { margin-top: 16px; padding: 16px; border-radius: 14px; background: #f5f5f5; }
-.ask p { margin: 0; font-size: 17px; font-weight: 500; line-height: 1.3; letter-spacing: -0.015em; }
-.blank { display: inline-block; min-width: 4.8em; border-bottom: 2px solid var(--green); }
-.blank span { display: inline-block; color: var(--green); animation: tileType 0.5s steps(6, end) 1.9s both; }
-.right { display: block; margin-top: 10px; font-size: 14px; font-weight: 500; color: var(--green); animation: tileRise 0.4s cubic-bezier(0.22, 1, 0.36, 1) 2.5s both; }
-
-/* ── The dark band: the claim on the left, the courses a student brings orbiting the Kelus mark ────────── */
-.band { position: relative; display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); align-items: center; min-height: 630px; padding: 56px; overflow: hidden; border-radius: 8px; background: var(--deep); color: #fff; }
-.band h2 { max-width: 9.5em; margin: 0; font-size: clamp(40px, 4.4vw, 64px) !important; font-weight: 500 !important; line-height: 0.96 !important; letter-spacing: -0.03em !important; color: #fff !important; }
-.band h2 span { color: var(--green-bright); }
-.orbit { position: relative; display: flex; align-items: center; gap: 20px; }
-.core { display: grid; flex: none; place-items: center; width: 100px; height: 100px; border-radius: 50%; background: var(--green-bright); color: var(--deep); }
-.core :global(svg) { width: 44px; height: 44px; }
-.orbit ul { display: grid; gap: 12px; margin: 0; padding: 0; list-style: none; }
-.orbit li { display: flex; align-items: center; gap: 14px; width: max-content; padding: 10px 22px 10px 10px; border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 999px; background: rgba(255, 255, 255, 0.04); color: rgba(255, 255, 255, 0.55); font-size: 15px; }
-/* The middle course is the one in focus; the others fade with distance, as on a dial. */
-.orbit li[data-i="0"], .orbit li[data-i="4"] { margin-left: 72px; opacity: 0.55; }
-.orbit li[data-i="1"], .orbit li[data-i="3"] { margin-left: 24px; opacity: 0.8; }
-.orbit li[data-i="2"] { padding: 14px 30px 14px 14px; background: rgba(255, 255, 255, 0.1); color: rgba(255, 255, 255, 0.75); font-size: 16px; }
-.orbit li i { display: grid; flex: none; place-items: center; width: 44px; height: 44px; border-radius: 50%; background: #10301f; color: var(--green-bright); font-size: 17px; font-style: normal; font-weight: 600; }
-.orbit li[data-i="2"] i { width: 56px; height: 56px; font-size: 20px; }
-.orbit li b { display: block; color: #fff; font-weight: 500; letter-spacing: -0.01em; }
-
-/* ── What Kelus does: four tiles, title and grey text at the top, the drawing at the bottom ─────────────── */
+.stage {
+  display: grid;
+  place-items: center;
+  min-height: 420px;
+  margin: 0;
+  padding: clamp(20px, 3vw, 40px);
+  border-radius: 8px;
+  background: var(--well);
+}
+.moment { width: min(540px, 100%); padding: 24px; border-radius: 8px; background: #fff; }
+.source { display: flex; align-items: center; gap: 12px; padding-bottom: 16px; border-bottom: 1px solid var(--line); }
+.file {
+  display: grid;
+  flex: none;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 8px;
+  background: var(--color-hero-orange);
+  color: #fff;
+  font-size: 12px;
+  font-weight: 700;
+}
+.source b { display: block; color: var(--ink); font-size: 15px; font-weight: 600; }
+.source small { display: block; margin-top: 2px; color: var(--muted); font-size: 13px; line-height: 1.4; }
+.line { margin: 20px 0 0; color: var(--muted); font-size: 16px; line-height: 1.65; }
+.line mark {
+  padding: 1px 0;
+  color: var(--ink);
+  background: linear-gradient(rgba(243, 210, 122, 0.68), rgba(243, 210, 122, 0.68)) no-repeat 0 0 / 0% 100%;
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
+  animation: tileMark 700ms cubic-bezier(0.22, 1, 0.36, 1) 300ms both;
+}
+.ask { margin-top: 20px; padding-top: 18px; border-top: 1px solid var(--line); }
+.ask p { margin: 0; color: var(--ink); font-size: 17px; font-weight: 600; line-height: 1.45; }
+.blank { display: inline-block; min-width: 4.6em; border-bottom: 2px solid var(--green); }
+.blank span {
+  display: inline-block;
+  color: var(--green);
+  clip-path: inset(0 100% 0 0);
+  animation: tileType 450ms steps(6, end) 1050ms both;
+}
+.ask .right { margin: 10px 0 0; color: var(--green); font-size: 14px; font-weight: 600; line-height: 1.45; animation: tileReveal 320ms cubic-bezier(0.22, 1, 0.36, 1) 1750ms both; }
 .grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
-.tile { display: flex; flex-direction: column; min-height: 450px; padding: 16px; border: 1px solid var(--line); border-radius: 8px; }
-.tile h3 { margin: 0; font-size: 28px !important; font-weight: 500 !important; line-height: 1.04 !important; letter-spacing: -0.02em !important; color: var(--ink); }
-.tile p { max-width: 26em; margin: 8px 0 0; font-size: 18px; line-height: 1.12; letter-spacing: -0.01em; color: var(--t2); }
-.art { align-self: center; max-width: 70%; height: auto; margin: auto 0 24px; }
+.tile { display: flex; flex-direction: column; min-height: 320px; padding: 24px; border: 1px solid #e5e5e5; border-radius: 8px; background: #fff; }
+.tile h2 { margin: 0; color: var(--ink); font-family: var(--font-marketing-heading), Georgia, serif !important; font-size: 28px !important; font-weight: 500 !important; line-height: 1.1 !important; letter-spacing: -0.02em !important; }
+.tile p { max-width: 42ch; margin: 8px 0 0; color: var(--muted); font-size: 17px; line-height: 1.5; }
+.art { align-self: center; max-width: 70%; height: auto; margin: auto 0 8px; }
 
-@keyframes tileRise { from { opacity: 0; translate: 0 12px; } }
+@keyframes tileReveal { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
 @keyframes tileMark { to { background-size: 100% 100%; } }
 @keyframes tileType { from { clip-path: inset(0 100% 0 0); } to { clip-path: inset(0 0 0 0); } }
+
 @media (prefers-reduced-motion: reduce) {
-  .moment, .right, .blank span { animation: none; }
-  .line mark { animation: none; background-size: 100% 100%; }
+  .line mark, .blank span, .ask .right { animation: none; }
+  .line mark { background-size: 100% 100%; }
+  .blank span { clip-path: none; }
+  .primary, .secondary { transition: none; }
 }
 
 @media (max-width: 960px) {
   .page { gap: 12px; padding: 12px 16px 0; }
-  .hero, .band, .grid { grid-template-columns: minmax(0, 1fr); }
-  .hero { min-height: 0; }
-  .copy { padding: 32px 0 24px; }
-  .copy h1 { font-size: clamp(42px, 11vw, 56px) !important; }
-  .lede { font-size: 18px; }
-  .stage { padding: 20px 12px; }
-  .band { min-height: 0; gap: 40px; padding: 40px 20px; }
-  .orbit { flex-direction: column; align-items: flex-start; }
-  .core { width: 72px; height: 72px; }
-  .orbit li[data-i="0"], .orbit li[data-i="4"], .orbit li[data-i="1"], .orbit li[data-i="3"] { margin-left: 0; }
-  .tile { min-height: 360px; }
+  .hero { grid-template-columns: minmax(0, 1fr); gap: 0; min-height: 0; }
+  .copy { padding: 28px 0 24px; }
+  .copy h1 { max-width: 13ch; font-size: clamp(42px, 8vw, 58px) !important; }
+  .lede { max-width: 44ch; font-size: 17px; }
+  .stage { min-height: 0; padding: 16px; }
+  .moment { padding: 20px; }
+  .grid { gap: 12px; }
+  .tile { min-height: 280px; padding: 20px; }
+}
+
+@media (max-width: 640px) {
+  .page { gap: 12px; padding-inline: 16px; }
+  .copy { padding: 24px 0 20px; }
+  .copy h1 { max-width: 12ch; font-size: clamp(40px, 11vw, 54px) !important; }
+  .lede { margin-top: 16px; font-size: 16px; }
+  .actions { margin-top: 22px; }
+  .stage { padding: 12px; }
+  .moment { padding: 18px; }
+  .grid { grid-template-columns: minmax(0, 1fr); }
+  .tile { min-height: 260px; padding: 18px; }
+  .tile h2 { font-size: 26px !important; }
+  .art { max-width: 58%; }
 }

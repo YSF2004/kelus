@@ -42,7 +42,6 @@ export default function Home() {
       <div className="home is-leitner-home" data-marketing="editorial">
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }} />
         <main id="main">
-          {/* Preview of the tiled homepage top; the chapters below are unchanged for now. */}
           <TileHome />
           <StudyMoment />
           <RevisionReturn />

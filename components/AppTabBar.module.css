@@ -33,6 +33,10 @@
   color: var(--color-slate);
   font: inherit;
   cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  -webkit-touch-callout: none;
+  user-select: none;
+  touch-action: manipulation;
 }
 
 /* A soft pill slides to the section you are in. */
@@ -60,10 +64,8 @@
   letter-spacing: 0.01em;
 }
 
-/* Each section keeps its colour role: green to study, marigold for your notes, iris to see where you stand. */
-.green { --tone: var(--k-green); --tone-text: var(--color-kelus, var(--k-green)); }
-.marigold { --tone: var(--k-marigold); --tone-text: var(--k-marigold-text); }
-.iris { --tone: var(--k-iris); --tone-text: var(--k-iris); }
+/* One tint for every section, as a native tab bar has: the Kelus green marks where you are. */
+.tab { --tone: var(--lb-green, var(--k-green)); --tone-text: var(--lb-green-ink, var(--k-green)); }
 
 .on {
   color: var(--tone-text);

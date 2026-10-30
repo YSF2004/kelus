@@ -55,7 +55,9 @@ test("after answering, the screen counts the answers but still does not claim a 
   const tried = page.locator('section[aria-labelledby="progress-headline"] li').first();
   await expect(tried).toContainText("Osmosis");
   await expect(tried).toContainText(/(Solid|Partly there|Missed), back /);
-  await expect(page.getByText(/^Not started: /)).not.toContainText("Osmosis");
+  // One list: the rows under the boxes carry the note, and topics not tried yet say so in their own row.
+  await expect(page.locator('section[aria-labelledby="progress-headline"]')).toHaveCount(1);
+  await expect(page.locator('section[aria-labelledby="progress-headline"] li').filter({ hasText: "Not started" }).first()).not.toContainText("Osmosis");
 });
 
 test("the sample course has history, so it shows a real trend with a chart and a pace line", async ({ page }) => {

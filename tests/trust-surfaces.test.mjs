@@ -268,3 +268,10 @@ test("materials stay honest about PDF OCR limits and bookmark-only links", async
   assert.match(map, /Add your course PDF first/);
   assert.match(map, /Add course material/);
 });
+
+test("the team's own devices can opt out of analytics with ?internal=1, and back in with ?internal=0", async () => {
+  const ga = await readFile(new URL("../components/GoogleAnalytics.tsx", import.meta.url), "utf8");
+  assert.match(ga, /searchParams\.get\("internal"\)/);
+  assert.match(ga, /ga-disable-/);
+  assert.match(ga, /localStorage\.removeItem\(key\)/);
+});

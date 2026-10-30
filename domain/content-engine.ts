@@ -1,7 +1,7 @@
 import { hintInNotesLanguage, inNotesLanguage, noteLanguage } from "./note-language";
 import type { PracticeItem } from "./types";
 import { lintQuestion, standsAlone } from "./question-lint";
-import { contrastChoices, effectQuestions, framePairs, notMatching, termFromMeaning, whyChoices } from "./question-types";
+import { contrastChoices, effectQuestions, framePairs, notMatching, trueOrFalse, termFromMeaning, whyChoices } from "./question-types";
 
 /**
  * Builds teaching facts and varied practice from a topic's own page text, with no outside knowledge.
@@ -286,14 +286,17 @@ export function readsAsSentence(sentence: string) {
  * start of the sentence and appears nowhere else: replacing it inside a longer phrase ("Price elasticity of
  * demand" for the topic "Elasticity") would break the sentence, so no question is made instead.
  */
-function maskName(sentence: string, name: string) {
+export function maskName(sentence: string, name: string) {
   const escaped = name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
   const lead = new RegExp(`^(?:the\\s+)?${escaped}(?![\\p{L}])`, "iu");
   if (!lead.test(sentence)) return null;
   const rest = sentence.replace(lead, "");
   if (new RegExp(`(?<![\\p{L}])${escaped}(?![\\p{L}])`, "iu").test(rest)) return null;
-  // A plural subject ("Market structures differ...") reads "These ideas", not "This idea differ".
-  const plural = /^\s*(?:are|were|have|do|differ|vary|include|share|use|take|make|need|require|form|become|depend|determine)\b/i.test(rest);
+  // A plural subject ("Market structures differ...", "Mitochondria release...") reads "These ideas", not "This idea
+  // differ". The verb says which: past an adverb ("usually"), a base form is plural; one in -s or -ed, "was" or a modal
+  // ("can") is not.
+  const verb = rest.trim().split(/\s+/).find((word) => !/ly$/i.test(word) && !/^(?:also|often|only|always|never|then|still|mainly|mostly|both|all)$/i.test(word))?.toLocaleLowerCase().replace(/[^a-z]/g, "") ?? "";
+  const plural = /^(?:are|were|have|do)$/.test(verb) || (/^[a-z]{3,}$/.test(verb) && !/(?:s|ed)$/.test(verb) && !/^(?:was|can|could|will|would|should|may|might|must|shall|the|that|which|who|of|in|on|to|for|with|by|and|or|as|at)$/.test(verb));
   return `${plural ? "These ideas" : "This idea"}${rest}`;
 }
 
@@ -305,13 +308,17 @@ export function buildPractice(input: {
   siblingNames: string[];
   /** Sentences from the course's other topics: wrong options that are real, plausible and clearly off-topic. */
   siblingFacts?: string[];
+  /** The student's own highlights (Obsidian ==highlight==): their lines are asked about first. */
+  highlights?: string[];
 }): PracticeItem[] {
   const { conceptId, name, excerpt, locator } = input;
   // Every question quotes a line from the notes, so each line must read as a sentence: never a heading row or a
   // fragment a scan cut loose ("crew rest minimum 10 hours duty time max"). Fall back to all lines only if none do.
   const allLines = units(excerpt);
   const readable = allLines.filter(readsAsSentence);
-  const sentences = readable.length ? readable : allLines;
+  const plain = readable.length ? readable : allLines;
+  const marked = (sentence: string) => (input.highlights ?? []).some((phrase) => sentence.includes(phrase));
+  const sentences = input.highlights?.length ? [...plain.filter(marked), ...plain.filter((sentence) => !marked(sentence))] : plain;
   const items: PracticeItem[] = [];
   const language = noteLanguage(excerpt);
   // A question with a visible defect is worse than none: the lint decides, not the generator's optimism.
@@ -321,7 +328,7 @@ export function buildPractice(input: {
     // Checked in English, asked in the notes' own language.
     items.push(language === "en" ? candidate : { ...candidate, prompt: inNotesLanguage(candidate.prompt, language, name), hint: hintInNotesLanguage(candidate.hint, language) });
   };
-  const definition = sentences.find((s) => s.toLocaleLowerCase().includes(name.toLocaleLowerCase())) ?? sentences[0];
+  const definition = (input.highlights?.length ? sentences.find(marked) : undefined) ?? sentences.find((s) => s.toLocaleLowerCase().includes(name.toLocaleLowerCase())) ?? sentences[0];
 
   // 1. Identify the idea from its description, among the course's other topics.
   const others = [...new Set(input.siblingNames.filter((other) => other.toLocaleLowerCase() !== name.toLocaleLowerCase()))];
@@ -381,7 +388,7 @@ export function buildPractice(input: {
   // 3b. Understanding you can check instantly: why, how two ideas differ, which term a definition belongs to.
   const terms = [...new Set(sentences.map((sentence) => pickGapWord(sentence, name, excerpt, true)).filter((term): term is string => Boolean(term) && !/^\d/.test(term as string)))];
   const ctx = { conceptId, name, locator, sentences, siblingNames: input.siblingNames, others, terms };
-  for (const draft of [...whyChoices(ctx), ...effectQuestions(ctx, flipOneWord), ...notMatching(ctx, flipOneWord), ...contrastChoices(ctx), ...framePairs(ctx), ...termFromMeaning(ctx)]) add(draft);
+  for (const draft of [...whyChoices(ctx), ...effectQuestions(ctx, flipOneWord), ...notMatching(ctx, flipOneWord), ...trueOrFalse(ctx, flipOneWord), ...contrastChoices(ctx), ...framePairs(ctx), ...termFromMeaning(ctx)]) add(draft);
 
   // 4. Fill the gap in a key sentence: up to four, from different sentences with different words. A looser pass runs
   // only when the strict one leaves fewer than two, so a sparse topic still gets a short run.
@@ -479,7 +486,8 @@ export function buildPractice(input: {
       const choices = [real, ...wrong].sort((x, y) => hash(`${conceptId}v${k}${x}`) - hash(`${conceptId}v${k}${y}`));
       add({
         kind: "choice",
-        prompt: `Which of these is from your notes on ${name}?`,
+        // Every option is from the notes (the others from other topics), so the question is which one is about this topic.
+        prompt: `Which of these is about ${name}?`,
         modelAnswer: real,
         hint: `Think about what ${locator} says.`,
         explanation: `${locator}: “${real}”`,

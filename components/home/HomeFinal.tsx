@@ -12,7 +12,6 @@ export function HomeFinal() {
         <p>Drop them in tonight. Your first question is ready in about a minute.</p>
         {/* Facts we have checked ourselves, not testimonials: Kelus has no student results to quote yet. */}
         <ul className={styles.facts} aria-label="What we have checked">
-          <li>Tested on real course layouts: slides, textbook chapters, two-column handouts, notes in French</li>
           <li>No account needed; your notes stay on your device</li>
           <li>Free, with no trial that runs out</li>
         </ul>

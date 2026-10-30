@@ -13,13 +13,23 @@ const MAX_CHARS = 200_000;
 const BODY_SIZE = 12;
 const HEADING_SIZE: Record<number, number> = { 1: 22, 2: 20, 3: 17, 4: 15, 5: 14, 6: 14 };
 
-type Line = { kind: "heading"; level: number; text: string } | { kind: "body"; text: string };
+type Line = { kind: "heading"; level: number; text: string } | { kind: "body"; text: string; highlights?: string[] };
 
-/** Removes Markdown markup but keeps the words. */
+/** The phrases a student marked with Obsidian's ==highlight==, as plain text. */
+function highlightsIn(value: string) {
+  return [...value.matchAll(/==(?=\S)(.+?)(?<=\S)==/g)].map((match) => plainInline(match[1])).filter((text) => text.length >= 3);
+}
+
+/** Removes Markdown markup but keeps the words. Obsidian's own syntax too: embeds, note links with a heading or
+ * block ("[[Osmosis#Tonicity]]" reads "Osmosis"), ==highlights==, inline #tags and ^block-ids. */
 export function plainInline(value: string) {
   return value
+    .replace(/!\[\[[^\]]*\]\]/g, "")
     .replace(/!\[([^\]]*)\]\([^)]*\)/g, "$1")
-    .replace(/\[\[([^\]|]+)(?:\|([^\]]+))?\]\]/g, (_m, target: string, label?: string) => label ?? target)
+    .replace(/\[\[([^\]|]+)(?:\|([^\]]+))?\]\]/g, (_m, target: string, label?: string) => label ?? (target.replace(/#.*$/, "").trim() || target.replace(/^#\^?/, "").trim()))
+    .replace(/==(?=\S)(.+?)(?<=\S)==/g, "$1")
+    .replace(/(^|\s)#(?=[\p{L}_])[\p{L}\p{N}_/-]+/gu, "$1")
+    .replace(/\s\^[A-Za-z0-9-]+\s*$/, "")
     .replace(/\[([^\]]+)\]\([^)]*\)/g, "$1")
     .replace(/<[^>\n]+>/g, "")
     .replace(/(\*\*|__)(.+?)\1/g, "$2")
@@ -44,6 +54,8 @@ export function parseMarkdownLines(markdown: string): Line[] {
     .replace(/^﻿/, "")
     .replace(/^---\n[\s\S]*?\n---\n/, "")
     .replace(/<!--[\s\S]*?-->/g, "")
+    // Obsidian comments, inline or across lines: %%like this%%.
+    .replace(/%%[\s\S]*?%%/g, "")
     .slice(0, MAX_CHARS);
   const raw = source.split("\n");
   const out: Line[] = [];
@@ -51,8 +63,10 @@ export function parseMarkdownLines(markdown: string): Line[] {
   let inFence = false;
 
   const flush = () => {
-    const text = plainInline(paragraph.join(" "));
-    if (text) out.push({ kind: "body", text });
+    const joined = paragraph.join(" ");
+    const text = plainInline(joined);
+    const highlights = highlightsIn(joined);
+    if (text) out.push(highlights.length ? { kind: "body", text, highlights } : { kind: "body", text });
     paragraph = [];
   };
 
@@ -88,12 +102,21 @@ export function parseMarkdownLines(markdown: string): Line[] {
       continue;
     }
 
+    // An Obsidian callout ("> [!note] Tonicity") keeps its title as a line of its own and drops the marker.
+    const callout = line.match(/^\s{0,3}>\s?\s*\[![\w-]+\][+-]?\s*(.*)$/);
+    if (callout) {
+      flush();
+      const title = plainInline(callout[1]);
+      if (title) out.push({ kind: "body", text: title });
+      continue;
+    }
     const quote = line.replace(/^\s{0,3}>\s?/, "");
     const item = quote.match(/^\s*(?:([-*+•])|(\d{1,2})[.)])\s+(?:\[[ xX]\]\s+)?(.+)$/);
     if (item) {
       flush();
       const text = plainInline(item[3]);
-      if (text) out.push({ kind: "body", text: item[2] ? `${Number(item[2])}. ${text}` : `• ${text}` });
+      const highlights = highlightsIn(item[3]);
+      if (text) out.push({ kind: "body", text: item[2] ? `${Number(item[2])}. ${text}` : `• ${text}`, ...(highlights.length ? { highlights } : {}) });
       continue;
     }
     paragraph.push(quote.trim());
@@ -151,7 +174,8 @@ export function markdownToPages(markdown: string): ExtractedMaterialPage[] {
       text += line.text;
       blocks.push({ text: line.text, x: 40, y: 760 - position * 20, width: line.text.length * 6, height: size, fontSize: size });
     });
-    return { pageNumber: index + 1, text: text.trim(), blocks };
+    const highlights = section.flatMap((line) => (line.kind === "body" ? line.highlights ?? [] : []));
+    return { pageNumber: index + 1, text: text.trim(), blocks, ...(highlights.length ? { highlights } : {}) };
   });
 }
 
@@ -182,7 +206,11 @@ export function structurePastedText(raw: string) {
   let titles = 0;
   const out = lines.map((line, index) => {
     const alone = index === 0 || !lines[index - 1].trim();
-    if (alone && isTitle(line, lines[index + 1]) && !/^[•\-*\d]/.test(line.trim())) { titles += 1; return `# ${titleCase(line.trim().replace(/:$/, ""), french)}`; }
+    // Notes typed without blank lines still have headings: a short line right after a finished sentence, above a
+    // longer line of text ("…glucose.\nLimiting factors\nThe rate of…"). A run of short list lines is not one.
+    const next = lines[index + 1]?.trim() ?? "";
+    const afterSentence = index > 0 && /[.!?]["”’)]?$/.test(lines[index - 1].trim()) && next.length > line.trim().length + 10;
+    if ((alone || afterSentence) && isTitle(line, lines[index + 1]) && !/^[•\-*\d]/.test(line.trim())) { titles += 1; return `# ${titleCase(line.trim().replace(/:$/, ""), french)}`; }
     return line;
   });
   if (titles > 0) return out.join("\n");

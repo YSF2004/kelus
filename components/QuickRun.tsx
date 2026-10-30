@@ -260,7 +260,7 @@ export function QuickRun({ run, onRevealSource, onShowLine, onFinish, onChecksDo
 
       <AnimatePresence mode="wait" initial={false}>
         {readingNow ? (
-          <motion.section key="read" className={styles.card} {...motionProps} aria-label="Read it first">
+          <motion.section key="read" className={`${styles.card} ${styles.thumb}`} {...motionProps} aria-label="Read it first">
             <h1 className={styles.prompt}>{w.readTitle}</h1>
             <ol className={styles.readLines} aria-live="polite">
               {lines.slice(0, reading + 1).map((line, index) => (
@@ -286,7 +286,13 @@ export function QuickRun({ run, onRevealSource, onShowLine, onFinish, onChecksDo
             </div>
           </motion.section>
         ) : item ? (
-          <motion.section key={`check-${step}`} className={styles.card} {...motionProps} aria-label={`Check ${step + 1} of ${total}`}>
+          <motion.section
+            key={`check-${step}`}
+            // On a phone the answers wait at thumb height until one is picked, then rise above the verdict's sheet.
+            className={`${styles.card}${item.kind === "choice" && !answered ? ` ${styles.thumb}` : ""}`}
+            {...motionProps}
+            aria-label={`Check ${step + 1} of ${total}`}
+          >
             {/* "Which idea does this describe? “…”": the ask as a small line, the quoted line as the title. */}
             {(() => {
               const at = item.prompt.indexOf("“");
@@ -297,7 +303,7 @@ export function QuickRun({ run, onRevealSource, onShowLine, onFinish, onChecksDo
             })()}
 
             {item.kind === "choice" ? (
-              <div className={styles.choices} role="group" aria-label="Choose one">
+              <motion.div layout={!reduce} transition={{ layout: { type: "spring", bounce: 0, duration: 0.38 } }} className={`${styles.choices}${item.variant === "truefalse" ? ` ${styles.trueFalse}` : ""}`} role="group" aria-label="Choose one">
                 {item.choices?.map((choice, index) => {
                   const isRight = answered && index === item.correctIndex;
                   const isWrong = answered && !isRight && index === picked;
@@ -316,12 +322,12 @@ export function QuickRun({ run, onRevealSource, onShowLine, onFinish, onChecksDo
                       whileTap={reduce || answered ? undefined : { scale: 0.985 }}
                     >
                       {/* The number becomes the verdict in place, so the eye does not have to travel. */}
-                      <kbd aria-hidden="true">{isRight ? <motion.span className={styles.kbdMark} initial={reduce ? false : { scale: 0, rotate: -30 }} animate={{ scale: 1, rotate: 0 }} transition={{ type: "spring", bounce: 0.4, duration: 0.4 }}><Tick size={12} /></motion.span> : isWrong ? <Cross size={12} /> : index + 1}</kbd>
+                      <kbd aria-hidden="true">{isRight ? <motion.span className={styles.kbdMark} initial={reduce ? false : { scale: 0.6, rotate: -20, opacity: 0 }} animate={{ scale: 1, rotate: 0, opacity: 1 }} transition={{ type: "spring", bounce: 0.25, duration: 0.4 }}><Tick size={12} /></motion.span> : isWrong ? <motion.span className={styles.kbdMark} initial={reduce ? false : { scale: 0.8, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={{ duration: 0.16, ease: [0.22, 1, 0.36, 1] }}><Cross size={12} /></motion.span> : index + 1}</kbd>
                       <span>{choice}</span>
                     </motion.button>
                   );
                 })}
-              </div>
+              </motion.div>
             ) : (
               <motion.form
                 className={styles.gap}
@@ -351,7 +357,17 @@ export function QuickRun({ run, onRevealSource, onShowLine, onFinish, onChecksDo
             {!answered ? <button type="button" className={styles.unsure} onClick={notSure}>{w.notSure}</button> : null}
 
             {answered ? (
-              <motion.div className={`${styles.feedback} ${answered.right ? styles.ok : answered.unsure ? styles.unsure : styles.no}`} role="status" initial={reduce ? false : touch ? { opacity: 1, y: "100%" } : { opacity: 0, y: 8, scale: 0.98 }} animate={{ opacity: 1, y: 0, scale: 1 }} transition={touch ? { type: "spring", bounce: 0, duration: 0.38 } : { type: "spring", bounce: 0, duration: 0.28 }}>
+              <motion.div
+                className={`${styles.feedback} ${answered.right ? styles.ok : answered.unsure ? styles.unsure : styles.no}`}
+                role="status"
+                // On a phone the verdict's sheet can be swiped away to the next check: it follows the thumb, resists,
+                // and springs back unless the swipe was long or quick enough. Next and Enter work as before.
+                drag={touch && !reduce ? "x" : false}
+                dragConstraints={{ left: 0, right: 0 }}
+                dragElastic={{ left: 0.55, right: 0.08 }}
+                dragSnapToOrigin
+                onDragEnd={(_, info) => { if (info.offset.x < -80 || info.velocity.x < -500) next(); }}
+                initial={reduce ? false : touch ? { opacity: 1, y: "100%" } : { opacity: 0, y: 8, scale: 0.98 }} animate={{ opacity: 1, y: 0, scale: 1 }} transition={touch ? { type: "spring", bounce: 0, duration: 0.38 } : { type: "spring", bounce: 0, duration: 0.28 }}>
                 <strong>{answered.right ? <PackArt name="check" className={styles.mark} /> : null}{answered.unsure ? (item.kind === "cloze" ? w.itWas(item.modelAnswer) : w.lineFrom) : answered.right ? (answered.picked ? w.picked : answered.firstEver ? w.firstRight : w.right) : item.kind === "cloze" ? w.notQuiteWas(item.modelAnswer) : w.notQuite}</strong>
                 {/* Where this answer puts the line in the five boxes, moved as you watch. Not for a shrug: nothing was tried. */}
                 {answered.unsure ? null : <LineMove quote={item.sourceQuote} right={answered.right} nowIso={new Date().toISOString()} />}
@@ -376,6 +392,8 @@ export function QuickRun({ run, onRevealSource, onShowLine, onFinish, onChecksDo
                   </div>
                 ) : null}
                 <button ref={nextRef} type="button" className={`k-btn ${styles.primary}`} onClick={next}>{step + 1 >= total ? (onChecksDone ? w.seeHow : w.sayIt) : w.next} <ArrowRight /></button>
+                {/* The swipe is said once, on the first answer of a run, where a thumb would try it. */}
+                {touch && step === 0 && !reduce ? <p className={styles.swipeHint} aria-hidden="true">or swipe this left</p> : null}
                 {/* A bad question is the student's to call. One tap counts it and drops it from later runs; its words
                     go to the Kelus team only on a second, explicit tap. */}
                 <div className={styles.flag}>

@@ -37,6 +37,20 @@ test("a cut-off heading, a quote, a continued slide and the lecturer's name are 
   assert.ok(!names.some((name) => /Craig|Role of the|cont/.test(name)), names.join(" | "));
 });
 
+test("a title slide's institution and a diagram's unit labels are not topics, but Division of Labour is", () => {
+  const pages = [page(1, [
+    "Harvard-MIT Division of Health Sciences and Technology", "Course Directors: Prof. Dennis Freeman and Prof. Martha Gray teach this course in the spring.",
+    "L saliva", "One and a half litres of saliva are produced by the salivary glands every day.",
+    "Division of Labour", "Division of labour splits production into small tasks so that each worker becomes faster at one.",
+    "Osmosis", "Osmosis is the net movement of water molecules from a dilute solution to a more concentrated solution.",
+  ].join("\n\n"))];
+  for (const mode of [undefined, "relaxed"]) {
+    const names = proposeConceptsFromPages({ materialId: "m", sourceLabel: "Lecture", pages, mode }).filter(isSourceBackedProposal).map((p) => p.name);
+    assert.ok(names.includes("Osmosis") && names.includes("Division of Labour"), names.join(" | "));
+    assert.ok(!names.some((name) => /Harvard|Health Sciences|^L saliva/.test(name)), names.join(" | "));
+  }
+});
+
 test("questions keep a slide title as written and ask a question heading as it stands", () => {
   assert.equal(spokenName("Evolution of Psychology: Sigmund Freud", ""), "“Evolution of Psychology: Sigmund Freud”");
   assert.equal(spokenName("Cell Membrane", "The cell membrane controls what enters."), "the cell membrane");

@@ -1,337 +1,163 @@
-/* Today in the quiet system: a document, not a dashboard. One column, type and space do the work. */
-.page {
-  width: min(100% - 48px, 42.5rem);
-  margin: 0 auto;
-  padding: 40px 0 96px;
-}
+/* ── The study plan ─────────────────────────────────────────────────────────────────────────────────────
+   The homepage's language inside the app: the course named in the serif, what is due now on one raised card with a
+   line from the student's own notes, the green key to start it, then the next stops as a short route. The five boxes
+   sit beside it. One layer: Literata for titles, Inter for text, mono for counts, the topic's tone for its marks. */
 
-.head { margin-bottom: 36px; }
+.page { width: min(100% - 48px, 42.5rem); margin: 0 auto; padding: 32px 0 96px; background: none !important; }
 
-.title {
-  display: flex;
-  align-items: center;
-  gap: 0.6rem;
-  margin: 0;
-  color: var(--q-ink);
-  font-size: 1.875rem !important;
-  font-weight: 600 !important;
-  line-height: 1.2;
-  letter-spacing: -0.025em !important;
-}
-.title :global(.course-folder-icon) { width: 2rem; height: auto; flex: none; }
-
-.meta {
-  margin: 6px 0 0;
-  color: var(--q-text-2);
-  font-size: 0.875rem;
-  font-variant-numeric: tabular-nums;
-}
-.meta strong { color: var(--q-ink); font-weight: 500; }
-
-.label {
-  margin: 0 0 6px;
-  color: var(--q-text-3);
-  font-size: 0.75rem !important;
+/* ── Head: the course and its figures ── */
+.head { display: flex; align-items: center; justify-content: space-between; gap: 12px 24px; flex-wrap: wrap; margin: 0 0 28px; }
+.title { display: flex; align-items: center; gap: 0.6rem; min-width: 0; margin: 0; }
+.title, .title :global(*) {
+  color: var(--lb-ink) !important;
+  font-family: var(--font-marketing-heading), Georgia, serif !important;
+  font-size: 26px !important;
   font-weight: 500 !important;
-  letter-spacing: 0 !important;
+  letter-spacing: -0.02em !important;
+  line-height: 1.15;
+  font-variant-caps: normal !important;
+  text-transform: none !important;
+  white-space: nowrap !important;
 }
+.title :global(.course-folder-icon) { display: none; }
 
+/* The figures are quiet text beside the title, not a row of pills: only a running streak carries a colour. */
+.stats { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 20px; margin: 0; padding: 0; list-style: none; }
+.stats li { display: inline-flex; align-items: center; gap: 6px; min-height: 28px; color: var(--lb-text-2); font-size: 13.5px; font-variant-numeric: tabular-nums; white-space: nowrap; }
+.stats strong { color: var(--lb-ink); font-family: var(--font-geist-mono), ui-monospace, monospace; font-size: 13.5px; font-weight: 500; }
+.stats li.statOn strong, .stats li.statOn .ico { color: var(--k-marigold-text, #8d5410); }
+.stats li.sample { font-style: italic; }
+.ring { width: 14px; height: 14px; flex: none; transform: rotate(-90deg); }
+.ringTrack { fill: none; stroke: color-mix(in srgb, var(--lb-ink) 14%, transparent); stroke-width: 3; }
+.ringFill { fill: none; stroke: var(--lb-green); stroke-width: 3; stroke-linecap: round; }
+
+.ico { display: inline-block; flex: none; width: 15px; height: 15px; color: var(--lb-text-3); }
+
+/* ── Desk: the plan beside the boxes ── */
+.desk { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 580px); gap: 28px; align-items: start; }
+.lead { display: grid; gap: 16px; min-width: 0; }
+@media (max-width: 1100px) { .desk { grid-template-columns: minmax(0, 1fr); } }
+
+/* ── What is due now: the one raised card ── */
 .next {
   position: relative;
-  padding: 28px 0 0;
-  border: 0;
-  border-top: 1px solid var(--q-line);
+  isolation: isolate;
+  overflow: hidden;
+  padding: 28px 30px 30px;
+  border: 1px solid var(--lb-line);
+  border-radius: 8px;
+  background: var(--lb-surface);
+  box-shadow: 0 14px 36px -22px rgba(14, 21, 18, 0.32) !important;
 }
+
 
 .topic {
   margin: 0;
-  color: var(--q-ink);
-  font-family: var(--font-marketing-heading), Georgia, serif;
-  font-size: 1.75rem !important;
-  font-weight: 500 !important;
-  line-height: 1.15;
-  letter-spacing: -0.02em !important;
+  color: var(--lb-ink);
+  font-family: var(--font-marketing-heading), Georgia, serif !important;
+  font-size: clamp(38px, 4.4vw, 56px) !important;
+  font-weight: 400 !important;
+  line-height: 1.02 !important;
+  letter-spacing: -0.035em !important;
+  text-wrap: balance;
 }
 
-.sub { margin: 4px 0 0; color: var(--q-text-2); font-size: 0.875rem; font-variant-numeric: tabular-nums; }
-.why { margin: 12px 0 18px; color: var(--q-text-2); font-size: 0.875rem; line-height: 1.45; }
-.why:empty { display: none; }
-
-.primary,
-.secondary {
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-  height: 34px;
-  padding: 0 14px;
-  border-radius: 7px;
-  font: inherit;
-  font-size: 0.875rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: background-color 120ms var(--q-ease), border-color 120ms var(--q-ease), box-shadow 120ms var(--q-ease);
-}
-.primary { border: 0; background: var(--k-green); color: #fff; box-shadow: 0 1px 2px rgba(25, 26, 24, 0.12); }
-.primary:hover { background: color-mix(in srgb, var(--k-green) 85%, #000); }
-.secondary { border: 1px solid var(--q-line-strong); background: var(--k-surface); color: var(--q-ink); }
-.secondary:hover { background: var(--q-hover); }
-.primary:focus-visible, .secondary:focus-visible { outline: 2px solid color-mix(in srgb, var(--q-green) 45%, transparent); outline-offset: 2px; }
-.key { font: inherit; font-size: 0.6875rem; opacity: 0.7; }
-
-.then { margin-top: 48px; padding-top: 24px; border-top: 1px solid var(--q-line); }
-.then ol { margin: 0; padding: 0; list-style: none; }
-.then li {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) auto 3.25rem;
-  align-items: center;
-  gap: 16px;
-  min-height: 40px;
-  margin: 0 -10px;
-  padding: 0 10px;
-  border-radius: 6px;
-  transition: background-color 120ms var(--q-ease);
-}
-.then li:hover { background: var(--q-hover); }
-.then li strong { overflow: hidden; color: var(--q-ink); font-size: 0.9375rem; font-weight: 500; white-space: nowrap; text-overflow: ellipsis; }
-.then li span { color: var(--q-text-2); font-size: 0.8125rem; white-space: nowrap; }
-.then li em { color: var(--q-text-3); font-size: 0.8125rem; font-style: normal; text-align: right; font-variant-numeric: tabular-nums; }
-.foot { margin: 12px 0 0; color: var(--q-text-3); font-size: 0.8125rem; }
-
-/* What follows the list (exam date, nudges, install) sits under one hairline, never in a box. */
-.page > section:last-child:not(.then):not(.next),
-.page > :global(*):last-child:not(.then):not(.next):not(.head) { margin-top: 40px; }
-
-@media (max-width: 650px) {
-  .page { width: calc(100% - 32px); padding-top: 28px; }
-  .title { font-size: 1.625rem !important; }
-  .then li { grid-template-columns: minmax(0, 1fr) auto auto; gap: 12px; }
-}
-
-/* "After that": a real (small) heading for the list, not a grey label. */
-.thenTitle { margin: 0 0 8px; color: var(--q-ink, var(--k-ink)); font-family: var(--font-source-serif), Georgia, serif; font-size: 1.125rem; font-weight: 500; letter-spacing: -0.01em; }
-
-.tomorrow {
-  display: flex;
-  align-items: flex-start;
-  gap: 10px;
-  margin: 24px 0 0;
-  border-radius: 0;
-  background: transparent;
-  color: var(--q-text-2, var(--k-text-2));
-  font-size: var(--text-body-sm);
-  line-height: 1.45;
-}
-.tomorrow b { color: var(--q-ink); font-weight: 600; }
-.tomorrow .ico { margin-top: 1px; }
-.keep { color: var(--k-marigold-text); }
-
-/* ── Glanceable marks ─────────────────────────────────────────────────────────────────────────────────
-   The pack's line icons at text size, centred in their box whatever the drawing's own proportions. */
-.ico { display: inline-block; flex: none; width: 16px; height: 16px; color: var(--q-text-2, var(--k-text-2)); }
-.stats li.statOn .ico { color: var(--k-marigold-text); }
-.tomorrow .ico { color: var(--color-kelus, var(--k-green)); }
-.keep .ico { color: var(--k-marigold-text); }
-
-/* Three stats under the course name: a number you can read across the room, a word under it. */
-.stats { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 18px; margin: 18px 0 0; padding: 0; list-style: none; }
-.stats li {
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
-  min-height: 28px;
-  border: 0;
-  border-radius: 0;
-  background: transparent;
-  color: var(--q-text-2);
-  font-size: 0.8125rem;
-  font-variant-numeric: tabular-nums;
-}
-.stats strong { color: var(--q-ink); font-size: 0.9375rem; font-weight: 600; }
-.stats li.statOn { background: transparent; }
-.stats li.statOn strong { color: var(--k-marigold-text); }
-.ring { width: 16px; height: 16px; flex: none; transform: rotate(-90deg); }
-.ringTrack { fill: none; stroke: color-mix(in srgb, var(--k-ink) 14%, transparent); stroke-width: 3; }
-.ringFill { fill: none; stroke: var(--k-marigold, #f3b23e); stroke-width: 3; stroke-linecap: round; }
-
-.eyebrow { margin: 0 0 6px; color: var(--color-kelus, var(--k-green)); font-size: 0.75rem; font-weight: 600; letter-spacing: 0.02em; text-transform: uppercase; }
-
-/* A compact line of facts, not a second row of cards. */
-.chips { display: flex; flex-wrap: wrap; gap: 5px 18px; margin: 14px 0 0; padding: 0; list-style: none; }
+/* What the run holds, as small tags: time, checks, the explanation, the page. */
+.chips { display: flex; flex-wrap: wrap; gap: 6px; margin: 18px 0 0; padding: 0; list-style: none; }
 .chips li {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  min-height: 24px;
-  color: var(--q-text-2);
-  font-size: 0.8125rem;
+  height: 28px;
+  padding: 0 10px;
+  border-radius: 6px;
+  background: var(--lb-surface);
+  box-shadow: inset 0 0 0 1px var(--lb-line);
+  color: var(--lb-text-2);
+  font-size: 13px;
   font-weight: 500;
   font-variant-numeric: tabular-nums;
 }
+.chips .ico { width: 14px; height: 14px; color: var(--lb-text-3); }
+/* Where the topic stands leads the tags: its tone as a dot, the words in the topic's ink. */
+.chips li.status { padding-left: 9px; background: var(--topic-wash, var(--lb-due)); box-shadow: none; color: var(--topic-ink, var(--lb-green-ink)); font-weight: 600; }
+.chips li.status::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: var(--topic, var(--lb-green)); }
 
-/* One compact action follows the explanation instead of closing a card. */
-.go { display: inline-flex !important; width: auto; justify-content: center; min-height: 44px !important; padding-inline: 20px !important; font-size: 0.9375rem !important; }
-.go .key { margin-left: 4px; }
+/* A line from the student's own notes, set the way the homepage sets it: a green rule, the page, the words. */
+/* A line from the student's own notes, in the serif as a quotation, with where it comes from under it. */
+.quote { margin: 20px 0 0; padding: 16px 18px; border-radius: 8px; background: var(--lb-well); }
+.quote blockquote { margin: 0; color: var(--lb-ink); font-family: var(--font-marketing-heading), Georgia, serif; font-size: 17px; line-height: 1.5; letter-spacing: -0.005em; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+.quote blockquote::before { content: "“"; }
+.quote blockquote::after { content: "”"; }
+.quote figcaption { margin: 8px 0 0; color: var(--lb-green-ink); font-size: 12.5px; font-weight: 600; }
 
-/* After that: a number for each stop, then its state as a coloured pill. */
-.then li { grid-template-columns: 1.5rem minmax(0, 1fr) auto 3.25rem; }
-.num { display: inline-grid; place-items: center; width: 1.5rem; height: 1.5rem; color: var(--q-text-3); font-size: 0.75rem; font-style: normal; font-weight: 600; font-variant-numeric: tabular-nums; }
-.pill { justify-self: end; color: var(--q-text-2) !important; font-size: 0.75rem !important; font-weight: 500; }
-.pill[data-level="needs-work"], .pill[data-level="partly-there"] { color: var(--k-marigold-text) !important; }
-.pill[data-level="solid"] { color: var(--color-kelus, var(--k-green)) !important; }
+.why { max-width: 56ch; margin: 14px 0 0; color: var(--lb-text-2); font-size: 13.5px; line-height: 1.5; }
+.why:empty { display: none; }
 
-@media (max-width: 650px) {
-  .then li { grid-template-columns: 1.5rem minmax(0, 1fr) auto auto; }
-  .next { padding-top: 24px; }
-  .go { width: 100%; }
+.action { display: flex; align-items: center; gap: 14px; margin-top: 24px; }
+.go { display: inline-flex !important; align-items: center; gap: 10px; width: auto; min-height: 48px !important; padding: 0 22px !important; border-radius: 8px !important; font-size: 15px !important; font-weight: 600 !important; }
+.go svg { width: 16px; height: 16px; transition: transform 220ms cubic-bezier(0.22, 1, 0.36, 1); }
+.go:hover svg { transform: translateX(3px); }
+.key { display: inline-flex; align-items: center; gap: 6px; color: var(--lb-text-3); font-size: 12.5px; }
+.key kbd { display: inline-grid; place-items: center; height: 22px; padding: 0 7px; border-radius: 5px; background: var(--lb-well); box-shadow: inset 0 0 0 1px var(--lb-line-strong), 0 1px 0 var(--lb-line-strong); color: var(--lb-text-2); font: 500 11.5px/1 var(--font-geist-mono), ui-monospace, monospace; }
+
+/* ── Tomorrow: a quiet strip under the card ── */
+.tomorrow { display: flex; align-items: center; gap: 12px; margin: 0; padding: 12px 16px; border-radius: 8px; background: var(--lb-well); color: var(--lb-text-2); font-size: 14px; line-height: 1.45; }
+.tomorrow .ico { display: grid; place-items: center; width: 30px; height: 30px; padding: 7px; border-radius: 50%; background: var(--lb-surface); box-shadow: inset 0 0 0 1px var(--lb-line); color: var(--lb-green); box-sizing: border-box; }
+.tomorrow b { margin-right: 6px; color: var(--lb-ink); font-weight: 600; }
+.keep .ico { color: var(--k-marigold-text, #8d5410); }
+
+/* ── After that: the route's next stops ── */
+.then { margin: 12px 0 0; }
+.thenTitle { margin: 0 0 8px; color: var(--lb-text-3) !important; font-family: var(--font-inter), system-ui, sans-serif !important; font-size: 13px !important; font-weight: 600 !important; letter-spacing: 0 !important; }
+.then ol { margin: 0; padding: 0; list-style: none; border-top: 1px solid var(--lb-line); }
+.then li {
+  display: grid;
+  grid-template-columns: 28px minmax(0, 1fr) auto 3.5rem;
+  align-items: center;
+  gap: 14px;
+  min-height: 56px;
+  padding: 0 4px;
+  border-bottom: 1px solid var(--lb-line);
+  transition: translate 220ms cubic-bezier(0.22, 1, 0.36, 1);
 }
+.then li:hover { translate: 3px 0; }
+.then li strong { overflow: hidden; color: var(--lb-ink); font-family: var(--font-marketing-heading), Georgia, serif !important; font-size: 16.5px; font-weight: 500 !important; letter-spacing: -0.01em; white-space: nowrap; text-overflow: ellipsis; }
+.then li em { color: var(--lb-text-3); font-family: var(--font-geist-mono), ui-monospace, monospace; font-size: 12.5px; font-style: normal; text-align: right; }
+.num { display: inline-grid; place-items: center; width: 28px; height: 28px; border-radius: 50%; background: var(--lb-well); color: var(--lb-text-2); font-family: var(--font-geist-mono), ui-monospace, monospace; font-size: 12px; font-style: normal; font-weight: 500; }
+.then li[data-tone] .num { background: var(--topic-wash); color: var(--topic-ink); }
+.num .ico { width: 14px; height: 14px; color: inherit; }
+.pill { justify-self: end; height: 24px; padding: 0 9px; border-radius: 999px; background: var(--lb-well); color: var(--lb-text-2); font-size: 12.5px; font-weight: 500; line-height: 24px; white-space: nowrap; }
+.pill[data-level="needs-work"], .pill[data-level="partly-there"] { background: var(--k-marigold-wash, #fdf3df); color: var(--k-marigold-text, #8d5410); }
+.pill[data-level="solid"], .pill[data-level="review"] { background: var(--lb-due); color: var(--lb-green-ink); }
 
-@media (max-width: 420px) {
-  .stats { gap: 6px; }
-  .stats li { height: 32px; gap: 5px; font-size: 0.75rem; }
-  .stats strong { font-size: 0.875rem; }
-}
-.stats li.sample { color: var(--q-text-2); font-weight: 500; }
-
-/* ── Editorial notebook ────────────────────────────────────────────────────────────────────────────────
-   The course is a running head in small caps; the topic is the title, set large in the book serif; everything about
-   it is one quiet line of words with dots between, no marks, no chips. One green thing on the page: the button. */
-.head { margin-bottom: 40px; }
-.title, .title :global(*) {
-  color: var(--q-text-2) !important;
-  font-family: var(--font-inter), system-ui, sans-serif !important;
-  font-size: 1rem !important;
-  font-weight: 600 !important;
-  font-variant-caps: all-small-caps;
-  letter-spacing: 0.09em !important;
-  line-height: 1.4;
-}
-.title :global(.course-folder-icon) { display: none; }
-.stats { gap: 2px 0; margin-top: 6px; }
-.stats li { min-height: 0; gap: 4px; font-size: 0.875rem; }
-.stats li + li::before { content: "·"; margin: 0 10px; color: var(--q-text-3); }
-.stats strong { font-size: 0.875rem; font-weight: 600; }
-.stats li.statOn strong { color: var(--q-ink); }
-.stats .ico { display: none !important; }
-/* The goal ring stays for screen readers (it is the goal's progress bar); the eye reads "1/3 today" instead. */
-.stats .ring { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
-.stats li.sample { font-style: italic; }
-
-.next { padding-top: 32px; }
-.eyebrow { margin-bottom: 10px; color: var(--q-text-3); font-size: 0.9375rem; font-weight: 600; font-variant-caps: all-small-caps; letter-spacing: 0.08em; text-transform: none; }
-.topic { font-family: var(--font-marketing-heading), Georgia, serif !important; font-weight: 500 !important; font-size: clamp(2.125rem, 5vw, 2.75rem) !important; line-height: 1.08; letter-spacing: -0.025em !important; }
-.chips { gap: 0; margin-top: 12px; }
-.chips li { min-height: 0; font-size: 0.9375rem; font-weight: 400; color: var(--q-text-2); }
-.chips li + li::before { content: "·"; margin: 0 10px; color: var(--q-text-3); }
-.chips .ico { display: none !important; }
-.why { margin: 10px 0 24px; font-family: var(--font-marketing-heading), Georgia, serif; font-size: 1rem; font-style: italic; color: var(--q-text-2); }
-
-.tomorrow { margin-top: 28px; font-size: 0.9375rem; }
-.tomorrow .ico { display: none !important; }
-.tomorrow b { margin-right: 6px; font-variant-caps: all-small-caps; letter-spacing: 0.08em; font-weight: 600; }
-.tomorrow b::after { content: " —"; font-variant-caps: normal; letter-spacing: 0; font-weight: 400; color: var(--q-text-3); }
-
-/* After that: a running list with dotted leaders, the way a contents page sets its entries. */
-.thenTitle { margin-bottom: 4px !important; color: var(--q-text-2) !important; font-family: var(--font-inter), system-ui, sans-serif !important; font-size: 0.9375rem !important; font-weight: 600 !important; font-variant-caps: all-small-caps; letter-spacing: 0.08em !important; }
-.then li { grid-template-columns: 1.5rem auto minmax(1rem, 1fr) auto 3.25rem; min-height: 44px; margin: 0; padding: 0; border-radius: 0; }
-.then li:hover { background: transparent; }
-.then li strong { font-family: var(--font-marketing-heading), Georgia, serif !important; font-size: 1.0625rem; font-weight: 500 !important; }
-.then li::after { content: ""; grid-column: 3; grid-row: 1; align-self: center; margin: 4px 6px 0; border-bottom: 1.5px dotted color-mix(in srgb, var(--q-ink) 22%, transparent); }
-.then li .pill { grid-column: 4; font-size: 0.8125rem !important; font-style: italic; font-weight: 400; }
-.then li em { grid-column: 5; }
-.num { font-family: var(--font-marketing-heading), Georgia, serif; font-size: 0.875rem; font-weight: 400; color: var(--q-text-3); }
-.num .ico { width: 13px; height: 13px; }
-
-@media (max-width: 650px) {
-  .then li { grid-template-columns: 1.25rem auto minmax(0.5rem, 1fr) auto auto; }
-  .topic { font-size: 2.125rem !important; }
-}
-
-/* On a phone the facts wrap: spaces between them, never a dot left at the start of a line. */
-@media (max-width: 650px) {
-  .stats, .chips { gap: 4px 16px; }
-  .stats li + li::before, .chips li + li::before { content: none; }
-}
-
-/* ── Alive: the next topic glows in its own colour ─────────────────────────────────────────────────────
-   A soft field of the topic's tone behind the card's head, drifting slowly (still with reduced motion); a small tab
-   in that tone before the eyebrow, like a notebook's coloured divider; and each stop after it wears its tone. */
-.next { isolation: isolate; }
-/* No glow behind the next topic: the topic's colour lives in its tab, not in a blurred field. */
-.eyebrow { display: inline-flex; align-items: center; gap: 8px; color: var(--topic-ink, var(--q-text-3)); }
-.eyebrow::before { content: ""; width: 8px; height: 8px; border-radius: 2px; background: var(--topic, var(--k-green)); }
-.then li[data-tone] .num { width: 1.5rem; height: 1.5rem; border-radius: 50%; background: var(--topic-wash); color: var(--topic-ink); font-family: var(--font-inter), system-ui, sans-serif; font-size: 0.75rem; font-weight: 700; }
-.then li { transition: transform 200ms cubic-bezier(0.22, 1, 0.36, 1); }
-.then li:hover { transform: translateX(3px); }
-.then li[data-tone]:hover strong { color: var(--topic-ink); }
-
-/* Exam eve: the last three days open on one calm page, a countdown in small caps, the count in the serif. */
-.eve { margin: 0 0 8px; padding: 24px 0 28px; border-top: 2px solid var(--k-marigold, #f3b23e); }
-.eveKicker { margin: 0 0 10px; color: var(--k-marigold-text); font-size: 0.9375rem; font-weight: 600; font-variant-caps: all-small-caps; letter-spacing: 0.08em; }
-.eveTitle { margin: 0; color: var(--q-ink); font-family: var(--font-marketing-heading), Georgia, serif !important; font-size: clamp(1.75rem, 4.4vw, 2.375rem) !important; font-weight: 500 !important; letter-spacing: -0.02em !important; line-height: 1.12; }
+/* ── Exam eve: the last three days open on one calm page ── */
+.eve { margin: 0; padding: 24px 28px 26px; border: 1px solid color-mix(in srgb, var(--k-marigold, #f3b23e) 45%, var(--lb-line)); border-radius: 8px; background: var(--lb-surface); }
+.eveKicker { margin: 0 0 10px; color: var(--k-marigold-text); font-size: 13px; font-weight: 600; }
+.eveTitle { margin: 0; color: var(--lb-ink); font-family: var(--font-marketing-heading), Georgia, serif !important; font-size: clamp(1.75rem, 4.4vw, 2.375rem) !important; font-weight: 400 !important; letter-spacing: -0.025em !important; line-height: 1.1; }
 .eveTitle b { color: var(--k-marigold-text); font-weight: 500; }
-.eveLine { margin: 10px 0 16px; color: var(--q-text-2); font-family: var(--font-marketing-heading), Georgia, serif; font-size: 1.0625rem; font-style: italic; }
-.eveBar { display: block; height: 6px; overflow: hidden; border-radius: 999px; background: color-mix(in srgb, var(--k-ink) 9%, transparent); }
+.eveLine { margin: 10px 0 16px; color: var(--lb-text-2); font-size: 15px; }
+.eveBar { display: block; height: 6px; overflow: hidden; border-radius: 999px; background: color-mix(in srgb, var(--lb-ink) 9%, transparent); }
 .eveBar i { display: block; height: 100%; border-radius: inherit; background: linear-gradient(90deg, var(--tone-1), var(--tone-2), var(--tone-3)); }
 .eveLinks { display: flex; gap: 20px; margin: 16px 0 0; }
-.eveLinks a { color: var(--color-kelus, var(--k-green)); font-size: 0.9375rem; font-weight: 600; text-decoration: none; }
+.eveLinks a { color: var(--lb-green-ink); font-size: 15px; font-weight: 600; text-decoration: none; }
 .eveLinks a:hover { text-decoration: underline; text-underline-offset: 3px; }
 
-/* Under the notes bar the page starts at once: the bar is already the top of the page. */
-:global(.today-source-access) ~ .page, :global(.today-source-access) ~ * .page { padding-top: 4px; }
-
-/* ── Notebook: chapter numbers ─────────────────────────────────────────────────────────────────────────
-   The next topic is a chapter: its number in the notes set large in the serif, in the topic's colour, beside it. */
-.chapter { display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: end; column-gap: 18px; }
-.chapterNum { color: var(--topic, var(--k-green)); font-family: var(--font-marketing-heading), Georgia, serif; font-size: clamp(4rem, 10vw, 6.5rem); font-weight: 400; line-height: 0.82; letter-spacing: -0.04em; font-variant-numeric: lining-nums; opacity: 0.9; }
-.chapter .topic { padding-bottom: 4px; }
-@media (max-width: 650px) { .chapter { column-gap: 12px; } .chapterNum { font-size: 3.75rem; } }
-
-/* Tidy: the course is named in plain sentence case, not a tracked small-caps label; the facts under it and under the
-   topic are set apart by space, not middle dots; the label over the topic is sentence case too. */
-.title, .title :global(*) { font-variant-caps: normal !important; letter-spacing: -0.005em !important; text-transform: none !important; }
-.stats { gap: 2px 18px; }
-.stats li + li::before { content: none; }
-.chips { gap: 4px 16px; }
-.chips li + li::before { content: none; }
-.eyebrow { font-variant-caps: normal !important; text-transform: none !important; letter-spacing: 0 !important; font-size: 0.875rem !important; }
-.thenTitle { font-variant-caps: normal !important; text-transform: none !important; letter-spacing: 0 !important; }
-
-/* ── The Leitner Box: the study plan ───────────────────────────────────────────────────────────────────
-   The course and its three figures across the top; then what is due now at display size beside the five boxes. */
-.page { background: none !important; }
-.head { display: flex; align-items: center; justify-content: space-between; gap: 24px; margin: 0 0 28px; padding-bottom: 20px; border-bottom: 1px solid var(--lb-line); }
-.title, .title :global(*) { color: var(--lb-ink) !important; font-size: 22px !important; font-weight: 600 !important; letter-spacing: -0.025em !important; font-variant-caps: normal !important; text-transform: none !important; line-height: 1.2; }
-.stats { gap: 4px 22px !important; margin: 0 !important; }
-.stats li { font-size: 13.5px !important; color: var(--lb-text-2) !important; }
-.stats li + li::before { content: none !important; }
-.stats strong { font-family: var(--font-geist-mono), ui-monospace, monospace; font-weight: 500 !important; color: var(--lb-ink) !important; }
-.stats .ico { display: none !important; }
-.desk { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 560px); gap: 40px; align-items: start; }
-.lead { min-width: 0; }
-.next { padding-top: 0 !important; }
-.eyebrow { display: inline-flex !important; align-items: center; gap: 8px; margin: 0 0 12px !important; color: var(--lb-green-ink) !important; font-size: 13px !important; font-weight: 600 !important; letter-spacing: 0 !important; font-variant-caps: normal !important; text-transform: none !important; }
-.eyebrow::before { content: "" !important; width: 6px !important; height: 6px !important; border-radius: 50% !important; background: var(--lb-green) !important; box-shadow: 0 0 0 4px color-mix(in oklch, var(--lb-green) 16%, transparent); }
-.topic { margin: 0; color: var(--lb-ink); font-size: clamp(44px, 5vw, 64px) !important; font-weight: 600 !important; letter-spacing: -0.045em !important; line-height: 1 !important; }
-.chips { gap: 4px 26px !important; margin: 18px 0 10px !important; }
-.chips li { font-size: 15px !important; color: var(--lb-text-2) !important; }
-.chips li + li::before { content: none !important; }
-.chips .ico { display: none !important; }
-.why { max-width: 46ch; margin: 0 !important; color: var(--lb-text-2) !important; font-size: 15px !important; line-height: 1.5; }
-.go { margin-top: 26px !important; height: 46px; padding: 0 20px !important; font-size: 15px !important; }
-.tomorrow { margin-top: 32px !important; padding: 14px 16px !important; border: 1px solid var(--lb-line) !important; border-radius: 10px !important; background: var(--lb-surface) !important; font-size: 14px !important; color: var(--lb-text-2) !important; }
-.tomorrow .ico { display: none !important; }
-.tomorrow b::after { content: none !important; }
-.then { margin-top: 40px !important; padding-top: 0 !important; border-top: 1px solid var(--lb-line) !important; }
-.thenTitle { margin: 18px 0 6px !important; color: var(--lb-text-3) !important; font-size: 13px !important; font-weight: 500 !important; letter-spacing: 0 !important; font-variant-caps: normal !important; text-transform: none !important; font-family: var(--font-geist), system-ui, sans-serif !important; }
-.then li { grid-template-columns: 1.5rem minmax(0, 1fr) auto 4rem !important; min-height: 52px !important; border-bottom: 1px solid var(--lb-line) !important; }
-.then li::after { content: none !important; }
-.then li strong { font-family: var(--font-geist), system-ui, sans-serif !important; font-size: 15px !important; font-weight: 500 !important; letter-spacing: -0.005em; }
-.then li .pill { grid-column: 3; font-size: 13.5px !important; color: var(--lb-text-2) !important; font-style: normal !important; }
-.then li em { grid-column: 4; text-align: right; font-style: normal !important; font-family: var(--font-geist-mono), ui-monospace, monospace; font-size: 13px; color: var(--lb-text-2); }
-.then li .num, .then li[data-tone] .num { width: 1.5rem; height: auto; border-radius: 0; background: none !important; color: var(--lb-text-3) !important; font-family: var(--font-geist-mono), ui-monospace, monospace; font-size: 12px; font-weight: 500; }
-@media (max-width: 1100px) { .desk { grid-template-columns: minmax(0, 1fr); } }
-@media (max-width: 650px) { .head { flex-direction: column; align-items: flex-start; gap: 8px; } .topic { font-size: 40px !important; } }
-.title { flex: none; white-space: nowrap; }
-.next { border-top: 0 !important; }
-.title, .title :global(*) { max-width: none !important; white-space: nowrap !important; text-wrap: nowrap !important; }
-.tomorrow b { margin-right: 6px; color: var(--lb-ink) !important; font-variant-caps: normal !important; letter-spacing: 0 !important; text-transform: none !important; font-weight: 600 !important; }
+/* ── Phone ── */
+@media (max-width: 650px) {
+  .page { width: calc(100% - 32px); padding-top: 20px; }
+  .head { flex-direction: column; align-items: flex-start; gap: 12px; margin-bottom: 20px; }
+  .title, .title :global(*) { font-size: 24px !important; white-space: normal !important; }
+  .stats { gap: 6px; }
+  .stats { gap: 2px 16px; }
+  .stats li { min-height: 24px; font-size: 13px; }
+  .next { padding: 22px 20px 22px; }
+  .topic { font-size: 36px !important; }
+  .action { flex-direction: column; align-items: stretch; }
+  .go { width: 100%; justify-content: center; }
+  .key { display: none; }
+  .then li { grid-template-columns: 26px minmax(0, 1fr) auto; gap: 10px; }
+  .then li em { display: none; }
+  .then li { padding-block: 10px; }
+  .then li strong { white-space: normal; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; line-height: 1.3; }
+}

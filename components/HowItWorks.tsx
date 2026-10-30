@@ -1,30 +1,34 @@
 "use client";
 
 import Link from "next/link";
-import { motion, useInView, useReducedMotion } from "motion/react";
-import { useRef, useSyncExternalStore } from "react";
+import { motion } from "motion/react";
 import { kelusDuration, kelusEase } from "@/components/motion";
+import { revealTarget, useReveal } from "@/components/motion/entrance";
+import { rise } from "@/components/motion/rise";
 import { BrandIcon } from "@/components/BrandIcon";
 import { Cross, Tick } from "@/components/Marks";
 import { PackArt } from "@/components/PackArt";
 import styles from "./how/HowItWorks.module.css";
 import sheets from "./how/HowSheets.module.css";
 
-type VisualProps = { visible: boolean; reduceMotion: boolean };
+type VisualProps = { hidden: boolean };
 
-/** Rows that settle in one after another once the chapter is on screen. */
-function useRows(visible: boolean, reduceMotion: boolean) {
+/**
+ * A chapter's rows arrive with it once it scrolls into view (see useReveal). Only where order is the message, the
+ * route reordering after an answer, do they come one after another.
+ */
+function useRows(hidden: boolean, inOrder = false) {
   return (index: number) => ({
-    initial: reduceMotion ? false : { opacity: 0, y: 6 },
-    animate: visible ? { opacity: 1, y: 0 } : undefined,
-    transition: { duration: 0.4, delay: reduceMotion ? 0 : 0.25 + index * 0.08, ease: kelusEase },
+    initial: false as const,
+    animate: revealTarget(hidden, 6),
+    transition: { duration: 0.4, delay: 0.25 + (inOrder ? index * 0.08 : 0), ease: kelusEase },
   });
 }
 
 /* The pictures are the product itself, at small size: the same type, colours and words a student sees. */
 
-function SourceVisual({ visible, reduceMotion }: VisualProps) {
-  const row = useRows(visible, reduceMotion);
+function SourceVisual({ hidden }: VisualProps) {
+  const row = useRows(hidden);
   const topics = [["Diffusion", "Page 1"], ["Osmosis", "Page 2"], ["Active transport", "Page 3"]] as const;
   return (
     <figure className={`${styles.visual} ${styles.sourceVisual}`}>
@@ -43,8 +47,8 @@ function SourceVisual({ visible, reduceMotion }: VisualProps) {
   );
 }
 
-function RecallVisual({ visible, reduceMotion }: VisualProps) {
-  const row = useRows(visible, reduceMotion);
+function RecallVisual({ hidden }: VisualProps) {
+  const row = useRows(hidden);
   return (
     <figure className={`${styles.visual} ${styles.recallVisual}`}>
       <div className={styles.art}>
@@ -60,8 +64,9 @@ function RecallVisual({ visible, reduceMotion }: VisualProps) {
   );
 }
 
-function RerouteVisual({ visible, reduceMotion }: VisualProps) {
-  const row = useRows(visible, reduceMotion);
+function RerouteVisual({ hidden }: VisualProps) {
+  // The plan reordering after an answer: here the order is the point.
+  const row = useRows(hidden, true);
   return (
     <figure className={`${styles.visual} ${styles.rerouteVisual}`}>
       <div className={styles.art}>
@@ -84,8 +89,8 @@ function RerouteVisual({ visible, reduceMotion }: VisualProps) {
   );
 }
 
-function KeepVisual({ visible, reduceMotion }: VisualProps) {
-  const row = useRows(visible, reduceMotion);
+function KeepVisual({ hidden }: VisualProps) {
+  const row = useRows(hidden);
   return (
     <figure className={`${styles.visual} ${styles.rerouteVisual}`}>
       <div className={styles.art}>
@@ -111,9 +116,8 @@ const stages = [
   { number: "04", cue: "Keep", icon: "award", title: "Keep what you learned.", body: "Each block ends on what you practised and what comes back. The lines you missed open tomorrow as a one-minute warm-up, and every question can go to Anki.", Visual: KeepVisual, tone: "route" },
 ] as const;
 
-function Chapter({ stage, reduceMotion }: { stage: (typeof stages)[number]; reduceMotion: boolean }) {
-  const chapterRef = useRef<HTMLLIElement>(null);
-  const visible = useInView(chapterRef, { once: true, margin: "-12% 0px -12%" });
+function Chapter({ stage }: { stage: (typeof stages)[number] }) {
+  const { ref: chapterRef, hidden } = useReveal<HTMLLIElement>();
   const { title, body, Visual, tone } = stage;
   // <li key={number} /> remains the chapter identity contract for the route test.
 
@@ -124,18 +128,15 @@ function Chapter({ stage, reduceMotion }: { stage: (typeof stages)[number]; redu
         <p>{body}</p>
       </div>
       <div className={styles.visualWrap}>
-        <Visual visible={visible} reduceMotion={reduceMotion} />
+        <Visual hidden={hidden} />
       </div>
     </motion.li>
   );
 }
 
 export function HowItWorks() {
-  const hydrated = useSyncExternalStore(() => () => {}, () => true, () => false);
-  const motionPreference = useReducedMotion();
-  const reduceMotion = !hydrated || motionPreference === true;
-  const finalRef = useRef<HTMLElement>(null);
-  const finalVisible = useInView(finalRef, { once: true, margin: "-12% 0px -12%" });
+  // The top rises with CSS from the first frame; the chapters and the closing action reveal as they scroll in.
+  const { ref: finalRef, hidden: finalHidden } = useReveal<HTMLElement>();
   // Keep the heading id explicit for route-surface contract checks.
   // <h1 id="how-title"/>
 
@@ -143,18 +144,18 @@ export function HowItWorks() {
     <div className={styles.page}>
       <section className={styles.hero} aria-labelledby="how-title">
         {/* From the Kelus illustration pack: two people going over an answer together. */}
-        <motion.span className={styles.heroArt} aria-hidden="true" initial={reduceMotion ? false : { opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: reduceMotion ? 0 : 0.2, duration: 0.6, ease: kelusEase }}>
+        <span className={`${styles.heroArt} k-rise`} style={rise(0.1, { duration: 0.6 })} aria-hidden="true">
           <PackArt name="reviewing" size={340} />
-        </motion.span>
-        <motion.h1 id="how-title" initial={reduceMotion ? false : { opacity: 0, y: 16, scale: 0.98 }} animate={{ opacity: 1, y: 0, scale: 1 }} transition={{ delay: reduceMotion ? 0 : 0.06, duration: 0.65, ease: kelusEase }}>Your lessons become <br />a better revision habit.</motion.h1>
-        <motion.div className={styles.heroBottom} initial={reduceMotion ? false : { opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: reduceMotion ? 0 : 0.14, duration: 0.5, ease: kelusEase }}>
+        </span>
+        <h1 id="how-title">Your lessons become <br />a better revision habit.</h1>
+        <div className={styles.heroBottom}>
           <p>Bring your course. Recall what you know. Let each answer shape what you practise next.</p>
           <Link className={styles.primaryAction} href="/today">Set up my course<span className={styles.primaryArrow} aria-hidden="true">→</span></Link>
-        </motion.div>
+        </div>
       </section>
       <section className={styles.story} aria-label="The Kelus revision loop">
         <ol>
-          {stages.map((stage) => <Chapter key={stage.number} stage={stage} reduceMotion={reduceMotion} />)}
+          {stages.map((stage) => <Chapter key={stage.number} stage={stage} />)}
         </ol>
       </section>
       <section className={styles.questions} aria-labelledby="how-questions-title">
@@ -165,7 +166,7 @@ export function HowItWorks() {
           <div><dt>Will Kelus predict my exam grade?</dt><dd>No. It gives you a route to practise, not a predicted grade: what to review next, from your own answers. Readiness is an estimate from that evidence, never a promise about your result.</dd></div>
         </dl>
       </section>
-      <motion.footer ref={finalRef} className={styles.final} initial={reduceMotion ? false : { opacity: 0, y: 14 }} animate={finalVisible ? { opacity: 1, y: 0 } : undefined} transition={{ duration: 0.55, ease: kelusEase }}>
+      <motion.footer ref={finalRef} className={styles.final} initial={false} animate={revealTarget(finalHidden, 14)} transition={{ duration: 0.55, ease: kelusEase }}>
         <p>Ready to revise your own lessons?</p>
         <Link className={styles.primaryAction} href="/today">Set up my course<span className={styles.primaryArrow} aria-hidden="true">→</span></Link>
       </motion.footer>

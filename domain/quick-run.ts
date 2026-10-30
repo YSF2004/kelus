@@ -108,9 +108,14 @@ export function buildQuickRun(input: { activity: LearningActivity; name: string;
   // A one-sentence page (common in slides) can only be asked about that sentence; two angles on it still beat none.
   const checks = fromAll.length >= 2 ? fromAll : pickChecks(anyDrillable, round, false);
   const picked = checks.length >= 2 ? checks : pickChecks(anyDrillable, round, false).slice(0, 1);
+  // Notes written as plain sentences give only fill-in gaps, and a gap is held back on a first visit, which left such a
+  // topic with no quick check at all. There, a gap becomes a word to choose: the right word and three others from the
+  // same notes, never one already in the line. Recognition, not recall, but the line is still the student's own.
+  const firstVisit = input.readFirst && picked.length < 2 ? wordChoices(own.filter((item) => isDrillable(item) && item.kind === "cloze"), activity, explainAnswer, picked) : [];
   // A topic met for the first time opens on its quickest check to read, so the first answer is an early win; a
   // "which does NOT match" (four whole sentences to compare) never opens a topic when anything else can.
-  const usable = input.readFirst ? [...picked].sort((a, b) => readingLoad(a) - readingLoad(b)) : picked;
+  const chosen = [...picked, ...firstVisit].slice(0, MAX_CHECKS);
+  const usable = spreadStyles(input.readFirst ? [...chosen].sort((a, b) => readingLoad(a) - readingLoad(b)) : chosen);
   if (!explainAnswer.trim()) return null;
   const sentences = splitSentences([activity.learn.explanation, ...activity.learn.keyPoints].join("\n"));
   const used = [explainAnswer, ...usable.map((item) => item.sourceQuote)];
@@ -202,6 +207,49 @@ export function keyWordsIn(line: string, run: QuickRun) {
   const term = line.match(/^(?:the\s+|an?\s+)?([\p{L}][\p{L}'’ -]{2,40}?)(?:\s+(?:is|are|means|refers to)\s|\s*:\s)/iu)?.[1]?.trim();
   if (!term || term.split(/\s+/).length > 4 || asked.some((answer) => norm(term).split(" ").includes(answer))) return [];
   return [term];
+}
+
+/**
+ * Gaps turned into multiple choice, for a first visit with nothing else to ask: up to as many as bring the run to two
+ * checks, each on a different line and never on the line the explanation will ask for, the options from gapChoices.
+ */
+/** The same kind of question twice in a row feels like a drill: keep the order, but step over a repeat when another
+ * kind is left to put between them. */
+function spreadStyles(items: PracticeItem[]) {
+  const style = (item: PracticeItem) => item.variant ?? (item.prompt.match(/^\S+ \S+ \S+/)?.[0] ?? item.kind);
+  const left = [...items];
+  const out: PracticeItem[] = [];
+  while (left.length) {
+    const previous = out.length ? style(out[out.length - 1]) : null;
+    const at = left.findIndex((item) => style(item) !== previous);
+    out.push(left.splice(at >= 0 ? at : 0, 1)[0]);
+  }
+  return out;
+}
+
+/** The line a gap prompt quotes: "Fill the gap: “The _____ cycle …”" gives "The _____ cycle …". */
+function lineOf(prompt: string) {
+  const open = prompt.indexOf("“");
+  const close = prompt.lastIndexOf("”");
+  return open >= 0 && close > open ? prompt.slice(open + 1, close) : prompt.replace(/^[^:]*:\s*/, "");
+}
+
+function wordChoices(gaps: PracticeItem[], activity: LearningActivity, explainAnswer: string, already: PracticeItem[]) {
+  const sentences = splitSentences([activity.learn.explanation, ...activity.learn.keyPoints].join("\n"));
+  // Only a line that reads as a sentence: a diagram's labels run together ("Inputs to Cells air oxygen water food")
+  // would make a word question out of nothing.
+  const sentenceGaps = gaps.filter((item) => /[.!?]["”’)]?$/.test(item.sourceQuote.trim()) && item.sourceQuote.trim().split(/\s+/).length >= 6);
+  const fresh = sentenceGaps.filter((item) => !overlaps(item.sourceQuote, explainAnswer));
+  const pool = fresh.length >= 2 ? fresh : sentenceGaps;
+  const out: PracticeItem[] = [];
+  for (const gap of pool) {
+    if (already.length + out.length >= 2) break;
+    if ([...already, ...out].some((other) => clashes(other, gap))) continue;
+    const options = gapChoices(gap, { checks: pool, sentences, explainPrompt: "", explainAnswer, explainQuote: explainAnswer, topic: "" });
+    if (options.length < 4) continue;
+    out.push({ ...gap, id: `${gap.id}-word`, kind: "choice", prompt: `Which word completes this statement from your notes? “${lineOf(gap.prompt)}”`, choices: options, correctIndex: options.indexOf(gap.modelAnswer) });
+  }
+  return out;
 }
 
 /**

@@ -357,7 +357,9 @@ export function RevisionSurface({ topicId }: { /** A topic's own page, opened in
       </aside>
 
       <div className="studio-main">
-        <header className="studio-topbar">
+        {/* On a phone the section's name settles into the bar once its big title has scrolled away, as in a native app.
+            It is drawn from data-title, so the bar itself stays controls only and the page title stays the one name. */}
+        <header className="studio-topbar" data-title={topicId ? undefined : mode === "today" ? courseName ?? modeMeta.label : modeMeta.label}>
           <span className="studio-topbar-leading">{railHidden ? <button type="button" className="studio-rail-reopen" onClick={(event) => { setRailHidden(false); if (event.detail === 0) requestAnimationFrame(() => document.querySelector<HTMLButtonElement>(".studio-rail-toggle")?.focus({ preventScroll: true })); }} aria-label="Show workspace sidebar" title="Show sidebar"><RailChevrons open /></button> : null}</span>
           {!auth.user && auth.configured ? <button type="button" className="studio-topbar-signin" onClick={auth.openDialog}>Sign in</button> : null}
           {/* On a phone the sidebar's foot is hidden, so the appearance switch rides in the top bar instead. */}

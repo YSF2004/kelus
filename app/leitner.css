@@ -79,12 +79,12 @@ html body.is-course-studio .studio-rail { background: var(--lb-rail) !important;
 html body.is-course-studio .studio-nav button[aria-pressed="true"] { background: var(--lb-surface) !important; color: var(--lb-ink) !important; font-weight: 500 !important; box-shadow: 0 0 0 1px var(--lb-line), 0 1px 2px rgba(14, 21, 18, 0.05) !important; }
 html body.is-course-studio :is(.studio-page, .studio-main, .studio-topbar, .studio-section-head) { background: var(--lb-surface) !important; }
 
-/* The primary action: one green key with a machined edge and a short shadow. */
+/* The primary action: one green key, flat, as the Link-style buttons in quiet.css shape it. */
 html body :is(body.is-course-studio, body.is-session-booklet, body.is-session-complete, body:has(.start-page)) :is(.k-btn, .cta):not(.k-btn--paper):not(:disabled),
 html :is(body.is-course-studio, body.is-session-booklet, body.is-session-complete, body:has(.start-page)) :is(.k-btn, .cta):not(.k-btn--paper):not(:disabled) {
   border-radius: 10px !important;
   font-weight: 600 !important;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.16), 0 0 0 1px #17573a, 0 4px 12px -4px rgba(31, 107, 69, 0.45) !important;
+  box-shadow: none !important;
 }
 
 /* The plan runs wide beside the rail: header across, then the due topic and the boxes side by side. */
@@ -108,9 +108,9 @@ html body.is-course-studio .core-workspace-grid.is-notes-open [class*="TodayQuie
    Feedback is a callout of its verdict (a wash and a hairline of green or coral), not a rule down the margin. Labels are
    sentence case, figures in tabular Inter. The result opens on a plain mark, its facts as figures, and
    ends on this topic's lines in their boxes. */
-html body.is-session-booklet [class*="QuickRun"][class*="feedback"] { padding: 18px 20px !important; border: 1px solid var(--lb-line) !important; border-left-width: 1px !important; border-radius: 12px !important; background: var(--lb-surface) !important; gap: 10px !important; }
-html body.is-session-booklet [class*="QuickRun"][class*="feedback"][class*="ok"] { border-color: color-mix(in oklch, var(--lb-green) 30%, var(--lb-line)) !important; background: color-mix(in oklch, var(--lb-green) 5%, var(--lb-surface)) !important; }
-html body.is-session-booklet [class*="QuickRun"][class*="feedback"][class*="no"] { border-color: color-mix(in oklch, var(--lb-miss) 30%, var(--lb-line)) !important; background: color-mix(in oklch, var(--lb-miss) 5%, var(--lb-surface)) !important; }
+html body.is-session-booklet [class*="QuickRun"][class*="feedback"] { padding: 18px 20px !important; border: 1px solid var(--lb-line) !important; border-left-width: 1px !important; border-radius: 12px !important; background: var(--lb-surface) !important; gap: 10px !important; --fb-bg: var(--lb-surface); }
+html body.is-session-booklet [class*="QuickRun"][class*="feedback"][class*="ok"] { border-color: color-mix(in oklch, var(--lb-green) 30%, var(--lb-line)) !important; background: color-mix(in oklch, var(--lb-green) 5%, var(--lb-surface)) !important; --fb-bg: color-mix(in oklch, var(--lb-green) 5%, var(--lb-surface)); }
+html body.is-session-booklet [class*="QuickRun"][class*="feedback"][class*="no"] { border-color: color-mix(in oklch, var(--lb-miss) 30%, var(--lb-line)) !important; background: color-mix(in oklch, var(--lb-miss) 5%, var(--lb-surface)) !important; --fb-bg: color-mix(in oklch, var(--lb-miss) 5%, var(--lb-surface)); }
 html body.is-session-booklet [class*="QuickRun"][class*="feedback"] strong { font-size: 18px !important; font-weight: 600 !important; letter-spacing: -0.015em !important; }
 html body.is-session-booklet [class*="QuickRun"][class*="feedback"] [class*="quote"] { font-size: 14.5px !important; color: var(--lb-text-2) !important; }
 html body.is-session-booklet [class*="QuickRun"][class*="steps"] li[class*="done"] { background: var(--lb-green) !important; }
@@ -137,7 +137,8 @@ html body.is-session-booklet [class*="QuickResult"][class*="tiles"] b[class*="ti
 }
 html body.is-course-studio .surface-map.is-toc [class*="TopicMapPanel"][class*="path"]::before,
 html body.is-course-studio .surface-map.is-toc [class*="TopicMapPanel"][class*="step"]::before,
-html body.is-course-studio .surface-map.is-toc [class*="TopicMapPanel"][class*="step"]::after { display: none !important; }
+html body.is-course-studio .surface-map.is-toc [class*="TopicMapPanel"][class*="step"]::after,
+html body.is-course-studio .surface-map.is-toc [class*="TopicMapPanel"][class*="checkpoint"]::before { display: none !important; }
 html body.is-course-studio .surface-map.is-toc [class*="TopicMapPanel"][class*="node"] { display: none !important; }
 html body.is-course-studio .surface-map.is-toc ol[class*="TopicMapPanel"][class*="path"] { margin: 0 !important; padding: 0 !important; border-top: 1px solid var(--lb-line); }
 html body.is-course-studio .surface-map.is-toc li[class*="TopicMapPanel"][class*="step"] { display: block !important; margin: 0 !important; padding: 0 !important; border-bottom: 1px solid var(--lb-line); }
@@ -148,7 +149,8 @@ html body.is-course-studio .surface-map.is-toc .index-toc-meta { display: conten
 html body.is-course-studio .surface-map.is-toc .index-toc-meta > [class*="BoxStrip"] { grid-column: 2; }
 html body.is-course-studio .surface-map.is-toc .index-toc-meta [class*="TopicMapPanel"][class*="state"] { grid-column: 3; font-style: normal !important; font-size: 13.5px !important; font-weight: 500 !important; }
 html body.is-course-studio .surface-map.is-toc .index-toc-meta [class*="TopicMapPanel"][class*="metaSoft"] { grid-column: 4; justify-self: end; font-family: var(--font-geist-mono), ui-monospace, monospace; font-size: 12.5px !important; color: var(--lb-text-3) !important; }
-html body.is-course-studio .surface-map.is-toc .index-toc-meta [class*="TopicMapPanel"][class*="metaSoft"] + [class*="metaSoft"] { display: none; }
+/* The last column is the page in the notes for every row: a try count sat under the "Page" heading before. */
+html body.is-course-studio .surface-map.is-toc .index-toc-meta [class*="TopicMapPanel"][class*="metaSoft"]:has(+ [class*="metaSoft"]) { display: none; }
 html body.is-course-studio .surface-map.is-toc .index-toc-meta [class*="TopicMapPanel"][class*="icoSm"] { display: none; }
 html body.is-course-studio .surface-map.is-toc :is([class*="TopicMapPanel"][class*="why"], [class*="TopicMapPanel"][class*="due"]) { grid-column: 1 / -1; font-size: 13px; color: var(--lb-text-3); }
 html body.is-course-studio .surface-map.is-toc li[class*="TopicMapPanel"][class*="checkpoint"] { margin: 0 !important; padding: 14px 12px !important; border-bottom: 1px solid var(--lb-line); }
@@ -186,9 +188,10 @@ html body.is-course-studio [class*="ProgressView"][class*="sheetLink"] svg { dis
 
 /* ── Materials: the reader and the source list in the instrument's surfaces ────────────────────────── */
 html body.is-course-studio .material-card .material-name > strong { font-family: var(--font-geist), system-ui, sans-serif !important; font-size: 16px !important; font-weight: 600 !important; letter-spacing: -0.015em !important; }
-html body.is-course-studio .material-card-topics span { color: var(--lb-text-2) !important; font-size: 13px !important; }
-html body.is-course-studio .material-card-topics span[data-tone]::before { content: none !important; }
-html body.is-course-studio .material-card-topics { gap: 2px 12px !important; }
+/* The topics a source gave you are chips in each topic's own tone, the same marks they wear on the plan. */
+html body.is-course-studio .material-card-topics { gap: 6px !important; margin-top: 8px; }
+html body.is-course-studio .material-card-topics span { height: 26px; padding: 0 10px; border-radius: 999px; background: var(--topic-wash, var(--lb-well)); color: var(--topic-ink, var(--lb-text-2)) !important; font-size: 12.5px !important; font-weight: 500; }
+html body.is-course-studio .material-card-topics span[data-tone]::before { content: "" !important; width: 6px; height: 6px; border-radius: 50%; background: var(--topic); }
 html body.is-course-studio .material-shelf h2 { font-family: var(--font-geist), system-ui, sans-serif !important; font-size: 18px !important; font-weight: 600 !important; letter-spacing: -0.02em !important; }
 html body.is-course-studio .material-actions > :is(button, a) { border-radius: 8px !important; font-size: 13px !important; font-weight: 500 !important; color: var(--lb-text-2) !important; }
 html body.is-course-studio .material-actions > :is(button, a):hover { background: var(--q-hover) !important; color: var(--lb-ink) !important; }
@@ -224,7 +227,7 @@ html body .is-leitner-home [class*="RevisionLoopVisuals"][class*="moved"] span {
 html body .is-leitner-home img[src*="/art/notion-pack/"] { max-width: min(280px, 100%) !important; height: auto !important; opacity: 0.92; }
 html body .is-leitner-home a:not([class*="primary"]):not([class*="action"]) { text-underline-offset: 4px; text-decoration-thickness: 1px; }
 /* The close: one green key, quiet facts. */
-html body .is-leitner-home [class*="HomeFinal"][class*="action"] { height: 50px; padding: 0 22px !important; border-radius: 11px !important; background: var(--lb-green) !important; font-weight: 600 !important; box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.16), 0 0 0 1px #17573a, 0 6px 16px -6px rgba(31, 107, 69, 0.55) !important; }
+html body .is-leitner-home [class*="HomeFinal"][class*="action"] { height: 50px; padding: 0 22px !important; border-radius: 10px !important; background: var(--lb-green) !important; font-weight: 600 !important; box-shadow: none !important; }
 html body .is-leitner-home [class*="HomeFinal"][class*="facts"] li { color: var(--lb-text-3) !important; font-size: 13.5px !important; }
 html body .is-leitner-home :is(section, footer) + :is(section, footer) { border-top-color: var(--lb-line) !important; }
 /* The student beside "Your notes stay open" fills its half of the section, as the section was drawn. */
@@ -236,10 +239,26 @@ html body .is-leitner-home [class*="HomeVisualChapters"][class*="studyArt"] img[
 html body :is(.route-page, .pricing-page)[data-marketing] :is(#k, h3, dt, strong) { letter-spacing: -0.01em !important; }
 /* The product fragments on How it works: wells with a hairline, like the product's panels. */
 html body .route-page[data-marketing] [class*="HowSheets"][class*="sheet"] { border: 0 !important; border-radius: 14px !important; background: #f5f7f6 !important; box-shadow: inset 0 0 0 1px #e3e8e5 !important; }
-/* One green key per page, with a machined edge; text arrows after labels go. */
-html body :is(.route-page, .pricing-page)[data-marketing] :is([class*="primaryAction"], .cta, .k-btn):not(:disabled) { border-radius: 11px !important; font-weight: 600 !important; box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.16), 0 0 0 1px #17573a, 0 6px 16px -6px rgba(31, 107, 69, 0.55) !important; }
+/* One green key per page, flat; text arrows after labels go. */
+html body :is(.route-page, .pricing-page)[data-marketing] :is([class*="primaryAction"], .cta, .k-btn):not(:disabled) { border-radius: 10px !important; font-weight: 600 !important; box-shadow: none !important; }
 html body .route-page[data-marketing] [class*="primaryArrow"],
 html body .pricing-page[data-marketing] :is(.cta, .k-btn, button) > span[aria-hidden="true"] { display: none !important; }
 /* Pricing cards: hairline panels; the planned plan sits in a well. */
 html body .pricing-page[data-marketing] .pricing-plan-shell > * { border-radius: 16px !important; border-color: #e3e8e5 !important; }
 html body .pricing-page[data-marketing] .pricing-plan-shell:nth-child(2) > * { background: #f5f7f6 !important; }
+/* The notes link sits level with the course title at the right, not on a row of its own above it: the page starts at
+   once. The head keeps room for it on the right. */
+html body.is-course-studio .core-workspace-grid.is-today-single > .core-workspace-action { position: relative; }
+html body.is-course-studio .core-workspace-grid.is-today-single > .core-workspace-action > .today-source-access { position: absolute; top: 26px; right: 44px; z-index: 2; min-height: 44px !important; margin: 0 !important; padding: 0 !important; }
+html body.is-course-studio .today-source-access ~ [class*="TodayQuiet"][class*="page"] [class*="TodayQuiet"][class*="head"] { justify-content: flex-start; padding-right: 220px; }
+@media (max-width: 650px) {
+  html body.is-course-studio .core-workspace-grid.is-today-single > .core-workspace-action > .today-source-access { top: 10px; right: 16px; }
+  html body.is-course-studio .today-source-access ~ [class*="TodayQuiet"][class*="page"] [class*="TodayQuiet"][class*="head"] { padding-right: 0; }
+  html body.is-course-studio .today-source-access ~ [class*="TodayQuiet"][class*="page"] [class*="TodayQuiet"][class*="title"] { padding-right: 96px; }
+}
+
+/* A checkpoint is a stop on the path, not another topic: a soft band with its own corner, set apart from the rows. */
+html body.is-course-studio .surface-map.is-toc li[class*="TopicMapPanel"][class*="checkpoint"] { margin: 8px 0 !important; padding: 14px 16px !important; border: 0 !important; border-radius: 8px; background: var(--lb-well); }
+html body.is-course-studio .surface-map.is-toc li[class*="TopicMapPanel"][class*="checkpoint"] strong { font-family: var(--font-marketing-heading), Georgia, serif !important; font-size: 16.5px !important; font-weight: 500 !important; }
+/* A source in Materials is named in the serif, like a course. */
+html body.is-course-studio .studio-panel .material-shelf.is-binder .material-name strong { font-family: var(--font-marketing-heading), Georgia, serif !important; font-weight: 500 !important; letter-spacing: -0.01em !important; }

@@ -48,8 +48,8 @@ test("a quote that is not on the page is rejected", () => {
 
 test("a topic with no other topics gets no multiple choice instead of a bad one", () => {
   const items = buildPractice({ conceptId: "c2", name: "Total Revenue Test", excerpt: page, locator: "Page 3", siblingNames: ["Total Revenue Test"] });
-  // A direction check needs no other topics, so it is allowed; a "which idea" choice is not.
-  assert.ok(items.every((item) => item.kind !== "choice" || ["direction", "why", "predict", "notone"].includes(item.variant)));
+  // A direction check or a true-or-false needs no other topics, so it is allowed; a "which idea" choice is not.
+  assert.ok(items.every((item) => item.kind !== "choice" || ["direction", "why", "predict", "notone", "truefalse"].includes(item.variant)));
 });
 
 const bullets = "• Phospholipid bilayer: two layers of lipids with hydrophilic heads and hydrophobic tails\n• Selectively permeable: lets some molecules through, blocks others\n• Fluid mosaic model: proteins float in the lipid layer\n• Cholesterol keeps the membrane stable at different temperatures";
