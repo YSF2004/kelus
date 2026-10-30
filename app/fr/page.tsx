@@ -26,8 +26,8 @@ const FAQ: Array<{ q: string; a: string }> = [
   { q: "Kelus fait-il des fiches de révision ?", a: "Oui, mais c’est vous qui l’écrivez : chaque fois que vous expliquez un chapitre avec vos mots, Kelus le range dans votre fiche, à côté de la ligne du cours avec laquelle il a été comparé, avec ce qui manquait en marge. Elle s’imprime ou s’enregistre en PDF pour la veille de l’examen." },
   { q: "Et les flashcards ?", a: "Kelus vous interroge sur chaque ligne de votre cours et fait revenir en premier celles que vous ratez. Si vous préférez Anki, vous pouvez exporter vos questions dans un fichier qu’Anki importe." },
   { q: "Est-ce gratuit ?", a: "Oui. Vous pouvez réviser votre propre cours gratuitement, sans créer de compte et sans essai qui expire." },
-  { q: "Mes cours restent-ils privés ?", a: "Sans compte, vos PDF et votre progression restent sur cet appareil. Ils ne quittent l’appareil que si vous vous connectez pour synchroniser." },
-  { q: "En quelle langue ?", a: "Kelus lit les cours écrits en français ou en anglais, et ses boutons suivent la langue de vos notes. Les cours en arabe ne sont pas encore pris en charge." },
+  { q: "Mes cours restent-ils privés ?", a: "Sans compte, vos fichiers et votre progression sont enregistrés sur cet appareil. Si la rédaction hébergée des questions est disponible, le texte du thème étudié peut être envoyé au modèle. Vous pouvez la désactiver dans les options du cours." },
+  { q: "En quelle langue ?", a: "Kelus peut lire des cours en français ou en anglais. L’interface est principalement en anglais ; les cours en arabe ne sont pas encore pris en charge." },
 ];
 
 const STEPS: Array<{ title: string; body: string }> = [
@@ -56,9 +56,8 @@ export default function FrenchHomePage() {
             </p>
             <div className={styles.actions}>
               <Link className="k-btn" href="/today/">Commencer avec mes cours</Link>
-              <Link className={styles.secondary} href="/today/?sample=1">Essayer avec un cours d’exemple</Link>
             </div>
-            <p className={styles.note}>Gratuit, sans compte. Vos cours restent sur votre appareil.</p>
+            <p className={styles.note}>Gratuit, sans compte. Vos fichiers sont enregistrés sur cet appareil ; la rédaction hébergée des questions peut traiter le texte du thème étudié. <Link href="/privacy#ai-questions">En savoir plus</Link>.</p>
           </header>
 
           <section className={styles.section} aria-labelledby="fr-home-steps">

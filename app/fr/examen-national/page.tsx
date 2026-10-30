@@ -10,7 +10,7 @@ const DESCRIPTION = "Préparez l’examen national du bac au Maroc à partir de 
 export const metadata: Metadata = {
   title: TITLE,
   description: DESCRIPTION,
-  alternates: { canonical: "/fr/examen-national/", languages: { fr: "/fr/examen-national/", en: "/", "x-default": "/" } },
+  alternates: { canonical: "/fr/examen-national/" },
   openGraph: {
     title: TITLE,
     description: "Vos cours deviennent des questions, corrigées à partir de vos propres notes.",
@@ -24,9 +24,9 @@ export const metadata: Metadata = {
 /** Answers a student asks before starting, each true of Kelus today. Also given to search engines as an FAQ. */
 const FAQ: Array<{ q: string; a: string }> = [
   { q: "Est-ce gratuit ?", a: "Oui. Vous pouvez réviser votre propre cours gratuitement, sans créer de compte et sans essai qui expire." },
-  { q: "Mes cours restent-ils privés ?", a: "Sans compte, vos PDF et votre progression restent sur cet appareil. Ils ne quittent l’appareil que si vous vous connectez pour synchroniser." },
+  { q: "Mes cours restent-ils privés ?", a: "Sans compte, vos fichiers et votre progression sont enregistrés sur cet appareil. Si la rédaction hébergée des questions est disponible, le texte du thème étudié peut être envoyé au modèle. Vous pouvez la désactiver dans les options du cours." },
   { q: "Pour quelles matières ?", a: "Pour tout cours écrit : SVT, physique-chimie, histoire-géographie, philosophie, économie… Kelus pose ses questions à partir de vos propres lignes, pas d’une banque de questions." },
-  { q: "En quelle langue ?", a: "Kelus lit les cours écrits en français ou en anglais, et ses boutons suivent la langue de vos notes. Les cours en arabe ne sont pas encore pris en charge." },
+  { q: "En quelle langue ?", a: "Kelus peut lire des cours en français ou en anglais. L’interface est principalement en anglais ; les cours en arabe ne sont pas encore pris en charge." },
   { q: "Est-ce que Kelus connaît les sujets de l’examen national ?", a: "Non. Kelus ne contient pas les annales officielles : il vous fait réviser ce qui est dans vos cours, et vous montre ce qu’il faut revoir avant l’examen." },
 ];
 
@@ -56,9 +56,8 @@ export default function ExamenNationalPage() {
             </p>
             <div className={styles.actions}>
               <Link className="k-btn" href="/today/">Commencer avec mes cours</Link>
-              <Link className={styles.secondary} href="/today/?sample=1">Essayer avec un cours d’exemple</Link>
             </div>
-            <p className={styles.note}>Gratuit, sans compte. Vos cours restent sur votre appareil.</p>
+            <p className={styles.note}>Gratuit, sans compte. Vos fichiers sont enregistrés sur cet appareil ; la rédaction hébergée des questions peut traiter le texte du thème étudié. <Link href="/privacy#ai-questions">En savoir plus</Link>.</p>
           </header>
 
           <section className={styles.section} aria-labelledby="fr-steps">
@@ -80,7 +79,7 @@ export default function ExamenNationalPage() {
             <h2 id="fr-why">Pourquoi réviser comme ça</h2>
             <p>
               Relire une fiche donne l’impression de savoir. Se forcer à retrouver l’idée, puis la comparer au cours, montre ce que vous
-              savez vraiment. Kelus fait ce travail pour chaque ligne de vos notes, et garde la trace de ce qui revient : ce que vous
+              savez vraiment. Kelus crée des questions à partir des passages lisibles et garde la trace de ce qui revient : ce que vous
               ratez aujourd’hui ouvre la révision de demain.
             </p>
           </section>
