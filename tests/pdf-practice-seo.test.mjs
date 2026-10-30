@@ -17,5 +17,18 @@ test("the PDF practice entry page has unique crawlable metadata and a real study
   assert.match(page, /href="\/privacy#ai-questions"/);
   assert.match(page, /multi-column pages, image-heavy slides and scanned handwriting/);
   assert.match(sitemap, /pdf-to-practice-questions\//);
-  assert.match(footer, /href: "\/pdf-to-practice-questions"/);
+  // The footer lists every search page from lib/search-pages.ts.
+  assert.match(footer, /SEARCH_PAGES\.map/);
+  assert.match(readFileSync("lib/search-pages.ts", "utf8"), /href: "\/pdf-to-practice-questions\/"/);
+});
+
+test("every search page is in the sitemap, the footer list and the related links, and IndexNow is pinged after a ship", () => {
+  const list = readFileSync("lib/search-pages.ts", "utf8");
+  const sitemap = readFileSync("app/sitemap.ts", "utf8");
+  for (const href of list.match(/href: "([^"]+)"/g).map((m) => m.slice(7, -1))) assert.match(sitemap, new RegExp(`\\$\\{BASE_URL\\}${href.replace(/\//g, "\\/")}`), href);
+  assert.match(readFileSync("components/seo/SearchLanding.tsx", "utf8"), /<RelatedSearchPages \/>/);
+  const ship = readFileSync("scripts/ship.sh", "utf8");
+  const key = ship.match(/indexnow_key="([0-9a-f]{32})"/)?.[1];
+  assert.ok(key, "ship.sh holds the IndexNow key");
+  assert.equal(readFileSync(`public/${key}.txt`, "utf8"), key);
 });

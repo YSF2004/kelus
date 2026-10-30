@@ -38,9 +38,24 @@ GITHUB_SHA="$sha" npm run build
 
 npx wrangler@4.92.0 deploy || { echo "Publish failed once; retrying"; sleep 10; npx wrangler@4.92.0 deploy; }
 
+# Once the new version is live, every address in its sitemap goes to IndexNow (Bing, Yandex, Seznam, Naver; Bing also
+# feeds ChatGPT search and DuckDuckGo), so new and changed pages are crawled within days. The key file at
+# kelus.me/<key>.txt proves the ping comes from the site. Google does not take pings: Search Console does that.
+# A failed ping never fails the ship.
+indexnow_key="d74cbf9c565014c75f589dc662f4d3f6"
+ping_indexnow() {
+  local urls
+  urls="$(curl -fsS "https://kelus.me/sitemap.xml?ts=$(date +%s)" | grep -oE '<loc>[^<]+</loc>' | sed -E 's#</?loc>##g' | sed -E 's/.*/"&"/' | paste -sd, - || true)"
+  if [ -z "$urls" ]; then echo "IndexNow: no sitemap addresses found, skipped"; return 0; fi
+  local status
+  status="$(curl -sS -o /dev/null -w '%{http_code}' -X POST "https://api.indexnow.org/indexnow" -H "Content-Type: application/json; charset=utf-8" \
+    --data "{\"host\":\"kelus.me\",\"key\":\"$indexnow_key\",\"keyLocation\":\"https://kelus.me/$indexnow_key.txt\",\"urlList\":[$urls]}" || echo "failed")"
+  echo "IndexNow: sent $(echo "$urls" | tr ',' '\n' | wc -l | tr -d ' ') addresses, answer $status (200 or 202 means accepted)"
+}
+
 for attempt in $(seq 1 20); do
   live="$(curl -fsS "https://kelus.me/version.json?ts=$(date +%s)" | sed -E 's/.*"id":"([^"]+)".*/\1/' || true)"
-  if [ "$live" = "$want" ]; then echo "kelus.me is on $live"; exit 0; fi
+  if [ "$live" = "$want" ]; then echo "kelus.me is on $live"; ping_indexnow; exit 0; fi
   echo "kelus.me is on ${live:-?}, waiting for $want ($attempt/20)"
   sleep 15
 done

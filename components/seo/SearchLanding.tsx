@@ -1,6 +1,7 @@
 import Link from "next/link";
 import type { ReactNode } from "react";
 import { LateralPage } from "@/components/PageTransition";
+import { RelatedSearchPages } from "@/components/seo/RelatedSearchPages";
 import { SiteFooter } from "@/components/SiteFooter";
 import styles from "./SearchLanding.module.css";
 
@@ -91,6 +92,8 @@ export function SearchLanding({ title, lede, action, note, example, exampleLabel
             <Link href="/today" className={styles.primary}>{action}</Link>
             <p className={styles.credit}>{credit}</p>
           </section>
+
+          <RelatedSearchPages />
         </main>
         <SiteFooter />
       </div>
