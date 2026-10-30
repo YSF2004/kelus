@@ -1,9 +1,9 @@
 import Link from "next/link";
 import { KelusLogoMark } from "@/components/KelusLogoMark";
+import { SEARCH_PAGES } from "@/lib/search-pages";
 
 const links = [
   { href: "/route", label: "How it works" },
-  { href: "/pdf-to-practice-questions", label: "PDF to practice questions" },
   { href: "/pricing", label: "Pricing" },
   { href: "/questions", label: "Questions" },
   { href: "/waitlist", label: "Waitlist" },
@@ -27,6 +27,12 @@ export function SiteFooter({ compact = false }: { compact?: boolean }) {
           ))}
         </nav>
       </div>
+      {/* The search pages, linked from every page that has the full footer, so each one is a click from anywhere. */}
+      {compact ? null : (
+        <nav className="site-footer-tools" aria-label="Study your notes">
+          {SEARCH_PAGES.map((page) => <Link key={page.href} href={page.href}>{page.label}</Link>)}
+        </nav>
+      )}
       <p className="site-footer-note">© {new Date().getFullYear()} Kelus</p>
     </footer>
   );
