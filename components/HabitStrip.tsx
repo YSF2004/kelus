@@ -20,7 +20,7 @@ function message(summary: ReturnType<typeof habitSummary>, studiedBefore: boolea
 }
 
 /** The return loop on Today: today's goal, the last seven days, and the one thing that makes tomorrow worth opening. */
-export function HabitStrip({ events, concepts, compact = false, link = true, line = false }: { events: LearningEvent[]; concepts: Concept[]; /** Goal and week only, where the page says what comes next itself. */ compact?: boolean; /** "See your progress", where Progress is not already one click away. */ link?: boolean; /** One quiet line: a thin bar, today's count, the streak and what to do next. */ line?: boolean }) {
+export function HabitStrip({ events, concepts, compact = false, link = true, line = false }: { events: LearningEvent[]; concepts: Concept[]; /** The week and streak only, where the page already counts the topics and says what comes next. */ compact?: boolean; /** "See your progress", where Progress is not already one click away. */ link?: boolean; /** One quiet line: a thin bar, today's count, the streak and what to do next. */ line?: boolean }) {
   const reduce = useReducedMotion() === true;
   const summary = habitSummary({ events, concepts });
   const share = Math.min(1, summary.topicsToday / summary.goal);
@@ -41,13 +41,13 @@ export function HabitStrip({ events, concepts, compact = false, link = true, lin
 
   return (
     <section className={styles.strip} aria-label="Your study habit">
-      <div className={styles.goal}>
+      {compact ? null : <div className={styles.goal}>
         <p className={styles.label}>Today</p>
         <p className={styles.count}><strong>{Math.min(summary.topicsToday, summary.goal)}</strong> of {summary.goal} topics</p>
         <div className={styles.track} role="progressbar" aria-label="Today’s goal" aria-valuemin={0} aria-valuemax={summary.goal} aria-valuenow={Math.min(summary.topicsToday, summary.goal)}>
           <motion.span className={`${styles.fill}${summary.goalMet ? ` ${styles.met}` : ""}`} initial={reduce ? false : { width: 0 }} animate={{ width: `${share * 100}%` }} transition={{ duration: reduce ? 0 : 0.5, ease: [0.22, 1, 0.36, 1] }} />
         </div>
-      </div>
+      </div>}
 
       <div className={styles.week}>
         <p className={styles.label}>{summary.streak > 0 ? `${summary.streak}-day streak` : "This week"}</p>
