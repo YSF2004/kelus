@@ -236,8 +236,11 @@ function lineOf(prompt: string) {
 
 function wordChoices(gaps: PracticeItem[], activity: LearningActivity, explainAnswer: string, already: PracticeItem[]) {
   const sentences = splitSentences([activity.learn.explanation, ...activity.learn.keyPoints].join("\n"));
-  const fresh = gaps.filter((item) => !overlaps(item.sourceQuote, explainAnswer));
-  const pool = fresh.length >= 2 ? fresh : gaps;
+  // Only a line that reads as a sentence: a diagram's labels run together ("Inputs to Cells air oxygen water food")
+  // would make a word question out of nothing.
+  const sentenceGaps = gaps.filter((item) => /[.!?]["”’)]?$/.test(item.sourceQuote.trim()) && item.sourceQuote.trim().split(/\s+/).length >= 6);
+  const fresh = sentenceGaps.filter((item) => !overlaps(item.sourceQuote, explainAnswer));
+  const pool = fresh.length >= 2 ? fresh : sentenceGaps;
   const out: PracticeItem[] = [];
   for (const gap of pool) {
     if (already.length + out.length >= 2) break;
