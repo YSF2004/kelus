@@ -25,6 +25,7 @@ import { KelusLogoMark } from "@/components/KelusLogoMark";
 import { LoopSteps } from "@/components/LoopSteps";
 import { MarkStamp } from "@/components/MarkStamp";
 import { QuickResult, type QuickStats } from "@/components/QuickResult";
+import { estimatedReadiness } from "@/domain/readiness";
 import { comesBackLine, planLine } from "@/lib/verdict";
 import { dayKey, habitSummary } from "@/domain/habit";
 import { MinuteShift, RouteShift } from "@/components/RouteShift";
@@ -185,6 +186,11 @@ function SessionBody() {
   const courseConceptIds = new Set(state.snapshot.concepts.filter((item) => item.courseId === courseId).map((item) => item.id));
   // Fixed when the topic opens, like the run itself: the counter moves with this run's answers, not under them.
   // eslint-disable-next-line react-hooks/exhaustive-deps
+  // Readiness when this run opened, so the result can show how far the answers moved it (a dip is shown plainly too).
+  const courseConcepts = state.snapshot.concepts.filter((item) => item.courseId === courseId);
+  const readinessNow = estimatedReadiness(courseConcepts);
+  const readinessAtOpen = useMemo(() => readinessNow, [conceptId, runKey]); // eslint-disable-line react-hooks/exhaustive-deps
+  const examTargetPercent = state.snapshot.exams.find((item) => item.courseId === courseId && item.isActive)?.targetPercent ?? 80;
   const knownAtOpen = useMemo(() => ({ set: new Set(knownLines.map((line) => line.quote)), count: knownCount(knownLines, courseConceptIds) }), [conceptId, runKey]);
   const total = session?.plannedConceptIds.length ?? 0;
   const focusStep = useCallback((node: HTMLElement | null) => {
@@ -692,6 +698,7 @@ function SessionBody() {
                   done: state.snapshot.concepts.filter((item) => item.courseId === concept.courseId).map((item) => item.retrievalAttempts > 0),
                   recalled: knownCount(knownLines, courseConceptIds),
                 }}
+                readiness={courseConcepts.length > 1 ? { before: readinessAtOpen, after: readinessNow, targetPercent: examTargetPercent } : undefined}
                 onRetry={retryCurrentConcept}
                 onContinue={advance}
                 onSource={currentSource && currentMaterial ? () => void openSource(currentSource.materialId, currentSource.locator) : undefined}
