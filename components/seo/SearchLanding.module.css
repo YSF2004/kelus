@@ -119,3 +119,7 @@
   .compare tbody th { width: 30%; }
   .choices { grid-template-columns: minmax(0, 1fr); }
 }
+/* Long answers read as a list, one per line; the picked one carries the verdict. */
+.choices.list { grid-template-columns: minmax(0, 1fr); }
+.verdict { display: flex; align-items: baseline; gap: 8px; margin: 12px 0 0; font-size: 15px; font-weight: 600; color: var(--green); }
+.verdict span { font-size: 13px; font-weight: 500; color: var(--t3); }
