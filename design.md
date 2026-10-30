@@ -24,7 +24,7 @@ buttons and footer use `--font-marketing-sans` (Inter). Both are
 self-hosted by next/font with swap.
 
 - Primary actions are Kelus green fills with white labels.
-- One button shape on every surface: the 8px-corner green fill. Public pages set it 48px tall; in the product it is compact on a mouse and 44px on touch.
+- One button shape on every surface, the Link way (since 2026-10-30): a flat fill with 10px corners and no shadow at rest; under a pointer the corners round to a pill (32px, 200 ms ease-in-out) and the fill steps one shade darker (200 ms linear; green #1f6b45 → #185638, grey #f5f5f5 → #e5e5e5). A press answers at once with scale 0.97. No hover on touch screens; with reduced motion the shape does not animate. Public pages set it 48px tall; in the product it is compact on a mouse and 44px on touch. Defined once at the end of `app/quiet.css`.
 - Secondary actions are text buttons with instant press scale (`0.97`). On marketing pages a secondary action beside the primary one may be a soft button: 48px, 8px corners, `#f5f5f5` with a `#e5e5e5` hairline.
 - Links use Kelus green and a restrained directional arrow.
 - Touch targets: minimum 44×44px for header, nav, auth, and footer controls.
@@ -38,7 +38,7 @@ The homepage takes link.com's structure and keeps Kelus's face (Literata titles,
 - Tiles: white with a `#e5e5e5` hairline, or a soft grey stage (`#f4f4f4`) with no border. A product fragment sits on a grey stage as a white surface with no border and no shadow: two levels at most, never a card inside a card.
 - One dark band per page (`#0c2016`) for the main claim, with one bright-green phrase (`#5fd394`) and a bright-green action. It shows real product output, never decorative chips.
 - Tile titles: Literata, 26–28px, weight 500. Grey text under a title: one sentence, 17px.
-- Motion: a demonstration plays once in under 5 seconds, holds its finished state, and offers "Play it again"; nothing loops.
+- Motion: a demonstration plays once in under 5 seconds when it comes into view and holds its finished state; nothing loops and there is no replay control (removed 2026-10-30 at the founder's request).
 
 ## Product constraints
 
