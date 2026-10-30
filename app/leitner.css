@@ -79,12 +79,12 @@ html body.is-course-studio .studio-rail { background: var(--lb-rail) !important;
 html body.is-course-studio .studio-nav button[aria-pressed="true"] { background: var(--lb-surface) !important; color: var(--lb-ink) !important; font-weight: 500 !important; box-shadow: 0 0 0 1px var(--lb-line), 0 1px 2px rgba(14, 21, 18, 0.05) !important; }
 html body.is-course-studio :is(.studio-page, .studio-main, .studio-topbar, .studio-section-head) { background: var(--lb-surface) !important; }
 
-/* The primary action: one green key with a machined edge and a short shadow. */
+/* The primary action: one green key, flat, as the Link-style buttons in quiet.css shape it. */
 html body :is(body.is-course-studio, body.is-session-booklet, body.is-session-complete, body:has(.start-page)) :is(.k-btn, .cta):not(.k-btn--paper):not(:disabled),
 html :is(body.is-course-studio, body.is-session-booklet, body.is-session-complete, body:has(.start-page)) :is(.k-btn, .cta):not(.k-btn--paper):not(:disabled) {
   border-radius: 10px !important;
   font-weight: 600 !important;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.16), 0 0 0 1px #17573a, 0 4px 12px -4px rgba(31, 107, 69, 0.45) !important;
+  box-shadow: none !important;
 }
 
 /* The plan runs wide beside the rail: header across, then the due topic and the boxes side by side. */
@@ -227,7 +227,7 @@ html body .is-leitner-home [class*="RevisionLoopVisuals"][class*="moved"] span {
 html body .is-leitner-home img[src*="/art/notion-pack/"] { max-width: min(280px, 100%) !important; height: auto !important; opacity: 0.92; }
 html body .is-leitner-home a:not([class*="primary"]):not([class*="action"]) { text-underline-offset: 4px; text-decoration-thickness: 1px; }
 /* The close: one green key, quiet facts. */
-html body .is-leitner-home [class*="HomeFinal"][class*="action"] { height: 50px; padding: 0 22px !important; border-radius: 11px !important; background: var(--lb-green) !important; font-weight: 600 !important; box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.16), 0 0 0 1px #17573a, 0 6px 16px -6px rgba(31, 107, 69, 0.55) !important; }
+html body .is-leitner-home [class*="HomeFinal"][class*="action"] { height: 50px; padding: 0 22px !important; border-radius: 10px !important; background: var(--lb-green) !important; font-weight: 600 !important; box-shadow: none !important; }
 html body .is-leitner-home [class*="HomeFinal"][class*="facts"] li { color: var(--lb-text-3) !important; font-size: 13.5px !important; }
 html body .is-leitner-home :is(section, footer) + :is(section, footer) { border-top-color: var(--lb-line) !important; }
 /* The student beside "Your notes stay open" fills its half of the section, as the section was drawn. */
@@ -239,8 +239,8 @@ html body .is-leitner-home [class*="HomeVisualChapters"][class*="studyArt"] img[
 html body :is(.route-page, .pricing-page)[data-marketing] :is(#k, h3, dt, strong) { letter-spacing: -0.01em !important; }
 /* The product fragments on How it works: wells with a hairline, like the product's panels. */
 html body .route-page[data-marketing] [class*="HowSheets"][class*="sheet"] { border: 0 !important; border-radius: 14px !important; background: #f5f7f6 !important; box-shadow: inset 0 0 0 1px #e3e8e5 !important; }
-/* One green key per page, with a machined edge; text arrows after labels go. */
-html body :is(.route-page, .pricing-page)[data-marketing] :is([class*="primaryAction"], .cta, .k-btn):not(:disabled) { border-radius: 11px !important; font-weight: 600 !important; box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.16), 0 0 0 1px #17573a, 0 6px 16px -6px rgba(31, 107, 69, 0.55) !important; }
+/* One green key per page, flat; text arrows after labels go. */
+html body :is(.route-page, .pricing-page)[data-marketing] :is([class*="primaryAction"], .cta, .k-btn):not(:disabled) { border-radius: 10px !important; font-weight: 600 !important; box-shadow: none !important; }
 html body .route-page[data-marketing] [class*="primaryArrow"],
 html body .pricing-page[data-marketing] :is(.cta, .k-btn, button) > span[aria-hidden="true"] { display: none !important; }
 /* Pricing cards: hairline panels; the planned plan sits in a well. */
