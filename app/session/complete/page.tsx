@@ -154,10 +154,17 @@ function CompleteBody() {
 
         {/* What changed, the way a tutor would say it: what you now know, and the one thing to fix next. */}
         <section className={styles.changed} aria-label="What changed">
-          <p>
-            <span className={styles.changedLabel}>You now know</span>
-            {known.length ? <b>{known.map((event) => name(event.conceptId)).join(", ")}</b> : <span className={styles.none}>nothing marked solid yet. That’s normal on a first pass: the second one is where lines stick</span>}
-          </p>
+          {known.length ? (
+            <p>
+              <span className={styles.changedLabel}>You now know</span>
+              <b>{known.map((event) => name(event.conceptId)).join(", ")}</b>
+            </p>
+          ) : (
+            <p>
+              <span className={styles.changedLabel}>So far</span>
+              <span className={styles.none}>No topic is solid yet. That’s normal on a first pass: the second one is where lines stick.</span>
+            </p>
+          )}
           {weakest ? (
             <p>
               <span className={styles.changedLabel}>Your weak spot</span>
@@ -218,7 +225,8 @@ function CompleteBody() {
               <button type="button" onClick={() => { setUsefulness(false); trackEvent({ name: "session_usefulness_rated", helpful: false, session_number: sessionNumber }); }}>Not yet</button>
             </p>
           ) : <p role="status">{usefulness ? "Thanks. Good to know." : "Thanks. That helps make it better."}</p>}
-          {session && !SAMPLE_COURSE_IDS.has(session.courseId) ? <ClassInvite sessionNumber={sessionNumber} /> : null}
+          {/* A first session ends on the plan and one question; sharing waits until Kelus has earned it. */}
+          {session && !SAMPLE_COURSE_IDS.has(session.courseId) && completedSessions >= 2 ? <ClassInvite sessionNumber={sessionNumber} /> : null}
           {completedSessions === 1 ? (
             <details>
               <summary>Want Kelus through to exam day?</summary>
