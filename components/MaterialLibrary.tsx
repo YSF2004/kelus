@@ -469,6 +469,7 @@ export function MaterialLibrary({ embedded = false, incomingFile = null, onIncom
       setSelectedIds(new Set(proposals.map((proposal) => proposal.id)));
       setDraftNames(Object.fromEntries(proposals.map((proposal) => [proposal.id, proposal.name])));
       dispatch({ type: "REVIEW_READY", analysis: nextAnalysis });
+      trackEvent({ name: "material_processing_completed", source_type: isNotes ? "notes" : "pdf", topic_count: proposals.length, used_ocr: usedOcr, course_type: "real" });
       trackEvent({ name: "concept_review_started", concept_count: proposals.length });
       if (courseMaterials.filter((item) => item.storage === "local").length >= 3) {
         try {
@@ -481,7 +482,10 @@ export function MaterialLibrary({ embedded = false, incomingFile = null, onIncom
       }
     } catch (caught) {
       updateMaterialProcessingStatus(material.id, "failed");
-      if (caught instanceof Error && caught.name === "AbortError") {
+      const cancelled = caught instanceof Error && caught.name === "AbortError";
+      const ocrFailure = attemptedOcr || (caught instanceof Error && (caught as Error & { kind?: string }).kind === "ocr");
+      trackEvent({ name: "material_processing_failed", source_type: material.kind === "text" ? "notes" : "pdf", reason: cancelled ? "cancelled" : ocrFailure ? "ocr" : "extraction", course_type: "real" });
+      if (cancelled) {
         dispatch({
           type: "FAIL",
           kind: "ocr",

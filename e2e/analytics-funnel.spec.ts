@@ -17,10 +17,11 @@ test("a real notes journey emits real-course milestones without note content", a
   });
   await playQuickRun(page, "A membrane controls which materials can move in and out of a cell.", "Partly");
   const events = await page.evaluate(() => (window as typeof window & { kelusEvents: Array<{ name: string; parameters: Record<string, unknown> }> }).kelusEvents);
-  for (const name of ["material_upload_completed", "first_route_ready", "session_started", "study_response_recorded"]) {
+  for (const name of ["material_upload_completed", "material_processing_completed", "first_route_ready", "session_started", "study_response_recorded"]) {
     const event = events.find((item) => item.name === name);
     expect(event, `${name} was emitted`).toBeTruthy();
     expect(event?.parameters.course_type).toBe("real");
   }
+  expect(events.find((item) => item.name === "material_processing_completed")?.parameters).toMatchObject({ source_type: "notes", used_ocr: false });
   expect(JSON.stringify(events)).not.toContain("A membrane controls");
 });

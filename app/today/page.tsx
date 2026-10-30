@@ -133,8 +133,18 @@ function TodayBody() {
     completeSetup(input);
   }
 
+  // A course that exists but has no notes yet (after starting over) uploads here; it is counted like a first upload.
   async function addNotes(file: File, courseId: string) {
-    const material = await addSourceMaterial({ courseId, file, role: roleFor(file) });
+    const role = roleFor(file);
+    trackEvent({ name: "material_upload_started", role, course_type: "real" });
+    let material;
+    try {
+      material = await addSourceMaterial({ courseId, file, role });
+      trackEvent({ name: "material_upload_completed", role, course_type: "real" });
+    } catch (error) {
+      trackEvent({ name: "material_upload_failed", role, course_type: "real" });
+      throw error;
+    }
     if (auth.user) void uploadMaterialPdf(auth.user.id, material, file).catch(() => undefined);
     try { sessionStorage.setItem("kelus-start-first-run", "1"); } catch { /* Without it the learner lands on Today instead. */ }
   }

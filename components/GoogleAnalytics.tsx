@@ -44,6 +44,7 @@ window.gtag("config", ${measurementId}, {
   allow_ad_personalization_signals: false,
   anonymize_ip: true
 });
+window.kelusAnalyticsReady = true;
 window.dispatchEvent(new Event("kelus-analytics-ready"));
 `;
 
