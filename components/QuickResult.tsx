@@ -4,6 +4,7 @@ import { ArrowOut, ArrowRight } from "@/components/Marks";
 import { animate, motion, useReducedMotion } from "motion/react";
 import { useEffect, useState, type ReactNode } from "react";
 import { MarkStamp } from "@/components/MarkStamp";
+import { ReadinessShift } from "@/components/ReadinessShift";
 import { TopicBoxes } from "@/components/TopicBoxes";
 import { PackArt } from "@/components/PackArt";
 import { GoalMoment, goalMomentDue } from "@/components/GoalMoment";
@@ -74,7 +75,7 @@ function Burst() {
  * remember (quoted from your notes), today's goal filling up, and a single next step. Detail is one tap away.
  */
 export function QuickResult({
-  outcome, topic, attempts, stats, comesBack, remember, rememberLabel = "Worth remembering", locator, goalDone, goal, routeLine, nextName, details, onRetry, onContinue, onSource, path, habit, language = "en", conceptId }: {
+  outcome, topic, attempts, stats, comesBack, remember, rememberLabel = "Worth remembering", locator, goalDone, goal, routeLine, nextName, details, onRetry, onContinue, onSource, path, habit, language = "en", conceptId, readiness }: {
   outcome: RetrievalOutcome;
   topic: string;
   /** How many times this topic has been answered, counting this one. */
@@ -94,6 +95,8 @@ export function QuickResult({
   onRetry: () => void;
   onContinue: () => void;
   onSource?: () => void;
+  /** Estimated course readiness when this run opened and now, with the exam target. */
+  readiness?: { before: number; after: number; targetPercent: number };
   /** The day so far, for the moment today's goal closes: shown once a day, on the topic that completes it. */
   habit?: { today: string; streak: number; week: Array<{ key: string; label: string; studied: boolean; today: boolean }>; backTomorrow: number };
   /** The notes' language: the screen's own words follow it. */
@@ -149,6 +152,8 @@ export function QuickResult({
       {/* Today's count lives on the study plan; here it only shows the moment the goal is reached. */}
       {goalMet ? <motion.p {...rise(0.54)} className={styles.goal}><PackArt name="award" className={styles.icon} /> Today’s goal reached: {goal} topics.</motion.p> : null}
 
+      {readiness && language === "en" ? <motion.div {...rise(0.48)}><ReadinessShift before={readiness.before} after={readiness.after} targetPercent={readiness.targetPercent} /></motion.div> : null}
+
       {conceptId ? <motion.div {...rise(0.3)}><TopicBoxes conceptId={conceptId} /></motion.div> : null}
       {/* The course path in one line: a step for every topic, filled as each is practised. */}
       {path && path.total > 1 ? (
@@ -165,6 +170,7 @@ export function QuickResult({
       {nextName && routeLine.trim() === `Next: ${nextName}.` ? null : <p className={styles.route} role="status">{routeLine}</p>}
 
       <div className={styles.actions}>
+        {outcome !== "success" && onSource ? <button type="button" className={`k-btn k-btn--paper ${styles.secondary}`} onClick={onSource}>{w.lookFirst} <ArrowOut /></button> : null}
         {outcome !== "success" ? <button type="button" className={`k-btn k-btn--paper ${styles.secondary}`} onClick={onRetry}>{w.tryAgain}</button> : null}
         <button type="button" className={`k-btn ${styles.primary}`} onClick={onContinue}>{nextName ? w.continueTo(nextName) : w.finish} <ArrowRight /></button>
       </div>
@@ -172,7 +178,7 @@ export function QuickResult({
       <details className={styles.more}>
         <summary>{w.changed}</summary>
         <div className={styles.moreBody}>{details}</div>
-        {onSource ? <button type="button" className={styles.link} onClick={onSource}>Review the source behind this topic <ArrowOut /></button> : null}
+        {onSource && outcome === "success" ? <button type="button" className={styles.link} onClick={onSource}>Review the source behind this topic <ArrowOut /></button> : null}
       </details>
     </div>
     </>
