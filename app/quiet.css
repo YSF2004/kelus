@@ -1022,3 +1022,29 @@ html body .pricing-page .pricing-plus-name .pricing-plus-tier.is-free { color: v
 html body.is-booklet-system .pricing-page.is-monthly-pricing .pricing-plan-name { align-items: center !important; }
 html body.is-booklet-system .pricing-page.is-monthly-pricing .pricing-availability { margin: 0 !important; line-height: 1 !important; }
 html body .pricing-page.is-monthly-pricing .is-pass .pricing-availability { display: inline-flex; align-items: center; height: 26px; padding: 0 10px; border-radius: 999px; background: color-mix(in srgb, var(--q-ink) 6%, transparent); color: var(--q-text-2) !important; font-size: 12.5px !important; font-weight: 500; }
+
+/* ── Buttons, the Link way ─────────────────────────────────────────────────────────────────────────────
+   One shape everywhere: 10px corners at rest that round into a pill under the pointer (200 ms, ease-in-out; 32px, just
+   past half the height, as Link does, so the rounding is seen across the whole move, not in its first frame) while the
+   fill steps one shade darker (200 ms, linear). No lift, no shadow, no glow. A press still answers at once with a small
+   squeeze, so a tap is felt. Hover only where there is a pointer, so a tapped button never stays a pill on a phone. */
+html body :is(.k-btn, .cta, [class*="LeitnerHero"][class*="primary"], [class*="LeitnerHero"][class*="secondary"], [class*="HomeBand"][class*="action"], [class*="HomeFinal"][class*="action"], [class*="TodayQuiet"][class*="go"], [class*="primaryAction"]) {
+  border-radius: 10px !important;
+  box-shadow: none !important;
+  filter: none !important;
+  transition: border-radius 200ms ease-in-out, background-color 200ms linear, color 200ms linear, transform 100ms ease-out !important;
+}
+@media (hover: hover) and (pointer: fine) {
+  html body :is(.k-btn, .cta, [class*="LeitnerHero"][class*="primary"], [class*="LeitnerHero"][class*="secondary"], [class*="HomeBand"][class*="action"], [class*="HomeFinal"][class*="action"], [class*="TodayQuiet"][class*="go"], [class*="primaryAction"]):hover:not(:disabled):not([aria-disabled="true"]) { border-radius: 32px !important; }
+  html body :is(.k-btn:not(.k-btn--paper):not(.k-btn--marigold), .cta, [class*="LeitnerHero"][class*="primary"], [class*="HomeFinal"][class*="action"], [class*="TodayQuiet"][class*="go"], [class*="primaryAction"]):hover:not(:disabled) { background-color: #185638 !important; }
+  html body :is(.k-btn--paper, [class*="LeitnerHero"][class*="secondary"]):hover:not(:disabled) { background-color: #e5e5e5 !important; }
+  html body [class*="HomeBand"][class*="action"]:hover { background-color: #4cc585 !important; }
+}
+html body :is(.k-btn, .cta, [class*="LeitnerHero"][class*="primary"], [class*="LeitnerHero"][class*="secondary"], [class*="HomeBand"][class*="action"], [class*="HomeFinal"][class*="action"], [class*="TodayQuiet"][class*="go"], [class*="primaryAction"]):active:not(:disabled) { transform: scale(0.97) !important; }
+html body :is(.k-btn, .cta, [class*="LeitnerHero"][class*="primary"], [class*="LeitnerHero"][class*="secondary"], [class*="HomeBand"][class*="action"], [class*="HomeFinal"][class*="action"], [class*="TodayQuiet"][class*="go"], [class*="primaryAction"]):focus-visible { outline: 2px solid var(--color-kelus, #1f6b45) !important; outline-offset: 2px !important; }
+@media (prefers-reduced-motion: reduce) {
+  html body :is(.k-btn, .cta, [class*="LeitnerHero"][class*="primary"], [class*="LeitnerHero"][class*="secondary"], [class*="HomeBand"][class*="action"], [class*="HomeFinal"][class*="action"], [class*="TodayQuiet"][class*="go"], [class*="primaryAction"]) { transition: background-color 120ms linear, color 120ms linear !important; }
+}
+:root[data-theme="dark"] body :is(.k-btn--paper, [class*="LeitnerHero"][class*="secondary"]):hover:not(:disabled) { background-color: #2a2f2c !important; }
+/* Older hover and press rules gave the green button a glow; the Link way has none in any state. */
+html body :is(.k-btn, .cta, [class*="LeitnerHero"][class*="primary"], [class*="LeitnerHero"][class*="secondary"], [class*="HomeBand"][class*="action"], [class*="HomeFinal"][class*="action"], [class*="TodayQuiet"][class*="go"], [class*="primaryAction"]):is(:hover, :active, :focus) { box-shadow: none !important; filter: none !important; }
