@@ -9,6 +9,9 @@ import { MAX_NOTES_BYTES } from "@/domain/markdown-pages";
 import { SOURCE_FILE_ACCEPT, isNotesFile, isSourceFile, isZipFile } from "@/domain/materials";
 import { folderToNotesFile, zipToNotesFile } from "@/lib/zip-notes";
 import { takePendingSetupFile } from "@/lib/pending-setup-file";
+import { photosToPdfFile } from "@/lib/photo-notes";
+
+const isPhoto = (file: File) => file.type.startsWith("image/") || /\.(?:jpe?g|png|heic|heif|webp)$/i.test(file.name);
 
 /**
  * The first screen, and the screen for a course with no notes: one job. Put your notes in; Kelus reads them and
@@ -22,6 +25,8 @@ export function DropNotes({ onFile, first = false, courseName }: { onFile: (file
   async function take(picked: File | undefined) {
     setDragging(false);
     if (!picked || busy) return;
+    // A photo of a page dropped here goes the way "Take photos of your notes" goes, rather than being refused.
+    if (isPhoto(picked)) return takePhotos([picked]);
     if (!isSourceFile(picked)) return setError("Choose a PDF, notes as a .md or .txt file, a Notion export or an Obsidian vault (.zip or a folder).");
     setBusy(true);
     setError("");
@@ -32,6 +37,21 @@ export function DropNotes({ onFile, first = false, courseName }: { onFile: (file
       await onFile(file);
     } catch (caught) {
       setError(caught instanceof Error && caught.message ? caught.message : "Kelus couldn’t read that file. Try another one.");
+      setBusy(false);
+    }
+  }
+
+  async function takePhotos(photos: File[]) {
+    setDragging(false);
+    if (busy) return;
+    setBusy(true);
+    setError("");
+    try {
+      const pdf = await photosToPdfFile(photos);
+      setBusy(false);
+      await take(pdf);
+    } catch (caught) {
+      setError(caught instanceof Error && caught.message ? caught.message : "Kelus couldn’t read those photos. Try clearer ones, or a PDF.");
       setBusy(false);
     }
   }
@@ -59,7 +79,10 @@ export function DropNotes({ onFile, first = false, courseName }: { onFile: (file
       });
       return;
     }
-    void take(event.dataTransfer.files[0]);
+    // Several photos of pages dropped together become one set of notes, in the order they were dropped.
+    const files = [...event.dataTransfer.files];
+    if (files.length > 1 && files.every(isPhoto)) { void takePhotos(files); return; }
+    void take(files[0]);
   }
 
   return (
