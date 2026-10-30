@@ -19,13 +19,15 @@ export type SearchLandingProps = {
   why: { title: string; body: string };
   faq: ReadonlyArray<{ q: string; a: string }>;
   credit: string;
+  /** "X alternative" pages: Kelus beside the other app, row by row, then when the other app is the better choice. */
+  compare?: { title: string; other: string; asOf: string; rows: ReadonlyArray<readonly [string, string, string]>; fair: string };
 };
 
 /**
  * A search landing page in the homepage's tile system: the promise and one action, a real example on a grey stage,
  * three steps, one claim on the dark band, and the questions people search next (also as FAQPage data).
  */
-export function SearchLanding({ title, lede, action, note, example, exampleLabel, steps, why, faq, credit }: SearchLandingProps) {
+export function SearchLanding({ title, lede, action, note, example, exampleLabel, steps, why, faq, credit, compare }: SearchLandingProps) {
   const data = {
     "@context": "https://schema.org",
     "@type": "FAQPage",
@@ -57,6 +59,22 @@ export function SearchLanding({ title, lede, action, note, example, exampleLabel
               </article>
             ))}
           </section>
+
+          {compare ? (
+            <section className={styles.compare} aria-labelledby="search-compare">
+              <h2 id="search-compare">{compare.title}</h2>
+              <table>
+                <thead><tr><th scope="col"><span className="sr-only">What you need</span></th><th scope="col">Kelus</th><th scope="col">{compare.other}</th></tr></thead>
+                <tbody>
+                  {compare.rows.map(([need, kelus, other]) => (
+                    <tr key={need}><th scope="row">{need}</th><td>{kelus}</td><td>{other}</td></tr>
+                  ))}
+                </tbody>
+              </table>
+              <p className={styles.compareNote}>{compare.asOf}</p>
+              <p className={styles.fair}>{compare.fair}</p>
+            </section>
+          ) : null}
 
           <section className={styles.why} aria-labelledby="search-why">
             <h2 id="search-why">{why.title}</h2>
