@@ -39,7 +39,7 @@ export function KelusHero() {
 
       {/* The demonstration on one grey tile, a product moment rather than a card on the page. */}
       <div className={styles.set}>
-      <HeroReplay className={styles.replay} waitClass={styles.waiting} leaveClass={styles.leaving}>
+      <HeroReplay waitClass={styles.waiting}>
       <figure className={styles.panel} aria-label="Example: three lines of a page become questions, and an answer is checked against its line">
         <div className={styles.panelHead}><b>Cell Transport.pdf</b><span>Example course</span></div>
         <div className={styles.stage} aria-hidden="true">
