@@ -18,6 +18,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: `${BASE_URL}/lecture-slides-to-flashcards/`, changeFrequency: "monthly", priority: 0.8 },
     { url: `${BASE_URL}/pdf-to-practice-questions/`, changeFrequency: "monthly", priority: 0.7 },
     { url: `${BASE_URL}/quizlet-alternative/`, changeFrequency: "monthly", priority: 0.8 },
+    { url: `${BASE_URL}/quiz-me-on-my-notes/`, changeFrequency: "monthly", priority: 0.8 },
   ];
   return staticPages;
 }
