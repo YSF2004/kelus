@@ -8,5 +8,7 @@ export const SEARCH_PAGES = [
   { href: "/lecture-slides-to-flashcards/", label: "Lecture slides to flashcards", blurb: "Your slide deck, saved as PDF, turned into questions." },
   { href: "/pdf-to-practice-questions/", label: "PDF to practice questions", blurb: "Practice questions that quote the page they came from." },
   { href: "/quiz-me-on-my-notes/", label: "Quiz me on my notes", blurb: "Paste your notes and get quizzed on your own lines." },
+  { href: "/notes-to-flashcards/", label: "Notes to flashcards", blurb: "Paste your notes; get cards written from your own lines." },
   { href: "/quizlet-alternative/", label: "A free Quizlet alternative", blurb: "Questions from your notes instead of borrowed sets." },
+  { href: "/anki-alternative/", label: "An Anki alternative", blurb: "Spaced repetition without writing every card yourself." },
 ] as const;
