@@ -1,3 +1,4 @@
+import { KelusLogoMark } from "@/components/KelusLogoMark";
 import type { Metadata } from "next";
 import Link from "next/link";
 import { PackArt } from "@/components/PackArt";
@@ -48,7 +49,10 @@ export default function PricingPage() {
           <PricingPlanMotion delay={0.1}>
             <article className="pricing-offer is-free pricing-plan">
               <div className="pricing-offer-head">
-                <div className="pricing-plan-name"><h2 className="kicker">Free</h2><span className="pricing-availability">Available now</span></div>
+                <div className="pricing-plan-name">
+                  <h2 className="kicker pricing-plus-name"><KelusLogoMark /><span className="pricing-plus-word">kelus</span> <span className="pricing-plus-tier is-free">Free</span></h2>
+                  <span className="pricing-availability">Available now</span>
+                </div>
                 <p className="pricing-price">$0<span>/month</span></p>
               </div>
               <p className="pricing-offer-lede">Everything in Kelus today, with no limits.</p>
@@ -69,7 +73,12 @@ export default function PricingPage() {
           <PricingPlanMotion delay={0.18}>
             <article className={`pricing-offer is-pass pricing-plan is-founding${paymentReady ? "" : " is-upcoming"}`}>
               <div className="pricing-offer-head">
-                <div className="pricing-plan-name"><h2 className="kicker">Kelus Plus</h2><span className="pricing-availability">{paymentReady ? "Available now" : "Coming soon"}</span></div>
+                <div className="pricing-plan-name">
+                  {/* Both plans are named with the brand's own lockup, the K mark and the "kelus" wordmark as in the
+                      header, and the plan beside it: Free in ink, Plus in Kelus green. */}
+                  <h2 className="kicker pricing-plus-name"><KelusLogoMark /><span className="pricing-plus-word">kelus</span> <span className="pricing-plus-tier">Plus</span></h2>
+                  <span className="pricing-availability">{paymentReady ? "Available now" : "Coming soon"}</span>
+                </div>
                 <p className="pricing-price">
                   $4.99<span>/month</span>
                 </p>

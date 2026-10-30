@@ -1012,3 +1012,13 @@ html body .pricing-page .pricing-hero-art.k-rise { --rise-delay: 0.2s; }
 @media (prefers-reduced-transparency: reduce) and (max-width: 650px) {
   html body.is-course-studio.is-kelus-space aside.studio-rail.studio-rail { background: var(--lb-surface) !important; -webkit-backdrop-filter: none; backdrop-filter: none; }
 }
+
+/* Pricing: Kelus Plus is named with the header's lockup (K mark, "kelus" in Inter with its tight tracking), Plus in
+   Kelus green beside it; the plan's status is a small badge. */
+html body .pricing-page .pricing-plan-name h2.pricing-plus-name { display: inline-flex; align-items: center; gap: 7px; margin: 0 !important; color: var(--q-ink) !important; font-family: var(--font-inter), system-ui, sans-serif !important; font-size: 22px !important; font-weight: 400 !important; line-height: 1 !important; letter-spacing: -0.065em !important; text-transform: none !important; }
+html body .pricing-page .pricing-plus-name .kelus-logo-mark { width: 23px; height: 23px; flex: none; color: currentColor; }
+html body .pricing-page .pricing-plus-name .pricing-plus-tier { margin-left: 2px; color: var(--q-green, #1f6b45); font-weight: 600; letter-spacing: -0.03em; }
+html body .pricing-page .pricing-plus-name .pricing-plus-tier.is-free { color: var(--q-ink); }
+html body.is-booklet-system .pricing-page.is-monthly-pricing .pricing-plan-name { align-items: center !important; }
+html body.is-booklet-system .pricing-page.is-monthly-pricing .pricing-availability { margin: 0 !important; line-height: 1 !important; }
+html body .pricing-page.is-monthly-pricing .is-pass .pricing-availability { display: inline-flex; align-items: center; height: 26px; padding: 0 10px; border-radius: 999px; background: color-mix(in srgb, var(--q-ink) 6%, transparent); color: var(--q-text-2) !important; font-size: 12.5px !important; font-weight: 500; }
