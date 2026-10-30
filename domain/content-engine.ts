@@ -292,8 +292,11 @@ export function maskName(sentence: string, name: string) {
   if (!lead.test(sentence)) return null;
   const rest = sentence.replace(lead, "");
   if (new RegExp(`(?<![\\p{L}])${escaped}(?![\\p{L}])`, "iu").test(rest)) return null;
-  // A plural subject ("Market structures differ...") reads "These ideas", not "This idea differ".
-  const plural = /^\s*(?:are|were|have|do|differ|vary|include|share|use|take|make|need|require|form|become|depend|determine)\b/i.test(rest);
+  // A plural subject ("Market structures differ...", "Mitochondria release...") reads "These ideas", not "This idea
+  // differ". The verb says which: past an adverb ("usually"), a base form is plural; one in -s or -ed, "was" or a modal
+  // ("can") is not.
+  const verb = rest.trim().split(/\s+/).find((word) => !/ly$/i.test(word) && !/^(?:also|often|only|always|never|then|still|mainly|mostly|both|all)$/i.test(word))?.toLocaleLowerCase().replace(/[^a-z]/g, "") ?? "";
+  const plural = /^(?:are|were|have|do)$/.test(verb) || (/^[a-z]{3,}$/.test(verb) && !/(?:s|ed)$/.test(verb) && !/^(?:was|can|could|will|would|should|may|might|must|shall|the|that|which|who|of|in|on|to|for|with|by|and|or|as|at)$/.test(verb));
   return `${plural ? "These ideas" : "This idea"}${rest}`;
 }
 
@@ -483,7 +486,8 @@ export function buildPractice(input: {
       const choices = [real, ...wrong].sort((x, y) => hash(`${conceptId}v${k}${x}`) - hash(`${conceptId}v${k}${y}`));
       add({
         kind: "choice",
-        prompt: `Which of these is from your notes on ${name}?`,
+        // Every option is from the notes (the others from other topics), so the question is which one is about this topic.
+        prompt: `Which of these is about ${name}?`,
         modelAnswer: real,
         hint: `Think about what ${locator} says.`,
         explanation: `${locator}: “${real}”`,

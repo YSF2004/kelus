@@ -206,7 +206,11 @@ export function structurePastedText(raw: string) {
   let titles = 0;
   const out = lines.map((line, index) => {
     const alone = index === 0 || !lines[index - 1].trim();
-    if (alone && isTitle(line, lines[index + 1]) && !/^[•\-*\d]/.test(line.trim())) { titles += 1; return `# ${titleCase(line.trim().replace(/:$/, ""), french)}`; }
+    // Notes typed without blank lines still have headings: a short line right after a finished sentence, above a
+    // longer line of text ("…glucose.\nLimiting factors\nThe rate of…"). A run of short list lines is not one.
+    const next = lines[index + 1]?.trim() ?? "";
+    const afterSentence = index > 0 && /[.!?]["”’)]?$/.test(lines[index - 1].trim()) && next.length > line.trim().length + 10;
+    if ((alone || afterSentence) && isTitle(line, lines[index + 1]) && !/^[•\-*\d]/.test(line.trim())) { titles += 1; return `# ${titleCase(line.trim().replace(/:$/, ""), french)}`; }
     return line;
   });
   if (titles > 0) return out.join("\n");
