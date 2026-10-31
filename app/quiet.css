@@ -1048,3 +1048,8 @@ html body :is(.k-btn, .cta, [class*="LeitnerHero"][class*="primary"], [class*="L
 :root[data-theme="dark"] body :is(.k-btn--paper, [class*="LeitnerHero"][class*="secondary"]):hover:not(:disabled) { background-color: #2a2f2c !important; }
 /* Older hover and press rules gave the green button a glow; the Link way has none in any state. */
 html body :is(.k-btn, .cta, [class*="LeitnerHero"][class*="primary"], [class*="LeitnerHero"][class*="secondary"], [class*="HomeBand"][class*="action"], [class*="HomeFinal"][class*="action"], [class*="TodayQuiet"][class*="go"], [class*="primaryAction"], [class*="SearchLanding"][class*="primary"], [class*="SearchLanding"][class*="secondary"]):is(:hover, :active, :focus) { box-shadow: none !important; filter: none !important; }
+
+/* Footer: the search pages as a second, quieter row of links. */
+html body .site-footer-tools { display: flex; flex-wrap: wrap; gap: 4px 18px; margin: 12px 0 0; padding-top: 12px; border-top: 1px solid var(--q-line, #e5e5e5); }
+html body .site-footer-tools a { display: inline-flex; align-items: center; min-height: 36px; color: var(--q-text-2, #4a5550); font-size: 13.5px; text-decoration: none; }
+html body .site-footer-tools a:hover { color: var(--q-ink, #0e1512); }

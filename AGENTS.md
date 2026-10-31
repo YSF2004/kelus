@@ -15,38 +15,59 @@ Do not rebuild or remove the student hero, route story, or workbench unless the 
 
 ## Current state (for every agent: Claude, Codex, Cursor)
 
-Updated 2026-10-29. Read this before starting; it is how the project works now.
+Updated 2026-10-30. Read this before starting; it is how the project works now.
 
 ### Working and shipping
-- Code lives on GitHub `YSF2004/kelus`. Work on a branch and open a PR to `main`; the founder merges ("merge #N").
+- Code lives on GitHub `YSF2004/kelus`. Work on a branch, open a PR to `main`, and merge your own PR once lint,
+  typecheck, unit tests and the e2e specs you touched pass (the founder asked for merging by default).
 - GitHub Actions do not start (account billing), so `verify` shows red without running. Check locally:
   `npm test`, `npx tsc --noEmit`, `npm run lint`, and the e2e specs you touched.
-- Shipping is from the Mac, not GitHub: `scripts/ship.sh` builds `origin/main`, tests it, publishes to Cloudflare
-  and waits for `kelus.me/version.json`. It needs `.env.production.local` (gitignored) and `npx wrangler login` once.
+- Shipping is from the Mac, not GitHub: `scripts/ship.sh` builds `origin/main`, tests it, publishes to Cloudflare,
+  waits for `kelus.me/version.json`, then sends the sitemap to IndexNow (Bing, Yandex, Seznam, Naver). It needs
+  `.env.production.local` (gitignored) and `npx wrangler login` once. Agents cannot run it; the founder does.
 - e2e against a static build: the server must send `.mjs` as `text/javascript` (the PDF worker), or every PDF read
   fails and import tests look broken when they are not.
+- The design doc is tracked as lowercase `design.md`. On the Mac, `git add DESIGN.md` silently stages nothing.
+
+### Data before choosing work
+- GA4 property 552102600. On 2026-10-30, 96% of 30-day visitors were the team (direct, Morocco); about 20 outside
+  visitors, none of whom opened the app. Arrival is the bottleneck, not polish.
+- `kelus.me/?internal=1` keeps a device out of analytics (Google's ga-disable switch); `?internal=0` undoes it.
+- Google Search Console is not connected yet (needs the founder); the sitemap is at `kelus.me/sitemap.xml`.
+
+### Search pages (how students arrive)
+- Eight pages, listed once in `lib/search-pages.ts` (footer row + "More ways to study your notes") and in
+  `app/sitemap.ts`: pdf-to-flashcards, pdf-to-anki, lecture-slides-to-flashcards, pdf-to-practice-questions,
+  quiz-me-on-my-notes, notes-to-flashcards, quizlet-alternative, anki-alternative.
+- Build them on `components/seo/SearchLanding.tsx`. The example is always real Kelus output from an openly licensed
+  or test file, credited, never a mock-up. "X alternative" pages use the `compare` block: rows dated with where to
+  check, plus when the other app is the better choice. Every claim must be true of kelus.me today.
+- Next, from the US keyword research: powerpoint-to-flashcards, turn-notes-into-quiz, make-practice-test-from-notes,
+  knowt-alternative, spaced-repetition-app, active-recall-app. English only for now (target: US students).
 
 ### Design
-- `DESIGN.md` is the source of truth. Literata for titles, topic names and large figures; Inter for text; Kelus green
+- `design.md` is the source of truth. Literata for titles, topic names and large figures; Inter for text; Kelus green
   (`#1f6b45`). The homepage uses "Marketing tiles" (link.com's structure, Kelus's face): bordered 8px tiles in a 64px
   margin, grey stages for product fragments, one dark band with real output. Two levels at most, never a card in a card.
+- Buttons, the Link way: flat, 10px corners, no shadow; under a pointer the corners round to 32px and the fill steps
+  one shade darker (200 ms). One rule at the end of `app/quiet.css`; add new buttons to its selector list.
+- The app: the Study plan leads with one raised card (the topic due now, a line from the student's notes); the five
+  boxes are piles of index cards (`components/LeitnerPanel.tsx`) on a flat grey stage.
 - Illustrations only from the founder's Notion-style pack (`public/art/notion-pack`, `components/PackArt.tsx`). Small
   UI icons are Octicons (`components/Octicon.tsx`). No stock art, no generated images.
-- Every claim on a page must be true of Kelus today (see `PRODUCT.md`). The homepage band shows real topics the reader
-  finds in openly licensed files (MIT OpenCourseWare, LibreTexts), credited in text with their licences.
 
 ### Motion
 - Skill: `.claude/skills/design-motion-principles`. Last audit: `docs/motion-audit-2026-10-29.html`.
-- Rules: a demonstration plays once in under 5 s, holds its end state and offers a replay (nothing loops); titles and
-  body text do not animate; no stagger on lists except where order is the message; one curve,
-  `cubic-bezier(0.22, 1, 0.36, 1)`; presses scale to 0.97; every motion has a `prefers-reduced-motion` end state.
-- Marketing entrances: `.k-rise` + `rise()` for the top of a page (CSS, plays on a fresh load), `useReveal` for
-  sections below the fold (`components/motion/entrance.tsx`).
+- Rules: a demonstration plays once in under 5 s and holds its end state (no replay control, no loops); titles and
+  body text do not animate; one curve, `cubic-bezier(0.22, 1, 0.36, 1)`; presses scale to 0.97; every motion has a
+  `prefers-reduced-motion` end state. On a phone, a session's answers sit at thumb height and its verdict sheet
+  swipes left to the next check.
 
 ### Known test debt
-- A first PDF goes topic check → "Let's start with …" → Start → session; that works. Five import/first-use e2e specs
-  still fail on stale expectations: four look for the sample course's old name ("Built-in Microeconomics example"),
-  one for an undo message's old wording. The helper race that made eight fail is fixed in `e2e/helpers.ts`.
+- e2e failing on main as well (not caused by recent work): analytics-funnel:5, feel:37, feel:81, feel:94,
+  notes-import (undo after removing a topic), ux-corrections:33; first-use:241 and nudges:37 are flaky. The undo and
+  "execution context destroyed" failures share a reload after Materials. PR #440 (static server serves .txt as
+  text/plain, fixes first-use:241) is open for the founder.
 
 <!-- BEGIN:nextjs-agent-rules -->
 
