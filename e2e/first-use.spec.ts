@@ -117,6 +117,15 @@ test("a reviewed PDF opens its first question, and is still there after a refres
   await page.reload();
   await skipReading(page);
   await expect(page.getByLabel(/^Check 1 of \d$/)).toBeVisible();
+  await expect(page.getByText("Question from your notes", { exact: true })).toBeVisible();
+  const gap = page.locator('input[id^="run-gap"]:not([disabled])');
+  if (await gap.count()) {
+    await gap.fill("zzz");
+    await page.getByRole("button", { name: "Check", exact: true }).click();
+  } else {
+    await page.getByRole("group", { name: "Choose one" }).getByRole("button").first().click();
+  }
+  await expect(page.getByText("The source line behind this feedback", { exact: true })).toBeVisible();
   await expect(page.getByText(/Cell Membranes/).first()).toBeVisible({ timeout: 15_000 }).catch(() => undefined);
   await closeToToday(page);
   await expect(page.getByText("Cell Membranes").first()).toBeVisible();
