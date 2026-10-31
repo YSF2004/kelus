@@ -806,3 +806,14 @@
   .feedback { touch-action: pan-y; }
 }
 .swipeHint { order: 10; margin: -4px 0 0; color: var(--k-text-3, var(--color-slate)); font-size: 12.5px; text-align: center; }
+
+
+/* First-session source trace: quiet provenance, not another card or step. */
+.sourceCue {
+  margin: 0;
+  padding-left: 10px;
+  border-left: 2px solid var(--topic, var(--color-kelus));
+  color: var(--k-text-2, var(--color-slate));
+  font-size: var(--text-body-sm);
+  line-height: 1.5;
+}

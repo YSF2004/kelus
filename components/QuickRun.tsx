@@ -229,6 +229,8 @@ export function QuickRun({ run, onRevealSource, onShowLine, onFinish, onChecksDo
   // you had not shown before, and falls when you miss one you had.
   const count = recalled == null ? null : Math.max(0, recalled + bump - drop);
   const readingNow = reading >= 0;
+  // Explain the source-to-evidence loop once, on the course's first recall session.
+  const firstSessionTrace = readFirst && known !== undefined && known.size === 0;
   const segments = (lines.length >= 2 ? 1 : 0) + total + (onChecksDone ? 0 : 1);
   const at = readingNow ? 0 : (lines.length >= 2 ? 1 : 0) + step;
 
@@ -262,6 +264,7 @@ export function QuickRun({ run, onRevealSource, onShowLine, onFinish, onChecksDo
         {readingNow ? (
           <motion.section key="read" className={`${styles.card} ${styles.thumb}`} {...motionProps} aria-label="Read it first">
             <h1 className={styles.prompt}>{w.readTitle}</h1>
+            {firstSessionTrace ? <p className={styles.sourceCue}>{w.readTrace}</p> : null}
             <ol className={styles.readLines} aria-live="polite">
               {lines.slice(0, reading + 1).map((line, index) => (
                 <motion.li key={line} initial={reduce || index === 0 ? false : { opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}>
@@ -293,6 +296,7 @@ export function QuickRun({ run, onRevealSource, onShowLine, onFinish, onChecksDo
             {...motionProps}
             aria-label={`Check ${step + 1} of ${total}`}
           >
+            {firstSessionTrace && step === 0 ? <p className={styles.sourceCue}>{w.questionTrace}</p> : null}
             {/* "Which idea does this describe? “…”": the ask as a small line, the quoted line as the title. */}
             {(() => {
               const at = item.prompt.indexOf("“");
@@ -371,6 +375,7 @@ export function QuickRun({ run, onRevealSource, onShowLine, onFinish, onChecksDo
                 <strong>{answered.right ? <PackArt name="check" className={styles.mark} /> : null}{answered.unsure ? (item.kind === "cloze" ? w.itWas(item.modelAnswer) : w.lineFrom) : answered.right ? (answered.picked ? w.picked : answered.firstEver ? w.firstRight : w.right) : item.kind === "cloze" ? w.notQuiteWas(item.modelAnswer) : w.notQuite}</strong>
                 {/* Where this answer puts the line in the five boxes, moved as you watch. Not for a shrug: nothing was tried. */}
                 {answered.unsure ? null : <LineMove quote={item.sourceQuote} right={answered.right} nowIso={new Date().toISOString()} />}
+                {firstSessionTrace && step === 0 ? <p className={styles.sourceCue}>{w.evidenceTrace}</p> : null}
                 {around && linesAround(run, item.sourceQuote) ? (
                   <div className={styles.around} aria-label="This line in your notes">
                     {linesAround(run, item.sourceQuote)!.before ? <p>{linesAround(run, item.sourceQuote)!.before}</p> : null}
@@ -435,6 +440,7 @@ export function QuickRun({ run, onRevealSource, onShowLine, onFinish, onChecksDo
               </div>
             ) : (
               <motion.div className={styles.compare} initial={reduce ? false : { opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.25 }}>
+                {firstSessionTrace ? <p className={styles.sourceCue}>{w.compareTrace}</p> : null}
                 <div>
                   <span>{w.yourWords}</span>
                   <p>{explained.trim() || "Nothing written."}</p>

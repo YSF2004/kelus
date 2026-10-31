@@ -6,6 +6,10 @@ import type { NoteLanguage } from "@/domain/note-language";
  */
 const EN = {
   readTitle: "Read it first, then it’s your turn.",
+  readTrace: "Highlighted ideas guide the questions. After each answer, Kelus shows the exact source line behind the feedback.",
+  questionTrace: "Question from your notes",
+  evidenceTrace: "The source line behind this feedback",
+  compareTrace: "Now compare your explanation with the same page.",
   continue: "Continue",
   fromMemory: "Now from memory",
   skip: "Skip to the questions",
@@ -70,6 +74,10 @@ export type UiWords = typeof EN;
 
 const FR: UiWords = {
   readTitle: "Lis d’abord, puis à toi.",
+  readTrace: "Les idées surlignées guident les questions. Après chaque réponse, Kelus montre la ligne exacte qui justifie son retour.",
+  questionTrace: "Question tirée de tes notes",
+  evidenceTrace: "La ligne de tes notes qui justifie ce retour",
+  compareTrace: "Compare maintenant ton explication à la même page.",
   continue: "Continuer",
   fromMemory: "Maintenant, de mémoire",
   skip: "Passer aux questions",
