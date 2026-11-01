@@ -64,7 +64,7 @@ import {
 } from "@/lib/material-ingest-machine";
 import type { AnalysisPayload } from "@/lib/material-ingest-machine";
 import { assessPdfTextQuality, MAX_READ_PAGES, ocrPdfPages, pageNeedsOcr } from "@/lib/pdf-extraction";
-import { extractSourcePages, NotesWithoutHeadingsError } from "@/lib/source-extraction";
+import { extractSourcePages } from "@/lib/source-extraction";
 import { SOURCE_FILE_ACCEPT, isNotesFile, isZipFile, sourceNoun } from "@/domain/materials";
 import { MAX_NOTES_BYTES } from "@/domain/markdown-pages";
 import { zipToNotesFile } from "@/lib/zip-notes";
@@ -492,7 +492,7 @@ export function MaterialLibrary({ embedded = false, incomingFile = null, onIncom
           message: "OCR cancelled. You can retry this file or export a text PDF.",
         });
       } else {
-        const kind = caught instanceof Error && (caught as Error & { kind?: string }).kind === "ocr" && !(caught instanceof NotesWithoutHeadingsError) ? "ocr" : "generic";
+        const kind = caught instanceof Error && (caught as Error & { kind?: string }).kind === "ocr" ? "ocr" : "generic";
         dispatch({
           type: "FAIL",
           kind,
