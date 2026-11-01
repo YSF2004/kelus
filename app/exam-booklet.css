@@ -111,6 +111,23 @@ body.is-booklet-system .site-header.is-marketing .site-account-menu summary {
   padding-inline: 8px;
 }
 
+/* Marketing pages are editorial surfaces, not the product workbench: keep their actions still and immediate. */
+body.is-booklet-system:has(.site-header.is-marketing) :is(button, .cta, .home-cta, .site-auth-button) {
+  transition: none !important;
+}
+
+body.is-booklet-system:has(.site-header.is-marketing) :is(button, .cta, .home-cta, .site-auth-button):active {
+  transform: none !important;
+}
+
+body.is-booklet-system:has(.site-header.is-marketing) .home-cta .arrow {
+  transition: none !important;
+}
+
+body.is-booklet-system:has(.site-header.is-marketing) .home-cta:hover .arrow {
+  transform: none !important;
+}
+
 
 
 @media (max-width: 720px) {
