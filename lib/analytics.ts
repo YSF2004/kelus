@@ -23,8 +23,8 @@ export type KelusAnalyticsEvent =
   | { name: "session_resumed" }
   | { name: "session_abandoned" }
   | { name: "session_completed"; concept_count: number; planned_minutes: number; session_number?: number; days_since_first?: number; sample?: boolean; course_type: "real" | "sample" }
-  | { name: "session_usefulness_rated"; helpful: boolean; session_number?: number }
-  | { name: "learner_returned"; day: number; days_since_last: number; session_count: number }
+  | { name: "session_usefulness_rated"; helpful: boolean; session_number?: number; course_type: "real" | "sample" }
+  | { name: "learner_returned"; day: number; days_since_last: number; session_count: number; course_type: "real" }
   | { name: "invite_shared"; method: "share" | "copy"; session_number?: number }
   | { name: "invite_opened" }
   | { name: "next_route_opened"; source: "completion" | "calendar" }
@@ -39,7 +39,7 @@ export type KelusAnalyticsEvent =
   | { name: "soft_paywall_shown"; moment: "first_session" | "third_material" }
   | { name: "subscription_checkout_clicked"; source: string }
   | { name: "pilot_milestone"; milestone: "first_topic" | "back_next_day" | "back_within_7_days" | "studied_3_days"; days_since_first: number }
-  | { name: "question_flagged"; reason: "unclear" | "wrong_answer" | "not_in_notes"; kind: string; variant: string; level: string };
+  | { name: "question_flagged"; reason: "unclear" | "wrong_answer" | "not_in_notes"; kind: string; variant: string; level: string; course_type: "real" | "sample" };
 
 export function analyticsEnabled() {
   return Boolean(GA_MEASUREMENT_ID) && typeof window !== "undefined";

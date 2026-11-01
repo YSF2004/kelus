@@ -12,7 +12,7 @@ test("the done page offers a quick match on the topics just practised", async ({
     await page.waitForTimeout(250);
     const skip = page.getByRole("button", { name: "Skip to the questions" }); if (await skip.count()) { await skip.click(); continue; }
     const choices = page.locator("[aria-label='Choose one'] button:not([disabled])");
-    if (await choices.count()) { await choices.first().click(); const next = page.getByRole("button", { name: /^(Next|Now say it yourself)/ }).first(); if (await next.count()) await next.click(); continue; }
+    if (await choices.count()) { await choices.first().click(); const next = page.getByRole("button", { name: /^(Next idea|Next|Now say it yourself)/ }).first(); if (await next.count()) await next.click(); continue; }
     const explain = page.locator("#run-explain");
     if (await explain.count() && await explain.isEditable().catch(() => false) && !(await explain.inputValue())) { await explain.fill("Particles move from high to low concentration across a membrane."); const check = page.getByRole("button", { name: /^(Compare|Check)/ }).first(); if (await check.count()) await check.click(); continue; }
     const grade = page.getByRole("button", { name: /Nailed it|Got most|Partly/ }).first(); if (await grade.count()) { await grade.click(); continue; }

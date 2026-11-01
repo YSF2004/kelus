@@ -14,6 +14,7 @@ import { addMissedLines, getMissedLines, getServerMissedLines, resolveMissedLine
 import { recordCheckpoint, PASS_SHARE } from "@/lib/checkpoints";
 import { MarkStamp } from "@/components/MarkStamp";
 import { flagKey, flaggedKeys } from "@/lib/flags";
+import { SAMPLE_COURSE_IDS } from "@/lib/pilot";
 import { addKnownLines, forgetKnownLines, getKnownLines, getServerKnownLines, knownCount, subscribeKnownLines } from "@/lib/known-lines";
 import { KelusLogoMark } from "@/components/KelusLogoMark";
 import { useEffect } from "react";
@@ -50,6 +51,8 @@ function WarmUp() {
     const ids = new Set(state.snapshot.concepts.filter((concept) => concept.courseId === courseId).map((concept) => concept.id));
     return { set: new Set(known.map((line) => line.quote)), count: knownCount(known, ids) };
   });
+  const warmupCourseId = state.snapshot.concepts.find((concept) => concept.id === plan[0]?.line.conceptId)?.courseId;
+  const warmupCourseType = warmupCourseId && SAMPLE_COURSE_IDS.has(warmupCourseId) ? "sample" : "real";
   const need = Math.max(1, Math.ceil(plan.length * PASS_SHARE));
   const [result, setResult] = useState<{ right: number; total: number; back: string[]; still: string[] } | null>(null);
 
@@ -104,7 +107,7 @@ function WarmUp() {
         <div className={styles.runWrap}>
           <h1 className={styles.heading}>{checkpoint ? label : "Warm up on what you missed"}</h1>
           <p className={styles.sub}>{checkpoint ? `${plan.length} lines from ${new Set(plan.map((entry) => entry.line.conceptId)).size} topics, mixed. Pass mark: ${need} of ${plan.length}. About ${plan.length <= 3 ? "a minute" : `${Math.round(plan.length / 3)} minutes`}.` : `${plan.length === 1 ? "One line" : `${plan.length} lines`} from last time, about a minute.`}</p>
-          <QuickRun run={run} onRevealSource={() => undefined} onFinish={() => undefined} onChecksDone={done} known={knownAtOpen.set} recalled={knownAtOpen.count} />
+          <QuickRun run={run} courseType={warmupCourseType} onRevealSource={() => undefined} onFinish={() => undefined} onChecksDone={done} known={knownAtOpen.set} recalled={knownAtOpen.count} />
         </div>
       ) : (
         <motion.section

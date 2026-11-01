@@ -73,7 +73,7 @@ async function expectNoHorizontalOverflow(page: Page) {
 }
 
 /** Answers every quick check (a wrong gap word, or option 1), then explains and rates itself. */
-async function playQuickRun(page: Page, explanation: string, grade: string) {
+async function playQuickRun(page: Page, explanation: string, grade: string, expectTwoIdeaIntro = false) {
   for (let guard = 0; guard < 6; guard += 1) {
     // The previous card animates out first: wait for something that can actually be used.
     await expect(page.locator('#run-explain, input[id^="run-gap"]:not([disabled]), [role="group"][aria-label="Choose one"] button:not([disabled])').first()).toBeVisible();
@@ -85,7 +85,20 @@ async function playQuickRun(page: Page, explanation: string, grade: string) {
     } else {
       await page.getByRole("group", { name: "Choose one" }).getByRole("button").first().click();
     }
-    await page.getByRole("button", { name: /^(Next|Now say it yourself)/ }).click();
+    const reasoningTrace = page.getByRole("list", { name: "Your answer, the reason, and the source" });
+    await expect(reasoningTrace.locator("li")).toHaveCount(3);
+    await expect(reasoningTrace).toContainText("Evidence in your source");
+    if (expectTwoIdeaIntro && guard === 0) {
+      await expect(page.getByLabel("Check 1 of 2")).toBeVisible();
+      await expect(page.getByRole("button", { name: "Next idea", exact: true })).toBeVisible();
+      await page.getByRole("button", { name: "Next idea", exact: true }).click();
+      await expect(page.getByLabel("Check 2 of 2")).toBeVisible();
+    } else {
+      if (expectTwoIdeaIntro && guard === 1) {
+        await expect(page.getByRole("button", { name: "Now say it yourself", exact: true })).toBeVisible();
+      }
+      await page.getByRole("button", { name: /^(Next idea|Next|Now say it yourself)/ }).click();
+    }
   }
   await page.locator("#run-explain").fill(explanation);
   await page.getByRole("button", { name: /Compare with the page/ }).click();
@@ -303,7 +316,7 @@ test("a real PDF becomes a first question, then Today, topics and a full session
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
   await page.evaluate(() => window.scrollTo(0, 0));
   await page.screenshot({ path: "/tmp/kelus-session-mobile.png", fullPage: true });
-  await playQuickRun(page, "I cannot yet explain the mechanism from memory.", "Missed it");
+  await playQuickRun(page, "I cannot yet explain the mechanism from memory.", "Missed it", true);
   await expect(page.getByRole("heading", { name: /^(Needs another attempt|Partly there)\.$/ })).toBeVisible();
   await expect(page.getByText(/first (?:check|try)/)).toBeVisible();
   // The next step is named once: by the "Continue to …" button, or the route line when the plan has news.

@@ -14,7 +14,7 @@ Do not create dozens of near-identical subject pages. A new Biology, Law, or Mat
 
 ## Three acquisition experiments
 
-1. **Course-group pilot.** Recruit 10–30 students with a real exam in the next few weeks. Give each class a distinct `?pilot=<group>` link and ask them to bring one actual source. Use the measurement steps in [pilot.md](pilot.md); report counts beside every percentage. Ask where they hesitated and whether the first recommended topic made sense.
+1. **Course-group pilot.** Recruit 10–30 students with a real exam in the next few weeks. Give each class a distinct `?pilot=<group>` link and ask them to bring one actual source. Use the measurement steps in [pilot.md](pilot.md); record invitation count and tested source types, report counts beside every percentage, and choose one product change from observed drop-off or feedback. No real cohort results are recorded yet, so do not make a product claim or change based on presumed pilot behavior.
 2. **One honest walkthrough.** Publish a short screen recording of a real, permission-cleared source moving through import, topic confirmation, recall, answer check, and changed route. Post it where students already discuss revision; the caption should describe the concrete task, not an “AI-powered” promise. Link to `/route/` with a campaign UTM. Reuse the same recording on the homepage only if it reflects the current product.
 3. **Student-language search content.** After pilot interviews, write one useful guide answering the exact highest-frequency question (for example, revising lecture PDFs or planning revision with 14 days left). Include a worked example, what Kelus does and does not do, and a natural path into `/today/`. Avoid generic “10 study tips” articles.
 

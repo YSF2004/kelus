@@ -221,8 +221,8 @@ function CompleteBody() {
           {usefulness === null ? (
             <p role="group" aria-label="Rate study usefulness">
               Was this useful?{" "}
-              <button type="button" onClick={() => { setUsefulness(true); trackEvent({ name: "session_usefulness_rated", helpful: true, session_number: sessionNumber }); }}>Yes</button>{" · "}
-              <button type="button" onClick={() => { setUsefulness(false); trackEvent({ name: "session_usefulness_rated", helpful: false, session_number: sessionNumber }); }}>Not yet</button>
+              <button type="button" onClick={() => { setUsefulness(true); trackEvent({ name: "session_usefulness_rated", helpful: true, session_number: sessionNumber, course_type: SAMPLE_COURSE_IDS.has(session.courseId) ? "sample" : "real" }); }}>Yes</button>{" · "}
+              <button type="button" onClick={() => { setUsefulness(false); trackEvent({ name: "session_usefulness_rated", helpful: false, session_number: sessionNumber, course_type: SAMPLE_COURSE_IDS.has(session.courseId) ? "sample" : "real" }); }}>Not yet</button>
             </p>
           ) : <p role="status">{usefulness ? "Thanks. Good to know." : "Thanks. That helps make it better."}</p>}
           {/* A first session ends on the plan and one question; sharing waits until Kelus has earned it. */}

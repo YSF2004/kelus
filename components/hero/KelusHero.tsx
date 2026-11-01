@@ -34,6 +34,7 @@ export function KelusHero() {
           <Link href="/today" className={styles.primary}>Add your notes</Link>
           <Link href="/route" className={styles.secondary}>How it works</Link>
         </div>
+        <p className={styles.free}>Free. No account needed.</p>
       </div>
 
       {/* The demonstration on one grey tile, a product moment rather than a card on the page. */}
@@ -87,6 +88,7 @@ export function KelusHero() {
           <li><span className={brands.pdf} aria-hidden="true">PDF</span>PDFs and slides</li>
           <li><BrandIcon brand="notion" size={18} />Notion</li>
           <li><BrandIcon brand="obsidian" size={18} />Obsidian</li>
+          <li><BrandIcon brand="markdown" size={18} />Markdown</li>
           <li><BrandIcon brand="anki" size={18} />Anki</li>
         </ul>
       </div>

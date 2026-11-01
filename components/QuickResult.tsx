@@ -13,7 +13,6 @@ import type { SelfGrade } from "@/domain/quick-run";
 import { verdictReason } from "@/lib/verdict";
 import { Octicon } from "@/components/Octicon";
 import { uiWords } from "@/lib/ui-words";
-import type { NoteLanguage } from "@/domain/note-language";
 import styles from "./QuickResult.module.css";
 
 export type { QuickStats } from "@/lib/verdict";
@@ -74,7 +73,7 @@ function Burst() {
  * remember (quoted from your notes), today's goal filling up, and a single next step. Detail is one tap away.
  */
 export function QuickResult({
-  outcome, topic, attempts, stats, comesBack, remember, rememberLabel = "Worth remembering", locator, goalDone, goal, routeLine, nextName, details, onRetry, onContinue, onSource, path, habit, language = "en", conceptId }: {
+  outcome, topic, attempts, stats, comesBack, remember, rememberLabel = "Worth remembering", locator, goalDone, goal, routeLine, nextName, details, onRetry, onContinue, onSource, path, habit, conceptId }: {
   outcome: RetrievalOutcome;
   topic: string;
   /** How many times this topic has been answered, counting this one. */
@@ -96,15 +95,13 @@ export function QuickResult({
   onSource?: () => void;
   /** The day so far, for the moment today's goal closes: shown once a day, on the topic that completes it. */
   habit?: { today: string; streak: number; week: Array<{ key: string; label: string; studied: boolean; today: boolean }>; backTomorrow: number };
-  /** The notes' language: the screen's own words follow it. */
-  language?: NoteLanguage;
   /** Where this topic leaves you on the course path: topics practised of all, and lines answered correctly. */
   /** This topic, so its lines can be shown in their Leitner boxes after the answers are saved. */
   conceptId?: string;
   path?: { practised: number; total: number; recalled: number; /** This topic's place on the path, from 0. */ here?: number; /** Each topic, in order: practised or not. */ done?: boolean[] };
 }) {
   const reduce = useReducedMotion() === true;
-  const w = uiWords(language);
+  const w = uiWords();
   const verdict = { title: outcome === "success" ? w.solid : outcome === "partial" ? w.partlyThere : w.again };
   // The verdict is readable at once; the rest follows in a short stagger, all settled within about half a second.
   const rise = (delay: number) => (reduce ? {} : { initial: { opacity: 0, y: 8 }, animate: { opacity: 1, y: 0 }, transition: { duration: 0.22, delay: delay * 0.3, ease } });
@@ -157,7 +154,7 @@ export function QuickResult({
             {/* One step per topic, in the order of the notes; this topic's step is marked. Practised steps fill. */}
             {path.total <= 24 ? Array.from({ length: path.total }, (_, index) => <i key={index} data-here={index === path.here ? "true" : undefined} data-done={(path.done?.[index] ?? index < path.practised) ? "true" : undefined} />) : <i className={styles.pathFill} style={{ ["--share" as string]: path.practised / path.total }} />}
           </span>
-          <span>{w.practised(path.practised, path.total)}{language !== "en" ? "" : path.recalled ? `, ${path.recalled} ${path.recalled === 1 ? "line" : "lines"} answered correctly` : ""}</span>
+          <span>{w.practised(path.practised, path.total)}{path.recalled ? `, ${path.recalled} ${path.recalled === 1 ? "line" : "lines"} answered correctly` : ""}</span>
         </motion.div>
       ) : null}
 

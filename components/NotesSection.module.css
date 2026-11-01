@@ -41,3 +41,47 @@
 .bullet span {
   color: var(--color-kelus);
 }
+
+.bullet .bulletText {
+  color: inherit;
+}
+
+/* The quoted line, marked the way the PDF reader marks it: a marigold highlighter stroke, drawn left to right. */
+.mark {
+  padding: 1px 2px;
+  margin: 0 -2px;
+  border-radius: 3px 6px 4px 7px;
+  background: linear-gradient(rgba(243, 178, 62, 0.55), rgba(243, 178, 62, 0.55)) no-repeat left center / 100% 92%;
+  color: inherit;
+  box-decoration-break: clone;
+  -webkit-box-decoration-break: clone;
+  scroll-margin-block: 120px;
+  animation: notesMarkDraw 0.36s cubic-bezier(0.22, 1, 0.36, 1) 0.15s both;
+}
+
+@keyframes notesMarkDraw {
+  from { background-size: 0% 92%; }
+  to { background-size: 100% 92%; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mark { animation: none; }
+}
+
+/* An honest line above the page when the requested passage is not on it. */
+.notice {
+  max-width: 40rem;
+  margin: 0 auto 12px;
+  padding: 10px 14px;
+  border: 1px solid var(--color-frost);
+  border-left: 3px solid rgba(243, 178, 62, 0.9);
+  border-radius: 4px;
+  background: var(--color-pure-white);
+  color: var(--color-slate);
+  font-size: 0.875rem;
+  line-height: 1.5;
+}
+
+.stack {
+  width: 100%;
+}

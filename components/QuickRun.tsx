@@ -16,7 +16,7 @@ import { trackEvent } from "@/lib/analytics";
 import { FLAG_REASONS, flagQuestion, sendFlaggedQuestion, type FlagReason } from "@/lib/flags";
 import { Octicon } from "@/components/Octicon";
 import { uiWords } from "@/lib/ui-words";
-import { noteLanguage } from "@/domain/note-language";
+import { clearStudyDraft, readStudyDraft, saveStudyDraft, type CheckFeedback, type StudyDraft } from "@/domain/study-draft";
 import styles from "./QuickRun.module.css";
 
 /** `missed` holds the page lines behind the checks that were wrong or not sure, so the result can point back to them. */
@@ -50,59 +50,95 @@ function acceptedNote(how: NonNullable<CheckVerdict["how"]>, word: string) {
   return `Counted. The gap was just “${word}”.`;
 }
 
-export function QuickRun({ run, onRevealSource, onShowLine, onFinish, onChecksDone, context, readFirst = false, known, recalled, courseType = "real" }: {
+export function QuickRun({ run: providedRun, persistenceKey, onPersistenceChange, onRevealSource, onShowLine, sourceLocation, onFinish, onChecksDone, context, readFirst = false, firstStudySession = false, known, recalled, courseType = "real" }: {
   run: Run;
+  persistenceKey?: string;
+  onPersistenceChange?: (saved: boolean) => void;
   courseType?: "real" | "sample";
   /** A topic met for the first time: its lines are read, one at a time, before anything is asked. */
   readFirst?: boolean;
+  /** Show the one-time explanation of how notes become questions, answers, and evidence. */
+  firstStudySession?: boolean;
   /** The lines already recalled, and how many of the course's lines that is: the counter in the top bar. */
   known?: Set<string>;
   recalled?: number;
   onRevealSource: () => void;
   /** Open the original page with this line circled on it. Only when there is an original page to open. */
   onShowLine?: (quote: string) => void;
+  /** The learner's source locator, displayed beside the evidence when it is known. */
+  sourceLocation?: string | null;
   onFinish: (result: QuickRunResult) => void;
   /** A warm-up is checks only: given this, the last Next ends the run instead of opening the explanation. */
   onChecksDone?: (result: { right: number; total: number; missed: string[]; known: string[] }) => void;
   /** Which topic this is, set beside the progress bar as its caption rather than as a label above the question. */
   context?: ReactNode;
 }) {
+  // An optional AI result must never replace a question while it is being answered.
+  const [run] = useState(providedRun);
   const reduce = useReducedMotion() === true;
   const modKey = useSyncExternalStore(noSubscribe, modKeyNow, () => "⌘");
   const touch = useSyncExternalStore(noSubscribe, touchNow, () => false);
   const soundOn = useSyncExternalStore(subscribeSounds, soundsOn, () => false);
-  // The buttons and feedback speak the notes' language, like the questions do.
-  const w = uiWords(noteLanguage(run.sentences.join(" ")));
+  const w = uiWords();
+  const total = firstStudySession && !onChecksDone ? Math.min(2, run.checks.length) : run.checks.length;
+  const [resume] = useState(() => {
+    if (!persistenceKey || typeof window === "undefined") return { kind: "empty" as const };
+    try { return readStudyDraft(window.localStorage, persistenceKey, run, total); }
+    catch { return { kind: "unavailable" as const }; }
+  });
+  const draft = resume.kind === "restored" ? resume.draft : null;
+  const finished = useRef(false);
+  const [saveFailed, setSaveFailed] = useState(resume.kind === "unavailable");
   // Lines a student hid as not worth reading stay out of the reading for good, on this device.
   const [lines, setLines] = useState(() => (readFirst ? readingLines(run).filter((line) => !hiddenLines().has(line)) : []));
   // -1 once reading is over (or there is nothing to read); otherwise the last line shown so far.
-  const [reading, setReading] = useState(() => (lines.length >= 2 ? 0 : -1));
-  const [knownNow, setKnownNow] = useState<string[]>([]);
+  const [reading, setReading] = useState(() => draft ? Math.min(draft.reading, lines.length - 1) : (lines.length >= 2 ? 0 : -1));
+  const [knownNow, setKnownNow] = useState<string[]>(draft?.known ?? []);
   const [change, setChange] = useState<"+1" | "−1">("+1");
-  const [bump, setBump] = useState(0);
+  const [bump, setBump] = useState(() => draft?.known.filter((quote) => !known?.has(quote)).length ?? 0);
   const started = useRef(0);
-  const firstResponseTracked = useRef(false);
-  const total = run.checks.length;
-  const [step, setStep] = useState(0); // 0..total-1 = checks, total = explain
-  const [picked, setPicked] = useState<number | null>(null);
-  const [typed, setTyped] = useState("");
-  const [answered, setAnswered] = useState<null | { right: boolean; how?: CheckVerdict["how"]; unsure?: boolean; elsewhere?: string | null; given?: string; picked?: boolean; firstEver?: boolean }>(null);
+  const firstResponseTracked = useRef(draft?.responseTracked ?? false);
+  // The first study session is a deliberately short two-idea introduction. Later
+  // sessions keep the full run, and warm-ups keep their own check count.
+  const [step, setStep] = useState(draft?.step ?? 0); // 0..total-1 = checks, total = explain
+  const [picked, setPicked] = useState<number | null>(draft?.picked ?? null);
+  const [typed, setTyped] = useState(draft?.typed ?? "");
+  const [answered, setAnswered] = useState<CheckFeedback | null>(draft?.answered ?? null);
   // A word tapped from four is recognised, not recalled: it earns the check, never a line on the recall count.
-  const [tapped, setTapped] = useState<string | null>(null);
-  const [drop, setDrop] = useState(0);
+  const [tapped, setTapped] = useState<string | null>(draft?.tapped ?? null);
+  const [drop, setDrop] = useState(() => [...new Set(draft?.missed ?? [])].filter((quote) => known?.has(quote)).length);
   // Flagging a question: closed, choosing a reason, or flagged (and maybe sent to the Kelus team).
   // "Show it in your notes": the line asked about, between the lines around it.
   const [around, setAround] = useState(false);
   const [flag, setFlag] = useState<null | "choosing" | { reason: FlagReason; sent: "no" | "sending" | "yes" | "failed" }>(null);
-  const [missed, setMissed] = useState<string[]>([]);
-  const [unsure, setUnsure] = useState(0);
-  const [right, setRight] = useState(0);
-  const [explained, setExplained] = useState("");
-  const [compared, setCompared] = useState(false);
+  const [missed, setMissed] = useState<string[]>(draft?.missed ?? []);
+  const [unsure, setUnsure] = useState(draft?.unsure ?? 0);
+  const [right, setRight] = useState(draft?.right ?? 0);
+  const [explained, setExplained] = useState(draft?.explained ?? "");
+  const [compared, setCompared] = useState(draft?.compared ?? false);
   const [nudge, setNudge] = useState(false);
   const nextRef = useRef<HTMLButtonElement>(null);
 
-  useEffect(() => { started.current = performance.now(); }, []);
+  useEffect(() => { started.current = performance.now() - (draft?.elapsedMs ?? 0); }, [draft]);
+  useEffect(() => {
+    if (!persistenceKey || finished.current) return;
+    const snapshot: StudyDraft = {
+      reading, step, picked, typed, tapped, answered, known: knownNow, missed, unsure, right,
+      explained, compared, elapsedMs: Math.max(0, Math.round(performance.now() - started.current)),
+      responseTracked: firstResponseTracked.current,
+    };
+    let saved = false;
+    try { saved = saveStudyDraft(window.localStorage, persistenceKey, run, total, snapshot); } catch { /* Storage access itself may be denied. */ }
+    setSaveFailed(!saved);
+    onPersistenceChange?.(saved);
+  }, [persistenceKey, run, total, reading, step, picked, typed, tapped, answered, knownNow, missed, unsure, right, explained, compared, onPersistenceChange]);
+
+  function clearDraft() {
+    finished.current = true;
+    if (persistenceKey) {
+      try { clearStudyDraft(window.localStorage, persistenceKey); } catch { /* The completed learning event is saved separately. */ }
+    }
+  }
   useEffect(() => {
     if (!answered) return;
     nextRef.current?.focus();
@@ -115,6 +151,9 @@ export function QuickRun({ run, onRevealSource, onShowLine, onFinish, onChecksDo
   const useful = match && match.keys >= 3 && explained.trim() ? match : null;
   const item = onChecks ? run.checks[step] : null;
   const chips = item ? gapChoices(item, run) : [];
+  const nextLabel = step + 1 >= total
+    ? (onChecksDone ? w.seeHow : w.sayIt)
+    : firstStudySession ? w.nextIdea : w.next;
 
   /** A light tap on phones: a short one when right, a slightly longer one when not. Never on desktop. */
   function feel(ok: boolean) {
@@ -154,7 +193,7 @@ export function QuickRun({ run, onRevealSource, onShowLine, onFinish, onChecksDo
   }
 
   function next() {
-    if (onChecksDone && step + 1 >= total) { onChecksDone({ right, total, missed, known: knownNow }); return; }
+    if (onChecksDone && step + 1 >= total) { onChecksDone({ right, total, missed, known: knownNow }); clearDraft(); return; }
     setAnswered(null); setPicked(null); setTyped(""); setTapped(null); setFlag(null); setAround(false);
     setStep((current) => current + 1);
   }
@@ -177,6 +216,7 @@ export function QuickRun({ run, onRevealSource, onShowLine, onFinish, onChecksDo
 
   function finish(self: SelfGrade, at: number) {
     onFinish({ right, total, unsure, self, explained, elapsedMs: Math.max(0, Math.round(at - started.current)), missed, known: knownNow, coverage: useful ? { hits: useful.hits, keys: useful.keys } : null });
+    clearDraft();
   }
 
   // In the explanation: ⌘↵ (Ctrl+Enter) compares; once compared, 1, 2 and 3 pick how close it was.
@@ -257,11 +297,25 @@ export function QuickRun({ run, onRevealSource, onShowLine, onFinish, onChecksDo
           <Octicon name={soundOn ? "unmute" : "mute"} size={16} />
         </button>
       </header>
+      {persistenceKey ? (
+        <p className={`${styles.saveStatus}${saveFailed ? ` ${styles.saveError}` : ""}`} role={saveFailed ? "alert" : "status"} data-testid="status-study-save">
+          {saveFailed
+            ? "This browser couldn’t save your place. Keep this tab open, or enable browser storage."
+            : resume.kind === "restored"
+              ? "Resumed where you left off · saved on this device"
+              : resume.kind === "changed"
+                ? "The questions changed, so this topic has restarted. New progress is saved on this device."
+                : resume.kind === "invalid"
+                  ? "The previous draft couldn’t be restored. This run is saved on this device."
+                  : "Your question and unfinished answer are saved on this device"}
+        </p>
+      ) : null}
 
       <AnimatePresence mode="wait" initial={false}>
         {readingNow ? (
           <motion.section key="read" className={`${styles.card} ${styles.thumb}`} {...motionProps} aria-label="Read it first">
             <h1 className={styles.prompt}>{w.readTitle}</h1>
+            {firstStudySession ? <p className={styles.flowHint}>{w.flowHint}</p> : null}
             <ol className={styles.readLines} aria-live="polite">
               {lines.slice(0, reading + 1).map((line, index) => (
                 <motion.li key={line} initial={reduce || index === 0 ? false : { opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}>
@@ -368,22 +422,79 @@ export function QuickRun({ run, onRevealSource, onShowLine, onFinish, onChecksDo
                 dragSnapToOrigin
                 onDragEnd={(_, info) => { if (info.offset.x < -80 || info.velocity.x < -500) next(); }}
                 initial={reduce ? false : touch ? { opacity: 1, y: "100%" } : { opacity: 0, y: 8, scale: 0.98 }} animate={{ opacity: 1, y: 0, scale: 1 }} transition={touch ? { type: "spring", bounce: 0, duration: 0.38 } : { type: "spring", bounce: 0, duration: 0.28 }}>
+                <ol className={styles.feedbackLoop} aria-label="Answer feedback sequence">
+                  <li>Source</li>
+                  <li>Question</li>
+                  <li>Answer</li>
+                  <li aria-current="step">Why + evidence</li>
+                </ol>
                 <strong>{answered.right ? <PackArt name="check" className={styles.mark} /> : null}{answered.unsure ? (item.kind === "cloze" ? w.itWas(item.modelAnswer) : w.lineFrom) : answered.right ? (answered.picked ? w.picked : answered.firstEver ? w.firstRight : w.right) : item.kind === "cloze" ? w.notQuiteWas(item.modelAnswer) : w.notQuite}</strong>
+                <ol className={styles.reasoningTrace} aria-label="Your answer, the reason, and the source">
+                  <li className={styles.reasoningStep}>
+                    <span className={styles.reasoningNumber} aria-hidden="true">1</span>
+                    <div className={styles.reasoningBody}>
+                      <span className={styles.reasoningLabel}>Your answer</span>
+                      <p className={styles.reasoningText}>{answered.given?.trim() || w.notSure}</p>
+                    </div>
+                  </li>
+                  <li className={styles.reasoningStep}>
+                    <span className={styles.reasoningNumber} aria-hidden="true">2</span>
+                    <div className={styles.reasoningBody}>
+                      <span className={styles.reasoningLabel}>
+                        {answered.right ? "Why this answer holds" : answered.unsure ? "How to reason it through" : "Why this answer doesn’t match"}
+                      </span>
+                      <p className={styles.reasoningText}>
+                        {item.explanation?.trim() || (answered.right
+                          ? "It matches the source line below."
+                          : answered.unsure
+                            ? "Use the source line below as your starting point."
+                            : "Compare your answer with the source line below.")}
+                      </p>
+                    </div>
+                  </li>
+                  <li className={`${styles.reasoningStep} ${styles.reasoningEvidence}`}>
+                    <span className={styles.reasoningNumber} aria-hidden="true">3</span>
+                    <div className={styles.reasoningBody}>
+                      <div className={styles.evidenceHeading}>
+                        <span className={styles.evidenceLabel}>Evidence in your source</span>
+                        {sourceLocation?.trim() ? <span className={styles.evidenceLocation}>{sourceLocation}</span> : null}
+                      </div>
+                      {around && linesAround(run, item.sourceQuote) ? (
+                        <div className={styles.around} aria-label="This line in your notes">
+                          {linesAround(run, item.sourceQuote)!.before ? <p>{linesAround(run, item.sourceQuote)!.before}</p> : null}
+                          <p className={styles.aroundLine}>{linesAround(run, item.sourceQuote)!.line}</p>
+                          {linesAround(run, item.sourceQuote)!.after ? <p>{linesAround(run, item.sourceQuote)!.after}</p> : null}
+                        </div>
+                      ) : <p className={styles.quote}>“{item.sourceQuote}”</p>}
+                      {onShowLine ? (
+                        <button
+                          data-testid="source-evidence-jump"
+                          type="button"
+                          className={styles.sourceJump}
+                          onClick={() => onShowLine(item.sourceQuote)}
+                        >
+                          {w.seeOnPage}<ArrowRight aria-hidden="true" />
+                        </button>
+                      ) : !around && linesAround(run, item.sourceQuote) ? (
+                        <button
+                          data-testid="source-evidence-jump"
+                          type="button"
+                          className={styles.sourceJump}
+                          onClick={() => setAround(true)}
+                        >
+                          {w.showInNotes}<ArrowRight aria-hidden="true" />
+                        </button>
+                      ) : null}
+                    </div>
+                  </li>
+                </ol>
                 {/* Where this answer puts the line in the five boxes, moved as you watch. Not for a shrug: nothing was tried. */}
                 {answered.unsure ? null : <LineMove quote={item.sourceQuote} right={answered.right} nowIso={new Date().toISOString()} />}
-                {around && linesAround(run, item.sourceQuote) ? (
-                  <div className={styles.around} aria-label="This line in your notes">
-                    {linesAround(run, item.sourceQuote)!.before ? <p>{linesAround(run, item.sourceQuote)!.before}</p> : null}
-                    <p className={styles.aroundLine}>{linesAround(run, item.sourceQuote)!.line}</p>
-                    {linesAround(run, item.sourceQuote)!.after ? <p>{linesAround(run, item.sourceQuote)!.after}</p> : null}
-                  </div>
-                ) : <p className={styles.quote}>“{item.sourceQuote}”</p>}
                 {/* Accepted on purpose, and said so: the student sees the notes' own word, not a silent pass. */}
                 {answered.right && item.kind === "cloze" && answered.how && answered.how !== "exact" ? <p className={styles.accepted}>{acceptedNote(answered.how, item.modelAnswer)}</p> : null}
-                {answered.firstEver ? <p className={styles.firstNote}><PackArt name="ranking" className={styles.firstArt} size={64} /><span>Kelus brings it back in a few days, just before you’d forget it, so it sticks for the exam.</span></p> : null}
+                {answered.firstEver ? <p className={styles.firstNote}><PackArt name="ranking" className={styles.firstArt} size={64} /><span>A short review is planned in a few days to help this idea stay familiar.</span></p> : null}
                 <div className={styles.lineTools}>
                   <ListenButton key={`listen-q-${step}`} text={item.sourceQuote} className={styles.listen} label={w.listen} stopLabel={w.stop} />
-                  {!answered.right && onShowLine ? <button type="button" className={styles.listen} onClick={() => onShowLine(item.sourceQuote)}>{w.seeOnPage}</button> : !answered.right && !around && linesAround(run, item.sourceQuote) ? <button type="button" className={styles.listen} onClick={() => setAround(true)}>{w.showInNotes}</button> : null}
                 </div>
                 {answered.elsewhere ? (
                   <div className={styles.elsewhere}>
@@ -391,7 +502,7 @@ export function QuickRun({ run, onRevealSource, onShowLine, onFinish, onChecksDo
                     <p>“{answered.elsewhere}”</p>
                   </div>
                 ) : null}
-                <button ref={nextRef} type="button" className={`k-btn ${styles.primary}`} onClick={next}>{step + 1 >= total ? (onChecksDone ? w.seeHow : w.sayIt) : w.next} <ArrowRight /></button>
+                <button ref={nextRef} type="button" className={`k-btn ${styles.primary}`} onClick={next}>{nextLabel} <ArrowRight /></button>
                 {/* The swipe is said once, on the first answer of a run, where a thumb would try it. */}
                 {touch && step === 0 && !reduce ? <p className={styles.swipeHint} aria-hidden="true">or swipe this left</p> : null}
                 {/* A bad question is the student's to call. One tap counts it and drops it from later runs; its words
@@ -402,7 +513,7 @@ export function QuickRun({ run, onRevealSource, onShowLine, onFinish, onChecksDo
                   ) : flag === "choosing" ? (
                     <div className={styles.flagReasons} role="group" aria-label="What is wrong with this question?">
                       {FLAG_REASONS.map((reason) => (
-                        <button key={reason.value} type="button" className={styles.flagReason} onClick={() => { flagQuestion(item, reason.value); setFlag({ reason: reason.value, sent: "no" }); }}>{reason.label}</button>
+                        <button key={reason.value} type="button" className={styles.flagReason} onClick={() => { flagQuestion(item, reason.value, courseType); setFlag({ reason: reason.value, sent: "no" }); }}>{reason.label}</button>
                       ))}
                       <button type="button" className={styles.flagLink} onClick={() => setFlag(null)}>Cancel</button>
                     </div>
@@ -462,6 +573,13 @@ export function QuickRun({ run, onRevealSource, onShowLine, onFinish, onChecksDo
                       </span>
                     ) : useful.flipped.length ? null : <span className={styles.allIn} aria-hidden="true"><Octicon name="check-circle" size={14} /> {w.allIn}</span>}
                     {useful.flipped.length ? <p className={styles.flipNote}>Check the direction: you wrote <b>{useful.flipped[0].said}</b> where your notes say <b>{useful.flipped[0].page}</b>.</p> : null}
+                  </div>
+                ) : null}
+                {onShowLine && run.explainQuote ? (
+                  <div className={styles.evidence} data-testid="text-explanation-evidence">
+                    <span>{w.evidence}{sourceLocation ? ` · ${sourceLocation}` : ""}</span>
+                    <p className={styles.quote}>“{run.explainQuote}”</p>
+                    <button type="button" className={styles.listen} data-testid="button-show-explanation-source" onClick={() => onShowLine(run.explainQuote)}>{w.seeOnPage}</button>
                   </div>
                 ) : null}
                 {!explained.trim() ? (

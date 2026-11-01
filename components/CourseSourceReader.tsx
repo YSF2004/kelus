@@ -2,13 +2,15 @@
 
 import { ArrowOut } from "@/components/Marks";
 import Link from "next/link";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { motion, useReducedMotion } from "motion/react";
 import type { CourseMaterial } from "@/domain/types";
 import { useAuth } from "@/components/AuthProvider";
 import { readMaterialPdf } from "@/lib/material-sync";
 import { markdownToPages } from "@/domain/markdown-pages";
 import { NotesSection } from "@/components/NotesSection";
+import notesStyles from "@/components/NotesSection.module.css";
+import { findQuote } from "@/domain/source-quote";
 import type { ExtractedMaterialPage } from "@/domain/types";
 
 type Props = {
@@ -163,6 +165,35 @@ export function CourseSourceReader({ id, material, initialPage = 1, concealed = 
     };
   }, [material, page, concealed, auth.user?.id, highlight]);
 
+  // Pasted or Markdown notes: the quote is found word for word in a section's own blocks.
+  const blockTexts = useMemo(() => sections.map((section) => (section.blocks ?? [{ text: section.text }]).map((block) => block.text)), [sections]);
+  const noteRanges = useMemo(() => (isNotes && highlight && blockTexts[displayPage - 1] ? findQuote(blockTexts[displayPage - 1], highlight) : null), [isNotes, highlight, blockTexts, displayPage]);
+  // If the quote is in another section, open that section once per requested quote; the student can still page away.
+  const jumpedFor = useRef<string | null>(null);
+  useEffect(() => {
+    if (!isNotes || !highlight || !blockTexts.length) return;
+    const key = `${material?.id}:${highlight}`;
+    if (jumpedFor.current === key) return;
+    if (blockTexts[displayPage - 1] && findQuote(blockTexts[displayPage - 1], highlight)) {
+      jumpedFor.current = key;
+      return;
+    }
+    const index = blockTexts.findIndex((texts) => findQuote(texts, highlight));
+    if (index < 0) { jumpedFor.current = key; return; }
+    const frame = requestAnimationFrame(() => {
+      jumpedFor.current = key;
+      setPage(index + 1);
+    });
+    return () => cancelAnimationFrame(frame);
+  }, [isNotes, highlight, blockTexts, displayPage, material?.id]);
+  useEffect(() => {
+    if (!noteRanges || !viewport.current) return;
+    const frame = requestAnimationFrame(() => {
+      viewport.current?.querySelector('[data-source-quote="first"]')?.scrollIntoView({ block: "center", behavior: reduce ? "auto" : "smooth" });
+    });
+    return () => cancelAnimationFrame(frame);
+  }, [noteRanges, reduce]);
+
   // The marked line is brought into view once it is drawn.
   useEffect(() => {
     if (!marks?.length || !viewport.current) return;
@@ -197,14 +228,27 @@ export function CourseSourceReader({ id, material, initialPage = 1, concealed = 
             {status === "missing" ? <div className="core-source-state"><strong>{isNotes ? "Notes not available here" : "PDF not available here"}</strong><p>The source is saved, but its file could not be opened on this device.</p><Link href="/today?section=materials">Add the PDF again →</Link></div> : null}
             {status === "error" ? <div className="core-source-state"><strong>Couldn’t show this page</strong><p>Your source and study route are still saved. Try the PDF from Materials.</p><Link href="/today?section=materials">Open Materials →</Link></div> : null}
             {isNotes ? (
-              status === "ready" && sections[displayPage - 1] ? <NotesSection page={sections[displayPage - 1]} title={material.title} /> : null
+              status === "ready" && sections[displayPage - 1] ? (
+                <div className={notesStyles.stack}>
+                  {highlight ? (
+                    noteRanges
+                      ? <p className="sr-only" role="status">The passage is marked in section {displayPage}: {highlight}</p>
+                      : <p className={notesStyles.notice} role="status">This passage is not in section {displayPage} as written. It may have been edited or reworded since the question was made: “{highlight}”</p>
+                  ) : null}
+                  <NotesSection page={sections[displayPage - 1]} title={material.title} ranges={noteRanges} />
+                </div>
+              ) : null
             ) : (
               <>
                 <div className="core-source-page">
                   <canvas ref={canvas} role="img" aria-label={`Page ${displayPage} of ${material.title}`} hidden={status !== "ready"} />
                   {status === "ready" && marks?.length ? <PencilMarks marks={marks} reduce={reduce} /> : null}
                 </div>
-                {status === "ready" && highlight && marks?.length ? <p className="sr-only" role="status">The line is marked on page {displayPage}: {highlight}</p> : null}
+                {status === "ready" && highlight ? (
+                  marks?.length
+                    ? <p className="sr-only" role="status">The line is marked on page {displayPage}: {highlight}</p>
+                    : <p className={notesStyles.notice} role="status">This line could not be found on page {displayPage}. It may sit on another page or be part of an image: “{highlight}”</p>
+                ) : null}
                 {status === "ready" && accessibleText ? <p className="sr-only">Page {displayPage} text: {accessibleText}</p> : null}
               </>
             )}
