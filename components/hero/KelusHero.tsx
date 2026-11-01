@@ -24,7 +24,7 @@ export function KelusHero() {
     <section className={styles.hero} aria-labelledby="home-hero-title" data-hero="leitner">
       <div className={styles.copy}>
         <h1 id="home-hero-title" className={styles.headline}>
-          Questions from your notes. <span>Checked against the page.</span>
+          Turn your notes into practice questions.
         </h1>
         <p className={styles.lede}>
           Drop in your notes. Turn them into questions and see what to practise next.
@@ -86,7 +86,6 @@ export function KelusHero() {
           <li><span className={brands.pdf} aria-hidden="true">PDF</span>PDFs and slides</li>
           <li><BrandIcon brand="notion" size={18} />Notion</li>
           <li><BrandIcon brand="obsidian" size={18} />Obsidian</li>
-          <li><BrandIcon brand="markdown" size={18} />Markdown</li>
           <li><BrandIcon brand="anki" size={18} />Anki</li>
         </ul>
       </div>
