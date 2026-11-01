@@ -50,6 +50,24 @@ body.is-booklet-system .site-header.is-home .site-auth-button {
   color: color-mix(in srgb, var(--k-ink) 78%, transparent);
 }
 
+/* Marketing pages share the homepage's header tile rather than the older full-width booklet bar. */
+body.is-booklet-system .site-header.is-marketing {
+  position: relative;
+  top: auto;
+  width: auto;
+  margin: 10px 64px 0;
+  border: 1px solid #e5e5e5;
+  border-radius: 8px;
+  background: #fff;
+  backdrop-filter: none;
+}
+
+body.is-booklet-system .site-header.is-marketing .site-header-inner {
+  width: auto;
+  max-width: none;
+  padding-inline: 20px;
+}
+
 
 
 @media (max-width: 720px) {
@@ -60,6 +78,13 @@ body.is-booklet-system .site-header.is-home .site-auth-button {
   body.is-booklet-system .site-header.is-home .site-nav a {
     min-height: 36px;
     font-size: 14px;
+  }
+  body.is-booklet-system .site-header.is-marketing {
+    margin: 8px 16px 0;
+  }
+  body.is-booklet-system .site-header.is-marketing .site-header-inner {
+    min-height: 56px;
+    padding-inline: 12px;
   }
 }
 
