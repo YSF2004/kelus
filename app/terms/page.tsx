@@ -3,7 +3,7 @@ import Link from "next/link";
 import { SiteFooter } from "@/components/SiteFooter";
 
 export const metadata: Metadata = {
-  title: "Terms — Kelus",
+  title: "Kelus",
   description: "Terms for using Kelus, the local-first revision and exam practice tool on kelus.me.",
   alternates: { canonical: "/terms" },
 };

@@ -8,7 +8,7 @@ const description =
   "Add a course PDF or your own notes. Kelus makes source-linked recall questions, checks what you remember, and shows what to revise next. Start free.";
 
 export const metadata: Metadata = {
-  title,
+  title: "Kelus",
   description,
   alternates: { canonical: "/pdf-to-practice-questions" },
   openGraph: {

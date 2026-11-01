@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { SearchLanding, searchStyles as styles } from "@/components/seo/SearchLanding";
 
 export const metadata: Metadata = {
-  title: "An Anki Alternative That Writes the Cards From Your Notes | Kelus",
+  title: "Kelus",
   description: "Like Anki, without making every card by hand. Kelus reads your lecture PDF or notes, writes the questions from your own lines, and spaces them out to your exam. Free, no account, and it exports to Anki.",
   alternates: { canonical: "/anki-alternative/" },
   openGraph: {

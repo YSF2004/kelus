@@ -5,7 +5,7 @@ import test from "node:test";
 test("the Quizlet alternative page is crawlable, fair and dated, and shows a real Kelus question", () => {
   const page = readFileSync("app/quizlet-alternative/page.tsx", "utf8");
   assert.match(page, /canonical: "\/quizlet-alternative\/"/);
-  assert.match(page, /title: "A Free Quizlet Alternative/);
+  assert.match(page, /title: "Kelus"/);
   // Claims about another product are dated and say where to check, and the page says when Quizlet is the better choice.
   assert.match(page, /as listed in October 2026/);
   assert.match(page, /Quizlet is the better choice when/);

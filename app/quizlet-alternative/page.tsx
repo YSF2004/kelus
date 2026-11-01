@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { SearchLanding, searchStyles as styles } from "@/components/seo/SearchLanding";
 
 export const metadata: Metadata = {
-  title: "A Free Quizlet Alternative That Quizzes You on Your Own Notes | Kelus",
+  title: "Kelus",
   description: "Looking for a free Quizlet alternative? Kelus reads your lecture PDF or notes, writes the questions from your own lines, and plans what to revise until the exam. Free, no account, nothing invented by a chatbot.",
   alternates: { canonical: "/quizlet-alternative/" },
   openGraph: {

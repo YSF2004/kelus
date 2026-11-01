@@ -3,7 +3,7 @@ import { BrandIcon } from "@/components/BrandIcon";
 import { SearchLanding, searchStyles as styles } from "@/components/seo/SearchLanding";
 
 export const metadata: Metadata = {
-  title: "PDF to Anki, Free: A Deck From Your Own Lecture Pages | Kelus",
+  title: "Kelus",
   description: "Turn a lecture PDF, slides or a chapter into an Anki deck for free. Every card is written from a sentence on your page, with the line and page on the back. No account, imported with File → Import.",
   alternates: { canonical: "/pdf-to-anki/" },
   openGraph: {

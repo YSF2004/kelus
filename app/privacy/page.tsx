@@ -3,7 +3,7 @@ import Link from "next/link";
 import { SiteFooter } from "@/components/SiteFooter";
 
 export const metadata: Metadata = {
-  title: "Privacy — Kelus",
+  title: "Kelus",
   description: "How Kelus handles course files, local study data, optional accounts, and analytics.",
   alternates: { canonical: "/privacy" },
 };

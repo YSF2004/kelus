@@ -21,6 +21,7 @@
 .primary { display: inline-flex; align-items: center; height: 48px; padding: 0 22px; border-radius: 8px; background: var(--green); color: #fff; font-size: 16px; font-weight: 600; text-decoration: none; box-shadow: 0 0 0 1px #17573a; transition: background-color 160ms, transform 120ms; }
 .primary:hover { background: #237a4f; }
 .primary:active { transform: scale(0.97); }
+.primary.is-navigating, .secondary.is-navigating { transform: scale(0.97); opacity: 0.9; }
 .primary:focus-visible { outline: 2px solid var(--green); outline-offset: 3px; }
 .free { margin: 14px 0 0; font-size: 14px; color: var(--t3); }
 .copy { grid-area: copy; padding-right: 48px; }

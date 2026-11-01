@@ -3,7 +3,7 @@ import { MaterialsClient } from "@/components/MaterialsClient";
 import { LateralPage } from "@/components/PageTransition";
 
 export const metadata: Metadata = {
-  title: "Course material — Kelus",
+  title: "Kelus",
   description: "Keep course PDFs, videos, and useful links together with your Kelus destination.",
   robots: { index: false, follow: false },
 };

@@ -4,7 +4,7 @@ import { AppShell } from "@/components/AppShell";
 import { ConceptRoute } from "./ConceptRoute";
 
 export const metadata: Metadata = {
-  title: "Concept — Kelus",
+  title: "Kelus",
   robots: { index: false, follow: false },
 };
 

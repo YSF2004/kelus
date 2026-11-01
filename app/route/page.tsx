@@ -4,7 +4,7 @@ import { LateralPage } from "@/components/PageTransition";
 import { SiteFooter } from "@/components/SiteFooter";
 
 export const metadata: Metadata = {
-  title: "How to Revise from Your Notes | Kelus",
+  title: "Kelus",
   description: "Add a lecture PDF, syllabus, or notes. Kelus helps you recall the material, check your answers, and decide which topic to practise next.",
   alternates: { canonical: "/route" },
   openGraph: {

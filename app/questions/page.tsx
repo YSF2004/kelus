@@ -4,7 +4,7 @@ import { SiteFooter } from "@/components/SiteFooter";
 import { QuestionsForm } from "@/components/QuestionsForm";
 
 export const metadata: Metadata = {
-  title: "Ask a question — Kelus",
+  title: "Kelus",
   description: "Send a question about Kelus, today’s route, materials, or Kelus Plus. We’ll reply by email.",
   alternates: { canonical: "/questions" },
 };

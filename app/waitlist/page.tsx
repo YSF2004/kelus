@@ -4,7 +4,7 @@ import { SiteFooter } from "@/components/SiteFooter";
 import { WaitlistForm } from "@/components/WaitlistForm";
 
 export const metadata: Metadata = {
-  title: "Waitlist — Kelus",
+  title: "Kelus",
   description: "Join the Kelus waitlist for early access updates on the local-first revision and exam practice tool.",
   alternates: { canonical: "/waitlist" },
 };
