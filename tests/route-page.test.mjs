@@ -5,12 +5,15 @@ import test from "node:test";
 test("homepage opens on the Leitner Box hero followed by the illustrated revision story", () => {
   const page = readFileSync("app/page.tsx", "utf8");
   const hero = readFileSync("components/hero/KelusHero.tsx", "utf8");
+  const action = readFileSync("components/hero/HeroActionLink.tsx", "utf8");
   const story = readFileSync("components/home/HomeAfterHero.tsx", "utf8");
   assert.match(page, /KelusHero/);
   assert.doesNotMatch(page, /StartHereJourney/);
   assert.match(page, /HomeAfterHero/);
   assert.match(hero, /data-hero="leitner"/);
   assert.match(hero, /HeroActionLink/);
+  assert.doesNotMatch(action, /preventDefault|router\.push|router\.replace/);
+  assert.match(action, /onPointerDown/);
   assert.match(hero, /Example course/); // the demonstration says it is an example
   assert.match(hero, /Turn your notes into practice questions/);
   assert.match(hero, /answer: "concentrated"/);
@@ -27,6 +30,7 @@ test("homepage opens on the Leitner Box hero followed by the illustrated revisio
   assert.doesNotMatch(story, /HeroProductDemo/);
   assert.doesNotMatch(story, /BookletRevisionBoard|poster-sample|Interactive sample/);
   assert.match(story, /RevisionLoopVisuals/);
+  assert.match(readFileSync("components/home/RevisionLoopVisuals.tsx", "utf8"), /more\{"\\u00a0"\}/);
   assert.doesNotMatch(story, /home-close|folio-close|Walk into the exam knowing/);
   assert.doesNotMatch(story, /Try sample \(~1 min\)/);
   assert.doesNotMatch(story, /Set my exam/);

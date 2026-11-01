@@ -64,7 +64,7 @@ export function RevisionLoopVisuals() {
           <div className={styles.shot}><div className={styles.sheet}>
             {/* The answer is typed into the blank of the sentence itself, as on a worksheet: no box in a box. */}
             <p className={styles.ask}>
-              Water moves from a dilute solution to a more{" "}
+              Water moves from a dilute solution to a more{"\u00a0"}
               <span className={styles.blank}>
                 <motion.span
                   initial={reduce ? false : { clipPath: "inset(0 100% 0 0)" }}
@@ -73,7 +73,7 @@ export function RevisionLoopVisuals() {
                 >
                   concentrated
                 </motion.span>
-              </span>{" "}
+              </span>{"\u00a0"}
               one.
             </p>
             <motion.p
