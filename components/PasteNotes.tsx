@@ -34,9 +34,8 @@ export function PasteNotes({ onFile, disabled = false }: { onFile: (file: File) 
           Works with
           <span className="brand-inline"><BrandIcon brand="notion" size={14} />Notion</span>
           <span className="brand-inline"><BrandIcon brand="obsidian" size={14} />Obsidian</span>
-          <span className="brand-inline"><BrandIcon brand="markdown" size={15} />Markdown</span>
         </span>
-        In Notion, use Export, then Markdown, or copy the page and paste it here.
+        Copy the page from Notion or Obsidian and paste it here.
       </p>
       <label htmlFor="paste-notes" className="sr-only">Your notes</label>
       <textarea
