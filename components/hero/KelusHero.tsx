@@ -24,17 +24,15 @@ export function KelusHero() {
     <section className={styles.hero} aria-labelledby="home-hero-title" data-hero="leitner">
       <div className={styles.copy}>
         <h1 id="home-hero-title" className={styles.headline}>
-          Questions from your notes. <span>Checked against the page.</span>
+          Turn your notes into practice questions.
         </h1>
         <p className={styles.lede}>
-          Drop in a PDF or paste your notes. Kelus marks the lines that matter, asks you about each one, and checks your
-          answer against the page.
+          Drop in your notes. Turn them into questions and see what to practise next.
         </p>
         <div className={styles.actions}>
           <HeroActionLink href="/today" className={styles.primary}>Add your notes</HeroActionLink>
           <HeroActionLink href="/route" className={styles.secondary}>How it works</HeroActionLink>
         </div>
-        <p className={styles.free}>Free. No account needed.</p>
       </div>
 
       {/* The demonstration on one grey tile, a product moment rather than a card on the page. */}
@@ -88,7 +86,6 @@ export function KelusHero() {
           <li><span className={brands.pdf} aria-hidden="true">PDF</span>PDFs and slides</li>
           <li><BrandIcon brand="notion" size={18} />Notion</li>
           <li><BrandIcon brand="obsidian" size={18} />Obsidian</li>
-          <li><BrandIcon brand="markdown" size={18} />Markdown</li>
           <li><BrandIcon brand="anki" size={18} />Anki</li>
         </ul>
       </div>
