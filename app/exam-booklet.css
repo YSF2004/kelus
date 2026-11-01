@@ -68,6 +68,49 @@ body.is-booklet-system .site-header.is-marketing .site-header-inner {
   padding-inline: 20px;
 }
 
+body.is-booklet-system .site-header.is-marketing .site-nav {
+  gap: 4px;
+}
+
+body.is-booklet-system .site-header.is-marketing .site-nav a,
+body.is-booklet-system .site-header.is-marketing .site-auth-button,
+body.is-booklet-system .site-header.is-marketing .site-account-menu summary {
+  min-height: 44px;
+  border-radius: 8px;
+}
+
+body.is-booklet-system .site-header.is-marketing .site-nav a {
+  padding-inline: 12px;
+}
+
+body.is-booklet-system .site-header.is-marketing .site-nav a::after {
+  display: none;
+}
+
+body.is-booklet-system .site-header.is-marketing .site-nav a:hover,
+body.is-booklet-system .site-header.is-marketing .site-nav a.is-active {
+  background: #f5f5f5;
+  color: var(--booklet-ink);
+}
+
+body.is-booklet-system .site-header.is-marketing .site-auth-button {
+  min-height: 44px;
+  padding-inline: 14px;
+  border: 1px solid #e5e5e5;
+  background: #f5f5f5;
+  color: var(--booklet-ink);
+}
+
+body.is-booklet-system .site-header.is-marketing .site-auth-button:hover {
+  border-color: #d7d7d7;
+  background: #e5e5e5;
+  color: var(--booklet-ink);
+}
+
+body.is-booklet-system .site-header.is-marketing .site-account-menu summary {
+  padding-inline: 8px;
+}
+
 
 
 @media (max-width: 720px) {
@@ -85,6 +128,35 @@ body.is-booklet-system .site-header.is-marketing .site-header-inner {
   body.is-booklet-system .site-header.is-marketing .site-header-inner {
     min-height: 56px;
     padding-inline: 12px;
+    flex-wrap: nowrap;
+    gap: 4px;
+  }
+  body.is-booklet-system .site-header.is-marketing .site-footer-mark {
+    width: 40px;
+    min-height: 44px;
+  }
+  body.is-booklet-system .site-header.is-marketing .site-footer-mark .kelus-logo-mark {
+    width: 32px;
+    height: 32px;
+  }
+  body.is-booklet-system .site-header.is-marketing .site-nav {
+    order: 0;
+    width: auto;
+    min-width: 0;
+    margin-left: auto;
+    overflow: visible;
+  }
+  body.is-booklet-system .site-header.is-marketing .site-nav a {
+    min-width: 0;
+    padding-inline: 8px;
+    font-size: 13px;
+  }
+  body.is-booklet-system .site-header.is-marketing .site-auth-button {
+    min-width: 44px;
+    padding-inline: 10px;
+  }
+  body.is-booklet-system .site-header.is-marketing .site-auth-button svg {
+    display: none;
   }
 }
 
