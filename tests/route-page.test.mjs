@@ -14,6 +14,9 @@ test("homepage opens on the Leitner Box hero followed by the illustrated revisio
   assert.match(hero, /HeroActionLink/);
   assert.doesNotMatch(action, /preventDefault|router\.push|router\.replace/);
   assert.match(action, /onPointerDown/);
+  const heroStyles = readFileSync("components/hero/LeitnerHero.module.css", "utf8");
+  assert.match(heroStyles, /\.secondary:hover, \.secondary:focus-visible \{ background: #ececec !important; color: var\(--ink\) !important; \}/);
+  assert.match(heroStyles, /\.primary:hover, \.primary:focus-visible \{ background: #237a4f !important; color: #fff !important; \}/);
   assert.match(hero, /Example course/); // the demonstration says it is an example
   assert.match(hero, /Turn your notes into practice questions/);
   assert.match(hero, /answer: "concentrated"/);
