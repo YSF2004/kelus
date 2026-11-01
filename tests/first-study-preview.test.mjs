@@ -22,12 +22,11 @@ test("rebuilding the sample does not mutate a learner snapshot or the earlier ex
   assert.notEqual(second, first);
 });
 
-test("the preview is first-use-only and its dependencies exclude learner persistence and pilot tracking", () => {
+test("the retired preview remains isolated from learner persistence and pilot tracking", () => {
   const entry = readFileSync(new URL("../components/DropNotes.tsx", import.meta.url), "utf8");
   const component = readFileSync(new URL("../components/FirstStudyPreview.tsx", import.meta.url), "utf8");
   const factory = readFileSync(new URL("../lib/first-study-preview.ts", import.meta.url), "utf8");
-  assert.match(entry, /\{first \? <FirstStudyPreview \/> : null\}/);
-  assert.ok(entry.indexOf("<FirstStudyPreview") < entry.indexOf('className={`setup-first-upload'));
+  assert.doesNotMatch(entry, /FirstStudyPreview|Try a sample question/);
   for (const source of [component, factory]) {
     assert.doesNotMatch(source, /localStorage|sessionStorage|trackEvent|useLearner|material-store|material-sync/);
   }
