@@ -156,6 +156,30 @@ test("first import shows source coverage and lets the student reject a topic bef
   await expect(page.locator(".surface-map").getByText("Start here", { exact: true })).toHaveCount(1);
 });
 
+test("a reviewed PDF asks before recall and lets the student inspect the plan", async ({ page }) => {
+  await gotoStart(page);
+  await page.locator('input[type="file"]').setInputFiles({ name: "cell-biology-lecture.pdf", mimeType: "application/pdf", buffer: biologyPdf() });
+  await confirmImportedTopics(page);
+  await expect(page.getByRole("heading", { name: "Your study plan is ready." })).toBeVisible();
+  await expect(page.getByText("Want to try recall now?", { exact: false })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Start recall" })).toBeVisible();
+  await expect(page).toHaveURL(/\/today\/?$/);
+  await expect(page.getByRole("heading", { name: "Your study plan is ready." })).toHaveCSS("opacity", "1");
+  await page.screenshot({ path: "/tmp/kelus-recall-choice-desktop.png" });
+  await page.setViewportSize({ width: 390, height: 844 });
+  await expectNoHorizontalOverflow(page);
+  await expect(page.getByRole("button", { name: "See study plan" })).toBeVisible();
+  await page.screenshot({ path: "/tmp/kelus-recall-choice-mobile.png" });
+
+  await page.getByRole("button", { name: "See study plan" }).click();
+  await expect(page.locator("#today-title")).toBeVisible();
+  await expect(page).toHaveURL(/\/today\/?$/);
+  await expect(page.getByRole("heading", { name: "Your study plan is ready." })).toHaveCount(0);
+  await page.reload();
+  await expect(page.locator("#today-title")).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Your study plan is ready." })).toHaveCount(0);
+});
+
 test("a PDF past the reading limit is not silently treated as a complete course", async ({ page }) => {
   await gotoStart(page);
   await page.locator('input[type="file"]').setInputFiles({ name: "long-biology.pdf", mimeType: "application/pdf", buffer: longBiologyPdf() });

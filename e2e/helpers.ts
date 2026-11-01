@@ -23,7 +23,7 @@ export async function skipReading(page: Page) {
 }
 
 export async function startBuiltPlan(page: Page) {
-  const start = page.getByRole("button", { name: /^Start$/ });
+  const start = page.getByRole("button", { name: "Start recall" });
   const review = page.getByRole("heading", { name: "Check the topics Kelus found." });
   const use = page.getByRole("button", { name: /^Use \d+ topics?$/ });
   const inSession = page.getByLabel(/^Check 1 of \d$/).or(page.getByRole("region", { name: "Read it first" })).or(page.locator("#run-explain"));

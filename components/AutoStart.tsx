@@ -21,7 +21,7 @@ export type BuiltPlan = { course: string; topics: number; questions: number; min
 
 /**
  * Right after new notes are read, before the first question: the student's own topics named back to them, where to
- * begin, and one tap to start. No counts; the plan is one tap away for anyone who wants it.
+ * begin, and an explicit choice between recall and the study plan. No counts; neither path starts without a tap.
  */
 export function AutoStart({ ready, plan, showPlan, onStart }: { ready: boolean; plan: BuiltPlan; /** First notes, nothing answered yet: show what was built. Otherwise (a warm-up's Continue) go straight on. */ showPlan: boolean; onStart: () => void }) {
   const reduce = useReducedMotion() === true;
@@ -79,7 +79,6 @@ export function AutoStart({ ready, plan, showPlan, onStart }: { ready: boolean; 
       {/* The same bar as every other screen, so this moment is still clearly Kelus, not a blank sheet. */}
       <header className={styles.bar}>
         <span className="study-brand"><KelusLogoMark /><span>kelus</span></span>
-        <button type="button" className={styles.barLater} onClick={later}>Not now</button>
       </header>
       {/* Not a report of what was counted: the student's own topics, named back to them, and where to begin. */}
       <section className={styles.card} aria-labelledby="built-title">
@@ -89,7 +88,8 @@ export function AutoStart({ ready, plan, showPlan, onStart }: { ready: boolean; 
             <path d="M74 22C66 37 56 46 43 51c14 5 25 15 33 28" />
           </g>
         </svg>
-        <motion.h1 {...rise(0.06)} id="built-title">Let’s start with {plan.firstName}.</motion.h1>
+        <motion.h1 {...rise(0.06)} id="built-title">Your study plan is ready.</motion.h1>
+        <motion.p {...rise(0.1)} className={styles.how}>Want to try recall now? Kelus suggests beginning with {plan.firstName}.</motion.p>
         {shown.length ? (
           <motion.div {...rise(0.14)} className={styles.after}>
             <span>Then</span>
@@ -103,8 +103,8 @@ export function AutoStart({ ready, plan, showPlan, onStart }: { ready: boolean; 
         ) : null}
         <motion.p {...rise(0.3)} className={styles.how}>Every question quotes a line from {plan.course}, and what you miss comes back tomorrow. About {time} for all of it.</motion.p>
         <motion.div {...rise(0.36)} className={styles.actions}>
-          <button type="button" className="k-btn" onClick={start}>Start <span aria-hidden="true">→</span></button>
-          <button type="button" className={styles.later} onClick={later}>See the plan first</button>
+          <button type="button" className="k-btn" onClick={start}>Start recall <span aria-hidden="true">→</span></button>
+          <button type="button" className={styles.later} onClick={later}>See study plan</button>
         </motion.div>
       </section>
     </div>,
