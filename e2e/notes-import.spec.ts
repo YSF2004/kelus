@@ -1,6 +1,6 @@
 import { readFileSync } from "node:fs";
 import { expect, test } from "@playwright/test";
-import { nudgesAlreadyOn, startBuiltPlan, closeToToday, expectFirstPrompt, gotoStart, startFromFile, startFromPaste, topicNames, skipReading } from "./helpers";
+import { nudgesAlreadyOn, startBuiltPlan, closeToToday, confirmImportedTopics, expectFirstPrompt, gotoStart, startFromFile, startFromPaste, topicNames, skipReading } from "./helpers";
 
 const notion = readFileSync("tests/fixtures/notion-export.md", "utf8");
 const mdFile = { name: "cell-biology.md", mimeType: "text/markdown", buffer: Buffer.from(notion) };
@@ -113,10 +113,31 @@ test("the original notes stay within reach of the study plan", async ({ page }) 
 });
 
 test("a Notion zip export becomes topics, with page names free of Notion ids", async ({ page }) => {
-  await startFromFile(page, "tests/fixtures/notion-export.zip");
+  await gotoStart(page);
+  await page.locator('input[type="file"]').setInputFiles("tests/fixtures/notion-export.zip");
+  const report = page.getByRole("status", { name: "Archive import report" });
+  await expect(report).toBeVisible();
+  await expect(report).toContainText("2 note files included");
+  await expect(report).toContainText("Empty page");
+  await expect(report).toContainText("Too little readable text to make a topic.");
+  await page.getByRole("button", { name: "Use 2 imported notes" }).click();
+  await confirmImportedTopics(page);
+  await startBuiltPlan(page);
   const names = await topicNames(page);
   expect(names).toEqual(expect.arrayContaining(["Active transport", "Osmosis"]));
   expect(names.join(" ")).not.toMatch(/[0-9a-f]{32}|Biology Week 3|Empty page/);
+});
+
+test("adding an archive from Materials shows omissions before topic confirmation", async ({ page }) => {
+  await startFromFile(page, mdFile);
+  await closeToToday(page);
+  await page.goto("/today?section=materials");
+  await page.getByText("Add a PDF or notes").click();
+  await page.locator('.material-add-page input[type="file"]').setInputFiles("tests/fixtures/notion-export.zip");
+  const report = page.getByRole("status", { name: "Archive import report" });
+  await expect(report).toBeVisible({ timeout: 30_000 });
+  await expect(report).toContainText("Empty page");
+  await expect(page.getByRole("button", { name: "Confirm topics" })).toBeVisible();
 });
 
 test("a zip with no pages with text says what to do instead of failing silently", async ({ page }) => {

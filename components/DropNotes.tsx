@@ -3,11 +3,13 @@
 import { BrandIcon } from "@/components/BrandIcon";
 import { useEffect, useRef, useState, type DragEvent } from "react";
 import { PackArt } from "@/components/PackArt";
+import { ArchiveImportNotice } from "@/components/ArchiveImportNotice";
 import { PasteNotes } from "@/components/PasteNotes";
 import { PhotoNotes } from "@/components/PhotoNotes";
 import { MAX_NOTES_BYTES } from "@/domain/markdown-pages";
+import type { ArchiveImportReport } from "@/domain/notion-zip";
 import { SOURCE_FILE_ACCEPT, isNotesFile, isSourceFile, isZipFile } from "@/domain/materials";
-import { folderToNotesFile, zipToNotesFile } from "@/lib/zip-notes";
+import { folderToNotesFile, zipToNotesFile, type PreparedNotesFile } from "@/lib/zip-notes";
 import { takePendingSetupFile } from "@/lib/pending-setup-file";
 import { photosToPdfFile } from "@/lib/photo-notes";
 import styles from "./DropNotes.module.css";
@@ -24,20 +26,27 @@ export function DropNotes({ onFile, first = false, courseName }: { onFile: (file
   const [error, setError] = useState("");
   const [sourceName, setSourceName] = useState("");
   const [stage, setStage] = useState("");
+  const [pendingArchive, setPendingArchive] = useState<{ file: File; report: ArchiveImportReport } | null>(null);
   const importing = useRef(false);
   const fileInput = useRef<HTMLInputElement>(null);
 
-  async function importSource(name: string, prepare: () => Promise<File>, preparation: string) {
+  async function importSource(name: string, prepare: () => Promise<PreparedNotesFile>, preparation: string) {
     if (importing.current) return;
     importing.current = true;
     setBusy(true);
     setError("");
+    setPendingArchive(null);
     setSourceName(name);
     setStage(preparation);
     try {
-      const file = await prepare();
+      const prepared = await prepare();
+      const file = prepared.file;
       if (isNotesFile(file) && file.size > MAX_NOTES_BYTES) throw new Error("These notes are over 2 MB. Choose a smaller file or split them.");
       if (!isNotesFile(file) && file.size > 20 * 1024 * 1024) throw new Error("This PDF is over 20 MB. Choose a smaller export or split it first.");
+      if (prepared.report?.omittedCount) {
+        setPendingArchive({ file, report: prepared.report });
+        return;
+      }
       setStage("Finding topics in your notes…");
       await onFile(file);
     } catch (caught) {
@@ -52,13 +61,15 @@ export function DropNotes({ onFile, first = false, courseName }: { onFile: (file
   async function take(picked: File | undefined) {
     setDragging(false);
     if (!picked || importing.current) return;
+    setPendingArchive(null);
+    setError("");
     // A photo of a page dropped here goes the way "Take photos of your notes" goes, rather than being refused.
     if (isPhoto(picked)) return takePhotos([picked]);
     if (!isSourceFile(picked)) {
       setSourceName(picked.name);
       return setError("Choose a PDF, a notes text file, a Notion export or an Obsidian vault (.zip or a folder).");
     }
-    await importSource(picked.name, async () => isZipFile(picked) ? zipToNotesFile(picked) : picked,
+    await importSource(picked.name, async () => isZipFile(picked) ? zipToNotesFile(picked) : { file: picked, report: null },
       isZipFile(picked) ? "Opening your notes archive…" : "Reading your file…");
   }
 
@@ -66,7 +77,26 @@ export function DropNotes({ onFile, first = false, courseName }: { onFile: (file
     setDragging(false);
     if (!photos.length) return;
     await importSource(photos.length === 1 ? photos[0].name : `${photos.length} photos`,
-      () => photosToPdfFile(photos), "Preparing your photos…");
+      async () => ({ file: await photosToPdfFile(photos), report: null }), "Preparing your photos…");
+  }
+
+  async function continueWithImportedNotes() {
+    const pending = pendingArchive;
+    if (!pending || importing.current) return;
+    importing.current = true;
+    setBusy(true);
+    setPendingArchive(null);
+    setError("");
+    setStage("Finding topics in your notes…");
+    try {
+      await onFile(pending.file);
+    } catch (caught) {
+      setError(caught instanceof Error && caught.message ? caught.message : "Kelus couldn’t read those notes. Try another file or paste the text below.");
+    } finally {
+      importing.current = false;
+      setBusy(false);
+      setStage("");
+    }
   }
 
   // A file chosen while the sample was open, or shared from another app: start from it instead of asking again.
@@ -123,6 +153,13 @@ export function DropNotes({ onFile, first = false, courseName }: { onFile: (file
           </div>
           <PhotoNotes onFile={(file) => void take(file)} disabled={busy} />
           <PasteNotes onFile={(file) => void take(file)} disabled={busy} />
+          {pendingArchive ? (
+            <ArchiveImportNotice
+              report={pendingArchive.report}
+              onContinue={() => void continueWithImportedNotes()}
+              onChooseAnother={() => { setPendingArchive(null); fileInput.current?.click(); }}
+            />
+          ) : null}
           {error ? <div className={styles.recovery}>
             <div role="alert"><strong>Couldn’t use {sourceName || "that source"}.</strong><p>{error}</p></div>
             <button type="button" onClick={() => fileInput.current?.click()}>Choose another file</button>

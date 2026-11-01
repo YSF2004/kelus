@@ -20,13 +20,16 @@ test("the zip is listed without folders, and entries inflate to their text", asy
 });
 
 test("a Notion export becomes one Markdown document: real pages in, junk, images, csv and empty pages out", async () => {
-  const { markdown, pages, skipped } = await notesFromZip(zip);
+  const { markdown, pages, skipped, report } = await notesFromZip(zip);
   assert.match(markdown, /# Osmosis/);
   assert.match(markdown, /# Active transport/); // no heading in the file: the title is added
   assert.match(markdown, /sodium-potassium pump/);
   assert.doesNotMatch(markdown, /Created: October 1|PNG|a,b|junk|0123456789abcdef/);
   assert.equal(pages, 2);
   assert.ok(skipped >= 2); // the parent with only links and the empty page
+  assert.equal(report.includedFiles, 2);
+  assert.equal(report.omittedCount, skipped);
+  assert.ok(report.omissions.some(({ path, reason }) => /Empty page/i.test(path) && /Too little readable text/.test(reason)));
 });
 
 test("the document splits into one topic section per page, ready for the notes importer", async () => {
