@@ -5,10 +5,11 @@ import { listZip, ZipError, type ZipEntry } from "./zip-read";
  * one heading per page, so the existing notes importer, topic finder and question engine need no special case.
  */
 
-const MAX_FILES = 60;
+export const MAX_ARCHIVE_NOTE_FILES = 60;
 const MAX_TOTAL_BYTES = 1_800_000;
 const MAX_NESTED_ZIP_BYTES = 40 * 1024 * 1024;
 const NOTE_FILE = /\.(md|markdown|txt)$/i;
+const MAX_OMISSION_DETAILS = 12;
 
 /** "Cell Membrane 0123…(32 hex).md" → "Cell Membrane". */
 export function pageTitleFromPath(path: string) {
@@ -42,25 +43,72 @@ function ignored(path: string) {
   return /(^|\/)(__MACOSX|\.[^/]+)(\/|$)/.test(path) || /(^|\/)\._/.test(path);
 }
 
-async function collect(entries: ZipEntry[], depth: number, out: Array<{ path: string; text: string }>, budget: { bytes: number }) {
+export type NotesSource = "notion" | "obsidian";
+export type ArchiveOmission = { path: string; reason: string };
+export type ArchiveImportReport = {
+  source: NotesSource;
+  includedFiles: number;
+  omittedCount: number;
+  omissions: ArchiveOmission[];
+};
+type MutableOmissionReport = Pick<ArchiveImportReport, "omittedCount" | "omissions">;
+
+function recordOmission(report: MutableOmissionReport, path: string, reason: string) {
+  report.omittedCount += 1;
+  if (report.omissions.length < MAX_OMISSION_DETAILS) report.omissions.push({ path, reason });
+}
+
+async function collect(entries: ZipEntry[], depth: number, out: Array<{ path: string; text: string }>, budget: { bytes: number }, report: MutableOmissionReport) {
   for (const entry of entries) {
-    if (out.length >= MAX_FILES || budget.bytes <= 0) return;
     if (ignored(entry.path)) continue;
-    if (/\.zip$/i.test(entry.path) && depth < 2) {
-      // Large Notion exports arrive as a zip of zips.
-      if (entry.size > MAX_NESTED_ZIP_BYTES) continue;
-      try { await collect(listZip(await entry.read(MAX_NESTED_ZIP_BYTES)), depth + 1, out, budget); } catch { /* A damaged part is skipped. */ }
+    const isNote = NOTE_FILE.test(entry.path);
+    const isNestedArchive = /\.zip$/i.test(entry.path);
+    if (out.length >= MAX_ARCHIVE_NOTE_FILES) {
+      if (isNote || isNestedArchive) recordOmission(report, entry.path, `The ${MAX_ARCHIVE_NOTE_FILES}-note import limit was reached.`);
       continue;
     }
-    if (!NOTE_FILE.test(entry.path)) continue;
-    const raw = new TextDecoder("utf-8").decode(await entry.read());
-    budget.bytes -= raw.length;
-    out.push({ path: entry.path, text: raw });
+    if (budget.bytes <= 0) {
+      if (isNote || isNestedArchive) recordOmission(report, entry.path, "The total text-size limit was reached.");
+      continue;
+    }
+    if (isNestedArchive) {
+      // Large Notion exports arrive as a zip of zips.
+      if (depth >= 2) {
+        recordOmission(report, entry.path, "This nested archive is deeper than Kelus can read.");
+        continue;
+      }
+      if (entry.size > MAX_NESTED_ZIP_BYTES) {
+        recordOmission(report, entry.path, "This archive part is over the 40 MB limit.");
+        continue;
+      }
+      try {
+        await collect(listZip(await entry.read(MAX_NESTED_ZIP_BYTES)), depth + 1, out, budget, report);
+      } catch {
+        recordOmission(report, entry.path, "This archive part is damaged or uses unsupported compression.");
+      }
+      continue;
+    }
+    if (!isNote) continue;
+    if (entry.size > budget.bytes) {
+      recordOmission(report, entry.path, "This note didn't fit within the remaining text-size limit.");
+      continue;
+    }
+    try {
+      const bytes = await entry.read();
+      if (bytes.byteLength > budget.bytes) {
+        recordOmission(report, entry.path, "This note didn't fit within the remaining text-size limit.");
+        continue;
+      }
+      const raw = new TextDecoder("utf-8").decode(bytes);
+      budget.bytes -= bytes.byteLength;
+      out.push({ path: entry.path, text: raw });
+    } catch {
+      recordOmission(report, entry.path, "Kelus couldn't read this note file.");
+    }
   }
 }
 
-export type NotesSource = "notion" | "obsidian";
-export type NotesFromZip = { markdown: string; pages: number; skipped: number; source: NotesSource };
+export type NotesFromZip = { markdown: string; pages: number; skipped: number; source: NotesSource; report: ArchiveImportReport };
 
 /** An Obsidian vault keeps its settings in a ".obsidian" folder; anything else exported as a zip is read as Notion's. */
 export function sourceOfPaths(paths: string[]): NotesSource {
@@ -70,21 +118,32 @@ export function sourceOfPaths(paths: string[]): NotesSource {
 export async function notesFromZip(data: ArrayBuffer | Uint8Array): Promise<NotesFromZip> {
   const entries = listZip(data);
   const found: Array<{ path: string; text: string }> = [];
-  await collect(entries, 0, found, { bytes: MAX_TOTAL_BYTES });
-  return notesFromTexts(found, sourceOfPaths(entries.map((entry) => entry.path)));
+  const report: MutableOmissionReport = { omittedCount: 0, omissions: [] };
+  await collect(entries, 0, found, { bytes: MAX_TOTAL_BYTES }, report);
+  return notesFromTexts(found, sourceOfPaths(entries.map((entry) => entry.path)), report);
 }
 
 /** Note files from a zip or a dropped vault folder, as one Markdown document with one heading per note. */
-export function notesFromTexts(files: Array<{ path: string; text: string }>, source: NotesSource): NotesFromZip {
-  const found = files.filter((file) => NOTE_FILE.test(file.path) && !ignored(file.path)).slice(0, MAX_FILES);
+export function notesFromTexts(files: Array<{ path: string; text: string }>, source: NotesSource, prior?: MutableOmissionReport): NotesFromZip {
+  const report: MutableOmissionReport = {
+    omittedCount: prior?.omittedCount ?? 0,
+    omissions: [...(prior?.omissions ?? [])],
+  };
+  const candidates = files.filter((file) => NOTE_FILE.test(file.path) && !ignored(file.path));
+  const found = candidates.slice(0, MAX_ARCHIVE_NOTE_FILES);
+  for (const file of candidates.slice(MAX_ARCHIVE_NOTE_FILES)) {
+    recordOmission(report, file.path, `The ${MAX_ARCHIVE_NOTE_FILES}-note import limit was reached.`);
+  }
   found.sort((a, b) => a.path.localeCompare(b.path, undefined, { numeric: true }));
 
   const parts: string[] = [];
-  let skipped = 0;
   for (const file of found) {
     const body = stripFrontMatter(file.text).trim();
     // A page with no real text (a title and a list of links) is not a topic.
-    if (realText(body).length < 60) { skipped += 1; continue; }
+    if (realText(body).length < 60) {
+      recordOmission(report, file.path, "Too little readable text to make a topic.");
+      continue;
+    }
     const title = pageTitleFromPath(file.path);
     parts.push(/^\s{0,3}#{1,6}\s/.test(body) ? body : `# ${title}\n\n${body}`);
   }
@@ -93,5 +152,11 @@ export function notesFromTexts(files: Array<{ path: string; text: string }>, sou
       ? "No notes with text were found in this vault. Choose a folder of notes with some writing in them."
       : "No pages with text were found. In Notion choose Export, then Markdown & CSV, and try again.");
   }
-  return { markdown: parts.join("\n\n"), pages: parts.length, skipped, source };
+  return {
+    markdown: parts.join("\n\n"),
+    pages: parts.length,
+    skipped: report.omittedCount,
+    source,
+    report: { ...report, source, includedFiles: parts.length },
+  };
 }

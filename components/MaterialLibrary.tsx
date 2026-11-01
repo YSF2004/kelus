@@ -11,11 +11,13 @@ import { useRouter } from "next/navigation";
 import { useEffect, useEffectEvent, useRef, useState, useSyncExternalStore, type DragEvent, type FormEvent } from "react";
 import { AppShell } from "@/components/AppShell";
 import { useAuth } from "@/components/AuthProvider";
+import { ArchiveImportNotice } from "@/components/ArchiveImportNotice";
 import { FirstRunGate } from "@/components/FirstRunGate";
 import { useLearner } from "@/components/LearnerProvider";
 import { PAYWALL_DISMISS_KEY, SoftUpgradePrompt } from "@/components/SoftUpgradePrompt";
 import { trackEvent } from "@/lib/analytics";
 import type { CourseMaterial, ExtractedMaterialPage, MaterialRole, ProposedConcept } from "@/domain/types";
+import type { ArchiveImportReport } from "@/domain/notion-zip";
 import { ReadingNotes } from "@/components/ReadingNotes";
 import { MATERIAL_ROLES, materialRoleLabel } from "@/domain/materials";
 
@@ -289,6 +291,7 @@ export function MaterialLibrary({ embedded = false, incomingFile = null, onIncom
   // The student chose to study a file that does not look like notes: respected, and not asked again for this file.
   const [useAnyway, setUseAnyway] = useState(false);
   const [draftNames, setDraftNames] = useState<Record<string, string>>({});
+  const [archiveImportReport, setArchiveImportReport] = useState<ArchiveImportReport | null>(null);
   const [showUpgrade, setShowUpgrade] = useState(false);
   const [syncStates, setSyncStates] = useState<Record<string, "syncing" | "synced" | "retrying">>({});
   const fileRef = useRef<HTMLInputElement>(null);
@@ -506,13 +509,16 @@ export function MaterialLibrary({ embedded = false, incomingFile = null, onIncom
 
   async function savePdf(picked: File | undefined) {
     if (!picked || !course) return;
+    setArchiveImportReport(null);
     // The sample course asks before anything of yours goes near it.
     if (interceptFile?.(picked)) { if (fileRef.current) fileRef.current.value = ""; return; }
     let file = picked;
     if (isZipFile(picked)) {
       dispatch({ type: "WORK_STARTED", step: "saving", message: "Reading your export…" });
       try {
-        file = await zipToNotesFile(picked);
+        const prepared = await zipToNotesFile(picked);
+        file = prepared.file;
+        setArchiveImportReport(prepared.report);
       } catch (caught) {
         dispatch({ type: "FAIL", kind: "generic", message: caught instanceof Error && caught.message ? caught.message : "Kelus couldn’t read this zip. Export your notes from Notion and try again." });
         return;
@@ -679,6 +685,7 @@ export function MaterialLibrary({ embedded = false, incomingFile = null, onIncom
             <AiNote />
           </>}
         </header>
+        {archiveImportReport ? <ArchiveImportNotice report={archiveImportReport} /> : null}
         {/* A CV or a letter reads fine and its headings look like topics, but nobody sits an exam on them: ask first. */}
         {asking && notNotes ? (
           <div className="first-source-kind" role="status">
@@ -924,6 +931,7 @@ export function MaterialLibrary({ embedded = false, incomingFile = null, onIncom
                   : null}
               </p>
             </header>
+            {archiveImportReport ? <ArchiveImportNotice report={archiveImportReport} /> : null}
             <p className="concept-review-selection" role="status" aria-live="polite">
               {selectedIds.size} selected · Select a topic to inspect the exact text Kelus used.
             </p>
