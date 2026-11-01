@@ -117,7 +117,7 @@ export function TodayRoute({
     });
     // A pilot's 7-day return: coming back on a later day than a finished block, counted once a day.
     const back = returnVisit({ sessions, nowIso });
-    if (back && firstTimeToday(nowIso)) trackEvent({ name: "learner_returned", ...back });
+    if (back && firstTimeToday(nowIso)) trackEvent({ name: "learner_returned", ...back, course_type: "real" });
   }, [hasPriorEvidence, isSampleCourse, route.allocations.length, sessions, nowIso]);
 
   // Enter on Today starts (or continues) the next topic.

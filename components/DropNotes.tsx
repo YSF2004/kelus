@@ -1,7 +1,7 @@
 "use client";
 
 import { BrandIcon } from "@/components/BrandIcon";
-import { useEffect, useState, type DragEvent } from "react";
+import { useEffect, useRef, useState, type DragEvent } from "react";
 import { PackArt } from "@/components/PackArt";
 import { PasteNotes } from "@/components/PasteNotes";
 import { PhotoNotes } from "@/components/PhotoNotes";
@@ -10,6 +10,7 @@ import { SOURCE_FILE_ACCEPT, isNotesFile, isSourceFile, isZipFile } from "@/doma
 import { folderToNotesFile, zipToNotesFile } from "@/lib/zip-notes";
 import { takePendingSetupFile } from "@/lib/pending-setup-file";
 import { photosToPdfFile } from "@/lib/photo-notes";
+import styles from "./DropNotes.module.css";
 
 const isPhoto = (file: File) => file.type.startsWith("image/") || /\.(?:jpe?g|png|heic|heif|webp)$/i.test(file.name);
 
@@ -21,39 +22,51 @@ export function DropNotes({ onFile, first = false, courseName }: { onFile: (file
   const [dragging, setDragging] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
+  const [sourceName, setSourceName] = useState("");
+  const [stage, setStage] = useState("");
+  const importing = useRef(false);
+  const fileInput = useRef<HTMLInputElement>(null);
+
+  async function importSource(name: string, prepare: () => Promise<File>, preparation: string) {
+    if (importing.current) return;
+    importing.current = true;
+    setBusy(true);
+    setError("");
+    setSourceName(name);
+    setStage(preparation);
+    try {
+      const file = await prepare();
+      if (isNotesFile(file) && file.size > MAX_NOTES_BYTES) throw new Error("These notes are over 2 MB. Choose a smaller file or split them.");
+      if (!isNotesFile(file) && file.size > 20 * 1024 * 1024) throw new Error("This PDF is over 20 MB. Choose a smaller export or split it first.");
+      setStage("Finding topics in your notes…");
+      await onFile(file);
+    } catch (caught) {
+      setError(caught instanceof Error && caught.message ? caught.message : "Kelus couldn’t read that source. Try another file or paste the text below.");
+    } finally {
+      importing.current = false;
+      setBusy(false);
+      setStage("");
+    }
+  }
 
   async function take(picked: File | undefined) {
     setDragging(false);
-    if (!picked || busy) return;
+    if (!picked || importing.current) return;
     // A photo of a page dropped here goes the way "Take photos of your notes" goes, rather than being refused.
     if (isPhoto(picked)) return takePhotos([picked]);
-    if (!isSourceFile(picked)) return setError("Choose a PDF, notes as a .md or .txt file, a Notion export or an Obsidian vault (.zip or a folder).");
-    setBusy(true);
-    setError("");
-    try {
-      const file = isZipFile(picked) ? await zipToNotesFile(picked) : picked;
-      if (isNotesFile(file) && file.size > MAX_NOTES_BYTES) throw new Error("These notes are over 2 MB. Choose a smaller file or split them.");
-      if (!isNotesFile(file) && file.size > 20 * 1024 * 1024) throw new Error("This PDF is over 20 MB. Choose a smaller export or split it first.");
-      await onFile(file);
-    } catch (caught) {
-      setError(caught instanceof Error && caught.message ? caught.message : "Kelus couldn’t read that file. Try another one.");
-      setBusy(false);
+    if (!isSourceFile(picked)) {
+      setSourceName(picked.name);
+      return setError("Choose a PDF, notes as a .md or .txt file, a Notion export or an Obsidian vault (.zip or a folder).");
     }
+    await importSource(picked.name, async () => isZipFile(picked) ? zipToNotesFile(picked) : picked,
+      isZipFile(picked) ? "Opening your notes archive…" : "Reading your file…");
   }
 
   async function takePhotos(photos: File[]) {
     setDragging(false);
-    if (busy) return;
-    setBusy(true);
-    setError("");
-    try {
-      const pdf = await photosToPdfFile(photos);
-      setBusy(false);
-      await take(pdf);
-    } catch (caught) {
-      setError(caught instanceof Error && caught.message ? caught.message : "Kelus couldn’t read those photos. Try clearer ones, or a PDF.");
-      setBusy(false);
-    }
+    if (!photos.length) return;
+    await importSource(photos.length === 1 ? photos[0].name : `${photos.length} photos`,
+      () => photosToPdfFile(photos), "Preparing your photos…");
   }
 
   // A file chosen while the sample was open, or shared from another app: start from it instead of asking again.
@@ -70,13 +83,7 @@ export function DropNotes({ onFile, first = false, courseName }: { onFile: (file
     const entry = event.dataTransfer.items?.[0]?.webkitGetAsEntry?.();
     if (entry?.isDirectory) {
       setDragging(false);
-      if (busy) return;
-      setBusy(true);
-      setError("");
-      void folderToNotesFile(entry as FileSystemDirectoryEntry).then((file) => { setBusy(false); return take(file); }, (caught: unknown) => {
-        setError(caught instanceof Error && caught.message ? caught.message : "Kelus couldn’t read that folder. Try a zip of it instead.");
-        setBusy(false);
-      });
+      void importSource(entry.name, () => folderToNotesFile(entry as FileSystemDirectoryEntry), "Opening your notes folder…");
       return;
     }
     // Several photos of pages dropped together become one set of notes, in the order they were dropped.
@@ -94,7 +101,7 @@ export function DropNotes({ onFile, first = false, courseName }: { onFile: (file
           <h1 id="start-title" className="destination-page-title">{first ? "Start with your notes." : courseName ? `Add notes to ${courseName}.` : "Add your notes."}</h1>
           <p className="destination-support">
             {first
-              ? "A PDF, photos of your pages, a Notion export or pasted text. Kelus finds the topics, and your first question is ready in about a minute."
+              ? "A PDF, photos of your pages, a Notion export or pasted text. Check the topics Kelus finds, then start your first question."
               : "A PDF, photos of your pages, a Notion export or pasted text. Kelus finds the topics and adds them to today’s plan."}
           </p>
           <label
@@ -105,15 +112,22 @@ export function DropNotes({ onFile, first = false, courseName }: { onFile: (file
             onDragOver={(event) => event.preventDefault()}
             onDrop={drop}
           >
-            <input type="file" title="" accept={SOURCE_FILE_ACCEPT} disabled={busy} onChange={(event) => { void take(event.target.files?.[0]); event.target.value = ""; }} />
+            <input ref={fileInput} type="file" aria-label="Choose a PDF or notes" accept={SOURCE_FILE_ACCEPT} disabled={busy} onChange={(event) => { void take(event.target.files?.[0]); event.target.value = ""; }} />
             <span className="setup-upload-mark" aria-hidden="true"><PackArt name="folder" size={44} /></span>
-            <strong>{busy ? "Reading your file…" : "Choose a PDF or notes"}</strong>
+            <strong>{busy ? stage : "Choose a PDF or notes"}</strong>
             {/* Dragging only exists with a mouse or trackpad; a phone gets the file types instead. */}
-            <span>{busy ? "This takes a few seconds." : <><span className="drop-hint">or drop it here · </span>PDF, <span className="brand-inline"><BrandIcon brand="markdown" size={15} />Markdown</span>, .txt or a <span className="brand-inline"><BrandIcon brand="notion" size={14} />Notion</span> .zip</>}</span>
+            <span>{busy ? "Larger files and scanned pages can take longer." : <><span className="drop-hint">or drop it here · </span>PDF, <span className="brand-inline"><BrandIcon brand="markdown" size={15} />Markdown</span>, .txt or a <span className="brand-inline"><BrandIcon brand="notion" size={14} />Notion</span> .zip</>}</span>
           </label>
+          <div role="status" aria-live="polite" aria-atomic="true" className={styles.status}>
+            {busy ? <><strong>{sourceName}</strong><span>{stage} Keep this page open while Kelus reads the source.</span></> : null}
+          </div>
           <PhotoNotes onFile={(file) => void take(file)} disabled={busy} />
           <PasteNotes onFile={(file) => void take(file)} disabled={busy} />
-          {error ? <p className="setup-error" role="alert">{error}</p> : null}
+          {error ? <div className={styles.recovery}>
+            <div role="alert"><strong>Couldn’t use {sourceName || "that source"}.</strong><p>{error}</p></div>
+            <button type="button" onClick={() => fileInput.current?.click()}>Choose another file</button>
+            <p>You can also paste the relevant section above. Any text you entered stays here.</p>
+          </div> : null}
           <p className="setup-file-help">PDFs up to 20 MB, scans included. From Notion: Export, then Markdown &amp; CSV, and choose the .zip.</p>
           <p className="setup-privacy-note">Your notes stay on this device. You can sign in later to sync.</p>
         </section>

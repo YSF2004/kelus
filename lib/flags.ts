@@ -45,12 +45,12 @@ export function flaggedKeys() {
 }
 
 /** Counts the flag (anonymous) and remembers it on this device. */
-export function flagQuestion(item: PracticeItem, reason: FlagReason) {
+export function flagQuestion(item: PracticeItem, reason: FlagReason, courseType: "real" | "sample" = "real") {
   const key = flagKey(item);
   try {
     window.localStorage.setItem(STORAGE_KEY, JSON.stringify([...new Set([...read(), key])].slice(-300)));
   } catch { /* A flag that cannot be saved is still counted. */ }
-  trackEvent({ name: "question_flagged", reason, kind: item.kind, variant: item.variant ?? "none", level: item.level ?? "recall" });
+  trackEvent({ name: "question_flagged", reason, kind: item.kind, variant: item.variant ?? "none", level: item.level ?? "recall", course_type: courseType });
 }
 
 /** Only on the student's tap: the question, its answer and its line go to the Kelus inbox, so it can be fixed. */

@@ -11,6 +11,8 @@ const nextConfig: NextConfig = {
   trailingSlash: true,
   // The dev-only "N" bubble sits where the phone tab bar is; errors are still shown in development.
   devIndicators: false,
+  allowedDevOrigins: ["**.replit.dev", "**.replit.app", "localhost", "127.0.0.1", ...(process.env.REPLIT_DEV_DOMAIN ? [process.env.REPLIT_DEV_DOMAIN] : [])],
+  turbopack: { root: process.cwd() },
   env: { NEXT_PUBLIC_BUILD_ID: buildId },
 };
 

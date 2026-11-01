@@ -3,7 +3,6 @@
 import { ThemeSwitch } from "@/components/ThemeSwitch";
 import { toneOf } from "@/lib/topic-tone";
 import { uiWords } from "@/lib/ui-words";
-import { noteLanguage } from "@/domain/note-language";
 import { ArrowOut, ArrowRight } from "@/components/Marks";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { kelusDuration, kelusEase } from "@/components/motion";
@@ -43,6 +42,8 @@ import { BlockOutline } from "@/components/BlockOutline";
 import { addMissedLines } from "@/lib/missed-lines";
 import { addKnownLines, forgetKnownLines, getKnownLines, getServerKnownLines, knownCount, subscribeKnownLines } from "@/lib/known-lines";
 import { trackEvent } from "@/lib/analytics";
+import { SAMPLE_COURSE_IDS } from "@/lib/pilot";
+import { studyDraftKey } from "@/domain/study-draft";
 
 type Phase = "learn" | "retrieve" | "apply" | "evaluate" | "result" | "reroute";
 type HelpMode = "hint" | "explain" | null;
@@ -96,6 +97,7 @@ function SessionBody() {
   const auth = useAuth();
   const materials = useSyncExternalStore(subscribeMaterials, getMaterialsSnapshot, getServerMaterialsSnapshot);
   const session = state.snapshot.sessions.find((item) => item.id === sessionId);
+  const firstStudySession = !state.snapshot.sessions.some((item) => item.status === "complete" && !SAMPLE_COURSE_IDS.has(item.courseId));
   const [position, setPosition] = useState<{ sessionId: string; index: number } | null>(null);
   const index = position && session && position.sessionId === session.id
     ? position.index
@@ -117,6 +119,8 @@ function SessionBody() {
   const [notesOpen, setNotesOpen] = useState(false);
   // A missed line to circle on the original page; cleared when the topic changes.
   const [markedLine, setMarkedLine] = useState<string | null>(null);
+  const [draftSaved, setDraftSaved] = useState<boolean | null>(null);
+  const [sourceJump, setSourceJump] = useState(0);
 
   useEffect(() => {
     if (!notesOpen) return;
@@ -175,9 +179,7 @@ function SessionBody() {
     [conceptId, round, activity?.practice?.length, activity?.teach?.aiExplanation],
   );
   const quickMode = Boolean(run);
-  // The words around the questions follow the notes' language, as the questions do.
-  const notesLanguage = run ? noteLanguage(run.sentences.join(" ")) : "en";
-  const uiw = uiWords(notesLanguage);
+  const uiw = uiWords();
   const [runKey, setRunKey] = useState(0);
   const soundsEnabled = useSyncExternalStore(subscribeSounds, soundsOn, () => false);
   const knownLines = useSyncExternalStore(subscribeKnownLines, getKnownLines, getServerKnownLines);
@@ -528,9 +530,12 @@ function SessionBody() {
             className="text-btn study-close"
             title="Back to your study plan — your place is kept"
             onClick={() => {
-              // Say what is kept, honestly: the block and its topic, not the check inside it.
+              if (quickMode && phase === "learn" && draftSaved === false) {
+                toast.error("Your browser couldn’t save this answer. Keep this tab open, or enable browser storage before leaving.");
+                return;
+              }
               const done = session.plannedConceptIds.filter((id) => state.snapshot.events.some((event) => event.sessionId === session.id && event.kind === "retrieval" && event.conceptId === id)).length;
-              toast(`Saved. ${done ? `${done} of ${session.plannedConceptIds.length} topics done in this block. ` : ""}Continue on your plan opens ${concept.name} again.`);
+              toast(`${draftSaved && phase === "learn" ? "Your question and unfinished answer are saved on this device." : "Your completed topics are saved."} ${done ? `${done} of ${session.plannedConceptIds.length} topics done. ` : ""}Choose Continue on your plan to return.`);
               router.push("/today");
             }}
           >
@@ -573,7 +578,7 @@ function SessionBody() {
       })()}
       {hasReadableSource ? <div className="session-workspace-source" aria-label="Your notes">
         {quickMode ? <button type="button" className="session-notes-close" onClick={() => setNotesOpen(false)} aria-label="Close your notes">Close notes <ArrowRight /></button> : null}
-        <CourseSourceReader key={`${currentMaterial.id}-${sourcePage}`} material={currentMaterial} initialPage={sourcePage} concealed={recallWithoutLooking} onShowSource={() => setSourceRevealed(true)} highlight={markedLine} />
+        <CourseSourceReader key={`${currentMaterial.id}-${sourcePage}-${sourceJump}`} material={currentMaterial} initialPage={sourcePage} concealed={recallWithoutLooking} onShowSource={() => setSourceRevealed(true)} highlight={markedLine} />
       </div> : null}
       <div className="study-loop-track">
         {quickMode ? null : (
@@ -677,7 +682,6 @@ function SessionBody() {
                 // missed, or a line from the page that this run did not use.
                 remember={quickMissed[0] ?? run?.extraFact ?? activity.retrieve.modelAnswer}
                 rememberLabel={quickMissed[0] ? (quickMissed.length > 1 ? uiw.missedSome : uiw.missedOne) : run?.extraFact ? uiw.oneMore : uiw.worth}
-                language={notesLanguage}
                 locator={activity.sourceReferences[0]?.locator ?? "your notes"}
                 goalDone={goalToday.topicsToday}
                 goal={goalToday.goal}
@@ -787,13 +791,17 @@ function SessionBody() {
 
             {phase === "learn" && quickMode && run ? (
               <QuickRun
-                key={`${concept.id}-${runKey}`}
+                key={`${auth.user?.id ?? "guest"}-${session.id}-${concept.id}-${runKey}`}
                 run={run}
+                persistenceKey={studyDraftKey(auth.user?.id ?? null, session.id, concept.id)}
+                onPersistenceChange={setDraftSaved}
                 courseType={session?.courseId === "course-microeconomics" ? "sample" : "real"}
                 onRevealSource={() => setSourceRevealed(true)}
-                onShowLine={hasReadableSource && currentMaterial?.kind !== "text" ? (quote) => { setMarkedLine(quote); setSourceRevealed(true); setNotesOpen(true); } : undefined}
+                onShowLine={hasReadableSource ? (quote) => { setMarkedLine(quote); setSourceJump((current) => current + 1); setSourceRevealed(true); setNotesOpen(true); } : undefined}
+                sourceLocation={currentSource?.locator ?? null}
                 onFinish={finishQuick}
                 readFirst={round === 0}
+                firstStudySession={firstStudySession && index === 0}
                 known={knownAtOpen.set}
                 recalled={knownAtOpen.count}
                 // A topic Kelus misnamed is renamed right here, the way the course is: tap the name (⌘Z undoes it).

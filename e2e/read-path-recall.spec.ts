@@ -84,7 +84,7 @@ test("a checkpoint run is remembered on the path, with its score and when", asyn
     await unsure.or(page.getByRole("heading", { name: /this time\.|passed\./ })).first().waitFor();
     if (!(await unsure.count())) break;
     await unsure.click();
-    await page.getByRole("button", { name: /^(Next|See how it went)/ }).click();
+    await page.getByRole("button", { name: /^(Next idea|Next|See how it went)/ }).click();
   }
   await expect(page.getByRole("heading", { name: /^0 of \d this time\.$/ })).toBeVisible();
   await expect(page.getByText(/back first next time\. Pass mark: \d of \d\./)).toBeVisible();
@@ -105,7 +105,7 @@ test.describe("on a phone", () => {
       if (await page.locator('input[id^="run-gap"]:not([disabled])').count()) break;
       if (await page.locator("#run-explain").count()) test.skip(true, "no gap in this run");
       await page.getByRole("group", { name: "Choose one" }).getByRole("button").first().click();
-      await page.getByRole("button", { name: /^(Next|Now say it yourself)/ }).click();
+      await page.getByRole("button", { name: /^(Next idea|Next|Now say it yourself)/ }).click();
     }
     const chips = page.getByRole("group", { name: "Or tap the word" }).getByRole("button");
     await expect(chips).toHaveCount(4);
@@ -113,8 +113,8 @@ test.describe("on a phone", () => {
     // A tap fills the gap; Check commits it, so a slip of the thumb can still be changed.
     await chips.first().click();
     await expect(chips.first()).toHaveAttribute("aria-pressed", "true");
-    await expect(page.getByRole("button", { name: /^(Next|Now say it yourself)/ })).toHaveCount(0);
+    await expect(page.getByRole("button", { name: /^(Next idea|Next|Now say it yourself)/ })).toHaveCount(0);
     await page.getByRole("button", { name: "Check", exact: true }).click();
-    await expect(page.getByRole("button", { name: /^(Next|Now say it yourself)/ })).toBeVisible();
+    await expect(page.getByRole("button", { name: /^(Next idea|Next|Now say it yourself)/ })).toBeVisible();
   });
 });

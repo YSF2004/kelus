@@ -14,7 +14,15 @@ test("a whole block runs from the first question to the end with no stop between
     await page.locator('#run-explain, button:has-text("I’m not sure")').first().waitFor();
       if (await page.locator("#run-explain").count()) break;
       await page.getByRole("button", { name: "I’m not sure" }).click();
-      await page.getByRole("button", { name: /^(Next|Now say)/ }).click();
+      const reasoningTrace = page.getByRole("list", { name: "Your answer, the reason, and the source" });
+      await expect(reasoningTrace.locator("li")).toHaveCount(3);
+      await expect(reasoningTrace).toContainText("How to reason it through");
+      await expect(reasoningTrace).toContainText("Evidence in your source");
+      const sourceJump = reasoningTrace.getByTestId("source-evidence-jump");
+      await expect(sourceJump).toBeVisible();
+      await sourceJump.click();
+      await expect(reasoningTrace.getByLabel("This line in your notes")).toBeVisible();
+      await page.getByRole("button", { name: /^(Next idea|Next|Now say)/ }).click();
     }
     await page.getByRole("button", { name: "I don’t remember" }).click();
     await page.getByRole("button", { name: /^Continue/ }).click();

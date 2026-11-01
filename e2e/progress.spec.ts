@@ -23,7 +23,7 @@ async function playRun(page: Page) {
     const gap = page.locator('input[id^="run-gap"]:not([disabled])');
     if (await gap.count()) { await gap.fill("zzz"); await page.getByRole("button", { name: "Check", exact: true }).click(); }
     else await page.getByRole("group", { name: "Choose one" }).getByRole("button").first().click();
-    await page.getByRole("button", { name: /^(Next|Now say it yourself)/ }).click();
+    await page.getByRole("button", { name: /^(Next idea|Next|Now say it yourself)/ }).click();
   }
   await page.locator("#run-explain").fill("It moves water toward more solute.");
   await page.getByRole("button", { name: /Compare with the page/ }).click();

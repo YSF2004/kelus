@@ -1,7 +1,14 @@
 # Running a Kelus pilot
 
-Four numbers say whether Kelus helps. They all come from Google Analytics 4, which kelus.me already uses (ads signals
-off, IP anonymised). No accounts, no new service, no cost.
+Use one course group of 10–30 students and their real course materials. GA4 measures product use and self-reported
+usefulness, not learning gains. It is already installed on kelus.me with ads signals off and IP anonymisation enabled.
+
+**Pilot status:** No cohort export or invitation count was present when this report was prepared. Results, source types
+tested, and a product-change recommendation must be filled in from a real cohort; do not treat missing data as zero or
+as evidence that students did or did not return.
+
+A [read-only connection check](pilot-connection-check.md) retrieved live Cloudflare traffic and verified the installed
+Google tag. It also explains the missing GA4 report authorization and the live build's unclassified historical ratings.
 
 ## 1. Give each group its own link
 
@@ -27,43 +34,57 @@ In GA4 → Admin → Custom definitions, add:
 | Invite method    | Event | `method`             |
 | Milestone        | Event | `milestone`          |
 | Flag reason      | Event | `reason`             |
+| Course type      | Event | `course_type`        |
+| Source type      | Event | `source_type`        |
 
 Data only shows from the day a definition is added, so add these before the pilot starts.
 
-## 3. The four numbers
+## 3. Invite one cohort and record the invitation count
 
-Filter every report to `Pilot cohort = <your group>` and `Sample ≠ true`.
+Send one link per group, for example `https://kelus.me/?pilot=lycee-2b`. Record the number of students actually
+invited in a small organizer log; GA4 cannot know how many invitations were sent. Do not put student names, emails, or
+course names into the cohort code or export.
 
-| Question                          | How it is counted                                                                      |
-| --------------------------------- | -------------------------------------------------------------------------------------- |
-| Did they finish a first session?  | Users with `session_completed` where `session_number = 1`, over users with `session_started` where `session_number = 1` |
-| Did they come back within 7 days? | Users with `learner_returned` where `day ≤ 7`, over users with a first `session_completed` |
-| Did they keep using it?           | Users with `session_completed` where `session_number ≥ 2` (and `≥ 3`)                  |
-| Did they find it useful?          | `session_usefulness_rated`: share with `helpful = true`, and by `session_number`       |
+## 4. Export the counts
 
-A free-form exploration in GA4 (Explore → Funnel exploration) gives the first three as one funnel:
-`session_started (n=1)` → `session_completed (n=1)` → `learner_returned (day ≤ 7)` → `session_completed (n ≥ 2)`.
+Create a GA4 Explore → Free form report with rows `Event name`, `Pilot cohort`, `Session number`, `Course type`,
+`Helpful`, `Flag reason`, and `Source type`; values `Total users` and `Event count`. Include
+`session_started`, `session_completed`, `session_usefulness_rated`, `question_flagged`, and
+`material_processing_completed`. Filter to the cohort, but **do not filter by Course type** before exporting.
+Keep `real`, `sample`, and `(not set)` rows so the script can reject unclassified activity rather than report incomplete
+counts as valid rates. The script selects real-course rows and ignores sample rows after validation. Download as
+`export.csv`.
 
-## The pilot summary in one command
+Create a second report for returns, filtered to `Event name = learner_returned`, `Return day ≤ 7`,
+and the same cohort, again **without a Course type filter**. Use rows `Pilot cohort` and `Course type`, values `Total users` and `Event count`, then download
+as `returns.csv`. Keep a single aggregate row for the cohort; splitting this export by day can count one student more
+than once. If sample rows exist, keep one aggregate row per cohort/course-type pair; the script ignores sample rows
+and requires exactly one real-course aggregate row when any real returns were recorded.
 
-Two events make the week readable at a glance:
-
-- `pilot_milestone`, sent **once per student** for each step: `first_topic`, `back_next_day`, `back_within_7_days`,
-  `studied_3_days`. It counts answers, not visits: opening Kelus and leaving is not coming back to study. Because each
-  student sends each milestone once, "Total users" per milestone is an exact count of students.
-- `question_flagged`: a student tapped **Flag this question** under an answer and chose a reason (`unclear`,
-  `wrong_answer`, `not_in_notes`). The question is not asked again on that device.
-
-GA4 → Explore → Free form. Rows: Event name, Milestone, Flag reason, Helpful, Pilot cohort. Values: Total users, Event
-count. Filter: Event name matches regex `pilot_milestone|question_flagged|session_usefulness_rated`. Then Share →
-Download file → CSV, and run:
+Run the summary with the invitation count recorded by the organizer:
 
 ```bash
-node scripts/pilot-summary.mjs ~/Downloads/export.csv
+node scripts/pilot-summary.mjs ~/Downloads/export.csv \
+  --returns ~/Downloads/returns.csv \
+  --cohort lycee-2b \
+  --invited 18
 ```
 
-Per group it prints: students who studied a first topic; how many came back the next day, within 7 days and on 3
-different days (with percentages); how many said a block was helpful; and flagged questions by reason.
+The report includes invited students, first-session starts and completions, seven-day returns, usefulness ratings,
+flagged questions by reason, and source types with processing events. Every percentage shows its denominator and the
+invited cohort size. Add `--window-complete` only after every student who completed a first session has had seven full
+days to return; otherwise the final return rate is intentionally withheld. Check the CSV date range before interpreting
+an empty cohort as zero usage.
+
+The summary rejects unclassified course types, missing usefulness values, and multiple return-user rows per cohort.
+Missing dimensions must not become zero usage, negative feedback, or duplicate returning students. Historical events
+without the required parameters cannot be repaired by registering a custom dimension after the fact.
+
+## 5. Write the result and make one decision
+
+Record the report date, cohort code, invitation count, source types, and the generated counts in the pilot review.
+Choose one next product change only after reviewing the largest observed drop-off or repeated student feedback.
+If there is no real cohort data yet, say so and wait; do not invent results or prescribe a change as evidence-based.
 
 ## Flagged questions
 
@@ -96,5 +117,6 @@ A return is counted at most once per calendar day, and only on a later day than 
 
 ## Reading it honestly
 
-A pilot of 10–30 students gives a direction, not proof. Report counts next to percentages ("7 of 12 came back"), and
-don't claim learning gains from these numbers: they measure use and how useful it felt, not exam results.
+A pilot of 10–30 students gives a direction, not proof. Report counts next to percentages (for example, "7 of 12 came
+back; cohort N=18 invited"). The counts identify browsers, not people across devices. Do not claim learning gains:
+these measures describe use and self-reported usefulness, not exam results.

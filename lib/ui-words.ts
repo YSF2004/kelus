@@ -1,13 +1,11 @@
-import type { NoteLanguage } from "@/domain/note-language";
-
 /**
- * The words around a question, in the notes' own language: a French revision sheet gets French buttons and feedback,
- * not only French questions. English is the default and the source of every key.
+ * Interface copy stays in English. Questions and evidence can still reflect the language of the learner's notes.
  */
 const EN = {
   readTitle: "Read it first, then it’s your turn.",
   continue: "Continue",
   fromMemory: "Now from memory",
+  flowHint: "Kelus turns lines from this source into questions. Answer from memory, then check the exact evidence.",
   skip: "Skip to the questions",
   oneWord: "One word",
   check: "Check",
@@ -19,11 +17,14 @@ const EN = {
   itWas: (word: string) => `It was “${word}”.`,
   notQuiteWas: (word: string) => `Not quite. It was “${word}”.`,
   lineFrom: "Here’s the line it comes from.",
+  why: "Why",
+  evidence: "From your notes",
   seeOnPage: "See it on your page",
   showInNotes: "Show it in your notes",
   belongs: "That answer belongs to this line in your notes:",
   belongsWord: (word: string) => `“${word}” belongs to this line in your notes:`,
   next: "Next",
+  nextIdea: "Next idea",
   sayIt: "Now say it yourself",
   seeHow: "See how it went",
   flag: "Flag this question",
@@ -68,68 +69,6 @@ const EN = {
 
 export type UiWords = typeof EN;
 
-const FR: UiWords = {
-  readTitle: "Lis d’abord, puis à toi.",
-  continue: "Continuer",
-  fromMemory: "Maintenant, de mémoire",
-  skip: "Passer aux questions",
-  oneWord: "Un mot",
-  check: "Vérifier",
-  notSure: "Je ne sais pas",
-  right: "Juste.",
-  firstRight: "Juste. C’est ta première ligne retrouvée.",
-  picked: "Juste, parmi quatre. Écris-le la prochaine fois pour qu’il compte.",
-  notQuite: "Pas tout à fait.",
-  itWas: (word) => `C’était « ${word} ».`,
-  notQuiteWas: (word) => `Pas tout à fait. C’était « ${word} ».`,
-  lineFrom: "Voici la ligne d’où elle vient.",
-  seeOnPage: "La voir sur ta page",
-  showInNotes: "La voir dans tes notes",
-  belongs: "Cette réponse vient de cette ligne de tes notes :",
-  belongsWord: (word) => `« ${word} » vient de cette ligne de tes notes :`,
-  next: "Suivant",
-  sayIt: "À toi de l’expliquer",
-  seeHow: "Voir le résultat",
-  flag: "Signaler cette question",
-  writeIt: "Ferme la page. Écris-le de mémoire.",
-  compare: "Comparer avec la page",
-  dontRemember: "Je ne m’en souviens pas",
-  yourWords: "Tes mots",
-  pageSays: "La page dit",
-  keyWords: "mots clés",
-  leftOut: "Oublié",
-  allIn: "Rien d’important n’est oublié",
-  howClose: "C’était proche ?",
-  suggested: "Suggéré",
-  nailed: "Réussi",
-  nailedHint: "La même idée, avec mes mots",
-  partly: "En partie",
-  partlyHint: "Une partie",
-  missed: "Raté",
-  missedHint: "Pas vraiment",
-  listen: "Écouter",
-  stop: "Arrêter",
-  solid: "Bien acquis.",
-  partlyThere: "En bonne voie.",
-  again: "À revoir.",
-  checkRight: "question juste",
-  checksRight: "questions justes",
-  keyIdeas: "idées clés dites",
-  comesBack: "revient",
-  tryAgain: "Réessayer",
-  continueTo: (name) => `Continuer avec ${name}`,
-  finish: "Terminer la séance",
-  changed: "Ce qui change dans ton plan",
-  practised: (done, total) => `${done} sujet${done > 1 ? "s" : ""} sur ${total} travaillé${done > 1 ? "s" : ""}`,
-  topicOf: (index, total) => `Sujet ${index} sur ${total}`,
-  missedOne: "La ligne manquée",
-  missedSome: "Une ligne manquée",
-  oneMore: "Encore une ligne de tes notes",
-  worth: "À retenir",
-  more: "Plus",
-  close: "Fermer",
-};
-
-export function uiWords(language: NoteLanguage): UiWords {
-  return language === "fr" ? FR : EN;
+export function uiWords(): UiWords {
+  return EN;
 }

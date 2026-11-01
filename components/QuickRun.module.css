@@ -5,6 +5,29 @@
   max-width: 42rem;
 }
 
+.saveStatus {
+  margin: 0;
+  color: var(--color-midnight-ink);
+  font-size: 0.8125rem;
+  line-height: 1.5;
+}
+
+.saveError {
+  color: var(--color-midnight-ink);
+  border-left: 3px solid var(--color-kelus);
+  padding-left: 12px;
+}
+
+.evidence {
+  display: grid;
+  gap: 8px;
+  margin-block: 16px;
+}
+
+.evidence > span {
+  font-size: 0.8125rem;
+}
+
 .top {
   display: flex;
   align-items: center;
@@ -71,6 +94,14 @@
 @media (max-width: 520px) { .recallLong { display: none; } .recallShort { display: inline; } }
 
 /* Source-grounded lines are reading content, not a stack of answer cards. */
+.flowHint {
+  margin: -6px 0 -4px;
+  max-width: 60ch;
+  font-size: var(--text-body-sm);
+  line-height: 1.45;
+  color: var(--color-slate);
+}
+
 .readLines { display: grid; gap: 0; margin: 0; padding: 0; border-top: 1px solid var(--q-line, var(--color-frost)); list-style: none; }
 .readLines li {
   padding: 18px 0;
@@ -297,6 +328,107 @@
   background: var(--k-surface-2);
 }
 
+.feedbackLoop {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 5px 10px;
+  margin: 0 0 2px;
+  padding: 0;
+  color: var(--color-slate);
+  font-size: var(--text-caption, 0.75rem);
+  list-style: none;
+}
+
+.feedbackLoop li {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.feedbackLoop li:not(:last-child)::after {
+  color: var(--k-line-strong);
+  content: "→";
+}
+
+.feedbackLoop li[aria-current="step"] {
+  color: var(--color-kelus);
+  font-weight: 700;
+}
+
+.reasoningTrace {
+  display: grid;
+  gap: 0;
+  margin: 2px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.reasoningStep {
+  position: relative;
+  display: grid;
+  grid-template-columns: 23px minmax(0, 1fr);
+  gap: 10px;
+  padding: 0 0 13px;
+}
+
+.reasoningStep:last-child {
+  padding-bottom: 0;
+}
+
+.reasoningStep:not(:last-child)::after {
+  position: absolute;
+  top: 24px;
+  bottom: 1px;
+  left: 11px;
+  width: 1px;
+  background: var(--k-line-strong);
+  content: "";
+}
+
+.reasoningNumber {
+  z-index: 1;
+  display: grid;
+  width: 23px;
+  height: 23px;
+  place-items: center;
+  border: 1px solid color-mix(in srgb, var(--color-kelus) 24%, transparent);
+  border-radius: 50%;
+  background: var(--k-surface-2);
+  color: var(--color-kelus);
+  font-size: 0.6875rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+
+.reasoningEvidence .reasoningNumber {
+  border-color: color-mix(in srgb, var(--k-marigold, #f3b23e) 52%, transparent);
+  color: var(--color-midnight-ink);
+}
+
+.reasoningBody {
+  display: grid;
+  min-width: 0;
+  align-content: start;
+  gap: 4px;
+  padding-top: 2px;
+}
+
+.reasoningLabel,
+.evidenceLabel {
+  font-size: var(--text-caption, 0.8125rem);
+  font-weight: 600;
+  color: var(--color-midnight-ink);
+}
+
+.reasoningText {
+  margin: 0;
+  color: var(--color-slate);
+  font-size: var(--text-body-sm);
+  line-height: 1.5;
+  overflow-wrap: anywhere;
+}
+
 .feedback.ok {
   background: color-mix(in srgb, var(--color-kelus) 7%, var(--k-surface));
   border-color: color-mix(in srgb, var(--color-kelus) 22%, transparent);
@@ -327,6 +459,64 @@
   line-height: 1.5;
   font-style: italic;
   color: var(--color-slate);
+}
+
+.evidenceHeading {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px 12px;
+}
+
+.reasoningEvidence .reasoningBody {
+  gap: 8px;
+  padding: 10px 12px;
+  border: 1px solid color-mix(in srgb, var(--k-marigold-text) 24%, var(--k-line-strong));
+  border-left: 3px solid var(--k-marigold-text);
+  border-radius: 0 8px 8px 0;
+  background: color-mix(in srgb, var(--k-marigold-wash) 28%, var(--k-surface));
+}
+
+.evidenceLocation {
+  padding: 3px 7px;
+  border-radius: 999px;
+  background: var(--k-surface);
+  color: var(--color-slate);
+  font-size: var(--text-caption, 0.75rem);
+}
+
+.sourceJump {
+  display: inline-flex;
+  min-height: 44px;
+  align-items: center;
+  justify-self: start;
+  gap: 8px;
+  padding: 0 8px;
+  border: 1px solid var(--k-line-strong);
+  border-radius: 8px;
+  background: var(--k-surface);
+  color: var(--color-kelus);
+  font: inherit;
+  font-size: var(--text-body-sm);
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 120ms ease, border-color 120ms ease;
+}
+
+.sourceJump:hover {
+  border-color: color-mix(in srgb, var(--color-kelus) 35%, var(--k-line-strong));
+  background: var(--k-surface-2);
+}
+
+.sourceJump:focus-visible {
+  outline: 2px solid var(--color-kelus);
+  outline-offset: 2px;
+}
+
+.sourceJump svg {
+  width: 16px;
+  height: 16px;
 }
 
 /* Where the wrong answer really belongs: the contrast is the lesson, so it sits right under the right line. */
@@ -450,6 +640,7 @@
 @media (prefers-reduced-motion: reduce) {
   .choice,
   .primary,
+  .sourceJump,
   .grades button,
   .steps li,
   .steps li::after {

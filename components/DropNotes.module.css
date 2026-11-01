@@ -1,0 +1,28 @@
+.status:empty { display: none; }
+.status, .recovery {
+  margin-top: 16px;
+  padding: 16px;
+  border: 1px solid var(--color-frost);
+  border-radius: 12px;
+  background: var(--k-surface);
+  text-align: left;
+  overflow-wrap: anywhere;
+  font-size: var(--text-body-sm);
+  line-height: 1.5;
+}
+.status { display: grid; gap: 4px; }
+.status span, .recovery > p { color: var(--color-slate); }
+.recovery p { margin: 6px 0 0; }
+.recovery button {
+  min-height: 44px;
+  margin-top: 12px;
+  padding: 8px 14px;
+  border: 1px solid var(--color-kelus);
+  border-radius: 8px;
+  color: var(--color-kelus);
+  background: transparent;
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+.recovery button:focus-visible { outline: 2px solid var(--color-kelus); outline-offset: 3px; }
