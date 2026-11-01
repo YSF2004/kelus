@@ -33,7 +33,6 @@ export function KelusHero() {
           <Link href="/today" className={styles.primary}>Add your notes</Link>
           <Link href="/route" className={styles.secondary}>How it works</Link>
         </div>
-        <p className={styles.free}>Free. No account needed.</p>
       </div>
 
       {/* The demonstration on one grey tile, a product moment rather than a card on the page. */}

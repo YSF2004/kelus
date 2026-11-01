@@ -111,20 +111,20 @@ body.is-booklet-system .site-header.is-marketing .site-account-menu summary {
   padding-inline: 8px;
 }
 
-/* Marketing pages are editorial surfaces, not the product workbench: keep their actions still and immediate. */
-body.is-booklet-system:has(.site-header.is-marketing) :is(button, .cta, .home-cta, .site-auth-button) {
+/* Core product pages are work surfaces, not marketing demonstrations: keep their actions still and immediate. */
+:is(body.is-course-studio, body.is-session-booklet) :is(button, .cta, .home-cta, .site-auth-button) {
   transition: none !important;
 }
 
-body.is-booklet-system:has(.site-header.is-marketing) :is(button, .cta, .home-cta, .site-auth-button):active {
+:is(body.is-course-studio, body.is-session-booklet) :is(button, .cta, .home-cta, .site-auth-button):active {
   transform: none !important;
 }
 
-body.is-booklet-system:has(.site-header.is-marketing) .home-cta .arrow {
+:is(body.is-course-studio, body.is-session-booklet) .home-cta .arrow {
   transition: none !important;
 }
 
-body.is-booklet-system:has(.site-header.is-marketing) .home-cta:hover .arrow {
+:is(body.is-course-studio, body.is-session-booklet) .home-cta:hover .arrow {
   transform: none !important;
 }
 
