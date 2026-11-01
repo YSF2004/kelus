@@ -38,6 +38,7 @@ export function SiteHeader() {
   const inSession = pathname.startsWith("/session") || pathname.startsWith("/sheet");
   const inProduct = ["/today", "/materials", "/map", "/concept"].some((path) => pathname.startsWith(path));
   const onHome = pathname === "/";
+  const onMarketing = onHome || pathname.startsWith("/route") || pathname.startsWith("/pricing");
   const accountMenu = useRef<HTMLDetailsElement>(null);
   useEffect(() => {
     const close = (event: PointerEvent) => {
@@ -57,7 +58,7 @@ export function SiteHeader() {
 
   return (
     <header
-      className={`site-header${inSession ? " is-session" : ""}${inProduct ? " is-product is-space" : ""}${onHome ? " is-home" : ""}`}
+      className={`site-header${inSession ? " is-session" : ""}${inProduct ? " is-product is-space" : ""}${onMarketing ? " is-home is-marketing" : ""}`}
       style={{ viewTransitionName: "site-header" }}
     >
       <div className="site-header-inner">
