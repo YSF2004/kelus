@@ -10,6 +10,7 @@ test("homepage opens on the Leitner Box hero followed by the illustrated revisio
   assert.doesNotMatch(page, /StartHereJourney/);
   assert.match(page, /HomeAfterHero/);
   assert.match(hero, /data-hero="leitner"/);
+  assert.match(hero, /HeroActionLink/);
   assert.match(hero, /Example course/); // the demonstration says it is an example
   assert.match(hero, /Turn your notes into practice questions/);
   assert.match(hero, /answer: "concentrated"/);

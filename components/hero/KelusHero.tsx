@@ -1,6 +1,6 @@
-import Link from "next/link";
 import { BrandIcon } from "@/components/BrandIcon";
 import { HeroReplay } from "./HeroReplay";
+import { HeroActionLink } from "./HeroActionLink";
 import styles from "./LeitnerHero.module.css";
 import brands from "./HeroBrands.module.css";
 
@@ -30,8 +30,8 @@ export function KelusHero() {
           Drop in your notes. Turn them into questions and see what to practise next.
         </p>
         <div className={styles.actions}>
-          <Link href="/today" className={styles.primary}>Add your notes</Link>
-          <Link href="/route" className={styles.secondary}>How it works</Link>
+          <HeroActionLink href="/today" className={styles.primary}>Add your notes</HeroActionLink>
+          <HeroActionLink href="/route" className={styles.secondary}>How it works</HeroActionLink>
         </div>
       </div>
 
