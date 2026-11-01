@@ -27,8 +27,7 @@ export function KelusHero() {
           Questions from your notes. <span>Checked against the page.</span>
         </h1>
         <p className={styles.lede}>
-          Drop in a PDF or paste your notes. Kelus marks the lines that matter, asks you about each one, and checks your
-          answer against the page.
+          Drop in your notes. Turn them into questions and see what to practise next.
         </p>
         <div className={styles.actions}>
           <Link href="/today" className={styles.primary}>Add your notes</Link>
