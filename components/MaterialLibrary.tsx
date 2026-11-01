@@ -514,7 +514,7 @@ export function MaterialLibrary({ embedded = false, incomingFile = null, onIncom
       try {
         file = await zipToNotesFile(picked);
       } catch (caught) {
-        dispatch({ type: "FAIL", kind: "generic", message: caught instanceof Error && caught.message ? caught.message : "Kelus couldn’t read this zip. Export from Notion as Markdown & CSV and try again." });
+        dispatch({ type: "FAIL", kind: "generic", message: caught instanceof Error && caught.message ? caught.message : "Kelus couldn’t read this zip. Export your notes from Notion and try again." });
         return;
       }
     }
@@ -750,7 +750,7 @@ export function MaterialLibrary({ embedded = false, incomingFile = null, onIncom
             >
               <input ref={fileRef} type="file" title="" accept={SOURCE_FILE_ACCEPT} onChange={(event) => void savePdf(event.target.files?.[0])} disabled={busy} />
               <strong>{busy ? (statusMessage ?? "Reading your file…") : "Choose a file"}</strong>
-              <span>{busy && statusMessage ? statusMessage : "or drop it here · PDF, Markdown, .txt or a Notion .zip"}</span>
+              <span>{busy && statusMessage ? statusMessage : "or drop it here · PDF, plain text or a Notion .zip"}</span>
             </label>
             <p className="material-ingest-hint">Kelus finds the topics in it and adds them to your plan. PDFs with selectable text are read fastest.</p>
             <div className="material-role-field">
