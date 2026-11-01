@@ -29,7 +29,11 @@ git -C "$repo" worktree add --detach "$work/src" "$sha" >/dev/null
 cd "$work/src"
 cp "$env_file" .env.production.local
 
-npm ci --no-audit --no-fund
+# Fail before publishing if authentication would be compiled with absent or malformed settings.
+# Node loads the file directly; no credential values are printed.
+node --env-file=.env.production.local scripts/check-production-config.mjs
+
+node scripts/install-ci.mjs
 npm run lint
 npm run typecheck
 npm test
@@ -53,11 +57,5 @@ ping_indexnow() {
   echo "IndexNow: sent $(echo "$urls" | tr ',' '\n' | wc -l | tr -d ' ') addresses, answer $status (200 or 202 means accepted)"
 }
 
-for attempt in $(seq 1 20); do
-  live="$(curl -fsS "https://kelus.me/version.json?ts=$(date +%s)" | sed -E 's/.*"id":"([^"]+)".*/\1/' || true)"
-  if [ "$live" = "$want" ]; then echo "kelus.me is on $live"; ping_indexnow; exit 0; fi
-  echo "kelus.me is on ${live:-?}, waiting for $want ($attempt/20)"
-  sleep 15
-done
-echo "kelus.me did not switch to $want" >&2
-exit 1
+node scripts/verify-release.mjs --commit "$sha" --attempts 20
+ping_indexnow

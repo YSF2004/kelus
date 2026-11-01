@@ -3,6 +3,7 @@
 import { BrandIcon } from "@/components/BrandIcon";
 import { useEffect, useRef, useState, type DragEvent } from "react";
 import { PackArt } from "@/components/PackArt";
+import { FirstStudyPreview } from "@/components/FirstStudyPreview";
 import { PasteNotes } from "@/components/PasteNotes";
 import { PhotoNotes } from "@/components/PhotoNotes";
 import { MAX_NOTES_BYTES } from "@/domain/markdown-pages";
@@ -104,6 +105,7 @@ export function DropNotes({ onFile, first = false, courseName }: { onFile: (file
               ? "A PDF, photos of your pages, a Notion export or pasted text. Check the topics Kelus finds, then start your first question."
               : "A PDF, photos of your pages, a Notion export or pasted text. Kelus finds the topics and adds them to today’s plan."}
           </p>
+          {first ? <FirstStudyPreview /> : null}
           <label
             className={`setup-first-upload${dragging ? " is-dragging" : ""}`}
             aria-busy={busy || undefined}
@@ -130,6 +132,7 @@ export function DropNotes({ onFile, first = false, courseName }: { onFile: (file
           </div> : null}
           <p className="setup-file-help">PDFs up to 20 MB, scans included. From Notion: Export, then Markdown &amp; CSV, and choose the .zip.</p>
           <p className="setup-privacy-note">Your notes stay on this device. You can sign in later to sync.</p>
+          {/* First use only: an optional, labelled sample. It never touches learner storage or analytics. */}
         </section>
       </div>
     </main>

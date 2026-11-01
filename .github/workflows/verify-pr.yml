@@ -16,7 +16,8 @@ jobs:
         with:
           node-version: 22
           cache: npm
-      - run: npm ci
+      - name: Install locked dependencies
+        run: node scripts/install-ci.mjs
       - run: npm run lint
       - run: npm run typecheck
       - run: npm test
