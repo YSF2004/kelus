@@ -12,6 +12,8 @@ test("homepage opens on the Leitner Box hero followed by the illustrated revisio
   assert.match(hero, /data-hero="leitner"/);
   assert.match(hero, /Example course/); // the demonstration says it is an example
   assert.match(hero, /Turn your notes into practice questions/);
+  assert.match(hero, /answer: "concentrated"/);
+  assert.doesNotMatch(hero, /more one/);
   assert.doesNotMatch(hero, /Markdown/);
   assert.doesNotMatch(hero, /Try sample \(~1 min\)/);
   assert.doesNotMatch(hero, /today\?sample=1/);

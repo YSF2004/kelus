@@ -11,7 +11,7 @@ import brands from "./HeroBrands.module.css";
 const QUESTIONS = [
   { n: 1, where: "Page 1 · 7.1 Diffusion", ask: ["Diffusion moves particles from a region of ", " concentration to a lower one."], answer: "higher" },
   { n: 2, where: "Page 1 · 7.1 Diffusion", ask: ["Does diffusion need energy from respiration?"] },
-  { n: 3, where: "Page 1 · 7.2 Osmosis", ask: ["Osmosis moves water from a dilute solution to a more ", " one."] },
+  { n: 3, where: "Page 1 · 7.2 Osmosis", ask: ["Osmosis moves water from a dilute solution to a more ", " one."], answer: "concentrated" },
 ];
 
 /**
