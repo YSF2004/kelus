@@ -997,3 +997,38 @@
   .feedback { touch-action: pan-y; }
 }
 .swipeHint { order: 10; margin: -4px 0 0; color: var(--k-text-3, var(--color-slate)); font-size: 12.5px; text-align: center; }
+
+/* ── Refinement 2026-10: question → answer → why → source ─────────────────────────────────────────────
+   The feedback trace reads as a sequence: the steps as a quiet route line, the evidence in the source colour with
+   its jump as the clear way to inspect the original. Targets reach 44px on touch; focus is always visible. */
+.feedbackLoop li { color: var(--k-text-2, var(--color-slate)); }
+.feedbackLoop li:first-child { color: var(--color-hero-orange); font-weight: 600; }
+.feedbackLoop li[aria-current="step"] { padding: 2px 8px; border-radius: 999px; background: var(--k-green-wash, #e6f1ea); }
+.reasoningStep:not(.reasoningEvidence) .reasoningNumber { background: var(--k-green-wash, #e6f1ea); }
+.reasoningEvidence .reasoningNumber { background: var(--color-hero-orange-wash); color: var(--color-hero-orange); }
+.reasoningEvidence .evidenceLabel { color: var(--color-hero-orange); }
+.reasoningEvidence .quote { color: var(--color-midnight-ink); font-style: normal; font-size: 0.9375rem; line-height: 1.55; }
+.sourceJump { padding: 0 14px; border-color: color-mix(in srgb, var(--color-kelus) 30%, var(--k-line-strong)); }
+.sourceJump svg { transition: transform 200ms cubic-bezier(0.22, 1, 0.36, 1); }
+@media (hover: hover) { .sourceJump:hover svg { transform: translateX(3px); } }
+.sourceJump:active { transform: scale(0.97); }
+.choice { min-height: 56px; }
+/* Outrank the global studio button rule without changing unrelated controls. */
+.run .card button.primary[type] { min-height: 48px !important; }
+.feedback .primary:focus-visible, .primary:focus-visible { outline: 2px solid var(--color-midnight-ink); outline-offset: 3px; }
+.listen, .flagLink, .link, .unsure { border-radius: 6px; }
+.flagLink:focus-visible, .link:focus-visible { outline: 2px solid var(--color-kelus); outline-offset: 2px; }
+.evidence { padding: 12px 14px; border-left: 3px solid var(--color-hero-orange); border-radius: 0 8px 8px 0; background: color-mix(in srgb, var(--color-hero-orange-wash) 30%, var(--k-surface)); }
+.evidence > span { color: var(--color-hero-orange); font-weight: 600; }
+.evidence .quote { font-style: normal; color: var(--color-midnight-ink); }
+.evidence .listen { justify-self: start; color: var(--color-kelus); font-weight: 600; }
+.prompt { overflow-wrap: anywhere; }
+@media (max-width: 420px) {
+  .feedbackLoop { gap: 4px 8px; font-size: 0.75rem; }
+  .reasoningEvidence .reasoningBody { padding: 10px; }
+  .sourceJump { justify-self: stretch; justify-content: center; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .sourceJump svg { transition: none; }
+  .sourceJump:active { transform: none; }
+}

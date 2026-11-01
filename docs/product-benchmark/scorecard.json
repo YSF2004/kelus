@@ -1,0 +1,72 @@
+{
+  "version": 1,
+  "maxEvidenceAgeDays": 30,
+  "criteria": [
+    { "id": "trust", "label": "Accurate feedback and exact evidence", "weight": 25, "critical": true },
+    { "id": "first-value", "label": "First useful session from real notes", "weight": 20, "critical": true },
+    { "id": "study-flow", "label": "Focused practice and useful next step", "weight": 15, "critical": false },
+    { "id": "recovery", "label": "Honest recovery from missing or weak sources", "weight": 15, "critical": true },
+    { "id": "accessibility", "label": "Phone, keyboard, themes and reduced motion", "weight": 15, "critical": true },
+    { "id": "continuity", "label": "Reliable progress and return visit", "weight": 10, "critical": true }
+  ],
+  "evidence": [
+    {
+      "id": "kelus-sample-browser",
+      "kind": "browser",
+      "reviewedAt": "2026-11-01",
+      "location": "docs/product-benchmark/browser-review-2026-11-01.md"
+    },
+    {
+      "id": "google-source-tools",
+      "kind": "official-doc",
+      "reviewedAt": "2026-11-01",
+      "location": "https://notebooklm.google/"
+    },
+    {
+      "id": "quizlet-practice",
+      "kind": "official-doc",
+      "reviewedAt": "2026-11-01",
+      "location": "https://help.quizlet.com/hc/en-us/articles/25946589648013-Studying-with-Practice-Tests"
+    },
+    {
+      "id": "remnote-reader",
+      "kind": "official-doc",
+      "reviewedAt": "2026-11-01",
+      "location": "https://help.remnote.com/en/articles/6690975-learning-from-pdfs-and-files-with-the-remnote-reader"
+    }
+  ],
+  "products": [
+    {
+      "name": "Kelus",
+      "assessments": [
+        { "criterion": "trust", "status": "observed", "scope": "sample", "rating": 3, "evidence": ["kelus-sample-browser"], "note": "Correct, incorrect and unsure sample feedback showed the supported answer and exact inline source passage. Real-file/page navigation and cross-subject grading remain unverified." },
+        { "criterion": "first-value", "status": "unknown", "rating": null, "evidence": ["kelus-sample-browser"], "note": "Optional sample works before import, but this does not establish a first useful session from real notes." },
+        { "criterion": "study-flow", "status": "observed", "scope": "sample", "rating": 3, "evidence": ["kelus-sample-browser"], "note": "Sample completed and returned to an updated plan. The long feedback/result layouts could be simpler; next-day recall and independent student success are untested." },
+        { "criterion": "recovery", "status": "unknown", "rating": null, "evidence": ["kelus-sample-browser"], "note": "Sample explicitly discloses its missing original PDF. No unsupported/scanned/multi-file recovery journey was tested." },
+        { "criterion": "accessibility", "status": "observed", "scope": "sample", "rating": 2, "evidence": ["kelus-sample-browser"], "note": "Phone/desktop had no horizontal overflow; light/dark were visually legible; one keyboard focus outline verified. Completion targets corrected from 36px to measured 52px. Full focus order, measured contrast, screen-reader support and motion timing remain unverified." },
+        { "criterion": "continuity", "status": "unknown", "rating": null, "evidence": ["kelus-sample-browser"], "note": "Return to Today updated the same-browser sample. No authenticated cross-device or progress-loss test was performed." }
+      ]
+    },
+    {
+      "name": "NotebookLM / Gemini Notebook",
+      "assessments": [
+        { "criterion": "trust", "status": "documented", "rating": null, "evidence": ["google-source-tools"], "note": "Official page describes source-grounded responses and user-controlled sources. This is not a measured accuracy or locator test." },
+        { "criterion": "study-flow", "status": "documented", "rating": null, "evidence": ["google-source-tools"], "note": "Official page lists flashcards, quizzes, mind maps and overviews. Hands-on friction and learning outcomes are untested." }
+      ]
+    },
+    {
+      "name": "Quizlet",
+      "assessments": [
+        { "criterion": "first-value", "status": "documented", "rating": null, "evidence": ["quizlet-practice"], "note": "Practice Tests accept uploaded or pasted notes and flashcard sets. Subscription, age, language and region restrictions are documented; check the current account's eligibility." },
+        { "criterion": "study-flow", "status": "documented", "rating": null, "evidence": ["quizlet-practice"], "note": "Question count, type and timer are configurable, followed by score/review. No inference about explanation quality or exact evidence navigation." }
+      ]
+    },
+    {
+      "name": "RemNote",
+      "assessments": [
+        { "criterion": "trust", "status": "documented", "rating": null, "evidence": ["remnote-reader"], "note": "Reader documentation describes linked highlights/references that jump to their PDF locations. Actual locator fidelity has not been compared." },
+        { "criterion": "study-flow", "status": "documented", "rating": null, "evidence": ["remnote-reader"], "note": "Reader combines PDF, notes and learning tools; Guided Learn Mode describes summaries, flashcards and quizzes. This does not establish superior or inferior usability." }
+      ]
+    }
+  ]
+}

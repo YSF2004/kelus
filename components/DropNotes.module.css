@@ -26,3 +26,12 @@
   cursor: pointer;
 }
 .recovery button:focus-visible { outline: 2px solid var(--color-kelus); outline-offset: 3px; }
+
+/* Refinement: reading progress in route green; recovery stays calm, with a clear next action. */
+.status { border-color: color-mix(in srgb, var(--color-kelus) 28%, var(--color-frost)); border-left: 3px solid var(--color-kelus); border-radius: 0 8px 8px 0; background: color-mix(in srgb, var(--k-green-wash, #e6f1ea) 55%, var(--k-surface)); }
+.status strong { color: var(--color-kelus); }
+.recovery { border-left: 3px solid var(--color-hero-orange); border-radius: 0 8px 8px 0; }
+.recovery button { border-radius: 10px; transition: background-color 200ms linear; }
+@media (hover: hover) { .recovery button:hover { background: var(--k-green-wash, #e6f1ea); } }
+.recovery button:active { transform: scale(0.97); }
+@media (prefers-reduced-motion: reduce) { .recovery button { transition: none; } .recovery button:active { transform: none; } }

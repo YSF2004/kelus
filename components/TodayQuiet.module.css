@@ -161,3 +161,36 @@
   .then li { padding-block: 10px; }
   .then li strong { white-space: normal; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; line-height: 1.3; }
 }
+
+/* ── Refinement 2026-10: the plan reads as one study path ─────────────────────────────────────────────
+   What to study (the card), why (a ruled reason in green), where it comes from (the quote as source, in the
+   source colour), then what follows. Colour carries meaning: green = route and action, orange = the student's source. */
+.next { border-color: color-mix(in srgb, var(--topic, var(--lb-green)) 26%, var(--lb-line)); }
+.next::before {
+  content: ""; position: absolute; inset: 0 0 auto; z-index: -1; height: 132px;
+  background: linear-gradient(180deg, color-mix(in srgb, var(--topic-wash, var(--lb-due)) 85%, transparent), transparent);
+  pointer-events: none;
+}
+.quote { position: relative; padding: 14px 18px 14px 20px; border-left: 3px solid var(--color-hero-orange); border-radius: 0 8px 8px 0; background: color-mix(in srgb, var(--color-hero-orange-wash) 55%, var(--lb-surface)); }
+.quote figcaption { display: inline-flex; align-items: center; gap: 6px; color: var(--color-hero-orange); }
+.why { position: relative; padding-left: 14px; color: var(--lb-text-2); font-size: 14px; }
+.why::before { content: ""; position: absolute; left: 0; top: 0.2em; bottom: 0.2em; width: 2px; border-radius: 2px; background: var(--lb-green); }
+.go:focus-visible { outline: 2px solid var(--lb-ink) !important; outline-offset: 3px; }
+.tomorrow { background: var(--lb-due); color: var(--lb-text-2); }
+.then li[data-tone]:hover { background: color-mix(in srgb, var(--topic-wash, var(--lb-well)) 45%, transparent); }
+.then li { border-radius: 6px; }
+@media (hover: none) { .then li:hover { translate: none; } }
+@media (prefers-reduced-motion: reduce) {
+  .then li, .go svg { transition: none; }
+  .then li:hover { translate: none; }
+  .go:hover svg { transform: none; }
+}
+@media (max-width: 650px) {
+  .next::before { height: 104px; }
+  .topic { font-size: clamp(30px, 9vw, 36px) !important; overflow-wrap: anywhere; }
+  .chips li { height: 32px; }
+  .quote blockquote { font-size: 16px; }
+  .page .next .action .go { min-height: 52px !important; }
+  .then li { min-height: 60px; }
+  .stats li { min-height: 32px; }
+}

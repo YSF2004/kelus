@@ -379,7 +379,7 @@ export function RevisionSurface({ topicId }: { /** A topic's own page, opened in
           {topicId ? null : <motion.div
             key={mode}
             className="studio-panel kelus-paper-body kelus-space-panel revision-surface-panel"
-            initial={reduceMotion ? false : { opacity: 0.55 }}
+            initial={false}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.12, ease: kelusEase }}
           >

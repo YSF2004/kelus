@@ -64,11 +64,20 @@
 
 .done h1 {
   margin: 0;
+  font-family: var(--font-display) !important;
+  font-size: clamp(2rem, 6vw, 2.625rem) !important;
+  font-weight: 500 !important;
+  line-height: 1.1 !important;
+  letter-spacing: -0.02em !important;
+  color: var(--color-midnight-ink);
+  overflow-wrap: anywhere;
 }
 
 .lede {
   margin: -4px 0 0;
+  max-width: 52ch;
   color: var(--color-slate);
+  font-size: 1.0625rem;
   line-height: 1.5;
 }
 
@@ -92,10 +101,16 @@
   background: var(--k-surface);
 }
 
+/* Topic names are set in the serif, the outcome beside them in the outcome's colour. */
 .topics strong {
-  font-weight: 600;
+  min-width: 0;
+  overflow-wrap: anywhere;
+  font-family: var(--font-display);
+  font-size: 1.0625rem;
+  font-weight: 500;
   color: var(--color-midnight-ink);
 }
+.success { border-color: color-mix(in srgb, var(--color-kelus) 24%, transparent) !important; }
 
 /* On a phone the outcome sits under the topic name; there is room beside it on wider screens. */
 .word {
@@ -150,6 +165,7 @@
 
 .tomorrow h2 {
   margin: 0;
+  padding-right: 88px;
   font-family: var(--font-display);
   font-size: 1.375rem;
   font-weight: 500;
@@ -172,11 +188,6 @@
   pointer-events: none;
 }
 
-.tomorrow :global(.kicker),
-.tomorrow h2 {
-  
-}
-
 .calendar {
   justify-self: start;
   margin-top: 4px;
@@ -188,10 +199,15 @@
   color: var(--color-kelus) !important;
 }
 
+/* The one way on: full width at thumb height on a phone, its own size on a wide screen. */
 .primary {
   justify-self: stretch;
+  min-height: 48px;
   text-align: center;
 }
+/* The shared studio button rule is important; keep this route's primary action comfortably tappable. */
+:global(#main) .primary { min-height: 48px !important; }
+.primary:focus-visible, .quiet button:focus-visible, .quiet summary:focus-visible, .calendar:focus-visible { outline: 2px solid var(--color-kelus); outline-offset: 3px; }
 
 .quiet {
   display: grid;
@@ -207,7 +223,7 @@
 }
 
 .quiet button {
-  min-height: 36px;
+  min-height: 44px;
   padding: 0 2px;
   border: 0;
   background: none;
@@ -219,7 +235,7 @@
 }
 
 .quiet summary {
-  min-height: 36px;
+  min-height: 44px;
   display: flex;
   align-items: center;
   cursor: pointer;
@@ -233,19 +249,16 @@
   .art {
     width: 104px;
   }
-
-  .tomorrow :global(.kicker),
-  .tomorrow h2 {
-    
-  }
 }
 
+/* What changed reads as evidence from the student's own answers: a source-coloured rule, not a grey box. */
 .changed {
   display: grid;
   gap: 10px;
-  padding: 16px 18px;
-  border-radius: 12px;
-  background: var(--k-surface-2);
+  padding: 14px 18px;
+  border-left: 3px solid var(--color-hero-orange);
+  border-radius: 0 8px 8px 0;
+  background: color-mix(in srgb, var(--color-hero-orange-wash) 40%, var(--k-surface));
 }
 .changed p { margin: 0; line-height: 1.45; color: var(--color-midnight-ink); }
 .changedLabel { display: block; margin-bottom: 2px; font-size: 0.75rem; font-weight: 600; letter-spacing: 0; text-transform: none; color: var(--k-text-2); }
@@ -294,7 +307,7 @@
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  min-height: 40px;
+  min-height: 44px;
   color: var(--color-slate);
   font-weight: 500;
   cursor: pointer;
@@ -303,4 +316,5 @@
 .quiet details summary::-webkit-details-marker { display: none; }
 .quiet details summary::after { content: ""; width: 6px; height: 6px; margin-top: -3px; border-right: 1.5px solid currentColor; border-bottom: 1.5px solid currentColor; transform: rotate(45deg); transition: transform 120ms cubic-bezier(0.22, 1, 0.36, 1); }
 .quiet details[open] summary::after { margin-top: 3px; transform: rotate(-135deg); }
+@media (prefers-reduced-motion: reduce) { .quiet details summary::after { transition: none; } }
 .quiet details summary:hover { color: var(--color-midnight-ink); }

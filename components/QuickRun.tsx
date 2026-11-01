@@ -5,6 +5,7 @@ import type { ReactNode } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { LineMove } from "@/components/LineMove";
+import { buildAnswerReason } from "@/domain/answer-reason";
 import { checkAnswer, type CheckVerdict } from "@/domain/practice-check";
 import { explainMatch, looksLikeWords } from "@/domain/answer-evaluation";
 import { PackArt } from "@/components/PackArt";
@@ -150,6 +151,7 @@ export function QuickRun({ run: providedRun, persistenceKey, onPersistenceChange
   // Below three key words there is too little to compare fairly, so nothing is highlighted or suggested.
   const useful = match && match.keys >= 3 && explained.trim() ? match : null;
   const item = onChecks ? run.checks[step] : null;
+  const answerReason = item && answered ? buildAnswerReason(item) : null;
   const chips = item ? gapChoices(item, run) : [];
   const nextLabel = step + 1 >= total
     ? (onChecksDone ? w.seeHow : w.sayIt)
@@ -435,20 +437,21 @@ export function QuickRun({ run: providedRun, persistenceKey, onPersistenceChange
                     <div className={styles.reasoningBody}>
                       <span className={styles.reasoningLabel}>Your answer</span>
                       <p className={styles.reasoningText}>{answered.given?.trim() || w.notSure}</p>
+                      {answerReason?.answer ? (
+                        <p className={styles.reasoningText}>
+                          {answerReason.grounded ? "Supported answer" : "Suggested answer"}: <strong>{answerReason.answer}</strong>
+                        </p>
+                      ) : null}
                     </div>
                   </li>
                   <li className={styles.reasoningStep}>
                     <span className={styles.reasoningNumber} aria-hidden="true">2</span>
                     <div className={styles.reasoningBody}>
                       <span className={styles.reasoningLabel}>
-                        {answered.right ? "Why this answer holds" : answered.unsure ? "How to reason it through" : "Why this answer doesn’t match"}
+                        {!answerReason?.grounded ? "What the evidence can establish" : answered.right ? "Why this answer holds" : answered.unsure ? "How to reason it through" : "Why this answer doesn’t match"}
                       </span>
                       <p className={styles.reasoningText}>
-                        {item.explanation?.trim() || (answered.right
-                          ? "It matches the source line below."
-                          : answered.unsure
-                            ? "Use the source line below as your starting point."
-                            : "Compare your answer with the source line below.")}
+                        {answerReason?.reason}
                       </p>
                     </div>
                   </li>

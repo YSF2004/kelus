@@ -118,7 +118,7 @@ export function DropNotes({ onFile, first = false, courseName }: { onFile: (file
             <span className="setup-upload-mark" aria-hidden="true"><PackArt name="folder" size={44} /></span>
             <strong>{busy ? stage : "Choose a PDF or notes"}</strong>
             {/* Dragging only exists with a mouse or trackpad; a phone gets the file types instead. */}
-            <span>{busy ? "Larger files and scanned pages can take longer." : <><span className="drop-hint">or drop it here · </span>PDF or text files, or a <span className="brand-inline"><BrandIcon brand="notion" size={14} />Notion</span> .zip</>}</span>
+            <span>{busy ? "Larger files and scanned pages can take longer." : <><span className="drop-hint">or drop it here · </span>PDF, <span className="brand-inline"><BrandIcon brand="markdown" size={15} />Markdown</span>, .txt or a <span className="brand-inline"><BrandIcon brand="notion" size={14} />Notion</span> .zip</>}</span>
           </label>
           <div role="status" aria-live="polite" aria-atomic="true" className={styles.status}>
             {busy ? <><strong>{sourceName}</strong><span>{stage} Keep this page open while Kelus reads the source.</span></> : null}
@@ -130,7 +130,7 @@ export function DropNotes({ onFile, first = false, courseName }: { onFile: (file
             <button type="button" onClick={() => fileInput.current?.click()}>Choose another file</button>
             <p>You can also paste the relevant section above. Any text you entered stays here.</p>
           </div> : null}
-          <p className="setup-file-help">PDFs up to 20 MB, scans included. From Notion: export your notes and choose the .zip.</p>
+          <p className="setup-file-help">PDFs up to 20 MB, scans included. From Notion: Export, then Markdown &amp; CSV, and choose the .zip.</p>
           <p className="setup-privacy-note">Your notes stay on this device. You can sign in later to sync.</p>
           {/* First use only: an optional, labelled sample. It never touches learner storage or analytics. */}
         </section>

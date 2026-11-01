@@ -2,6 +2,7 @@
 
 import { useEffect, useId, useMemo, useRef, useState } from "react";
 import { buildFirstStudyExample } from "@/lib/first-study-preview";
+import { buildAnswerReason } from "@/domain/answer-reason";
 import styles from "./FirstStudyPreview.module.css";
 
 /**
@@ -24,6 +25,7 @@ export function FirstStudyPreview() {
   }, [open]);
   if (!data) return <p className={styles.note}>The sample is unavailable. You can still add your own notes below.</p>;
   const { check, sentences, title, topic } = data;
+  const reason = buildAnswerReason(check);
   const choices = check.choices ?? [];
   const right = answer?.kind === "picked" && answer.index === check.correctIndex;
   const evidenceId = `${id}-evidence`;
@@ -100,7 +102,7 @@ export function FirstStudyPreview() {
                   )}
                   {answer.kind === "unsure" ? <p>Supported answer: <strong>{check.modelAnswer}</strong>.</p> : null}
                   <span className={`${styles.label} ${styles.route}`}>Why</span>
-                  <p>{check.explanation}</p>
+                  <p>{reason.reason}</p>
                 </div>
               ) : (
                 <p className={styles.waiting}>Answer to see the explanation and the line it comes from.</p>

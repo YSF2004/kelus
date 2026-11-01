@@ -1,7 +1,8 @@
 .preview { margin: 20px 0 24px; text-align: left; }
 .invite {
   display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 16px;
-  padding: 12px 16px; border-top: 1px solid var(--color-frost, #d5d9d0); border-bottom: 1px solid var(--color-frost, #d5d9d0);
+  padding: 12px 16px; border: 1px solid color-mix(in srgb, var(--color-kelus, #1f6b45) 22%, var(--color-frost, #d5d9d0)); border-radius: 8px;
+  background: color-mix(in srgb, var(--k-green-wash, #e6f1ea) 50%, var(--k-surface, #fff));
 }
 .inviteText { margin: 0; color: var(--color-slate, #4a5246); font-size: var(--text-body-sm, 15px); line-height: 1.5; }
 .textButton {
@@ -31,10 +32,15 @@
 .note { margin: 8px 0 0; color: var(--color-slate, #4a5246); font-size: 14px; line-height: 1.5; }
 
 .steps { list-style: none; margin: 16px 0 0; padding: 0; display: grid; gap: 0; }
-.step { padding: 12px 0; border-top: 1px solid var(--color-frost, #d5d9d0); }
+.step { position: relative; padding: 12px 0 12px 14px; border-top: 1px solid var(--color-frost, #d5d9d0); }
+/* Each step carries its learning colour as a short rule: source orange, recall purple, route green. */
+.step::before { content: ""; position: absolute; left: 0; top: 14px; bottom: 14px; width: 2px; border-radius: 2px; background: var(--color-frost, #d5d9d0); }
+.step:has(.source)::before { background: var(--color-hero-orange); }
+.step:has(.recall)::before { background: var(--color-hero-purple); }
+.step:has(.route)::before { background: var(--color-kelus, #1f6b45); }
 .label { display: block; margin-bottom: 4px; font-size: 13px; font-weight: 600; }
-.source { color: #9a5a1c; }
-.recall { color: #6a4a8c; }
+.source { color: var(--color-hero-orange, #9a5a1c); }
+.recall { color: var(--color-hero-purple, #6a4a8c); }
 .route { color: var(--color-kelus, #1f6b45); }
 .sourceLine { margin: 0; line-height: 1.5; }
 .topic { font-family: var(--font-literata, Literata, serif); font-weight: 600; }
@@ -67,6 +73,8 @@
 .cite { margin-top: 8px; color: var(--color-slate, #4a5246); font-size: 13px; }
 .next { margin: 12px 0 0; color: var(--color-slate, #4a5246); font-size: 14px; }
 .srOnly { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+@media (max-width: 420px) { .panel { padding: 14px; } .choice { flex: 1 1 100%; text-align: left; } }
 
 @media (prefers-reduced-motion: reduce) {
   .panel { animation: none; }
