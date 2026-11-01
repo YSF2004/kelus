@@ -17,6 +17,7 @@ concurrency:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     environment: Production
     steps:
       - uses: actions/checkout@v4
@@ -24,14 +25,17 @@ jobs:
         with:
           node-version: 22
           cache: npm
-      - run: npm ci
+      - name: Install locked dependencies
+        run: node scripts/install-ci.mjs
       - run: npm run lint
       - run: npm run typecheck
       - run: npm test
       # Browser tests already passed on the pull request ("Verify pull request"); running them again here doubled
       # every release to about ten minutes. Lint, types and unit tests stay as a fast guard.
       - name: Build
-        run: npm run build || { echo "::warning::Build failed once; retrying"; npm run build; }
+        run: |
+          npm run check:production
+          npm run build || { echo "::warning::Build failed once; retrying"; npm run build; }
         env:
           NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL }}
           NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY }}
@@ -47,13 +51,15 @@ jobs:
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
       # The job is green only when kelus.me actually serves this commit.
       - name: Check kelus.me serves this commit
+        id: verify_release
+        run: npm run verify:release -- --commit "$GITHUB_SHA" --attempts 20
+      - name: Record production verification result
+        if: always()
         run: |
-          want="${GITHUB_SHA:0:12}"
-          for attempt in $(seq 1 20); do
-            live=$(curl -fsS "https://kelus.me/version.json?ts=$(date +%s%N)" | sed -E 's/.*"id":"([^"]+)".*/\1/' || true)
-            if [ "$live" = "$want" ]; then echo "kelus.me is on $live"; exit 0; fi
-            echo "kelus.me is on ${live:-?}, waiting for $want ($attempt/20)"
-            sleep 15
-          done
-          echo "::error::kelus.me did not switch to $want"
-          exit 1
+          {
+            echo "## Kelus production release"
+            echo "- Requested commit: \`$GITHUB_SHA\`"
+            echo "- Version and public-page verification: ${{ steps.verify_release.outcome || 'not run' }}"
+            echo "- A successful push or build alone does not prove deployment."
+            echo "- Sign-in, sync, import and source navigation require the browser smoke check in docs/release-readiness.md."
+          } >> "$GITHUB_STEP_SUMMARY"
