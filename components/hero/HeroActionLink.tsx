@@ -5,7 +5,7 @@ import { motion, useReducedMotion } from "motion/react";
 import { useRouter } from "next/navigation";
 import { useState, type MouseEvent, type ReactNode } from "react";
 
-const MotionLink = motion(Link);
+const MotionLink = motion.create(Link);
 
 type HeroActionLinkProps = Pick<LinkProps, "replace" | "scroll" | "shallow"> & {
   href: string;
