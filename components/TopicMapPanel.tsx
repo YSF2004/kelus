@@ -55,9 +55,9 @@ function MasteryRing({ value }: { value: number | null }) {
 
 /**
  * Topics as a path in the order of your notes: each topic a step with how it stands, a checkpoint after every three,
- * and an exam check at the end. The next topic is marked in its own row, never duplicated above the list.
+ * and an exam check at the end. A direct action opens the same next study session as the Study plan.
  */
-export function TopicMapPanel() {
+export function TopicMapPanel({ onStart, startLabel }: { onStart?: () => void; startLabel?: string } = {}) {
   const { state, removeTopic } = useLearner();
   const reduce = useReducedMotion() === true;
   const known = useSyncExternalStore(subscribeKnownLines, getKnownLines, getServerKnownLines);
@@ -169,6 +169,25 @@ export function TopicMapPanel() {
         </span>
       </div>
 
+      {start ? (
+        <section className={styles.nextStep} aria-label="Next study step">
+          <div className={styles.nextStepCopy}>
+            <span className={styles.nextStepLabel}>Next to practise</span>
+            <strong>{start.concept.name}</strong>
+            <span className={styles.nextStepReason}>{startReason ?? "First in your current study plan."}</span>
+          </div>
+          {onStart ? (
+            <button type="button" className={`k-btn ${styles.nextStepButton}`} onClick={onStart}>
+              {startLabel ?? "Start session"} <ArrowRight />
+            </button>
+          ) : (
+            <Link href="/today" className={`k-btn ${styles.nextStepButton}`}>
+              Open study plan <ArrowRight />
+            </Link>
+          )}
+        </section>
+      ) : null}
+
       {/* Column names for the eye; each row's strip says its boxes to a screen reader. */}
       <div className="toc-columns" aria-hidden="true"><span>Topic</span><span className="toc-boxes"><i>1</i><i>2</i><i>3</i><i>4</i><i>5</i></span><span>Status</span><span>Page</span></div>
       <ol className={`index-toc ${styles.path}`} aria-label="Topics, in the order of your notes">
@@ -195,7 +214,7 @@ export function TopicMapPanel() {
                 </ConceptTitleTransition>
                 <span className="index-toc-meta">
                   <BoxStrip lines={boxes.lines.filter((line) => line.conceptId === concept.id)} label={concept.name} />
-                  <span className={styles.state} data-level={isStart ? "next" : label.toLocaleLowerCase().replace(/\s+/g, "-")}>{isStart ? "Start here" : label}</span>
+                  <span className={styles.state} data-level={isStart ? "next" : label.toLocaleLowerCase().replace(/\s+/g, "-")}>{isStart ? "Up next" : label}</span>
                   {mastery == null ? null : <span className={styles.metaSoft}>{checks < 3 ? `${checks} ${checks === 1 ? "try" : "tries"}` : percent(mastery)}</span>}
                   {page ? <span className={styles.metaSoft}><Octicon name="file" className={styles.icoSm} />{page}</span> : null}
                 </span>

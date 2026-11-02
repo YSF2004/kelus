@@ -88,15 +88,14 @@ export function ProgressView({ concepts, events, nowIso, daysToExam, targetPerce
     const headline = <h2 id="progress-headline" className={styles.earlyHeading}>{summary.practised.length} of {concepts.length} topics tried</h2>;
     return (
       <div className={styles.page}>
+        {headline}
         <RecallMap
           concepts={concepts}
           activities={activities}
           nowIso={nowIso}
-          heading={headline}
           noteFor={noteFor}
           fallback={
-            <section className={styles.group} aria-labelledby="progress-headline">
-              {headline}
+            <section className={styles.group} aria-label="Topics practised">
               <ul>
                 {summary.practised.map((topic) => (
                   <li key={topic.id}>
@@ -121,8 +120,6 @@ export function ProgressView({ concepts, events, nowIso, daysToExam, targetPerce
 
   return (
     <div className={styles.page}>
-      <RecallMap concepts={concepts} activities={activities} nowIso={nowIso} />
-      <Link href="/sheet" className={styles.sheetLink}>Open your revision sheet</Link>
       <motion.section className={styles.lead} initial={reduce ? false : { opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: reduce ? 0 : 0.3, ease: [0.22, 1, 0.36, 1] }} aria-labelledby="progress-headline">
         {/* Before there are enough answers there is no trend to talk about: the counts below say where you are. */}
         <h2 id="progress-headline">{fresh ? "Your progress starts with a first answer." : progressHeadline(summary)}</h2>
@@ -137,8 +134,13 @@ export function ProgressView({ concepts, events, nowIso, daysToExam, targetPerce
           <div><dt>Days studied</dt><dd>{summary.daysStudied}<small> of 7</small></dd></div>
           <div><dt>Topics practised</dt><dd>{summary.topicsPractised}<small> of {concepts.length}</small></dd></div>
         </dl>}
-        {!summary.enough ? <Link href="/today" className={`k-btn ${styles.cta}`}>Practise a topic <ArrowRight /></Link> : null}
+        <div className={styles.actions}>
+          <Link href="/today" className={`k-btn ${styles.cta}`}>Practise next topic <ArrowRight /></Link>
+          <Link href="/sheet" className={styles.sheetLink}>Open your revision sheet</Link>
+        </div>
       </motion.section>
+
+      <RecallMap concepts={concepts} activities={activities} nowIso={nowIso} />
 
       {fresh || !summary.stronger.length ? null : <Topics title="Got stronger" note="" items={summary.stronger} empty="" />}
       {fresh ? null : <Topics title="Needs another pass" note="" items={summary.needsPass} empty="No weak spots from your answers so far." />}
