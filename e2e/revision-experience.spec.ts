@@ -77,8 +77,8 @@ test("a student can follow the study plan into topics and open one", async ({ pa
 test("the course workspace stays legible across its sections and returns home", async ({ page }) => {
   await page.goto("/today/?sample=1");
   await expect(page.locator("#today-title")).toHaveText("Elasticity");
-  // The product is set on warm paper (the editorial notebook), not screen white.
-  await expect(page.locator(".studio-main")).toHaveCSS("background-color", "rgb(255, 255, 255)");
+  // The workspace uses the pale paper surface; cards and navigation carry the stronger contrast.
+  await expect(page.locator(".studio-main")).toHaveCSS("background-color", "rgb(241, 244, 239)");
   await expect(page.locator('[data-block="course-title"]')).toHaveText("Microeconomics");
 
   const sections = sectionsNav(page);

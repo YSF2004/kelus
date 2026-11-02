@@ -246,6 +246,48 @@ html body .pricing-page[data-marketing] :is(.cta, .k-btn, button) > span[aria-hi
 /* Pricing cards: hairline panels; the planned plan sits in a well. */
 html body .pricing-page[data-marketing] .pricing-plan-shell > * { border-radius: 16px !important; border-color: #e3e8e5 !important; }
 html body .pricing-page[data-marketing] .pricing-plan-shell:nth-child(2) > * { background: #f5f7f6 !important; }
+/* Preserve the existing supporting marketing-page layout; this release only restyles the signed-in workspace. */
+html body .route-page[data-marketing],
+html body .pricing-page[data-marketing] {
+  width: auto;
+  max-width: none;
+  margin: 16px 64px 0;
+  background: #fff;
+}
+
+html body .route-page[data-marketing] > .page,
+html body .pricing-page[data-marketing] > main {
+  border: 1px solid #e5e5e5;
+  border-radius: 8px;
+  background: #fff;
+}
+
+html body .route-page[data-marketing] > .page > :is(.hero, .story, .questions, .final),
+html body .pricing-page[data-marketing] .pricing-booklet {
+  width: min(1180px, calc(100% - 64px));
+  max-width: none;
+}
+
+html body .route-page[data-marketing] .hero {
+  padding-top: clamp(56px, 8vw, 104px);
+}
+
+html body .pricing-page[data-marketing] .pricing-booklet {
+  padding-block: clamp(40px, 6vw, 72px);
+}
+
+@media (max-width: 720px) {
+  html body .route-page[data-marketing],
+  html body .pricing-page[data-marketing] {
+    margin: 12px 16px 0;
+  }
+
+  html body .route-page[data-marketing] > .page > :is(.hero, .story, .questions, .final),
+  html body .pricing-page[data-marketing] .pricing-booklet {
+    width: calc(100% - 32px);
+  }
+}
+
 /* The notes link sits level with the course title at the right, not on a row of its own above it: the page starts at
    once. The head keeps room for it on the right. */
 html body.is-course-studio .core-workspace-grid.is-today-single > .core-workspace-action { position: relative; }

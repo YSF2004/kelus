@@ -214,7 +214,7 @@ export function TopicMapPanel({ onStart, startLabel }: { onStart?: () => void; s
                 </ConceptTitleTransition>
                 <span className="index-toc-meta">
                   <BoxStrip lines={boxes.lines.filter((line) => line.conceptId === concept.id)} label={concept.name} />
-                  <span className={styles.state} data-level={isStart ? "next" : label.toLocaleLowerCase().replace(/\s+/g, "-")}>{isStart ? "Up next" : label}</span>
+                  <span className={styles.state} data-level={isStart ? "next" : label.toLocaleLowerCase().replace(/\s+/g, "-")}>{isStart ? "Start here" : label}</span>
                   {mastery == null ? null : <span className={styles.metaSoft}>{checks < 3 ? `${checks} ${checks === 1 ? "try" : "tries"}` : percent(mastery)}</span>}
                   {page ? <span className={styles.metaSoft}><Octicon name="file" className={styles.icoSm} />{page}</span> : null}
                 </span>
