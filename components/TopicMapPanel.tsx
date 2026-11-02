@@ -85,7 +85,7 @@ export function TopicMapPanel({ onStart, startLabel }: { onStart?: () => void; s
   const openBlock = freshOpenSession(state.snapshot.sessions, course.id, state.nowIso);
   const resumeId = resumeConceptId(openBlock, state.snapshot.events);
   const startAllocation = resumeId ? (routeStart?.conceptId === resumeId ? routeStart : openBlock?.latestRoute.allocations.find((item) => item.conceptId === resumeId) ?? routeStart) : routeStart;
-  const startConceptId = startAllocation?.conceptId ?? null;
+  const startConceptId = startAllocation?.conceptId ?? concepts[0]?.id ?? null;
 
   if (!concepts.length) {
     return (

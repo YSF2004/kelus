@@ -82,7 +82,7 @@ html body.is-course-studio :is(.studio-page, .studio-main, .studio-topbar, .stud
 /* The primary action: one green key, flat, as the Link-style buttons in quiet.css shape it. */
 html body :is(body.is-course-studio, body.is-session-booklet, body.is-session-complete, body:has(.start-page)) :is(.k-btn, .cta):not(.k-btn--paper):not(:disabled),
 html :is(body.is-course-studio, body.is-session-booklet, body.is-session-complete, body:has(.start-page)) :is(.k-btn, .cta):not(.k-btn--paper):not(:disabled) {
-  border-radius: 10px !important;
+  border-radius: 11px !important;
   font-weight: 600 !important;
   box-shadow: none !important;
 }
@@ -240,7 +240,7 @@ html body :is(.route-page, .pricing-page)[data-marketing] :is(#k, h3, dt, strong
 /* The product fragments on How it works: wells with a hairline, like the product's panels. */
 html body .route-page[data-marketing] [class*="HowSheets"][class*="sheet"] { border: 0 !important; border-radius: 14px !important; background: #f5f7f6 !important; box-shadow: inset 0 0 0 1px #e3e8e5 !important; }
 /* One green key per page, flat; text arrows after labels go. */
-html body :is(.route-page, .pricing-page)[data-marketing] :is([class*="primaryAction"], .cta, .k-btn):not(:disabled) { border-radius: 10px !important; font-weight: 600 !important; box-shadow: none !important; }
+html body :is(.route-page, .pricing-page)[data-marketing] :is([class*="primaryAction"], .cta, .k-btn):not(:disabled) { border-radius: 11px !important; font-weight: 600 !important; box-shadow: none !important; }
 html body .route-page[data-marketing] [class*="primaryArrow"],
 html body .pricing-page[data-marketing] :is(.cta, .k-btn, button) > span[aria-hidden="true"] { display: none !important; }
 /* Pricing cards: hairline panels; the planned plan sits in a well. */
@@ -612,7 +612,7 @@ html body.is-course-studio [class*="ProgressView"][class*="empty"] {
    The session and marketing surfaces keep their own treatment. The workspace itself returns to Kelus's
    paper #eef1ec; raised surfaces stay only a shade lighter, so the notes remain the visual source. */
 html body.is-course-studio {
-  --lb-paper: #eef1ec;
+  --lb-paper: #f1f4ef;
   --lb-surface: #f8faf7;
   --lb-rail: #e8ede7;
   --lb-well: #f5f8f4;

@@ -5,7 +5,7 @@ test("pricing opens from the homepage with the Plus sheet and no stale homepage"
   await page.getByRole("navigation", { name: "Primary navigation" }).getByRole("link", { name: "Pricing" }).click();
   await expect(page).toHaveURL(/\/pricing\/$/);
   await expect(page.getByRole("heading", { name: "Start revising. Stay in control." })).toBeVisible();
-  await expect(page.getByRole("heading", { name: "Questions from your notes. Checked against the page." })).toHaveCount(0);
+  await expect(page.getByRole("heading", { name: "Turn your notes into practice questions." })).toHaveCount(0);
   await expect(page.locator(".pricing-offer.is-pass")).toHaveCSS("background-color", "rgb(245, 247, 246)");
 });
 
