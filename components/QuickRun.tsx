@@ -300,7 +300,7 @@ export function QuickRun({ run: providedRun, persistenceKey, onPersistenceChange
         </button>
       </header>
       {persistenceKey ? (
-        <p className={`${styles.saveStatus}${saveFailed ? ` ${styles.saveError}` : ""}`} role={saveFailed ? "alert" : "status"} data-testid="status-study-save">
+        <p className={`${styles.saveStatus}${saveFailed ? ` ${styles.saveError}` : resume.kind !== "restored" && resume.kind !== "changed" && resume.kind !== "invalid" ? ` ${styles.saveQuiet}` : ""}`} role={saveFailed ? "alert" : "status"} data-testid="status-study-save">
           {saveFailed
             ? "This browser couldn’t save your place. Keep this tab open, or enable browser storage."
             : resume.kind === "restored"
@@ -309,7 +309,7 @@ export function QuickRun({ run: providedRun, persistenceKey, onPersistenceChange
                 ? "The questions changed, so this topic has restarted. New progress is saved on this device."
                 : resume.kind === "invalid"
                   ? "The previous draft couldn’t be restored. This run is saved on this device."
-                  : "Your question and unfinished answer are saved on this device"}
+                  : "Saved on this device"}
         </p>
       ) : null}
 
@@ -424,12 +424,6 @@ export function QuickRun({ run: providedRun, persistenceKey, onPersistenceChange
                 dragSnapToOrigin
                 onDragEnd={(_, info) => { if (info.offset.x < -80 || info.velocity.x < -500) next(); }}
                 initial={reduce ? false : touch ? { opacity: 1, y: "100%" } : { opacity: 0, y: 8, scale: 0.98 }} animate={{ opacity: 1, y: 0, scale: 1 }} transition={touch ? { type: "spring", bounce: 0, duration: 0.38 } : { type: "spring", bounce: 0, duration: 0.28 }}>
-                <ol className={styles.feedbackLoop} aria-label="Answer feedback sequence">
-                  <li>Source</li>
-                  <li>Question</li>
-                  <li>Answer</li>
-                  <li aria-current="step">Why + evidence</li>
-                </ol>
                 <strong>{answered.right ? <PackArt name="check" className={styles.mark} /> : null}{answered.unsure ? (item.kind === "cloze" ? w.itWas(item.modelAnswer) : w.lineFrom) : answered.right ? (answered.picked ? w.picked : answered.firstEver ? w.firstRight : w.right) : item.kind === "cloze" ? w.notQuiteWas(item.modelAnswer) : w.notQuite}</strong>
                 <ol className={styles.reasoningTrace} aria-label="Your answer, the reason, and the source">
                   <li className={styles.reasoningStep}>
@@ -448,7 +442,7 @@ export function QuickRun({ run: providedRun, persistenceKey, onPersistenceChange
                     <span className={styles.reasoningNumber} aria-hidden="true">2</span>
                     <div className={styles.reasoningBody}>
                       <span className={styles.reasoningLabel}>
-                        {!answerReason?.grounded ? "What the evidence can establish" : answered.right ? "Why this answer holds" : answered.unsure ? "How to reason it through" : "Why this answer doesn’t match"}
+                        {!answerReason?.grounded ? "What your notes say" : answered.right ? "Why this answer holds" : answered.unsure ? "How to reason it through" : "Why this answer doesn’t match"}
                       </span>
                       <p className={styles.reasoningText}>
                         {answerReason?.reason}

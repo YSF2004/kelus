@@ -149,7 +149,7 @@ function CompleteBody() {
         <BlockRing done={practised.length} of={Math.max(practised.length, session.plannedConceptIds.length)} allSolid={allGood} />
         <h1>Done.</h1>
         <p className={styles.lede}>
-          {practised.length} {practised.length === 1 ? "topic" : "topics"}{course ? ` from ${course.name}` : ""}. Your answers are saved.
+          {practised.length} {practised.length === 1 ? "topic" : "topics"}{course && course.name !== "My course" ? ` from ${course.name}` : ""}. Your answers are saved.
         </p>
 
         {/* What changed, the way a tutor would say it: what you now know, and the one thing to fix next. */}

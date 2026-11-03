@@ -89,7 +89,7 @@ function ReadCoverage({ coverage, found }: { coverage: NonNullable<AnalysisPaylo
   const all = coverage.pagesRead >= coverage.totalPages;
   return (
     <p className="read-coverage" role="status">
-      {all ? (coverage.totalPages === 1 ? `Read the whole ${unit}.` : `Read all ${plural(coverage.totalPages)}.`) : `Read the first ${plural(coverage.pagesRead)} of ${coverage.totalPages}. Add the rest as a separate file to include it.`}
+      {all ? (coverage.totalPages === 1 ? `Kelus read the whole ${unit}.` : `Kelus read all ${plural(coverage.totalPages)}.`) : `Kelus read the first ${plural(coverage.pagesRead)} of ${coverage.totalPages}. Add the rest as a separate file to include it.`}
       {coverage.lowTextPages ? ` ${coverage.lowTextPages} ${unit}${coverage.lowTextPages === 1 ? " has" : "s have"} little readable text; check the original before trusting this topic list.` : ""}
       {coverage.topicCapHit ? ` Showing the first ${found} topics; remove the ones you don’t need, or add the rest as another file.` : ""}
     </p>

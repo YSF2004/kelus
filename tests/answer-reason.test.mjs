@@ -98,3 +98,16 @@ test("the sample and the live run use the same reason builder without changing t
     assert.match(component, /buildAnswerReason/);
   }
 });
+
+test("a gap shown with words to choose from gets the same source-restoring explanation as a typed gap", () => {
+  const sourceQuote = "Demand falls as price rises, because buyers switch to substitutes or buy less.";
+  const gap = {
+    ...item, kind: "choice", variant: undefined, choices: ["equals", "price", "cover", "costs"], correctIndex: 1,
+    modelAnswer: "price", sourceQuote, explanation: `The page says: “${sourceQuote}”`,
+    prompt: "Which word completes this statement from your notes? “Demand falls as _____ rises, because buyers switch to substitutes or buy less.”",
+  };
+  const feedback = buildAnswerReason(gap);
+  assert.equal(feedback.grounded, true);
+  assert.match(feedback.reason, /blank replaces “price”/);
+  assert.equal(buildAnswerReason({ ...gap, choices: ["equals", "cover", "price", "costs"], correctIndex: 0, modelAnswer: "equals" }).grounded, false);
+});

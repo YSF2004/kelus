@@ -12,6 +12,12 @@
   line-height: 1.5;
 }
 
+/* Saving is the normal case: said once, small and grey, so it never reads as a notice to act on. */
+.saveQuiet {
+  color: var(--k-text-3, var(--color-slate));
+  font-size: 0.75rem;
+}
+
 .saveError {
   color: var(--color-midnight-ink);
   border-left: 3px solid var(--color-kelus);
@@ -326,34 +332,6 @@
   border: 1px solid color-mix(in srgb, var(--k-ink) 6%, transparent);
   border-radius: 8px;
   background: var(--k-surface-2);
-}
-
-.feedbackLoop {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 5px 10px;
-  margin: 0 0 2px;
-  padding: 0;
-  color: var(--color-slate);
-  font-size: var(--text-caption, 0.75rem);
-  list-style: none;
-}
-
-.feedbackLoop li {
-  display: inline-flex;
-  align-items: center;
-  gap: 10px;
-}
-
-.feedbackLoop li:not(:last-child)::after {
-  color: var(--k-line-strong);
-  content: "→";
-}
-
-.feedbackLoop li[aria-current="step"] {
-  color: var(--color-kelus);
-  font-weight: 700;
 }
 
 .reasoningTrace {
@@ -916,7 +894,7 @@
 :global(main[data-tone]) :global(.study-topic-kicker) b { color: var(--topic-ink); }
 :global(main[data-tone]) .choice:not(:disabled):hover { border-color: color-mix(in oklch, var(--topic) 55%, transparent); background: color-mix(in oklch, var(--topic-wash) 70%, var(--k-card, var(--k-surface))); }
 :global(main[data-tone]) .choice:not(:disabled):hover kbd { border-color: var(--topic); color: var(--topic-ink); }
-:global(main[data-tone]) .readLines li { border-left: 3px solid var(--topic); }
+:global(main[data-tone]) .readLines li { border-left: 3px solid var(--topic); padding-left: 16px; }
 :global(main[data-tone]) .readLines li mark { background: color-mix(in oklch, var(--topic) 26%, transparent); }
 
 /* ── Crisp run ─────────────────────────────────────────────────────────────────────────────────────────
@@ -979,9 +957,13 @@
 .top { min-width: 0; }
 .top :global(.study-topic-kicker) { min-width: 0; overflow: hidden; white-space: nowrap; }
 .top :global(.study-topic-kicker) b { display: inline-block; max-width: 100%; overflow: hidden; text-overflow: ellipsis; vertical-align: bottom; }
+/* The name is a rename button inside the <b>, so the button itself has to end in the ellipsis, not be cut mid-letter. */
+.top :global(.study-topic-kicker) b { min-width: 0; }
+.top :global(.study-topic-kicker) b > button { display: block; max-width: 100%; overflow: hidden; text-overflow: ellipsis; }
 @media (max-width: 560px) {
   .top { gap: 10px; }
-  .steps { flex: 0 0 auto; }
+  /* A set width: the segments have none of their own, so an auto width collapsed the bar to its gaps. */
+  .steps { flex: 0 0 4rem; }
   .top :global(.study-topic-kicker) { flex: 1 1 0; }
   .top :global(.study-topic-kicker) b { max-width: 9.5rem; }
 }
@@ -1001,9 +983,6 @@
 /* ── Refinement 2026-10: question → answer → why → source ─────────────────────────────────────────────
    The feedback trace reads as a sequence: the steps as a quiet route line, the evidence in the source colour with
    its jump as the clear way to inspect the original. Targets reach 44px on touch; focus is always visible. */
-.feedbackLoop li { color: var(--k-text-2, var(--color-slate)); }
-.feedbackLoop li:first-child { color: var(--color-hero-orange); font-weight: 600; }
-.feedbackLoop li[aria-current="step"] { padding: 2px 8px; border-radius: 999px; background: var(--k-green-wash, #e6f1ea); }
 .reasoningStep:not(.reasoningEvidence) .reasoningNumber { background: var(--k-green-wash, #e6f1ea); }
 .reasoningEvidence .reasoningNumber { background: var(--color-hero-orange-wash); color: var(--color-hero-orange); }
 .reasoningEvidence .evidenceLabel { color: var(--color-hero-orange); }
@@ -1024,7 +1003,6 @@
 .evidence .listen { justify-self: start; color: var(--color-kelus); font-weight: 600; }
 .prompt { overflow-wrap: anywhere; }
 @media (max-width: 420px) {
-  .feedbackLoop { gap: 4px 8px; font-size: 0.75rem; }
   .reasoningEvidence .reasoningBody { padding: 10px; }
   .sourceJump { justify-self: stretch; justify-content: center; }
 }

@@ -76,17 +76,18 @@ export function buildAnswerReason(item: PracticeItem): AnswerReason {
       reason: "The statement keeps the same wording as the cited source: no term or direction has changed. That is why the supported answer is “True”.",
     };
   }
-  if (item.origin === "offline" && item.kind === "cloze" && statement && answer) {
+  // A gap with words to choose from is the same question as a typed gap, so it gets the same explanation.
+  if (item.origin === "offline" && (item.kind === "cloze" || (item.kind === "choice" && item.variant !== "truefalse")) && statement && answer) {
     const gaps = statement.match(/_{2,}/g);
     if (gaps?.length === 1 && same(statement.replace(/_{2,}/, () => answer), quote)) return {
       answer,
       grounded: true,
-      reason: `The blank replaces “${answer}” in your source sentence. Put that term back into the sentence, then read the full relationship in the evidence below.`,
+      reason: `The blank replaces “${answer}” in your source sentence. Put it back and the sentence reads as your notes do, below.`,
     };
   }
   return {
     answer,
     grounded: false,
-    reason: "A source passage is attached, but there is no explanation beyond the quotation. Compare the suggested answer with the passage; the quotation alone does not explain the reasoning.",
+    reason: "Your notes give this line without a reason of their own. Read it below and check the answer against it.",
   };
 }
