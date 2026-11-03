@@ -22,7 +22,7 @@ test("a whole block runs from the first question to the end with no stop between
       await expect(sourceJump).toBeVisible();
       await sourceJump.click();
       await expect(reasoningTrace.getByLabel("This line in your notes")).toBeVisible();
-      await page.getByRole("button", { name: /^(Next idea|Next|Now say)/ }).click();
+      await page.getByRole("button", { name: /^(Next idea|Next|Now say it yourself)$/ }).click();
     }
     await page.getByRole("button", { name: "I don’t remember" }).click();
     await page.getByRole("button", { name: /^Continue/ }).click();

@@ -118,12 +118,12 @@ async function receiveShare(request) {
         tx.oncomplete = resolve;
         tx.onerror = resolve;
       });
-      return Response.redirect("/today/?shared=1", 303);
+      return Response.redirect(new URL("/today/?shared=1", self.location.origin), 303);
     }
   } catch {
     /* A share Kelus cannot read still opens Kelus. */
   }
-  return Response.redirect("/today/", 303);
+  return Response.redirect(new URL("/today/", self.location.origin), 303);
 }
 
 self.addEventListener("fetch", (event) => {

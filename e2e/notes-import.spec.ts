@@ -50,7 +50,7 @@ test("a file that is neither a PDF nor notes is refused with a clear reason", as
 test("a photo given to the main box is read as a photo, and one that cannot be read says so", async ({ page }) => {
   await gotoStart(page);
   await page.locator('input[type="file"]').setInputFiles({ name: "picture.png", mimeType: "image/png", buffer: Buffer.from("x") });
-  const error = page.locator(".recovery [role=alert]");
+  const error = page.getByRole("alert").filter({ hasText: "This photo looks incomplete." });
   await expect(error).toBeVisible({ timeout: 20_000 });
   await expect(error).not.toContainText("Choose a PDF, a notes text file, a Notion export or an Obsidian vault");
 });
