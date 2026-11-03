@@ -343,7 +343,7 @@ export function TodayRoute({
       {/* One extra at a time, most useful first: the exam date gives the path its finish line, then the nudge that
           brings you back, then the home-screen app, then the calendar reminder. */}
       {isSampleCourse || warmupFirst ? null
-        : examDatePending && onSetExamDate ? <ExamDateCard onSave={onSetExamDate} />
+        : examDatePending && onSetExamDate ? <ExamDateCard onSave={onSetExamDate} courseName={courseName} />
         : hasPriorEvidence && (nudgesOffAtOpen || !nudges.on) && nudgesSupported() ? <NudgeCard />
         : hasPriorEvidence && installable ? <InstallCard />
         : reminder ? <ReminderCard {...reminder} nextStopName={firstName} />

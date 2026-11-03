@@ -58,7 +58,7 @@ export const REMINDER_TIMES = ["07:30", "12:30", "16:30", "18:00", "20:00", "21:
 
 const pad = (value: number) => String(value).padStart(2, "0");
 const floating = (date: Date) => `${date.getFullYear()}${pad(date.getMonth() + 1)}${pad(date.getDate())}T${pad(date.getHours())}${pad(date.getMinutes())}00`;
-const escapeText = (value: string) => value.replace(/\\/g, "\\\\").replace(/;/g, "\;").replace(/,/g, "\\,").replace(/\n/g, "\\n");
+const escapeText = (value: string) => value.replace(/\\/g, "\\\\").replace(/;/g, "\\;").replace(/,/g, "\\,").replace(/\n/g, "\\n");
 
 /**
  * A daily study block that repeats until the exam, with an alert at the start time. It uses the learner's own
@@ -122,4 +122,55 @@ export function downloadDailyStudyIcs(input: Parameters<typeof buildDailyStudyIc
   anchor.click();
   URL.revokeObjectURL(url);
   return true;
+}
+
+/** The day after an ISO date, as YYYYMMDD: an all-day event ends the next day in both iCalendar and Google. */
+function dayAfter(examDate: string) {
+  const [year, month, day] = examDate.split("-").map(Number);
+  const next = new Date(year, month - 1, day + 1);
+  return `${next.getFullYear()}${pad(next.getMonth() + 1)}${pad(next.getDate())}`;
+}
+
+const examTitle = (courseName: string) => `Exam: ${courseName}`;
+const examDetails = "Your study plan on Kelus spreads the topics over the days left: https://kelus.me/today/";
+
+/**
+ * The exam itself as an all-day event in the learner's own calendar, with an alert a week before and a day before.
+ * Its UID is stable per course, so adding it again after changing the date moves it instead of doubling it.
+ */
+export function buildExamIcs(input: { courseName: string; examDate: string; nowMs?: number }) {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(input.examDate)) return null;
+  const slug = input.courseName.toLocaleLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "course";
+  const alarm = (trigger: string, text: string) => ["BEGIN:VALARM", "ACTION:DISPLAY", `DESCRIPTION:${escapeText(text)}`, `TRIGGER:${trigger}`, "END:VALARM"];
+  return [
+    "BEGIN:VCALENDAR",
+    "VERSION:2.0",
+    "PRODID:-//Kelus//Exam Date//EN",
+    "CALSCALE:GREGORIAN",
+    "METHOD:PUBLISH",
+    "BEGIN:VEVENT",
+    `UID:kelus-exam-${slug}@kelus.me`,
+    `DTSTAMP:${new Date(input.nowMs ?? Date.now()).toISOString().replace(/[-:]/g, "").replace(/\.\d{3}Z$/, "Z")}`,
+    `DTSTART;VALUE=DATE:${input.examDate.replace(/-/g, "")}`,
+    `DTEND;VALUE=DATE:${dayAfter(input.examDate)}`,
+    `SUMMARY:${escapeText(examTitle(input.courseName))}`,
+    `DESCRIPTION:${escapeText(examDetails)}`,
+    "TRANSP:TRANSPARENT",
+    ...alarm("-P7D", `${input.courseName} exam in a week`),
+    ...alarm("-P1D", `${input.courseName} exam tomorrow`),
+    "END:VEVENT",
+    "END:VCALENDAR",
+    "",
+  ].join("\r\n");
+}
+
+/** Google Calendar's own "add event" page, filled in: the learner confirms it there, in their own account. */
+export function googleExamUrl(input: { courseName: string; examDate: string }) {
+  const query = new URLSearchParams({
+    action: "TEMPLATE",
+    text: examTitle(input.courseName),
+    dates: `${input.examDate.replace(/-/g, "")}/${dayAfter(input.examDate)}`,
+    details: examDetails,
+  });
+  return `https://calendar.google.com/calendar/render?${query}`;
 }
