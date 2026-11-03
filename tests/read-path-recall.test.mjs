@@ -41,3 +41,16 @@ test("a checkpoint mixes two lines from each topic, never two of one topic side 
   ], "2026-10-15T10:00:00.000Z");
   assert.deepEqual(lines.map((line) => line.conceptId), ["a", "b", "a", "b"]);
 });
+
+test("a gap's wrong words fit the sentence: a noun's slot gets nouns from the notes, not a verb or a comparative", () => {
+  const notes = [
+    "Demand falls as price rises, because buyers switch to substitutes or buy less.",
+    "Supply rises as price rises, because producers can cover higher costs.",
+    "The equilibrium price is where the quantity demanded equals the quantity supplied.",
+  ];
+  const gap = cloze(notes[0], "price");
+  const options = gapChoices(gap, { ...run, checks: [gap], sentences: notes });
+  assert.equal(options.length, 4);
+  assert.ok(options.includes("supply"), "a word the notes use in the same slot: “Supply rises”");
+  for (const misfit of ["equals", "cover", "higher"]) assert.ok(!options.includes(misfit), `${misfit} cannot complete the sentence`);
+});

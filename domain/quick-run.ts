@@ -271,14 +271,30 @@ export function gapChoices(item: PracticeItem, run: QuickRun) {
   }
   const candidates = [...pool]
     .filter((word) => norm(word) !== norm(answer) && !hasWord(shown, word) && Math.abs(word.length - answer.length) <= 4)
-    .filter((word) => !/^(?:which|their|there|these|those|about|other|where|while|because|between|without|through)$/i.test(word))
+    .filter((word) => !/^(?:which|their|there|these|those|about|other|where|while|because|between|without|through|higher|lower|larger|smaller|greater|faster|slower|better|worse|easier|harder|easily|often|always|never|usually|also|only|very|much|many|more|most|less|least|each|every|some|such|cannot|could|would|should|might|must)$/i.test(word))
     .map((word) => (/^\p{Lu}/u.test(answer) ? word : word.toLocaleLowerCase()));
   const otherAnswers = new Set(run.checks.filter((other) => other !== item && other.kind === "cloze").map((other) => norm(other.modelAnswer)));
   const ending = answer.toLocaleLowerCase().slice(-3);
-  // The best wrong words are the same kind of word: another answer from this topic, then a word with the same ending.
-  const score = (word: string) => (otherAnswers.has(norm(word)) ? 0 : word.toLocaleLowerCase().endsWith(ending) ? 1 : 2) * 10 + Math.abs(word.length - answer.length);
+  // A wrong word should fit the sentence, or the right one gives itself away: "Demand falls as equals rises" is
+  // out at a glance. Without a grammar, three signs from the notes themselves stand in for one:
+  // the word's ending (price, costs, supplied), whether the notes use it as a verb (after "can", "to", "not"),
+  // and whether the notes put it in the same slot, next to the word before or after the gap ("Supply rises").
+  const form = (word: string) => /ing$/i.test(word) ? "ing" : /ed$/i.test(word) ? "ed" : /[^su]s$/i.test(word) ? "s" : "base";
+  const tokens = run.sentences.map((sentence) => norm(sentence).split(" "));
+  const verbish = new Set<string>();
+  for (const words of tokens) words.forEach((word, at) => { if (at && /^(?:can|could|will|would|may|might|must|should|to|not|does|do|did)$/.test(words[at - 1])) verbish.add(word); });
+  const around = norm(item.prompt.replace(/_{2,}/, " GAPMARK ")).split(" ");
+  const gapAt = around.indexOf("gapmark");
+  const before = gapAt > 0 ? around[gapAt - 1] : "";
+  const after = gapAt >= 0 ? around[gapAt + 1] ?? "" : "";
+  const fits = (word: string) => tokens.some((words) => words.some((other, at) => other === norm(word) && ((after && words[at + 1] === after) || (before && words[at - 1] === before))));
+  const misfit = (word: string) => (form(word) !== form(answer) ? 3 : 0) + (verbish.has(norm(word)) !== verbish.has(norm(answer)) ? 4 : 0) - (fits(word) ? 2 : 0);
+  // The best wrong words are the same kind of word: one that fits the slot, another answer from this topic, then a
+  // word with the same ending.
+  const score = (word: string) => (misfit(word) + (otherAnswers.has(norm(word)) ? 0 : 2) + (word.toLocaleLowerCase().endsWith(ending) ? 0 : 1)) * 10 + Math.abs(word.length - answer.length);
   const unique = [...new Set(candidates)]
-    .filter((word) => /ly$/i.test(answer) || !/ly$/i.test(word))
+    // An adverb ("quickly") never fills a noun's gap; "supply" and "apply" only look like one.
+    .filter((word) => /ly$/i.test(answer) || !/(?<!p)ly$/i.test(word))
     .sort((a, b) => score(a) - score(b) || a.localeCompare(b));
   if (unique.length < 3) return [];
   const seed = [...answer].reduce((sum, char) => sum + char.charCodeAt(0), 0);
