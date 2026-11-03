@@ -26,6 +26,9 @@ export type KelusAnalyticsEvent =
   | { name: "session_usefulness_rated"; helpful: boolean; session_number?: number; course_type: "real" | "sample" }
   | { name: "learner_returned"; day: number; days_since_last: number; session_count: number; course_type: "real" }
   | { name: "invite_shared"; method: "share" | "copy"; session_number?: number }
+  | { name: "result_shared"; method: "image" | "share" | "copy" | "whatsapp"; session_number?: number }
+  | { name: "shared_result_opened"; valid: boolean }
+  | { name: "shared_result_cta"; target: "own_notes" | "sample" }
   | { name: "invite_opened" }
   | { name: "next_route_opened"; source: "completion" | "calendar" }
   | { name: "reminder_downloaded" }

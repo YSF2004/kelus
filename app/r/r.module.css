@@ -1,0 +1,9 @@
+/* A shared result: the classmate's card on paper, a sentence on what Kelus is, and one way in. */
+.page { display: grid; gap: 18px; width: min(560px, 100%); margin: 0 auto; padding: 36px 20px 64px; box-sizing: border-box; }
+.kicker { margin: 0; color: var(--color-kelus); font-size: 0.75rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; }
+.title { margin: -6px 0 4px; font-family: var(--font-source-serif), Literata, Georgia, serif !important; /* the site's heading rule would set the sans */ font-size: clamp(2rem, 8vw, 2.75rem); font-weight: 600; line-height: 1.1; letter-spacing: -0.01em; color: var(--color-midnight-ink); text-wrap: balance; }
+.next { display: grid; gap: 16px; margin-top: 6px; }
+.next p { margin: 0; color: var(--color-slate); font-size: 1rem; line-height: 1.6; }
+.actions { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 20px; }
+.secondary { display: inline-flex; align-items: center; min-height: 44px; color: var(--color-kelus); font-weight: 600; text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 4px; }
+.secondary:focus-visible { outline: 2px solid var(--color-kelus); outline-offset: 2px; border-radius: 4px; }
