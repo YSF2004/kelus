@@ -1,12 +1,16 @@
 "use client";
 
-import { useSyncExternalStore, type ReactNode } from "react";
+import { AnimatePresence } from "motion/react";
+import { useState, useSyncExternalStore, type ReactNode } from "react";
 import { BoxStrip } from "@/components/BoxStrip";
 import { LeitnerPanel } from "@/components/LeitnerPanel";
+import { LineLifeSheet } from "@/components/LineLifeSheet";
+import { lineLife } from "@/domain/line-life";
 import { leitner } from "@/domain/leitner";
 import type { Concept, LearningActivity } from "@/domain/types";
 import { getKnownLines, getServerKnownLines, subscribeKnownLines } from "@/lib/known-lines";
 import { getMissedLines, getServerMissedLines, subscribeMissedLines } from "@/lib/missed-lines";
+import { getLineHistory, getServerLineHistory, subscribeLineHistory } from "@/lib/line-history";
 import styles from "./RecallMap.module.css";
 
 /**
@@ -17,8 +21,12 @@ import styles from "./RecallMap.module.css";
 export function RecallMap({ concepts, activities, nowIso, heading, noteFor, fallback = null }: { concepts: Concept[]; activities: LearningActivity[]; nowIso: string; heading?: ReactNode; noteFor?: (conceptId: string) => string | null; fallback?: ReactNode }) {
   const known = useSyncExternalStore(subscribeKnownLines, getKnownLines, getServerKnownLines);
   const missed = useSyncExternalStore(subscribeMissedLines, getMissedLines, getServerMissedLines);
+  const history = useSyncExternalStore(subscribeLineHistory, getLineHistory, getServerLineHistory);
+  const [openQuote, setOpenQuote] = useState<string | null>(null);
   const state = leitner({ concepts, activities, known, missed, nowIso });
   if (!state.total) return fallback;
+  const openLine = openQuote ? state.lines.find((line) => line.quote === openQuote) : undefined;
+  const life = openLine ? lineLife({ line: openLine, activity: activities.find((item) => item.conceptId === openLine.conceptId), known, history }) : null;
   const rows = (
     <>
       <div className={styles.columns} aria-hidden="true"><span>Topic</span><span className={styles.boxNums}><i>1</i><i>2</i><i>3</i><i>4</i><i>5</i></span><span>Recalled</span></div>
@@ -41,7 +49,8 @@ export function RecallMap({ concepts, activities, nowIso, heading, noteFor, fall
   );
   return (
     <section className={styles.map} aria-labelledby="leitner-title">
-      <LeitnerPanel state={state} />
+      <LeitnerPanel state={state} onOpenLine={(line) => setOpenQuote(line.quote)} />
+      <AnimatePresence>{life ? <LineLifeSheet key={life.quote} life={life} onClose={() => setOpenQuote(null)} /> : null}</AnimatePresence>
       {heading ? <section className={styles.list} aria-labelledby="progress-headline">{heading}{rows}</section> : rows}
     </section>
   );

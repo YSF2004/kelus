@@ -26,7 +26,7 @@ function topOf(lines: LeitnerLine[]) {
  * and green when recalled. Tap a pile and its cards are laid out underneath in full. A line recalled today arrives on
  * its pile from the one before, in an arc. Nothing here is estimated.
  */
-export function LeitnerPanel({ state }: { state: LeitnerState }) {
+export function LeitnerPanel({ state, onOpenLine }: { state: LeitnerState; /** On Progress, a card opens that line's whole story. */ onOpenLine?: (line: LeitnerLine) => void }) {
   const reduce = useReducedMotion() === true;
   const [open, setOpen] = useState<number | null>(null);
   const drawerId = useId();
@@ -117,8 +117,17 @@ export function LeitnerPanel({ state }: { state: LeitnerState }) {
                     animate={{ opacity: 1, y: 0, rotate: 0 }}
                     transition={{ duration: 0.26, ease, delay: reduce ? 0 : at * 0.035 }}
                   >
-                    <span className={styles.spreadLine}>{short(line.quote)}</span>
-                    <small>{line.topic}{line.state === "missed" ? " · missed" : line.state === "recalled" ? " · recalled" : " · not asked yet"}</small>
+                    {onOpenLine ? (
+                      <button type="button" className={styles.spreadOpen} onClick={() => onOpenLine(line)} aria-label={`${short(line.quote)}. See this line's answers and when it is back`}>
+                        <span className={styles.spreadLine}>{short(line.quote)}</span>
+                        <small>{line.topic}{line.state === "missed" ? " · missed" : line.state === "recalled" ? " · recalled" : " · not asked yet"}</small>
+                      </button>
+                    ) : (
+                      <>
+                        <span className={styles.spreadLine}>{short(line.quote)}</span>
+                        <small>{line.topic}{line.state === "missed" ? " · missed" : line.state === "recalled" ? " · recalled" : " · not asked yet"}</small>
+                      </>
+                    )}
                   </motion.li>
                 ))}
               </ul>

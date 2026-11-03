@@ -6,6 +6,7 @@
 
 import type { MissedLine } from "@/domain/return-visit";
 import { getDemoSnapshot, subscribeDemoState, updateMissedLines } from "@/lib/demo-store";
+import { recordLineAnswers } from "@/lib/line-history";
 
 export type { MissedLine };
 
@@ -48,6 +49,7 @@ export function subscribeMissedLines(onChange: () => void) {
 export function addMissedLines(lines: MissedLine[]) {
   if (!lines.length) return;
   const quotes = new Set(lines.map((line) => line.quote));
+  recordLineAnswers([...quotes], false, lines[0].at);
   updateMissedLines((current) => [...current.filter((line) => !quotes.has(line.quote)), ...lines]);
 }
 
