@@ -18,7 +18,7 @@ test("a whole block runs from the first question to the end with no stop between
       await expect(reasoningTrace.locator("li")).toHaveCount(3);
       // "How to reason it through" when the notes explain the line; when they only quote it, the trace says so instead.
       await expect(reasoningTrace).toContainText(/How to reason it through|What your notes say/);
-      await expect(reasoningTrace).toContainText("Evidence in your source");
+      await expect(reasoningTrace).toContainText("Evidence from your notes");
       const sourceJump = reasoningTrace.getByTestId("source-evidence-jump");
       await expect(sourceJump).toBeVisible();
       await sourceJump.click();

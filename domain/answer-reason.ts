@@ -5,6 +5,9 @@ export type AnswerReason = {
   reason: string;
   /** The attached passage can support this explanation; not a fresh provenance verification. */
   grounded: boolean;
+  /** What kind of evidence the reason rests on, so the verdict can name the exact difference in one line. */
+  shape?: "gap" | "changed" | "same";
+  changed?: { statement: string; source: string };
 };
 
 const words = (text: string) => text.trim().split(/\s+/).filter(Boolean);
@@ -68,11 +71,14 @@ export function buildAnswerReason(item: PracticeItem): AnswerReason {
       if (changed) return {
         answer,
         grounded: true,
+        shape: "changed",
+        changed,
         reason: `The statement says “${changed.statement}”, while your source says “${changed.source}”. That change is why the supported answer is “False”.`,
       };
     } else if (answer === "True" && same(statement, quote)) return {
       answer,
       grounded: true,
+      shape: "same",
       reason: "The statement keeps the same wording as the cited source: no term or direction has changed. That is why the supported answer is “True”.",
     };
   }
@@ -82,6 +88,7 @@ export function buildAnswerReason(item: PracticeItem): AnswerReason {
     if (gaps?.length === 1 && same(statement.replace(/_{2,}/, () => answer), quote)) return {
       answer,
       grounded: true,
+      shape: "gap",
       reason: `The blank replaces “${answer}” in your source sentence. Put it back and the sentence reads as your notes do, below.`,
     };
   }
@@ -90,4 +97,21 @@ export function buildAnswerReason(item: PracticeItem): AnswerReason {
     grounded: false,
     reason: "Your notes give this line without a reason of their own. Read it below and check the answer against it.",
   };
+}
+
+/**
+ * The verdict's headline names the exact difference, the way a teacher would say it: "The word is “price”, not
+ * “equals”." Null when the evidence cannot support a sentence that precise; the card then keeps its plain verdict.
+ */
+export function feedbackHeadline(reason: AnswerReason, outcome: { right: boolean; unsure?: boolean; given?: string }) {
+  const given = outcome.given?.trim() ?? "";
+  if (reason.shape === "gap") {
+    if (outcome.right) return `“${reason.answer}” is the word your notes use.`;
+    return given && !/\s/.test(given) && given.toLocaleLowerCase() !== reason.answer.toLocaleLowerCase() && !outcome.unsure
+      ? `The word is “${reason.answer}”, not “${given}”.`
+      : `The word is “${reason.answer}”.`;
+  }
+  if (reason.shape === "changed" && reason.changed) return `Your notes say “${reason.changed.source}”, not “${reason.changed.statement}”.`;
+  if (reason.shape === "same") return "The statement uses your notes’ own words.";
+  return null;
 }
