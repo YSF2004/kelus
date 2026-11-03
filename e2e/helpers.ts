@@ -87,7 +87,7 @@ export async function playQuickRun(page: Page, explanation = "It depends on how 
     } else {
       await page.getByRole("group", { name: "Choose one" }).getByRole("button").first().click();
     }
-    await page.getByRole("button", { name: /^(Next idea|Next|Now say it yourself)/ }).click();
+    await page.getByRole("button", { name: /^(Next idea|Next(?! section)|Now say it yourself)/ }).click();
   }
   await page.locator("#run-explain").fill(explanation);
   await page.getByRole("button", { name: /Compare with the page/ }).click();

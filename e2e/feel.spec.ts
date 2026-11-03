@@ -9,13 +9,13 @@ test("you can just type the answer and press Enter, then Enter again for the nex
     if (await page.locator('input[id^="run-gap"]:not([disabled])').count()) break;
     if (await page.locator("#run-explain").count()) break;
     await page.getByRole("button", { name: "I’m not sure" }).click();
-    await page.getByRole("button", { name: /^(Next idea|Next|Now say)/ }).click();
+    await page.getByRole("button", { name: /^(Next idea|Next(?! section)|Now say)/ }).click();
     await page.locator('#run-explain, button:has-text("I’m not sure")').first().waitFor();
   }
   test.skip(!(await page.locator('input[id^="run-gap"]:not([disabled])').count()), "no gap question in this run");
   await page.keyboard.type("water");
   await page.keyboard.press("Enter");
-  await expect(page.getByRole("button", { name: /^(Next idea|Next|Now say)/ })).toBeFocused();
+  await expect(page.getByRole("button", { name: /^(Next idea|Next(?! section)|Now say)/ })).toBeFocused();
 });
 
 test("Back returns to the section you came from", async ({ page }) => {

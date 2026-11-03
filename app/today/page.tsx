@@ -12,7 +12,7 @@ import { addSourceMaterial, getMaterialsSnapshot, getServerMaterialsSnapshot, re
 import { removeRemoteMaterial, uploadMaterialPdf } from "@/lib/material-sync";
 import { useAuth } from "@/components/AuthProvider";
 import { CURRENT_COURSE_ID, type SetupInput } from "@/lib/setup";
-import { takeSharedFile } from "@/lib/shared-file";
+import { takeSharedFileOnce } from "@/lib/shared-file";
 import { setPendingSetupFile } from "@/lib/pending-setup-file";
 
 const SAMPLE_COURSE_ID = "course-microeconomics";
@@ -63,14 +63,19 @@ function TodayBody() {
   useEffect(() => {
     if (!openingShare) return;
     let live = true;
-    void takeSharedFile().then((file) => {
+    void takeSharedFileOnce().then((file) => {
       if (!live) return;
-      if (file) { setPendingSetupFile(file); setSharedIntoCourse(true); trackEvent({ name: "material_shared_in", kind: file.type || "unknown" }); }
+      // Where it goes is decided now, from the courses that existed before the share: into that course, or, with
+      // none yet, as the first course. Deciding later would see the course this very file creates.
+      const intoExisting = state.onboardingCompleted && state.snapshot.concepts.length > 0 && state.snapshot.courses[0]?.id !== SAMPLE_COURSE_ID;
+      if (file) { setPendingSetupFile(file); setSharedIntoCourse(intoExisting); trackEvent({ name: "material_shared_in", kind: file.type || "unknown" }); }
       setOpeningShare(false);
       // The link is spent: drop ?shared without a navigation, which would remount the screen holding the file.
       window.history.replaceState(window.history.state, "", "/today/");
     });
     return () => { live = false; };
+    // Runs once, when Today opens on a share: the courses it reads are the ones from before that share, on purpose.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [openingShare]);
 
   useEffect(() => {

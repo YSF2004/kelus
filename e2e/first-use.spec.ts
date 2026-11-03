@@ -103,7 +103,7 @@ async function playQuickRun(page: Page, explanation: string, grade: string, expe
       if (expectTwoIdeaIntro && guard === 1) {
         await expect(page.getByRole("button", { name: "Now say it yourself", exact: true })).toBeVisible();
       }
-      await page.getByRole("button", { name: /^(Next idea|Next|Now say it yourself)/ }).click();
+      await page.getByRole("button", { name: /^(Next idea|Next(?! section)|Now say it yourself)/ }).click();
     }
   }
   await page.locator("#run-explain").fill(explanation);
@@ -308,7 +308,8 @@ test("a real PDF becomes a first question, then Today, topics and a full session
   await expect(page).toHaveURL(/\/session/);
   await expect(page.locator(".study-topic-kicker span")).toHaveText(/^Topic 1 of \d+$/);
   // One topic is a short run: instant checks, then one explanation in your own words.
-  await expect(page.getByRole("list", { name: /^Step 1 of \d+$/ })).toBeVisible();
+  // The optional reading counts as the first step even when skipped, so the first question can be step 1 or 2.
+  await expect(page.getByRole("list", { name: /^Step [12] of \d+$/ })).toBeVisible();
   await expect(page.getByRole("button", { name: "Close", exact: true })).toBeVisible();
   await expect(page.getByRole("list", { name: "Revision pages" })).toHaveCount(0);
   await expect(page.locator(".study-progress")).toHaveCount(0);
@@ -338,7 +339,8 @@ test("a real PDF becomes a first question, then Today, topics and a full session
   await playQuickRun(page, "I still cannot explain it.", "Missed it");
   await expect(page.getByText(/try 2/)).toBeVisible();
   await page.getByRole("button", { name: /Continue to/ }).click();
-  await expect(page.locator(".reroute-view h1, section[aria-label^=\"Check 1 of\"], .session-learn h1").first()).toBeVisible();
+  // The next topic opens on its first check, or on its reading when it is new.
+  await expect(page.locator(".reroute-view h1, section[aria-label^=\"Check 1 of\"], section[aria-label=\"Read it first\"], .session-learn h1").first()).toBeVisible();
   await expect(page.locator(".reroute-lines")).toHaveCount(0);
   await expect(page.locator(".reroute-cause")).toHaveCount(0);
   await page.getByRole("button", { name: "Close", exact: true }).click();
