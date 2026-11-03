@@ -90,7 +90,8 @@ test("today leads with one topic and shows evidence and next stops as secondary"
   const store = await source("lib/demo-store.ts");
   assert.match(today, /id="today-title"/);
   assert.match(today, /today-page-folio/);
-  assert.match(today, /whileTap/);
+  // Buttons in the product stay still: press motion is for the homepage and pricing only.
+  assert.doesNotMatch(today, /whileTap/);
   assert.match(today, /startLabel \?\? "Start this topic"/);
   assert.match(today, /today-decision/);
   assert.match(today, /today-next/);

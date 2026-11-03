@@ -28,7 +28,6 @@
 }
 .field:hover { border-color: color-mix(in srgb, var(--color-kelus) 45%, var(--color-frost)); }
 .field:has(.native:focus-visible) { border-color: var(--color-kelus); box-shadow: 0 0 0 3px color-mix(in srgb, var(--color-kelus) 22%, transparent); }
-.field:active { transform: scale(0.995); }
 .native { position: absolute; inset: 0; width: 100%; height: 100%; margin: 0; padding: 0; border: 0; opacity: 0; cursor: pointer; font-size: 16px; }
 .native::-webkit-calendar-picker-indicator { position: absolute; inset: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; }
 .icon { flex: none; color: var(--color-kelus); pointer-events: none; }
@@ -40,10 +39,9 @@
 
 .actions { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 14px; }
 .actions :global(.k-btn) { min-height: 44px; }
-.also { color: var(--color-slate); font-size: var(--text-body-sm); }
-.calendar { display: inline-flex; align-items: center; min-height: 44px; padding: 0 2px; border: 0; background: none; color: var(--color-kelus); font: inherit; font-size: var(--text-body-sm); font-weight: 600; text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 4px; cursor: pointer; }
+.calendar { display: inline-flex; align-items: center; gap: 6px; min-height: 44px; padding: 0 2px; border: 0; background: none; color: var(--color-kelus); font: inherit; font-size: var(--text-body-sm); font-weight: 600; text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 4px; cursor: pointer; }
 .calendar[aria-disabled] { color: var(--color-slate); text-decoration-color: color-mix(in srgb, var(--color-slate) 40%, transparent); }
 .calendar:focus-visible { outline: 2px solid var(--color-kelus); outline-offset: 2px; border-radius: 4px; }
 .card .error { color: var(--k-danger); font-weight: 500; }
 
-@media (prefers-reduced-motion: reduce) { .field, .field:active { transition: none; transform: none; } }
+@media (prefers-reduced-motion: reduce) { .field { transition: none; } }

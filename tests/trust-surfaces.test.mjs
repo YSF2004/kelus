@@ -200,7 +200,8 @@ test("primary CTA language and readiness stay consistent", async () => {
   assert.doesNotMatch(surface, /Est\. readiness/);
   assert.match(await source("components/MasteryEvidence.tsx"), /not a predicted grade|not a grade prediction/);
   assert.match(await source("components/TodayRoute.tsx"), /data-block="today-lead"/);
-  assert.match(await source("components/TodayRoute.tsx"), /whileTap/);
+  // The product's buttons stay still; press motion is kept for the homepage and pricing.
+  assert.doesNotMatch(await source("components/TodayRoute.tsx"), /whileTap/);
   assert.match(await source("components/TodayRoute.tsx"), /today-decision/);
   assert.match(await source("components/TodayRoute.tsx"), /today-next/);
   assert.match(today, /get\("sample"\) === "1"/);

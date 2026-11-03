@@ -651,7 +651,6 @@ function SessionBody() {
               type="button"
               className="cta"
               onClick={continueAfterReroute}
-              whileTap={reduceMotion ? undefined : { scale: 0.97 }}
               transition={{ type: "spring", bounce: 0, duration: 0.28 }}
             >
               Continue <ArrowRight />
@@ -770,7 +769,7 @@ function SessionBody() {
               </button>
             ) : null}
             <div className="study-result-actions">
-              {lastOutcome !== "success" ? <motion.button type="button" className="cta" onClick={retryCurrentConcept} whileTap={reduceMotion ? undefined : { scale: 0.97 }} transition={{ type: "spring", bounce: 0, duration: 0.28 }}>Try again <span aria-hidden="true">↻</span></motion.button> : null}
+              {lastOutcome !== "success" ? <motion.button type="button" className="cta" onClick={retryCurrentConcept} transition={{ type: "spring", bounce: 0, duration: 0.28 }}>Try again <span aria-hidden="true">↻</span></motion.button> : null}
               <button type="button" className={lastOutcome === "success" ? "cta" : "text-btn"} onClick={advance}>{nextConceptName ? `Continue to ${nextConceptName}` : "Finish block"} <ArrowRight /></button>
             </div>
               </>
@@ -834,7 +833,6 @@ function SessionBody() {
                   type="button"
                   className="cta"
                   onClick={() => { setPhase("retrieve"); startedAt.current = performance.now(); }}
-                  whileTap={reduceMotion ? undefined : { scale: 0.97 }}
                   transition={{ type: "spring", bounce: 0, duration: 0.28 }}
                 >
                   Retrieve it <ArrowRight />
@@ -878,7 +876,6 @@ function SessionBody() {
                     className="cta"
                     disabled={!retrieveAnswer.trim()}
                     onClick={() => { setHelpMode(null); setPhase("apply"); }}
-                    whileTap={reduceMotion || !retrieveAnswer.trim() ? undefined : { scale: 0.97 }}
                     transition={{ type: "spring", bounce: 0, duration: 0.28 }}
                   >
                     Continue <ArrowRight />
@@ -916,7 +913,6 @@ function SessionBody() {
                     className="cta"
                     disabled={!applicationAnswer.trim()}
                     onClick={checkAnswers}
-                    whileTap={reduceMotion || !applicationAnswer.trim() ? undefined : { scale: 0.97 }}
                     transition={{ type: "spring", bounce: 0, duration: 0.28 }}
                   >
                     Check my thinking <ArrowRight />
@@ -964,7 +960,6 @@ function SessionBody() {
                         type="button"
                         className="is-primary"
                         onClick={() => grade(evaluation.outcome)}
-                        whileTap={reduceMotion ? undefined : { scale: 0.97 }}
                         transition={{ type: "spring", bounce: 0, duration: 0.28 }}
                       >
                         Mark this

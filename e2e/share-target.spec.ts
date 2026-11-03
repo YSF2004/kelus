@@ -40,7 +40,7 @@ test("a PDF shared from another app is read like a dropped one, once", async ({ 
   ]);
 
   // The same course a dropped PDF makes: named from the chapter, with its topics, and the file listed once.
-  const review = page.getByRole("heading", { name: "Check the topics Kelus found." });
+  const review = page.getByRole("heading", { name: "Check the topics in your notes." });
   const course = page.getByRole("heading", { name: /Cell Transport/, level: 1 });
   await review.or(course).first().waitFor({ timeout: 45_000 });
   if (await review.count()) await page.getByRole("button", { name: /^Use \d+ topics?$/ }).click();

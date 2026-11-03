@@ -41,11 +41,8 @@
 .actions { display: grid; justify-items: start; gap: 8px; }
 .buttons { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 18px; }
 .secondary { display: inline-flex; align-items: center; min-height: 44px; padding: 0 2px; border: 0; background: none; color: var(--color-kelus); font: inherit; font-weight: 600; text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 4px; cursor: pointer; }
-.secondary:active { transform: scale(0.97); }
 .secondary:focus-visible { outline: 2px solid var(--color-kelus); outline-offset: 2px; border-radius: 4px; }
 .copyLabel { display: inline-flex; align-items: center; gap: 6px; }
 .share { min-height: 44px; }
-.share:active:not(:disabled) { transform: scale(0.97); }
 .privacy { margin: 0; color: var(--color-slate); font-size: var(--text-body-sm, 0.875rem); line-height: 1.45; }
 
-@media (prefers-reduced-motion: reduce) { .share:active:not(:disabled), .secondary:active { transform: none; } }

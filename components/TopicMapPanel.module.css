@@ -125,7 +125,9 @@
   .pathHead, .path { padding-inline: 16px; }
   .nextStep { display: grid; gap: 12px; padding: 14px; }
   .nextStepButton { width: 100%; justify-content: center; }
-  .step .remove { opacity: 1; }
+  /* Always there on a phone (no hover to reveal it), but quiet: the topic is what the row is about, and removing
+     one can be undone. */
+  .step .remove { opacity: 0.4; }
 }
 
 /* The studio's list styles (a 42px column for a row icon, rule lines, a tinted "start" row) are for the old index;

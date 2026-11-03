@@ -28,7 +28,7 @@ export function ReadingNotes({ message, error, onStartOver, topics = [] }: { mes
       <section className={styles.box} aria-labelledby="reading-title">
         {/* From the Kelus illustration pack: a shrug, not an error icon. */}
         <PackArt name="no-answer" size={220} className={styles.shrug} />
-        <h1 id="reading-title">Kelus couldn’t find topics in this file.</h1>
+        <h1 id="reading-title">No topics found in this file.</h1>
         <p>{error}</p>
         <p className={styles.hint}>Notes with a heading above each topic work best. A PDF needs selectable text, or a clear scan.</p>
         <button type="button" className={`k-btn ${styles.cta}`} onClick={onStartOver}>Try another file</button>
@@ -67,7 +67,7 @@ export function ReadingNotes({ message, error, onStartOver, topics = [] }: { mes
         </AnimatePresence>
       </h1>
       {/* Three steps that tick off as they happen, the way a good tool shows its work: reading, finding, writing. */}
-      <ol className={styles.steps} aria-label="What Kelus is doing">
+      <ol className={styles.steps} aria-label="What’s happening">
         {STEPS.map((label, index) => {
           const state = index < stage ? "done" : index === stage ? "now" : "next";
           return (

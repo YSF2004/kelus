@@ -150,7 +150,7 @@ export function RevisionSurface({ topicId }: { /** A topic's own page, opened in
       <main id="main" className="kelus-space is-empty is-paper">
         <section className="materials-empty">
           <h1>Add your course PDF first.</h1>
-          <p>Kelus needs a course and exam date before it can open today’s page.</p>
+          <p>Today’s page needs a course and an exam date first.</p>
           <button type="button" className="cta" onClick={() => reset()}>
             Start over
           </button>
@@ -279,7 +279,6 @@ export function RevisionSurface({ topicId }: { /** A topic's own page, opened in
                 aria-pressed={active}
                 aria-label={item.label}
                 onClick={() => setMode(item.id)}
-                whileTap={reduceMotion ? undefined : { scale: 0.97 }}
                 transition={pressSpring}
               >
                 <PackArt name={item.art} className="nav-art" />

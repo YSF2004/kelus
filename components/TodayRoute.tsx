@@ -137,7 +137,7 @@ export function TodayRoute({
     return (
       <div className="today-route-empty materials-empty">
         <h1>Nothing ready yet.</h1>
-        <p>Add a page to the binder so Kelus can open the first block.</p>
+        <p>Add a page to the binder to open the first block.</p>
         <div className="today-route-empty-actions">
           <Link className="cta" href="/today?section=materials">
             Open binder <ArrowRight />
@@ -294,7 +294,6 @@ export function TodayRoute({
             title="Enter"
             className={`k-btn ${quietStart ? `k-btn--paper ${q.go}` : q.go}`}
             onClick={onStart}
-            whileTap={reduceMotion ? undefined : { scale: 0.97 }}
             transition={pressSpring}
           >
             {startLabel ?? "Start this topic"} <ArrowRight />

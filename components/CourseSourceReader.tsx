@@ -217,7 +217,7 @@ export function CourseSourceReader({ id, material, initialPage = 1, concealed = 
         {concealed ? (
           <div className="core-source-state is-concealed"><span aria-hidden="true">◌</span><strong>Source closed for recall</strong><p>Try the question from memory. You can reopen the original page if you need it.</p>{onShowSource ? <button type="button" onClick={onShowSource}>Show source</button> : null}</div>
         ) : !material ? (
-          <div className="core-source-state"><ArrowOut /><strong>Your course, beside your route.</strong><p>Add a PDF and Kelus will keep the original page within reach while you revise.</p><Link href="/today?section=materials">Add a source →</Link></div>
+          <div className="core-source-state"><ArrowOut /><strong>Your course, beside your route.</strong><p>Add a PDF to keep the original page within reach while you revise.</p><Link href="/today?section=materials">Add a source →</Link></div>
         ) : material.id.startsWith("material-demo-") ? (
           <div className="core-source-state"><strong>Course source unavailable</strong><p>Add your course PDF to read the original pages beside your route.</p><Link href="/today?section=materials">Add a source →</Link></div>
         ) : material.storage === "url" ? (

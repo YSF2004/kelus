@@ -1,13 +1,16 @@
 "use client";
 
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
-import { useRef, useState } from "react";
+import { useRef, useState, useSyncExternalStore } from "react";
 import { Octicon } from "@/components/Octicon";
 import { trackEvent } from "@/lib/analytics";
 import { buildExamIcs, googleExamUrl } from "@/lib/study-reminder";
 import styles from "./ExamDateCard.module.css";
 
 const DAY_MS = 86_400_000;
+const noSubscribe = () => () => {};
+// iPadOS reports itself as a Mac; touch tells the two apart, and both use Apple Calendar.
+const isApple = () => /iPhone|iPad|iPod|Macintosh/.test(navigator.userAgent);
 
 function spoken(date: string) {
   return new Date(`${date}T12:00:00`).toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" });
@@ -22,8 +25,8 @@ function daysUntil(date: string, nowMs: number) {
 /**
  * Asked after the first run, when the question has a reason: it sets the countdown, the pace and the reminders.
  * The date comes from the device's own picker (the wheel on an iPhone, the calendar on Android and desktop), shown
- * back in words with the days left. Saving can also put the exam in the student's own calendar: Google Calendar's
- * add-event page, or a calendar file for Apple Calendar and Outlook, with alerts a week and a day before.
+ * back in words with the days left. Saving can also put the exam in the student's own calendar, the one their device
+ * uses, with alerts a week and a day before.
  */
 export function ExamDateCard({ onSave, courseName }: { onSave: (date: string, targetPercent: number) => void; courseName?: string }) {
   const reduce = useReducedMotion() === true;
@@ -36,6 +39,7 @@ export function ExamDateCard({ onSave, courseName }: { onSave: (date: string, ta
   const tomorrow = new Date(nowMs + DAY_MS).toISOString().slice(0, 10);
   const days = date ? daysUntil(date, nowMs) : null;
   const course = courseName && courseName !== "My course" ? courseName : "my course";
+  const apple = useSyncExternalStore(noSubscribe, isApple, () => false);
 
   function save(via: "kelus" | "google" | "file") {
     if (!date) { setError("Pick the day of your exam."); input.current?.focus(); return false; }
@@ -57,7 +61,7 @@ export function ExamDateCard({ onSave, courseName }: { onSave: (date: string, ta
   return (
     <section className={styles.card} aria-labelledby="exam-date-title">
       <h2 id="exam-date-title">When is your exam?</h2>
-      <p>Kelus spreads your topics over the days you have left, and tells you how many to do each day.</p>
+      <p>Your topics are spread over the days you have left, with how many to do each day.</p>
       <div className={styles.field} data-empty={date ? undefined : ""} onClick={openPicker}>
         <label htmlFor="exam-date-input" className="sr-only">Exam date</label>
         <input
@@ -81,23 +85,17 @@ export function ExamDateCard({ onSave, courseName }: { onSave: (date: string, ta
       {error ? <p className={styles.error} role="alert">{error}</p> : null}
       <div className={styles.actions}>
         <button type="button" className="k-btn k-btn--small" onClick={() => save("kelus")}>Save date</button>
-        <span className={styles.also}>and add it to</span>
+        {/* One calendar, the device's own: Apple Calendar on an iPhone, iPad or Mac (the calendar file, which it adds at
+            once), Google Calendar everywhere else (its add-event page, filled in). The student never picks an app. */}
         <a
           className={styles.calendar}
-          href={date ? googleExamUrl({ courseName: course, examDate: date }) : undefined}
-          target="_blank"
-          rel="noopener noreferrer"
+          href={date ? (apple ? `data:text/calendar;charset=utf-8,${encodeURIComponent(buildExamIcs({ courseName: course, examDate: date }) ?? "")}` : googleExamUrl({ courseName: course, examDate: date })) : undefined}
+          {...(apple ? { download: "kelus-exam.ics" } : { target: "_blank", rel: "noopener noreferrer" })}
           aria-disabled={!date || undefined}
-          onClick={(event) => { if (!save("google")) event.preventDefault(); }}
-        >Google Calendar</a>
-        {/* A link to the calendar file itself: Safari on an iPhone offers to add it to Calendar, a computer downloads it. */}
-        <a
-          className={styles.calendar}
-          href={date ? `data:text/calendar;charset=utf-8,${encodeURIComponent(buildExamIcs({ courseName: course, examDate: date }) ?? "")}` : undefined}
-          download="kelus-exam.ics"
-          aria-disabled={!date || undefined}
-          onClick={(event) => { if (!save("file")) event.preventDefault(); }}
-        >Apple or Outlook</a>
+          onClick={(event) => { if (!save(apple ? "file" : "google")) event.preventDefault(); }}
+        >
+          <Octicon name="calendar" size={16} /> Also add to my calendar
+        </a>
       </div>
     </section>
   );

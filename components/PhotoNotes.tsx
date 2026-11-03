@@ -46,7 +46,7 @@ export function PhotoNotes({ onFile, disabled }: { onFile: (file: File) => void;
       onFile(await photosToPdfFile(photos));
       setPhotos([]);
     } catch (caught) {
-      setError(caught instanceof Error && caught.message ? caught.message : "Kelus couldn’t read those photos. Try again.");
+      setError(caught instanceof Error && caught.message ? caught.message : "Those photos couldn’t be read. Try again.");
     } finally {
       setWorking(false);
     }

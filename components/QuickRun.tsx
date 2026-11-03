@@ -155,7 +155,7 @@ export function QuickRun({ run: providedRun, persistenceKey, onPersistenceChange
   const headline = answerReason && answered ? feedbackHeadline(answerReason, { right: answered.right, unsure: answered.unsure, given: answered.given }) : null;
   // A headline that already says both words ("The word is “price”, not “quantity”.") makes the answer row and the
   // gap's reason a repeat; they stay in the trace for screen readers, out of sight.
-  const headlineSaysIt = Boolean(headline) && (answerReason?.shape === "gap" || answerReason?.shape === "changed");
+  const headlineSaysIt = Boolean(headline) && (answerReason?.shape === "gap" || answerReason?.shape === "changed" || answerReason?.shape === "same");
   const chips = item ? gapChoices(item, run) : [];
   const nextLabel = step + 1 >= total
     ? (onChecksDone ? w.seeHow : w.sayIt)
@@ -379,7 +379,6 @@ export function QuickRun({ run: providedRun, persistenceKey, onPersistenceChange
                       // The picked answer answers back: a right one lifts for a beat, a wrong one shakes its head.
                       animate={reduce || !answered || picked !== index ? { opacity: 1, y: 0, scale: 1, x: 0 } : answered.right ? { opacity: 1, y: 0, scale: [1, 1.025, 1], x: 0 } : { opacity: 1, y: 0, scale: 1, x: [0, -5, 5, -3, 3, 0] }}
                       transition={reduce ? { duration: 0 } : answered && picked === index ? { duration: 0.34, ease: "easeOut" } : { duration: 0.22, ease: [0.22, 1, 0.36, 1], delay: 0.03 + index * 0.03 }}
-                      whileTap={reduce || answered ? undefined : { scale: 0.985 }}
                     >
                       {/* The number becomes the verdict in place, so the eye does not have to travel. */}
                       <kbd aria-hidden="true">{isRight ? <motion.span className={styles.kbdMark} initial={reduce ? false : { scale: 0.6, rotate: -20, opacity: 0 }} animate={{ scale: 1, rotate: 0, opacity: 1 }} transition={{ type: "spring", bounce: 0.25, duration: 0.4 }}><Tick size={12} /></motion.span> : isWrong ? <motion.span className={styles.kbdMark} initial={reduce ? false : { scale: 0.8, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={{ duration: 0.16, ease: [0.22, 1, 0.36, 1] }}><Cross size={12} /></motion.span> : index + 1}</kbd>
@@ -409,7 +408,7 @@ export function QuickRun({ run: providedRun, persistenceKey, onPersistenceChange
               <div className={styles.chips} role="group" aria-label="Or tap the word">
                 {/* A tap puts the word in the gap; Check commits it, so a slip of the thumb costs nothing. */}
                 {chips.map((word) => (
-                  <motion.button key={word} type="button" className={styles.chip} aria-pressed={tapped === word} onClick={() => { setTyped(word); setTapped(word); }} whileTap={reduce ? undefined : { scale: 0.96 }}>{word}</motion.button>
+                  <motion.button key={word} type="button" className={styles.chip} aria-pressed={tapped === word} onClick={() => { setTyped(word); setTapped(word); }}>{word}</motion.button>
                 ))}
               </div>
             ) : null}

@@ -7,7 +7,7 @@ test("on Progress a line opens its whole story: the notes, how it is asked, its 
   await startFromPaste(page, notes);
   await playQuickRun(page, "Water moves across a membrane.", "Partly");
   await page.goto("/today?section=progress");
-  await page.getByRole("button", { name: /^Box 1, every day: \d+ lines?\. Show them$/ }).click();
+  await expect(page.getByRole("img", { name: /^Lines you can recall/ })).toBeVisible();
   await page.getByRole("button", { name: /See this line's answers and when it is back$/ }).first().click();
   const sheet = page.getByRole("dialog", { name: "The life of this line" });
   await expect(sheet).toBeVisible();
@@ -17,6 +17,6 @@ test("on Progress a line opens its whole story: the notes, how it is asked, its 
   await expect(sheet.getByRole("list", { name: /^In Box \d of 5$/ })).toBeVisible();
   await page.keyboard.press("Escape");
   await expect(sheet).toHaveCount(0);
-  // Escape closed the sheet only: the box it was opened from is still laid out.
+  // Escape closed the sheet only: the list it was opened from is still there.
   await expect(page.getByRole("button", { name: /See this line's answers/ }).first()).toBeVisible();
 });

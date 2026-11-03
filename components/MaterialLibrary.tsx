@@ -1,5 +1,6 @@
 "use client";
 
+import { previewLine } from "@/domain/preview-line";
 import { AiNote } from "@/components/AiConsent";
 import { KIND_NAME, sourceKind } from "@/domain/source-kind";
 import { toneOf } from "@/lib/topic-tone";
@@ -89,7 +90,7 @@ function ReadCoverage({ coverage, found }: { coverage: NonNullable<AnalysisPaylo
   const all = coverage.pagesRead >= coverage.totalPages;
   return (
     <p className="read-coverage" role="status">
-      {all ? (coverage.totalPages === 1 ? `Kelus read the whole ${unit}.` : `Kelus read all ${plural(coverage.totalPages)}.`) : `Kelus read the first ${plural(coverage.pagesRead)} of ${coverage.totalPages}. Add the rest as a separate file to include it.`}
+      {all ? (coverage.totalPages === 1 ? `Whole ${unit} read.` : (coverage.totalPages === 2 ? `Both ${unit}s read.` : `All ${plural(coverage.totalPages)} read.`)) : `First ${plural(coverage.pagesRead)} of ${coverage.totalPages} read. Add the rest as a separate file to include it.`}
       {coverage.lowTextPages ? ` ${coverage.lowTextPages} ${unit}${coverage.lowTextPages === 1 ? " has" : "s have"} little readable text; check the original before trusting this topic list.` : ""}
       {coverage.topicCapHit ? ` Showing the first ${found} topics; remove the ones you don’t need, or add the rest as another file.` : ""}
     </p>
@@ -260,7 +261,7 @@ function MaterialRow({
  */
 function readableReadError(caught: unknown) {
   const message = caught instanceof Error ? caught.message : "";
-  if (!message) return "Kelus couldn’t read this file.";
+  if (!message) return "This file couldn’t be read.";
   if (/invalid pdf|missing pdf|unexpected server response|bad xref|password|encrypted|corrupt|unknown error/i.test(message)) {
     return /password|encrypted/i.test(message)
       ? "This PDF is locked with a password. Open it, save a copy without the password, then add that copy."
@@ -423,7 +424,7 @@ export function MaterialLibrary({ embedded = false, incomingFile = null, onIncom
           const ocrError = new Error(
             ocrResult.timedOut
               ? "This scan is taking too long to read. Try a smaller file, or export the notes as a text PDF."
-              : "Kelus can read typed scans, but not handwriting or blurry photos yet. If these are handwritten notes, type the key lines into “Or paste your notes”.",
+              : "Typed scans can be read, but not handwriting or blurry photos yet. If these are handwritten notes, type the key lines into “Or paste your notes”.",
           );
           (ocrError as Error & { kind?: string }).kind = "ocr";
           throw ocrError;
@@ -451,10 +452,10 @@ export function MaterialLibrary({ embedded = false, incomingFile = null, onIncom
         const emptyScan = attemptedOcr && quality.density === "empty";
         const fail = new Error(
           emptyScan
-            ? "Kelus can read typed scans, but not handwriting or blurry photos yet. If these are handwritten notes, type the key lines into “Or paste your notes”."
+            ? "Typed scans can be read, but not handwriting or blurry photos yet. If these are handwritten notes, type the key lines into “Or paste your notes”."
             : isNotes
-              ? "Kelus found no topics with a supporting passage under a heading. Put each topic under its own heading (for example “## Osmosis”) with a few sentences beneath it; it will not invent a lesson from the filename."
-              : "Kelus found no topics with a readable supporting passage. Try lecture notes with selectable text or a clearer scan; it will not invent a lesson from the filename.",
+              ? "No topics with a supporting passage under a heading. Put each topic under its own heading (for example “## Osmosis”) with a few sentences beneath it; it will not invent a lesson from the filename."
+              : "No topics with a readable supporting passage. Try lecture notes with selectable text or a clearer scan; it will not invent a lesson from the filename.",
         );
         if (emptyScan) (fail as Error & { kind?: string }).kind = "ocr";
         throw fail;
@@ -514,7 +515,7 @@ export function MaterialLibrary({ embedded = false, incomingFile = null, onIncom
       try {
         file = await zipToNotesFile(picked);
       } catch (caught) {
-        dispatch({ type: "FAIL", kind: "generic", message: caught instanceof Error && caught.message ? caught.message : "Kelus couldn’t read this zip. Export your notes from Notion and try again." });
+        dispatch({ type: "FAIL", kind: "generic", message: caught instanceof Error && caught.message ? caught.message : "This zip couldn’t be read. Export your notes from Notion and try again." });
         return;
       }
     }
@@ -579,7 +580,7 @@ export function MaterialLibrary({ embedded = false, incomingFile = null, onIncom
       <FirstRunGate
         kicker="Course material"
         title="Add a course PDF first."
-        body="Add a lecture PDF, slides or notes, and Kelus finds the topics and writes your first question from them."
+        body="Add a lecture PDF, slides or notes: its topics become your plan, and your first question comes from them."
         preview="materials"
       />
     );
@@ -643,7 +644,7 @@ export function MaterialLibrary({ embedded = false, incomingFile = null, onIncom
     } catch (caught) {
       dispatch({
         type: "CONFIRM_FAILED",
-        message: caught instanceof Error ? caught.message : "Kelus could not build the map. Check concept names and try again.",
+        message: caught instanceof Error ? caught.message : "The map couldn’t be built. Check the topic names and try again.",
       });
       return false;
     }
@@ -672,7 +673,7 @@ export function MaterialLibrary({ embedded = false, incomingFile = null, onIncom
     if (analysis) return (
       <section className="first-source-review" aria-labelledby="first-source-review-title">
         <header>
-          <h2 id="first-source-review-title" tabIndex={-1} ref={focusPhaseHeading}>{asking ? "Is this a file to revise?" : "Check the topics Kelus found."}</h2>
+          <h2 id="first-source-review-title" tabIndex={-1} ref={focusPhaseHeading}>{asking ? "Is this a file to revise?" : "Check the topics in your notes."}</h2>
           {asking ? null : <>
             {analysis.coverage ? <ReadCoverage coverage={analysis.coverage} found={analysis.proposals.length} /> : null}
             <p>These come from <b>{readableFileName(analysis.material.fileName ?? analysis.material.title)}</b>. Remove anything that is not part of your exam.</p>
@@ -682,7 +683,7 @@ export function MaterialLibrary({ embedded = false, incomingFile = null, onIncom
         {/* A CV or a letter reads fine and its headings look like topics, but nobody sits an exam on them: ask first. */}
         {asking && notNotes ? (
           <div className="first-source-kind" role="status">
-            <p><strong>This looks like {KIND_NAME[notNotes]}, not course notes.</strong> Kelus writes exam questions from what you need to learn, so its headings would become topics like “{analysis.proposals[0]?.name ?? "a job title"}”.</p>
+            <p><strong>This looks like {KIND_NAME[notNotes]}, not course notes.</strong> Exam questions come from what you need to learn, so its headings would become topics like “{analysis.proposals[0]?.name ?? "a job title"}”.</p>
             <div className="first-source-kind-actions">
               {onStartOver ? <button type="button" className="cta" onClick={onStartOver}>Choose your course notes</button> : null}
               <button type="button" className="text-btn" onClick={() => { setUseAnyway(true); requestAnimationFrame(() => document.getElementById("first-source-review-title")?.focus()); }}>Use it anyway</button>
@@ -694,7 +695,7 @@ export function MaterialLibrary({ embedded = false, incomingFile = null, onIncom
             <li key={proposal.id}>
               <label>
                 <input type="checkbox" checked={selectedIds.has(proposal.id)} onChange={() => toggleProposal(proposal.id)} />
-                <span><strong>{proposal.name}</strong><small>{proposal.locator} · “{proposal.sourceExcerpt.slice(0, 150)}{proposal.sourceExcerpt.length > 150 ? "…" : ""}”</small></span>
+                <span><strong>{proposal.name}</strong><small>{proposal.locator} · “{previewLine(proposal.sourceExcerpt)}”</small></span>
               </label>
             </li>
           ))}
@@ -752,7 +753,7 @@ export function MaterialLibrary({ embedded = false, incomingFile = null, onIncom
               <strong>{busy ? (statusMessage ?? "Reading your file…") : "Choose a file"}</strong>
               <span>{busy && statusMessage ? statusMessage : "or drop it here · PDF, plain text or a Notion .zip"}</span>
             </label>
-            <p className="material-ingest-hint">Kelus finds the topics in it and adds them to your plan. PDFs with selectable text are read fastest.</p>
+            <p className="material-ingest-hint">Its topics are added to your plan. PDFs with selectable text are read fastest.</p>
             <div className="material-role-field">
               <label htmlFor="material-role">Type</label>
               <select id="material-role" value={role} onChange={(event) => setRole(event.target.value as MaterialRole)} disabled={busy}>
@@ -785,11 +786,11 @@ export function MaterialLibrary({ embedded = false, incomingFile = null, onIncom
               <div className="material-url-field"><label htmlFor="material-url">Bookmark a video or web link</label><input id="material-url" value={url} onChange={(event) => { setUrl(event.target.value); setLinkError(null); }} placeholder="https://…" inputMode="url" disabled={busy} aria-invalid={linkError ? true : undefined} aria-describedby={linkError ? "material-url-error" : undefined} />{linkError ? <p id="material-url-error" className="material-link-error" role="alert">{linkError}</p> : null}</div>
               <button className="cta" type="submit" disabled={!url.trim() || busy}>Save bookmark</button>
             </form>
-            <p className="material-link-hint">Bookmarks stay on your shelf for quick open. Upload a PDF when you want Kelus to propose topics.</p>
+            <p className="material-link-hint">Bookmarks stay on your shelf for quick open. Upload a PDF to turn it into topics.</p>
             </details>
             {errorKind === "ocr" ? (
               <div className="material-error-rescue" role="group" aria-label="Ways to continue after OCR">
-                <p>Kelus needs selectable page text for a reliable topic map. Export a digital PDF from your notes app and try again.</p>
+                <p>A reliable topic map needs selectable page text. Export a digital PDF from your notes app and try again.</p>
                 <div className="material-error-actions">
                   <a className="text-btn" href="#source-shelf-title">Retry with another file</a>
                 </div>
@@ -864,7 +865,7 @@ export function MaterialLibrary({ embedded = false, incomingFile = null, onIncom
         </details>
         {errorKind === "ocr" ? (
           <div className="material-error-rescue" role="group" aria-label="Ways to continue after OCR">
-            <p>Kelus needs selectable page text for a reliable topic map. Export a digital PDF from your notes app and try again.</p>
+            <p>A reliable topic map needs selectable page text. Export a digital PDF from your notes app and try again.</p>
             <div className="material-error-actions">
               <a className="text-btn" href="#source-shelf-title">Retry with another file</a>
             </div>
@@ -934,7 +935,7 @@ export function MaterialLibrary({ embedded = false, incomingFile = null, onIncom
                 {previewUrl ? <a href={`${previewUrl}#page=${previewPage}`} target="_blank" rel="noreferrer">Open PDF ↗</a> : null}
               </div>
               <div className="material-source-page" aria-label={`Extracted text from ${analysis.material.kind === "text" ? "section" : "page"} ${previewPage}`}>
-                <span>{analysis.material.kind === "text" ? "Section" : "Page"} {previewPage} · text Kelus read</span>
+                <span>{analysis.material.kind === "text" ? "Section" : "Page"} {previewPage} · the text that was read</span>
                 <p>{analysis.pages.find((page) => page.pageNumber === previewPage)?.text.slice(0, 2200) || (analysis.material.kind === "text" ? "This section is empty." : "No readable text on this page. Open the original PDF to inspect it.")}</p>
               </div>
               <p>{analysis.material.kind === "text" ? "Select a topic to check its source section." : "Select a topic to check its source page. Open PDF shows the original layout."}</p>
@@ -965,7 +966,7 @@ export function MaterialLibrary({ embedded = false, incomingFile = null, onIncom
                           ? "High confidence · grounded in page text"
                           : "Review carefully · inferred from limited source text"}
                       </small>
-                      <span className="proposal-source-excerpt">“{proposal.sourceExcerpt.slice(0, 260)}{proposal.sourceExcerpt.length > 260 ? "…" : ""}”</span>
+                      <span className="proposal-source-excerpt">“{previewLine(proposal.sourceExcerpt, 260)}”</span>
                     </span>
                   </div>
                 </li>
@@ -1001,14 +1002,14 @@ export function MaterialLibrary({ embedded = false, incomingFile = null, onIncom
           <ul>{courseMaterials.map((item) => <MaterialRow key={item.id} item={item} userId={auth.user?.id} syncState={syncStates[item.id]} quiet={embedded} onAnalyze={(material) => void analyzePdf(material)} onRemoved={(material) => removeMaterialSource(material.id)} linkedTopics={state.snapshot.learningActivities.filter((activity) => activity.sourceReferences.some((reference) => reference.materialId === item.id)).length} {...sourceTopics(item.id)} />)}</ul>
         ) : concepts.length ? (
           <div className="material-shelf-empty">
-            <p>Sample model is ready. Add your own syllabus when you want Kelus grounded in your files.</p>
+            <p>Sample model is ready. Add your own syllabus to study from your files.</p>
             <Link className="cta" href="/today">
               Continue to study plan <ArrowRight />
             </Link>
           </div>
         ) : (
           <div className="material-shelf-empty">
-            <p>{embedded ? "Add the syllabus or lecture for this exam. Kelus proposes topics you confirm." : "No sources on this shelf yet. Add the syllabus or lecture you’re studying — Kelus will propose topics you confirm."}</p>
+            <p>{embedded ? "Add the syllabus or lecture for this exam, then confirm its topics." : "No sources on this shelf yet. Add the syllabus or lecture you’re studying — you confirm its topics."}</p>
             <div className="materials-empty-actions">
               <a className="cta" href="#add-material-title">
                 Add first PDF <ArrowRight />
