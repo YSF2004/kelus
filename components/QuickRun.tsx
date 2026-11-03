@@ -155,7 +155,7 @@ export function QuickRun({ run: providedRun, persistenceKey, onPersistenceChange
   const headline = answerReason && answered ? feedbackHeadline(answerReason, { right: answered.right, unsure: answered.unsure, given: answered.given }) : null;
   // A headline that already says both words ("The word is “price”, not “quantity”.") makes the answer row and the
   // gap's reason a repeat; they stay in the trace for screen readers, out of sight.
-  const headlineSaysIt = Boolean(headline) && (answerReason?.shape === "gap" || answerReason?.shape === "changed");
+  const headlineSaysIt = Boolean(headline) && (answerReason?.shape === "gap" || answerReason?.shape === "changed" || answerReason?.shape === "same");
   const chips = item ? gapChoices(item, run) : [];
   const nextLabel = step + 1 >= total
     ? (onChecksDone ? w.seeHow : w.sayIt)

@@ -40,8 +40,7 @@
 
 .actions { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 14px; }
 .actions :global(.k-btn) { min-height: 44px; }
-.also { color: var(--color-slate); font-size: var(--text-body-sm); }
-.calendar { display: inline-flex; align-items: center; min-height: 44px; padding: 0 2px; border: 0; background: none; color: var(--color-kelus); font: inherit; font-size: var(--text-body-sm); font-weight: 600; text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 4px; cursor: pointer; }
+.calendar { display: inline-flex; align-items: center; gap: 6px; min-height: 44px; padding: 0 2px; border: 0; background: none; color: var(--color-kelus); font: inherit; font-size: var(--text-body-sm); font-weight: 600; text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 4px; cursor: pointer; }
 .calendar[aria-disabled] { color: var(--color-slate); text-decoration-color: color-mix(in srgb, var(--color-slate) 40%, transparent); }
 .calendar:focus-visible { outline: 2px solid var(--color-kelus); outline-offset: 2px; border-radius: 4px; }
 .card .error { color: var(--k-danger); font-weight: 500; }

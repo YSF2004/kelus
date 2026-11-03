@@ -77,7 +77,6 @@ export function ResultShareCard({ stats, sessionNumber }: { stats: ResultStats; 
               {busy ? "Making the card…" : "Share this result"}
             </button>
           ) : null}
-          <a className={styles.secondary} href={whatsappUrl(stats)} target="_blank" rel="noopener noreferrer" onClick={() => trackEvent({ name: "result_shared", method: "whatsapp", session_number: sessionNumber })}>WhatsApp</a>
           <button type="button" className={touch ? styles.secondary : `k-btn ${styles.share}`} onClick={() => void copy()} aria-live="polite">
             <AnimatePresence mode="popLayout" initial={false}>
               <motion.span key={copied ? "done" : "copy"} className={styles.copyLabel} initial={reduce ? false : { opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }} exit={reduce ? { opacity: 0 } : { opacity: 0, y: -4 }} transition={{ duration: 0.16 }}>
@@ -85,6 +84,7 @@ export function ResultShareCard({ stats, sessionNumber }: { stats: ResultStats; 
               </motion.span>
             </AnimatePresence>
           </button>
+          <a className={styles.secondary} href={whatsappUrl(stats)} target="_blank" rel="noopener noreferrer" onClick={() => trackEvent({ name: "result_shared", method: "whatsapp", session_number: sessionNumber })}>WhatsApp</a>
         </div>
         <p className={styles.privacy}>{note ?? "Shares your numbers and a link to Kelus. Your notes stay on this device."}</p>
       </div>
