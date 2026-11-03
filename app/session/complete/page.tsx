@@ -17,6 +17,9 @@ import { downloadTomorrowStudyIcs } from "@/lib/study-reminder";
 import { getNudgeSettings, getServerNudgeSettings, nudgesSupported, subscribeNudgeSettings, turnOnNudges } from "@/lib/nudge";
 import { SAMPLE_COURSE_IDS, sessionContext } from "@/lib/pilot";
 import { ClassInvite } from "@/components/ClassInvite";
+import { ResultShareCard } from "@/components/ResultShareCard";
+import { habitSummary } from "@/domain/habit";
+import { leitner } from "@/domain/leitner";
 import { trackEvent } from "@/lib/analytics";
 import { useDocumentTitle } from "@/lib/use-title";
 import { KelusLogoMark } from "@/components/KelusLogoMark";
@@ -163,6 +166,18 @@ function CompleteBody() {
   const missedToday = (state.missedLines ?? []).filter((line) => line.at >= session.startedAt && practised.some((event) => event.conceptId === line.conceptId)).length;
   const nextFresh = nextStopId ? { conceptId: nextStopId } : undefined;
   const allGood = practised.length > 0 && practised.every((event) => event.outcome === "success");
+  // The result as numbers a student can send: lines right and missed in this block, the course's own count, the streak.
+  const inBlock = (line: { at: string; conceptId: string }) => line.at >= session.startedAt && practised.some((event) => event.conceptId === line.conceptId);
+  const courseLines = leitner({ concepts: courseConcepts, activities: state.snapshot.learningActivities, known: state.knownLines ?? [], missed: state.missedLines ?? [], nowIso: state.nowIso });
+  const resultStats = {
+    course: course && course.name !== "My course" ? course.name : null,
+    recalled: (state.knownLines ?? []).filter(inBlock).length,
+    missed: missedToday,
+    topics: practised.length,
+    courseRecalled: courseLines.recalled,
+    courseTotal: courseLines.total,
+    streak: habitSummary({ events: state.snapshot.events, concepts: courseConcepts, nowMs: Date.parse(state.nowIso) }).streak,
+  };
   const matchPairs = buildMatchRound(practised.map((event) => event.conceptId), state.snapshot.concepts, state.snapshot.learningActivities);
 
   return (
@@ -224,6 +239,8 @@ function CompleteBody() {
             </motion.li>
           ))}
         </ul>
+
+        {!SAMPLE_COURSE_IDS.has(session.courseId) && practised.length ? <ResultShareCard stats={resultStats} sessionNumber={sessionNumber} /> : null}
 
         {/* A quick bonus round on the topics just practised, when there are three or more to match. */}
         {matchPairs.length ? <MatchRound pairs={matchPairs} seed={session.id} /> : null}
