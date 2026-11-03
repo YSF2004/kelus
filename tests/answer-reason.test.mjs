@@ -111,3 +111,18 @@ test("a gap shown with words to choose from gets the same source-restoring expla
   assert.match(feedback.reason, /blank replaces “price”/);
   assert.equal(buildAnswerReason({ ...gap, choices: ["equals", "cover", "price", "costs"], correctIndex: 0, modelAnswer: "equals" }).grounded, false);
 });
+
+test("the verdict headline names the exact difference, and only when the evidence supports it", async () => {
+  const { feedbackHeadline } = await import("../domain/answer-reason.ts");
+  const sourceQuote = "Demand falls as price rises, because buyers switch to substitutes or buy less.";
+  const gap = buildAnswerReason({
+    ...item, kind: "choice", variant: undefined, choices: ["equals", "price", "cover", "costs"], correctIndex: 1,
+    modelAnswer: "price", sourceQuote, explanation: "",
+    prompt: "Which word completes this statement from your notes? “Demand falls as _____ rises, because buyers switch to substitutes or buy less.”",
+  });
+  assert.equal(feedbackHeadline(gap, { right: false, given: "equals" }), "The word is “price”, not “equals”.");
+  assert.equal(feedbackHeadline(gap, { right: false, unsure: true }), "The word is “price”.");
+  assert.equal(feedbackHeadline(gap, { right: true, given: "price" }), "“price” is the word your notes use.");
+  assert.equal(feedbackHeadline(buildAnswerReason(item), { right: false, given: "True" }), "Your notes say “larger”, not “smaller”.");
+  assert.equal(feedbackHeadline(buildAnswerReason({ ...item, origin: "ai" }), { right: false }), null);
+});

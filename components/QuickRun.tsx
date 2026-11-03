@@ -5,7 +5,7 @@ import type { ReactNode } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { LineMove } from "@/components/LineMove";
-import { buildAnswerReason } from "@/domain/answer-reason";
+import { buildAnswerReason, feedbackHeadline } from "@/domain/answer-reason";
 import { checkAnswer, type CheckVerdict } from "@/domain/practice-check";
 import { explainMatch, looksLikeWords } from "@/domain/answer-evaluation";
 import { PackArt } from "@/components/PackArt";
@@ -152,6 +152,10 @@ export function QuickRun({ run: providedRun, persistenceKey, onPersistenceChange
   const useful = match && match.keys >= 3 && explained.trim() ? match : null;
   const item = onChecks ? run.checks[step] : null;
   const answerReason = item && answered ? buildAnswerReason(item) : null;
+  const headline = answerReason && answered ? feedbackHeadline(answerReason, { right: answered.right, unsure: answered.unsure, given: answered.given }) : null;
+  // A headline that already says both words ("The word is “price”, not “quantity”.") makes the answer row and the
+  // gap's reason a repeat; they stay in the trace for screen readers, out of sight.
+  const headlineSaysIt = Boolean(headline) && (answerReason?.shape === "gap" || answerReason?.shape === "changed");
   const chips = item ? gapChoices(item, run) : [];
   const nextLabel = step + 1 >= total
     ? (onChecksDone ? w.seeHow : w.sayIt)
@@ -414,7 +418,7 @@ export function QuickRun({ run: providedRun, persistenceKey, onPersistenceChange
 
             {answered ? (
               <motion.div
-                className={`${styles.feedback} ${answered.right ? styles.ok : answered.unsure ? styles.unsure : styles.no}`}
+                className={`${styles.feedback} ${answered.right ? styles.ok : answered.unsure ? styles.isUnsure : styles.no}`}
                 role="status"
                 // On a phone the verdict's sheet can be swiped away to the next check: it follows the thumb, resists,
                 // and springs back unless the swipe was long or quick enough. Next and Enter work as before.
@@ -424,21 +428,21 @@ export function QuickRun({ run: providedRun, persistenceKey, onPersistenceChange
                 dragSnapToOrigin
                 onDragEnd={(_, info) => { if (info.offset.x < -80 || info.velocity.x < -500) next(); }}
                 initial={reduce ? false : touch ? { opacity: 1, y: "100%" } : { opacity: 0, y: 8, scale: 0.98 }} animate={{ opacity: 1, y: 0, scale: 1 }} transition={touch ? { type: "spring", bounce: 0, duration: 0.38 } : { type: "spring", bounce: 0, duration: 0.28 }}>
-                <strong>{answered.right ? <PackArt name="check" className={styles.mark} /> : null}{answered.unsure ? (item.kind === "cloze" ? w.itWas(item.modelAnswer) : w.lineFrom) : answered.right ? (answered.picked ? w.picked : answered.firstEver ? w.firstRight : w.right) : item.kind === "cloze" ? w.notQuiteWas(item.modelAnswer) : w.notQuite}</strong>
+                {/* A small verdict, then one line that names the exact difference: the teacher's sentence, not a label. */}
+                <span className={styles.verdict}>{answered.right ? <PackArt name="check" className={styles.mark} /> : null}{answered.unsure ? w.workItOut : answered.right ? (answered.firstEver ? w.firstRightShort : w.rightShort) : w.notQuiteYet}</span>
+                <strong className={styles.headline}>{headline ?? (answered.unsure ? (item.kind === "cloze" ? w.itWas(item.modelAnswer) : w.lineFrom) : answered.right ? (answered.firstEver ? w.firstRight : w.right) : item.kind === "cloze" ? w.notQuiteWas(item.modelAnswer) : w.notQuite)}</strong>
+                {answered.right && answered.picked ? <p className={styles.pickedNote}>{w.pickedNote}</p> : null}
                 <ol className={styles.reasoningTrace} aria-label="Your answer, the reason, and the source">
-                  <li className={styles.reasoningStep}>
+                  <li className={`${styles.reasoningStep}${headlineSaysIt ? " sr-only" : ""}`}>
                     <span className={styles.reasoningNumber} aria-hidden="true">1</span>
                     <div className={styles.reasoningBody}>
-                      <span className={styles.reasoningLabel}>Your answer</span>
-                      <p className={styles.reasoningText}>{answered.given?.trim() || w.notSure}</p>
-                      {answerReason?.answer ? (
-                        <p className={styles.reasoningText}>
-                          {answerReason.grounded ? "Supported answer" : "Suggested answer"}: <strong>{answerReason.answer}</strong>
-                        </p>
-                      ) : null}
+                      <p className={styles.answerRow}>
+                        <span><span className={styles.reasoningLabel}>Your answer</span> {answered.given?.trim() || w.notSure}</span>
+                        {answerReason?.answer && !answered.right ? <span><span className={styles.reasoningLabel}>{answerReason.grounded ? "Your notes" : "Suggested"}</span> <b>{answerReason.answer}</b></span> : null}
+                      </p>
                     </div>
                   </li>
-                  <li className={styles.reasoningStep}>
+                  <li className={`${styles.reasoningStep}${headlineSaysIt ? " sr-only" : ""}`}>
                     <span className={styles.reasoningNumber} aria-hidden="true">2</span>
                     <div className={styles.reasoningBody}>
                       <span className={styles.reasoningLabel}>
@@ -453,7 +457,7 @@ export function QuickRun({ run: providedRun, persistenceKey, onPersistenceChange
                     <span className={styles.reasoningNumber} aria-hidden="true">3</span>
                     <div className={styles.reasoningBody}>
                       <div className={styles.evidenceHeading}>
-                        <span className={styles.evidenceLabel}>Evidence in your source</span>
+                        <span className={styles.evidenceLabel}>Evidence from your notes</span>
                         {sourceLocation?.trim() ? <span className={styles.evidenceLocation}>{sourceLocation}</span> : null}
                       </div>
                       {around && linesAround(run, item.sourceQuote) ? (

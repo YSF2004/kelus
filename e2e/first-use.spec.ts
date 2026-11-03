@@ -93,7 +93,7 @@ async function playQuickRun(page: Page, explanation: string, grade: string, expe
     }
     const reasoningTrace = page.getByRole("list", { name: "Your answer, the reason, and the source" });
     await expect(reasoningTrace.locator("li")).toHaveCount(3);
-    await expect(reasoningTrace).toContainText("Evidence in your source");
+    await expect(reasoningTrace).toContainText("Evidence from your notes");
     if (expectTwoIdeaIntro && guard === 0) {
       await expect(page.getByLabel("Check 1 of 2")).toBeVisible();
       await expect(page.getByRole("button", { name: "Next idea", exact: true })).toBeVisible();
