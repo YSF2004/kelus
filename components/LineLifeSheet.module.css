@@ -1,0 +1,70 @@
+/* The life of a line: a sheet of paper laid over Progress. Numbered serif steps joined by a hairline, the way a
+   teacher would trace one answer back to the page. Rises from the bottom on a phone; a column at the right on a
+   wide screen. */
+.scrim {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  background: color-mix(in srgb, var(--color-midnight-ink) 32%, transparent);
+}
+
+.sheet {
+  width: 100%;
+  max-height: min(88dvh, 820px);
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 18px 20px calc(28px + env(safe-area-inset-bottom));
+  border-radius: 20px 20px 0 0;
+  background: var(--k-card, var(--k-surface));
+  color: var(--color-midnight-ink);
+  box-shadow: 0 -12px 40px color-mix(in srgb, var(--color-midnight-ink) 18%, transparent);
+}
+
+@media (min-width: 761px) {
+  .scrim { align-items: stretch; justify-content: flex-end; }
+  .sheet { width: min(460px, 100%); max-height: none; height: 100%; padding: 28px 32px; border-radius: 0; box-shadow: -12px 0 40px color-mix(in srgb, var(--color-midnight-ink) 14%, transparent); }
+}
+
+.head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 18px; }
+.kicker { margin: 0; color: var(--color-kelus); font-size: 0.75rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; }
+.close { display: grid; place-items: center; width: 44px; height: 44px; margin: -10px -12px -10px 0; border: 0; border-radius: 10px; background: transparent; color: var(--color-slate); font-size: 1.5rem; line-height: 1; cursor: pointer; }
+.close:hover { background: var(--k-surface-2); color: var(--color-midnight-ink); }
+.close:active { transform: scale(0.96); }
+.close:focus-visible { outline: 2px solid var(--color-kelus); outline-offset: 2px; }
+
+.trail { display: grid; gap: 0; margin: 0; padding: 0; list-style: none; }
+.step { position: relative; display: grid; grid-template-columns: 36px minmax(0, 1fr); gap: 14px; padding-bottom: 24px; }
+.step:not(:last-child)::after { content: ""; position: absolute; top: 38px; bottom: 4px; left: 17px; width: 1px; background: var(--k-line-strong); }
+.num { display: grid; place-items: center; width: 36px; height: 36px; border: 1px solid color-mix(in srgb, var(--color-kelus) 40%, var(--k-line-strong)); border-radius: 50%; background: var(--k-card, var(--k-surface)); color: var(--color-kelus); font-family: var(--font-source-serif), Literata, Georgia, serif; font-size: 0.9375rem; font-variant-numeric: oldstyle-nums; }
+
+.label { margin: 7px 0 8px; color: var(--color-kelus); font-size: 0.75rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; }
+.label span { color: var(--color-slate); font-weight: 600; letter-spacing: 0.04em; text-transform: none; }
+
+.quote { margin: 0; padding-left: 14px; border-left: 3px solid var(--k-marigold-text); font-family: var(--font-source-serif), Literata, Georgia, serif; font-size: 1.3125rem; line-height: 1.35; text-wrap: pretty; }
+.next { margin: 10px 0 0; color: var(--color-slate); font-size: var(--text-body-sm, 0.9375rem); line-height: 1.5; }
+.next b { color: var(--color-midnight-ink); font-weight: 600; }
+
+.asks { display: grid; gap: 10px; margin: 0; padding: 0; list-style: none; }
+.asks li { display: grid; gap: 4px; padding: 12px 14px; border: 1px solid var(--k-line); border-radius: 12px; }
+.askLead { color: var(--color-slate); font-size: 0.8125rem; }
+.askLine { font-size: 0.9375rem; line-height: 1.5; }
+.gap { display: inline-block; width: 3.2em; margin: 0 3px; border-bottom: 2px solid var(--color-midnight-ink); vertical-align: -2px; }
+
+.answers { display: grid; gap: 8px; margin: 0; padding: 0; list-style: none; }
+.answers li { display: grid; grid-template-columns: 24px auto 1fr; align-items: center; gap: 10px; font-size: 0.9375rem; }
+.answers time { justify-self: end; color: var(--color-slate); font-size: 0.8125rem; font-variant-numeric: tabular-nums; }
+.dot { display: grid; place-items: center; width: 24px; height: 24px; border-radius: 50%; background: var(--k-danger-wash); color: var(--k-danger); font-size: 0.75rem; font-weight: 700; }
+.answers li[data-right] .dot { background: var(--k-green-wash); color: var(--color-kelus); }
+
+.body { margin: 0; font-size: 1rem; line-height: 1.55; }
+.quiet { margin: 0; color: var(--color-slate); font-size: 0.9375rem; }
+
+.boxes { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 6px; max-width: 280px; margin: 0 0 10px; padding: 0; list-style: none; }
+.boxes li { display: grid; place-items: center; height: 34px; border: 1px solid var(--k-line); border-radius: 8px; color: var(--color-slate); font-size: 0.8125rem; font-variant-numeric: tabular-nums; }
+.boxes li[data-here] { border-color: var(--color-kelus); background: var(--k-green-wash); color: var(--color-kelus); font-weight: 700; }
+.boxes li[data-here][data-state="missed"] { border-color: var(--k-danger); background: var(--k-danger-wash); color: var(--k-danger); }
+
+@media (prefers-reduced-motion: reduce) { .close:active { transform: none; } }

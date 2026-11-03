@@ -98,3 +98,11 @@
   .spread { grid-template-columns: minmax(0, 1fr); }
   .foot { flex-direction: column; gap: 2px; }
 }
+
+/* On Progress a card opens its line's story: the whole card is the button, and it lifts a little under the finger. */
+.spreadOpen { display: grid; gap: 6px; width: 100%; margin: -12px -12px -10px; padding: 12px 12px 10px; border: 0; background: none; color: inherit; font: inherit; text-align: left; cursor: pointer; box-sizing: content-box; }
+.spreadCard:has(.spreadOpen) { transition: transform 160ms cubic-bezier(0.22, 1, 0.36, 1), box-shadow 160ms; }
+.spreadCard:has(.spreadOpen:hover) { transform: translateY(-1px); }
+.spreadCard:has(.spreadOpen:active) { transform: scale(0.98); }
+.spreadOpen:focus-visible { outline: 2px solid var(--lb-green); outline-offset: -2px; border-radius: 6px; }
+@media (prefers-reduced-motion: reduce) { .spreadCard:has(.spreadOpen) { transition: none; } }

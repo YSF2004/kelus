@@ -5,6 +5,7 @@
 
 import type { MissedLine } from "@/domain/return-visit";
 import { getDemoSnapshot, subscribeDemoState, updateKnownLines } from "@/lib/demo-store";
+import { recordLineAnswers } from "@/lib/line-history";
 
 const EMPTY: MissedLine[] = [];
 
@@ -26,6 +27,7 @@ export function subscribeKnownLines(onChange: () => void) {
 export function addKnownLines(lines: MissedLine[]) {
   if (!lines.length) return;
   const quotes = new Set(lines.map((line) => line.quote));
+  recordLineAnswers([...quotes], true, lines[0].at);
   updateKnownLines((current) => {
     const before = new Map(current.map((line) => [line.quote, line]));
     const next = lines.map((line) => ({ ...line, streak: nextStreak(before.get(line.quote), line.at) }));
