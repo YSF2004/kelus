@@ -474,7 +474,10 @@ export function QuickRun({ run: providedRun, persistenceKey, onPersistenceChange
                           data-testid="source-evidence-jump"
                           type="button"
                           className={styles.sourceJump}
-                          onClick={() => onShowLine(item.sourceQuote)}
+                          onClick={() => {
+                            setAround(true);
+                            onShowLine(item.sourceQuote);
+                          }}
                         >
                           {w.seeOnPage}<ArrowRight aria-hidden="true" />
                         </button>
