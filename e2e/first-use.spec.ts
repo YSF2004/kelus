@@ -5,10 +5,16 @@ function biologyPdf() {
   const text = [
     "BT /F1 20 Tf 72 720 Td (Cell Membranes) Tj ET",
     "BT /F1 11 Tf 72 690 Td (Cell membranes regulate transport between the cell and its environment.) Tj ET",
-    "BT /F1 20 Tf 72 640 Td (Osmosis) Tj ET",
-    "BT /F1 11 Tf 72 610 Td (Osmosis depends on cell membranes and moves water across a selectively permeable membrane.) Tj ET",
-    "BT /F1 20 Tf 72 560 Td (Diffusion) Tj ET",
-    "BT /F1 11 Tf 72 530 Td (Diffusion moves particles down a concentration gradient.) Tj ET",
+    "BT /F1 11 Tf 72 670 Td (The phospholipid bilayer has water-attracting heads and water-repelling tails.) Tj ET",
+    "BT /F1 11 Tf 72 650 Td (Transport proteins help ions and larger molecules cross the membrane.) Tj ET",
+    "BT /F1 20 Tf 72 610 Td (Osmosis) Tj ET",
+    "BT /F1 11 Tf 72 580 Td (Osmosis depends on cell membranes and moves water across a selectively permeable membrane.) Tj ET",
+    "BT /F1 11 Tf 72 560 Td (Water moves from a dilute solution toward a more concentrated solution.) Tj ET",
+    "BT /F1 11 Tf 72 540 Td (The direction of osmosis depends on the difference in water concentration.) Tj ET",
+    "BT /F1 20 Tf 72 500 Td (Diffusion) Tj ET",
+    "BT /F1 11 Tf 72 470 Td (Diffusion moves particles down a concentration gradient.) Tj ET",
+    "BT /F1 11 Tf 72 450 Td (Particles move from an area of higher concentration to an area of lower concentration.) Tj ET",
+    "BT /F1 11 Tf 72 430 Td (Diffusion is passive and does not require energy from the cell.) Tj ET",
   ].join("\n");
   const objects = [
     "<< /Type /Catalog /Pages 2 0 R >>",

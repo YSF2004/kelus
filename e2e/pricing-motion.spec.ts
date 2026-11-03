@@ -24,7 +24,7 @@ test("pricing plans zoom gently without losing mobile or reduced-motion usabilit
   if (!box) throw new Error("Free plan action is not visible");
   await page.mouse.move(box.x + 24, box.y + box.height / 2);
   await page.mouse.down();
-  await expect.poll(async () => Number((await free.locator("article").evaluate((element) => getComputedStyle(element).transform)).match(/^matrix\(([^,]+)/)?.[1] ?? 1)).toBeLessThan(0.98);
+  await expect.poll(async () => Number((await free.evaluate((element) => getComputedStyle(element).transform)).match(/^matrix\(([^,]+)/)?.[1] ?? 1)).toBeLessThan(0.98);
   await page.mouse.up();
 
   await page.setViewportSize({ width: 320, height: 800 });

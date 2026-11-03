@@ -4,7 +4,7 @@ import { motion, useReducedMotion } from "motion/react";
 import type { ReactNode } from "react";
 import { rise } from "@/components/motion/rise";
 
-/** A plan rises into place after the title (delay staggers the two), then grows a little under the pointer. */
+/** A plan rises into place, then gives quiet hover and press feedback without motion when reduced motion is set. */
 export function PricingPlanMotion({ children, delay = 0 }: { children: ReactNode; delay?: number }) {
   const reduceMotion = useReducedMotion() === true;
 
@@ -15,6 +15,7 @@ export function PricingPlanMotion({ children, delay = 0 }: { children: ReactNode
       role="listitem"
       initial={false}
       whileHover={reduceMotion ? undefined : { scale: 1.018 }}
+      whileTap={reduceMotion ? undefined : { scale: 0.97 }}
       transition={{ type: "spring", bounce: 0, duration: 0.26 }}
     >
       {children}
