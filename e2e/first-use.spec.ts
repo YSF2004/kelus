@@ -145,7 +145,7 @@ test("first import shows source coverage and lets the student reject a topic bef
   await gotoStart(page);
   await page.locator('input[type="file"]').setInputFiles({ name: "cell-biology-lecture.pdf", mimeType: "application/pdf", buffer: biologyPdf() });
   const review = page.locator(".first-source-review");
-  await expect(review).toContainText("Read the whole page.");
+  await expect(review).toContainText("Kelus read the whole page.");
   await expect(review).toContainText("Cell membranes regulate transport");
   await page.screenshot({ path: "/tmp/kelus-source-review-desktop.png", fullPage: true });
   await page.setViewportSize({ width: 390, height: 844 });
