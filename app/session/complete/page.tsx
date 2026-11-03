@@ -4,7 +4,7 @@ import { ArrowRight } from "@/components/Marks";
 import Link from "next/link";
 import { motion, useReducedMotion } from "motion/react";
 import { useSearchParams } from "next/navigation";
-import { Suspense, useEffect, useRef, useState } from "react";
+import { Suspense, useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { useLearner } from "@/components/LearnerProvider";
 import { HabitStrip } from "@/components/HabitStrip";
 import { generateRoute } from "@/domain/routing-engine";
@@ -14,6 +14,7 @@ import { buildMatchRound } from "@/domain/match-round";
 import { WaitlistForm } from "@/components/WaitlistForm";
 import { SoftUpgradePrompt } from "@/components/SoftUpgradePrompt";
 import { downloadTomorrowStudyIcs } from "@/lib/study-reminder";
+import { getNudgeSettings, getServerNudgeSettings, nudgesSupported, subscribeNudgeSettings, turnOnNudges } from "@/lib/nudge";
 import { SAMPLE_COURSE_IDS, sessionContext } from "@/lib/pilot";
 import { ClassInvite } from "@/components/ClassInvite";
 import { trackEvent } from "@/lib/analytics";
@@ -30,6 +31,40 @@ function HalfDot() {
       <circle cx="8" cy="8" r="6.25" fill="none" stroke="currentColor" strokeWidth="1.5" />
       <path d="M8 1.75A6.25 6.25 0 0 0 8 14.25Z" fill="currentColor" />
     </svg>
+  );
+}
+
+const noSubscribe = () => () => {};
+
+/** "6 pm" from "18:00", the way the reminder is said back. */
+function spokenTime(time: string) {
+  const [hours, minutes] = time.split(":").map(Number);
+  const suffix = hours < 12 ? "am" : "pm";
+  const hour = hours % 12 || 12;
+  return minutes ? `${hour}:${String(minutes).padStart(2, "0")} ${suffix}` : `${hour} ${suffix}`;
+}
+
+/**
+ * The moment a first session ends is the moment to ask about tomorrow: one tap turns on the daily nudge, which
+ * only comes when missed lines are ready. Not offered where the browser has no notifications; the calendar stays.
+ */
+function RemindTomorrow() {
+  const supported = useSyncExternalStore(noSubscribe, nudgesSupported, () => false);
+  const settings = useSyncExternalStore(subscribeNudgeSettings, getNudgeSettings, getServerNudgeSettings);
+  const [note, setNote] = useState("");
+  if (!supported) return null;
+  if (settings.on) return <p className={styles.note}>Reminder on: Kelus nudges you at {spokenTime(settings.time)} when lines are ready.</p>;
+  return (
+    <>
+      <button type="button" className={`text-btn ${styles.calendar}`} onClick={async () => {
+        const answer = await turnOnNudges(settings.time);
+        if (answer === "granted") trackEvent({ name: "nudges_enabled" });
+        setNote(answer === "granted" ? "" : "Notifications are blocked for Kelus in this browser. The calendar file works instead.");
+      }}>
+        Remind me tomorrow at {spokenTime(settings.time)} <ArrowRight />
+      </button>
+      {note ? <p className={styles.note} role="status">{note}</p> : null}
+    </>
   );
 }
 
@@ -209,6 +244,7 @@ function CompleteBody() {
             <button type="button" className={`text-btn ${styles.calendar}`} onClick={addCalendar}>
               Add tomorrow to calendar <ArrowRight />
             </button>
+            <RemindTomorrow />
             {calendarNote ? <p className={styles.note} role="status">{calendarNote}</p> : null}
           </div>
         </section>

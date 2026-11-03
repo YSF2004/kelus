@@ -163,6 +163,18 @@ export function readyCount(lines: number[], nowMs: number) {
   return lines.filter((at) => nowMs - at >= SPACING_MS).length;
 }
 
+type BadgeNavigator = Navigator & { setAppBadge?: (count?: number) => Promise<void>; clearAppBadge?: () => Promise<void> };
+
+/** On an installed Kelus, the lines ready for a warm-up sit on the app's icon. Browsers without badges ignore it. */
+export function showReadyBadge(ready: number) {
+  if (typeof navigator === "undefined") return;
+  const nav = navigator as BadgeNavigator;
+  try {
+    if (ready > 0) void nav.setAppBadge?.(ready).catch(() => {});
+    else void nav.clearAppBadge?.().catch(() => {});
+  } catch { /* No badge support. */ }
+}
+
 /**
  * The once-a-day rule, shared by the open tab and the worker: after your time, only if lines are ready, only if
  * you have not studied today, and never twice on the same day.

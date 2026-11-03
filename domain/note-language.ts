@@ -46,6 +46,9 @@ const PROMPTS: Rule[] = [
   [/^Your notes also say: (“.+”) Explain what that means, and give an example of your own\.$/s, (m) => `Tes notes disent aussi : ${m[1]} Explique ce que cela veut dire, avec un exemple à toi.`],
   [/^Close the page\. What would you tell a friend about .+\?$/s, (_m, name) => `Ferme la page. Que dirais-tu à un ami sur ${named(name)} ?`],
   [/^In your own words, what do your notes say about .+\?$/s, (_m, name) => `Avec tes mots, que disent tes notes sur ${named(name)} ?`],
+  [/^What do your notes say about .+\?$/s, (_m, name) => `Que disent tes notes sur ${named(name)} ?`],
+  [/^Explain .+ the way your notes do\.$/s, (_m, name) => `Explique ${named(name)} comme tes notes le font.`],
+  [/^How would you explain .+ to a friend, from your notes\?$/s, (_m, name) => `Comment expliquerais-tu ${named(name)} à un ami, d’après tes notes ?`],
 ];
 
 const HINTS: Rule[] = [
