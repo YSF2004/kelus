@@ -55,9 +55,9 @@ function MasteryRing({ value }: { value: number | null }) {
 
 /**
  * Topics as a path in the order of your notes: each topic a step with how it stands, a checkpoint after every three,
- * and an exam check at the end. The next topic is marked in its own row, never duplicated above the list.
+ * and an exam check at the end. A direct action opens the same next study session as the Study plan.
  */
-export function TopicMapPanel() {
+export function TopicMapPanel({ onStart, startLabel }: { onStart?: () => void; startLabel?: string } = {}) {
   const { state, removeTopic } = useLearner();
   const reduce = useReducedMotion() === true;
   const known = useSyncExternalStore(subscribeKnownLines, getKnownLines, getServerKnownLines);
@@ -85,7 +85,7 @@ export function TopicMapPanel() {
   const openBlock = freshOpenSession(state.snapshot.sessions, course.id, state.nowIso);
   const resumeId = resumeConceptId(openBlock, state.snapshot.events);
   const startAllocation = resumeId ? (routeStart?.conceptId === resumeId ? routeStart : openBlock?.latestRoute.allocations.find((item) => item.conceptId === resumeId) ?? routeStart) : routeStart;
-  const startConceptId = startAllocation?.conceptId ?? null;
+  const startConceptId = startAllocation?.conceptId ?? concepts[0]?.id ?? null;
 
   if (!concepts.length) {
     return (
@@ -168,6 +168,25 @@ export function TopicMapPanel() {
           <motion.i className={styles.pathSolid} initial={false} animate={{ scaleX: path.length ? solid / path.length : 0 }} transition={{ duration: reduce ? 0 : 0.5, ease: [0.22, 1, 0.36, 1] }} />
         </span>
       </div>
+
+      {start ? (
+        <section className={styles.nextStep} aria-label="Next study step">
+          <div className={styles.nextStepCopy}>
+            <span className={styles.nextStepLabel}>Next to practise</span>
+            <strong>{start.concept.name}</strong>
+            <span className={styles.nextStepReason}>{startReason ?? "First in your current study plan."}</span>
+          </div>
+          {onStart ? (
+            <button type="button" className={`k-btn ${styles.nextStepButton}`} onClick={onStart}>
+              {startLabel ?? "Start session"} <ArrowRight />
+            </button>
+          ) : (
+            <Link href="/today" className={`k-btn ${styles.nextStepButton}`}>
+              Open study plan <ArrowRight />
+            </Link>
+          )}
+        </section>
+      ) : null}
 
       {/* Column names for the eye; each row's strip says its boxes to a screen reader. */}
       <div className="toc-columns" aria-hidden="true"><span>Topic</span><span className="toc-boxes"><i>1</i><i>2</i><i>3</i><i>4</i><i>5</i></span><span>Status</span><span>Page</span></div>

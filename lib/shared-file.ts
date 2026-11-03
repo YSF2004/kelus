@@ -38,3 +38,15 @@ export async function takeSharedFile(): Promise<File | null> {
     return null;
   }
 }
+
+let taken: Promise<File | null> | null = null;
+
+/**
+ * The shared file, read at most once per page load: every caller gets the same answer. Taking it deletes it from the
+ * device, so a second read (React runs effects twice in development, and a remount runs them again) would find
+ * nothing and lose the file. Reading once and sharing the result keeps it.
+ */
+export function takeSharedFileOnce(): Promise<File | null> {
+  taken ??= takeSharedFile();
+  return taken;
+}

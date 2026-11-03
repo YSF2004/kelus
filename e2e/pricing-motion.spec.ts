@@ -5,7 +5,7 @@ test("pricing opens from the homepage with the Plus sheet and no stale homepage"
   await page.getByRole("navigation", { name: "Primary navigation" }).getByRole("link", { name: "Pricing" }).click();
   await expect(page).toHaveURL(/\/pricing\/$/);
   await expect(page.getByRole("heading", { name: "Start revising. Stay in control." })).toBeVisible();
-  await expect(page.getByRole("heading", { name: "Questions from your notes. Checked against the page." })).toHaveCount(0);
+  await expect(page.getByRole("heading", { name: "Turn your notes into practice questions." })).toHaveCount(0);
   await expect(page.locator(".pricing-offer.is-pass")).toHaveCSS("background-color", "rgb(245, 247, 246)");
 });
 
@@ -24,7 +24,7 @@ test("pricing plans zoom gently without losing mobile or reduced-motion usabilit
   if (!box) throw new Error("Free plan action is not visible");
   await page.mouse.move(box.x + 24, box.y + box.height / 2);
   await page.mouse.down();
-  await expect.poll(async () => Number((await free.locator("article").evaluate((element) => getComputedStyle(element).transform)).match(/^matrix\(([^,]+)/)?.[1] ?? 1)).toBeLessThan(0.98);
+  await expect.poll(async () => Number((await free.evaluate((element) => getComputedStyle(element).transform)).match(/^matrix\(([^,]+)/)?.[1] ?? 1)).toBeLessThan(0.98);
   await page.mouse.up();
 
   await page.setViewportSize({ width: 320, height: 800 });

@@ -26,5 +26,5 @@ test("a question can be flagged in one tap, is remembered, and its words go to K
   const flat = (text: string) => text.replace(/\s+/g, " ").replace(/\s*“/g, "“");
   expect(flat(sent!.message)).toContain(flat(`Question: ${prompt}`));
   // Next still works, and Enter still goes to it.
-  await expect(page.getByRole("button", { name: /^(Next idea|Next|Now say it yourself)/ })).toBeVisible();
+  await expect(page.getByRole("button", { name: /^(Next idea|Next(?! section)|Now say it yourself)/ })).toBeVisible();
 });

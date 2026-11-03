@@ -12,18 +12,34 @@ test("a PDF shared from another app is read like a dropped one, once", async ({ 
   await page.reload();
   await expect.poll(() => page.evaluate(() => Boolean(navigator.serviceWorker.controller))).toBe(true);
 
-  // What Android sends: a multipart POST with the file. The worker answers with a redirect to Today.
-  const pdf = [...readFileSync("tests/fixtures/course-pdfs/biology-ch7-cell-transport.pdf")];
-  const status = await page.evaluate(async (bytes) => {
-    const form = new FormData();
-    form.append("file", new File([new Uint8Array(bytes)], "biology-ch7-cell-transport.pdf", { type: "application/pdf" }));
-    const response = await fetch("/share-target/", { method: "POST", body: form, redirect: "manual" });
-    return response.type === "opaqueredirect" ? "redirect" : String(response.status);
-  }, pdf);
-  expect(status).toBe("redirect");
+  // Model Android's top-level multipart form submission, rather than a fetch that can hide a bad redirect.
+  await page.evaluate(() => {
+    const form = document.createElement("form");
+    form.id = "share-target-test-form";
+    form.method = "POST";
+    form.enctype = "multipart/form-data";
+    form.action = "/share-target/";
+    const input = document.createElement("input");
+    input.type = "file";
+    input.name = "file";
+    form.append(input);
+    const submit = document.createElement("button");
+    submit.type = "submit";
+    submit.textContent = "Share file to Kelus";
+    form.append(submit);
+    document.body.append(form);
+  });
+  await page.locator("#share-target-test-form input[type=file]").setInputFiles({
+    name: "biology-ch7-cell-transport.pdf",
+    mimeType: "application/pdf",
+    buffer: readFileSync("tests/fixtures/course-pdfs/biology-ch7-cell-transport.pdf"),
+  });
+  await Promise.all([
+    page.waitForURL(/\/today\/\?shared=1$/),
+    page.getByRole("button", { name: "Share file to Kelus" }).click(),
+  ]);
 
   // The same course a dropped PDF makes: named from the chapter, with its topics, and the file listed once.
-  await page.goto("/today/?shared=1");
   const review = page.getByRole("heading", { name: "Check the topics Kelus found." });
   const course = page.getByRole("heading", { name: /Cell Transport/, level: 1 });
   await review.or(course).first().waitFor({ timeout: 45_000 });

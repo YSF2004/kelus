@@ -16,13 +16,14 @@ test("a whole block runs from the first question to the end with no stop between
       await page.getByRole("button", { name: "I’m not sure" }).click();
       const reasoningTrace = page.getByRole("list", { name: "Your answer, the reason, and the source" });
       await expect(reasoningTrace.locator("li")).toHaveCount(3);
-      await expect(reasoningTrace).toContainText("How to reason it through");
+      // "How to reason it through" when the notes explain the line; when they only quote it, the trace says so instead.
+      await expect(reasoningTrace).toContainText(/How to reason it through|What the evidence can establish/);
       await expect(reasoningTrace).toContainText("Evidence in your source");
       const sourceJump = reasoningTrace.getByTestId("source-evidence-jump");
       await expect(sourceJump).toBeVisible();
       await sourceJump.click();
       await expect(reasoningTrace.getByLabel("This line in your notes")).toBeVisible();
-      await page.getByRole("button", { name: /^(Next idea|Next|Now say)/ }).click();
+      await page.getByRole("button", { name: /^(Next idea|Next|Now say it yourself)$/ }).click();
     }
     await page.getByRole("button", { name: "I don’t remember" }).click();
     await page.getByRole("button", { name: /^Continue/ }).click();

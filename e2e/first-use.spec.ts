@@ -5,10 +5,16 @@ function biologyPdf() {
   const text = [
     "BT /F1 20 Tf 72 720 Td (Cell Membranes) Tj ET",
     "BT /F1 11 Tf 72 690 Td (Cell membranes regulate transport between the cell and its environment.) Tj ET",
-    "BT /F1 20 Tf 72 640 Td (Osmosis) Tj ET",
-    "BT /F1 11 Tf 72 610 Td (Osmosis depends on cell membranes and moves water across a selectively permeable membrane.) Tj ET",
-    "BT /F1 20 Tf 72 560 Td (Diffusion) Tj ET",
-    "BT /F1 11 Tf 72 530 Td (Diffusion moves particles down a concentration gradient.) Tj ET",
+    "BT /F1 11 Tf 72 670 Td (The phospholipid bilayer has water-attracting heads and water-repelling tails.) Tj ET",
+    "BT /F1 11 Tf 72 650 Td (Transport proteins help ions and larger molecules cross the membrane.) Tj ET",
+    "BT /F1 20 Tf 72 610 Td (Osmosis) Tj ET",
+    "BT /F1 11 Tf 72 580 Td (Osmosis depends on cell membranes and moves water across a selectively permeable membrane.) Tj ET",
+    "BT /F1 11 Tf 72 560 Td (Water moves from a dilute solution toward a more concentrated solution.) Tj ET",
+    "BT /F1 11 Tf 72 540 Td (The direction of osmosis depends on the difference in water concentration.) Tj ET",
+    "BT /F1 20 Tf 72 500 Td (Diffusion) Tj ET",
+    "BT /F1 11 Tf 72 470 Td (Diffusion moves particles down a concentration gradient.) Tj ET",
+    "BT /F1 11 Tf 72 450 Td (Particles move from an area of higher concentration to an area of lower concentration.) Tj ET",
+    "BT /F1 11 Tf 72 430 Td (Diffusion is passive and does not require energy from the cell.) Tj ET",
   ].join("\n");
   const objects = [
     "<< /Type /Catalog /Pages 2 0 R >>",
@@ -97,7 +103,7 @@ async function playQuickRun(page: Page, explanation: string, grade: string, expe
       if (expectTwoIdeaIntro && guard === 1) {
         await expect(page.getByRole("button", { name: "Now say it yourself", exact: true })).toBeVisible();
       }
-      await page.getByRole("button", { name: /^(Next idea|Next|Now say it yourself)/ }).click();
+      await page.getByRole("button", { name: /^(Next idea|Next(?! section)|Now say it yourself)/ }).click();
     }
   }
   await page.locator("#run-explain").fill(explanation);
@@ -302,7 +308,8 @@ test("a real PDF becomes a first question, then Today, topics and a full session
   await expect(page).toHaveURL(/\/session/);
   await expect(page.locator(".study-topic-kicker span")).toHaveText(/^Topic 1 of \d+$/);
   // One topic is a short run: instant checks, then one explanation in your own words.
-  await expect(page.getByRole("list", { name: /^Step 1 of \d$/ })).toBeVisible();
+  // The optional reading counts as the first step even when skipped, so the first question can be step 1 or 2.
+  await expect(page.getByRole("list", { name: /^Step [12] of \d+$/ })).toBeVisible();
   await expect(page.getByRole("button", { name: "Close", exact: true })).toBeVisible();
   await expect(page.getByRole("list", { name: "Revision pages" })).toHaveCount(0);
   await expect(page.locator(".study-progress")).toHaveCount(0);
@@ -332,7 +339,8 @@ test("a real PDF becomes a first question, then Today, topics and a full session
   await playQuickRun(page, "I still cannot explain it.", "Missed it");
   await expect(page.getByText(/try 2/)).toBeVisible();
   await page.getByRole("button", { name: /Continue to/ }).click();
-  await expect(page.locator(".reroute-view h1, section[aria-label^=\"Check 1 of\"], .session-learn h1").first()).toBeVisible();
+  // The next topic opens on its first check, or on its reading when it is new.
+  await expect(page.locator(".reroute-view h1, section[aria-label^=\"Check 1 of\"], section[aria-label=\"Read it first\"], .session-learn h1").first()).toBeVisible();
   await expect(page.locator(".reroute-lines")).toHaveCount(0);
   await expect(page.locator(".reroute-cause")).toHaveCount(0);
   await page.getByRole("button", { name: "Close", exact: true }).click();

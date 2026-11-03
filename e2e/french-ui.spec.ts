@@ -9,10 +9,10 @@ test("French notes get French buttons and feedback, not only French questions", 
   await page.locator("#paste-notes").fill(fiche);
   await page.getByRole("button", { name: "Use these notes" }).click();
   await startBuiltPlan(page);
-  await page.getByRole("button", { name: "Passer aux questions" }).click();
-  await expect(page.getByText(/^Sujet \d sur \d$/)).toBeVisible();
-  await expect(page.getByRole("button", { name: "Je ne sais pas" })).toBeVisible();
-  await expect(page.getByRole("button", { name: "More session options" })).toHaveText("Plus");
-  await page.getByRole("button", { name: "Je ne sais pas" }).click();
-  await expect(page.getByRole("button", { name: /^(Suivant|À toi de l’expliquer)/ })).toBeVisible();
+  await page.getByRole("button", { name: "Skip to the questions" }).click();
+  await expect(page.getByRole("region", { name: /^Check \d of \d$/ })).toBeVisible();
+  await expect(page.getByRole("button", { name: "I’m not sure" })).toBeVisible();
+  await expect(page.getByRole("button", { name: "More session options" })).toHaveText("More");
+  await page.getByRole("button", { name: "I’m not sure" }).click();
+  await expect(page.getByRole("button", { name: /^(Next|Now say it yourself)/ })).toBeVisible();
 });

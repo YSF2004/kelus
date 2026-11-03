@@ -16,7 +16,7 @@ test("hero content is visible before hydration", async ({ browser }) => {
   const page = await context.newPage();
   await page.goto("/");
   await expect(page.getByRole("heading", { level: 1 })).toBeVisible();
-  expect(await page.locator("h1").textContent()).toBe("Questions from your notes. Checked against the page.");
+  expect(await page.locator("h1").textContent()).toBe("Turn your notes into practice questions.");
   await expect(page.locator("[class*=notion]")).toHaveCount(0);
   await expect(page.locator(".site-header")).toHaveCSS("box-shadow", "none");
   await expect(page.locator(".booklet-board")).toHaveCount(0);
@@ -26,7 +26,7 @@ test("hero content is visible before hydration", async ({ browser }) => {
 test("hero and revision steps work on a narrow screen", async ({ page }) => {
   await page.setViewportSize({ width: 375, height: 812 });
   await page.goto("/");
-  await expect(page.getByRole("heading", { level: 1 })).toContainText("Questions from your notes");
+  await expect(page.getByRole("heading", { level: 1 })).toContainText("Turn your notes into practice questions");
 
   await expect(page.locator(".booklet-board")).toHaveCount(0);
   await expect(page.getByRole("heading", { name: "One line from your notes, followed all the way." })).toBeVisible();
@@ -77,8 +77,8 @@ test("a student can follow the study plan into topics and open one", async ({ pa
 test("the course workspace stays legible across its sections and returns home", async ({ page }) => {
   await page.goto("/today/?sample=1");
   await expect(page.locator("#today-title")).toHaveText("Elasticity");
-  // The product is set on warm paper (the editorial notebook), not screen white.
-  await expect(page.locator(".studio-main")).toHaveCSS("background-color", "rgb(255, 255, 255)");
+  // The workspace uses the pale paper surface; cards and navigation carry the stronger contrast.
+  await expect(page.locator(".studio-main")).toHaveCSS("background-color", "rgb(241, 244, 239)");
   await expect(page.locator('[data-block="course-title"]')).toHaveText("Microeconomics");
 
   const sections = sectionsNav(page);

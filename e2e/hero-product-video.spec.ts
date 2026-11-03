@@ -5,7 +5,7 @@ test("the hero says what Kelus does and shows lines of a page becoming questions
     await page.setViewportSize(viewport);
     await page.goto("/");
     const hero = page.locator('[data-hero="leitner"]');
-    await expect(hero.getByRole("heading", { level: 1 })).toHaveText(/Questions from your notes\. Checked against the page\./);
+    await expect(hero.getByRole("heading", { level: 1 })).toHaveText(/Turn your notes into practice questions\./);
     await expect(hero.getByRole("figure", { name: /three lines of a page become questions/ })).toBeVisible();
     await expect(hero.getByText("Example course", { exact: true })).toBeVisible();
     await expect(hero.locator("video")).toHaveCount(0);

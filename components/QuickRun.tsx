@@ -354,7 +354,7 @@ export function QuickRun({ run: providedRun, persistenceKey, onPersistenceChange
               const at = item.prompt.indexOf("“");
               const ask = at > 0 ? item.prompt.slice(0, at).trim() : "";
               return ask && item.kind === "choice"
-                ? <h1 className={styles.prompt}><span className={styles.ask}>{ask}</span>{item.prompt.slice(at)}</h1>
+                ? <h1 className={styles.prompt}><span className={styles.ask}>{ask}</span>{" "}{item.prompt.slice(at)}</h1>
                 : <h1 className={styles.prompt}>{item.prompt}</h1>;
             })()}
 
@@ -474,7 +474,10 @@ export function QuickRun({ run: providedRun, persistenceKey, onPersistenceChange
                           data-testid="source-evidence-jump"
                           type="button"
                           className={styles.sourceJump}
-                          onClick={() => onShowLine(item.sourceQuote)}
+                          onClick={() => {
+                            setAround(true);
+                            onShowLine(item.sourceQuote);
+                          }}
                         >
                           {w.seeOnPage}<ArrowRight aria-hidden="true" />
                         </button>

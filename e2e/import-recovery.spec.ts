@@ -15,7 +15,7 @@ for (const width of [390, 1280]) {
       mimeType: "application/octet-stream",
       buffer: Buffer.from("not a supported source"),
     });
-    await expect(page.getByRole("alert")).toContainText("Couldn’t use unsupported.docx.");
+    await expect(page.locator('[role="alert"]:not(#__next-route-announcer__)')).toContainText("Couldn’t use unsupported.docx.");
     await expect(page.locator("textarea")).toHaveValue(draft);
     const chooserEvent = page.waitForEvent("filechooser");
     await page.getByRole("button", { name: "Choose another file" }).click();
@@ -26,6 +26,6 @@ for (const width of [390, 1280]) {
       buffer: readFileSync("tests/fixtures/notion-export.md"),
     });
     await expect(page.getByRole("heading", { name: "Check the topics Kelus found." })).toBeVisible({ timeout: 45_000 });
-    await expect(page.getByRole("alert")).toHaveCount(0);
+    await expect(page.locator('[role="alert"]:not(#__next-route-announcer__)')).toHaveCount(0);
   });
 }

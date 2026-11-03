@@ -5,6 +5,9 @@ const MAX_EDGE = 1600;
 
 /** One photo, turned the right way up (its EXIF orientation), scaled down and re-encoded as a JPEG page. */
 async function pageFromPhoto(file: File): Promise<JpegPage> {
+  // Tiny files are commonly renamed text or a truncated upload. Some browsers leave image decoding pending
+  // for those instead of rejecting, so fail early with a useful recovery message.
+  if (file.size < 32) throw new Error("This photo looks incomplete. Choose another photo of your notes.");
   const bitmap = await createImageBitmap(file, { imageOrientation: "from-image" });
   const scale = Math.min(1, MAX_EDGE / Math.max(bitmap.width, bitmap.height));
   const width = Math.round(bitmap.width * scale);
