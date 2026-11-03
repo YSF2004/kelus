@@ -297,6 +297,11 @@ html body.is-course-studio .today-source-access ~ [class*="TodayQuiet"][class*="
   html body.is-course-studio .core-workspace-grid.is-today-single > .core-workspace-action > .today-source-access { top: 10px; right: 16px; }
   html body.is-course-studio .today-source-access ~ [class*="TodayQuiet"][class*="page"] [class*="TodayQuiet"][class*="head"] { padding-right: 0; }
   html body.is-course-studio .today-source-access ~ [class*="TodayQuiet"][class*="page"] [class*="TodayQuiet"][class*="title"] { padding-right: 96px; }
+  /* The title takes the whole row: sized to its own text, a pixel of rounding broke "My course" over two lines. */
+  html body.is-course-studio .today-source-access ~ [class*="TodayQuiet"][class*="page"] [class*="TodayQuiet"][class*="title"] { align-self: stretch; box-sizing: border-box; }
+  /* The corner holds "Open notes" only: with the file's name beside it, the course title was squeezed to one word a
+     line ("My / course"). The file is named on Materials. */
+  html body.is-course-studio .core-workspace-grid.is-today-single > .core-workspace-action > .today-source-access > span { display: none; }
 }
 
 /* A checkpoint is a stop on the path, not another topic: a soft band with its own corner, set apart from the rows. */

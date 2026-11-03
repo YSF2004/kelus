@@ -50,6 +50,8 @@ async function maybeNudge() {
   const [hours, minutes] = String(summary.time || "18:00").split(":").map(Number);
   const due = new Date(now.getFullYear(), now.getMonth(), now.getDate(), hours, minutes).getTime();
   const ready = (summary.lines || []).filter((at) => now.getTime() - at >= SPACING_MS).length;
+  // The icon shows what is waiting even on days the nudge has already been shown.
+  try { if (ready > 0 && self.navigator.setAppBadge) await self.navigator.setAppBadge(ready); } catch { /* No badges here. */ }
   const shown = await get("lastShownDay");
   const studiedToday = summary.lastAnswerAt && dayKey(new Date(summary.lastAnswerAt)) === today;
   if (now.getTime() < due || ready === 0 || shown === today || studiedToday) return;

@@ -63,3 +63,13 @@ test("two days later, after your time, the nudge fires once with the number of l
   await page.waitForTimeout(2000);
   expect(await shown()).toHaveLength(0);
 });
+
+test("the end of a session offers tomorrow's reminder in one tap, and says so once it is on", async ({ page, context }) => {
+  await context.grantPermissions(["notifications"]);
+  await startFromPaste(page, "Osmosis\nOsmosis is the movement of water across a partially permeable membrane from a dilute solution to a more concentrated solution. In a hypotonic solution a plant cell gains water and becomes turgid because the cell wall pushes back. In a hypertonic solution the cell loses water and becomes plasmolysed.");
+  await playQuickRun(page, "Water moves across a membrane.", "Partly");
+  await page.goto("/session/complete");
+  await page.getByRole("button", { name: "Remind me tomorrow at 6 pm" }).click();
+  await expect(page.getByText("Reminder on: Kelus nudges you at 6 pm when lines are ready.")).toBeVisible();
+  expect(await page.evaluate(() => JSON.parse(window.localStorage.getItem("kelus-nudge-v1") ?? "{}").on)).toBe(true);
+});

@@ -448,12 +448,26 @@ function activityLanguage(mode: SubjectMode, name: string, claim: string) {
     default:
       return {
         learnTitle: `Make ${name} usable from the source.`,
-        retrievePrompt: `What do your notes say about ${spoken}?`,
+        retrievePrompt: ownWordsPrompt(name, spoken),
         applyPrompt: `Apply the source's claim about ${name} to a new example that is not copied from the page.`,
         applyHint: "Keep the same underlying relationship. Change only the situation.",
         applyAnswer: `A strong answer reuses this source-backed claim in a new context: ${claim}`,
       };
   }
+}
+
+/**
+ * The own-words question closes every topic, so it should not read the same three times in a row. One of three
+ * askings that mean the same thing, chosen by the topic's name so a topic always asks it the same way.
+ */
+function ownWordsPrompt(name: string, spoken: string) {
+  const askings = [
+    `What do your notes say about ${spoken}?`,
+    `Explain ${spoken} the way your notes do.`,
+    `How would you explain ${spoken} to a friend, from your notes?`,
+  ];
+  const seed = [...name].reduce((sum, char) => sum + char.charCodeAt(0), 0);
+  return askings[seed % askings.length];
 }
 
 /** Only pose a counterfactual when the page names a condition we can actually change. */
