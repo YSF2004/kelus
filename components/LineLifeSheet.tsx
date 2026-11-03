@@ -1,8 +1,9 @@
 "use client";
 
-import { motion, useReducedMotion } from "motion/react";
+import { motion, useDragControls, useReducedMotion } from "motion/react";
 import { useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
+import { Octicon } from "@/components/Octicon";
 import type { LineLife } from "@/domain/line-life";
 import styles from "./LineLifeSheet.module.css";
 
@@ -30,20 +31,28 @@ function backLine(life: LineLife) {
 /**
  * One line of the notes, followed all the way: where it is, how Kelus asks it, every answer it has had, and the box
  * it sits in now. A sheet over Progress that rises from the bottom on a phone and sits beside the page on a wide
- * screen; Escape, the close button or a tap outside puts it away.
+ * screen; Escape, the close button, a tap outside or (on a phone) a pull down on its handle puts it away.
  */
 export function LineLifeSheet({ life, onClose }: { life: LineLife; onClose: () => void }) {
   const reduce = useReducedMotion() === true;
   const close = useRef<HTMLButtonElement>(null);
+  const drag = useDragControls();
   const closeNow = useRef(onClose);
   useEffect(() => { closeNow.current = onClose; }, [onClose]);
   // Focus moves to the sheet and back to the card that opened it. Escape closes the sheet only, not the open box.
   useEffect(() => {
     const before = document.activeElement as HTMLElement | null;
+    const overflow = document.body.style.overflow;
+    // The page under the sheet holds still while it is open.
+    document.body.style.overflow = "hidden";
     close.current?.focus();
-    const onKey = (event: KeyboardEvent) => { if (event.key === "Escape") { event.stopImmediatePropagation(); closeNow.current(); } };
+    const onKey = (event: KeyboardEvent) => {
+      if (event.key === "Escape") { event.stopImmediatePropagation(); closeNow.current(); }
+      // The close button is the sheet's only control: Tab stays on it rather than wandering into the page behind.
+      if (event.key === "Tab") { event.preventDefault(); close.current?.focus(); }
+    };
     window.addEventListener("keydown", onKey, true);
-    return () => { window.removeEventListener("keydown", onKey, true); before?.focus?.(); };
+    return () => { window.removeEventListener("keydown", onKey, true); document.body.style.overflow = overflow; before?.focus?.(); };
   }, []);
   const right = life.answers.filter((answer) => answer.right).length;
   let step = 0;
@@ -62,10 +71,20 @@ export function LineLifeSheet({ life, onClose }: { life: LineLife; onClose: () =
         animate={{ y: 0, opacity: 1 }}
         exit={reduce ? { opacity: 0 } : { y: 40, opacity: 0, transition: { duration: 0.16 } }}
         transition={{ type: "spring", bounce: 0, duration: 0.4 }}
+        // Pulled down by its handle it follows the finger, resists going up, and goes away past a short pull or a
+        // flick; anything less springs back. The sheet's own content still scrolls normally.
+        drag={reduce ? false : "y"}
+        dragControls={drag}
+        dragListener={false}
+        dragConstraints={{ top: 0, bottom: 0 }}
+        dragElastic={{ top: 0.04, bottom: 0.7 }}
+        dragSnapToOrigin
+        onDragEnd={(_, info) => { if (info.offset.y > 110 || info.velocity.y > 600) onClose(); }}
       >
+        <span className={styles.handle} aria-hidden="true" onPointerDown={(event) => drag.start(event)} />
         <header className={styles.head}>
           <p className={styles.kicker}>{life.topic} · Box {life.box}</p>
-          <button ref={close} type="button" className={styles.close} onClick={onClose} aria-label="Close">×</button>
+          <button ref={close} type="button" className={styles.close} onClick={onClose} aria-label="Close"><Octicon name="x" size={20} /></button>
         </header>
         <h2 id="line-life-title" className="sr-only">The life of this line</h2>
 

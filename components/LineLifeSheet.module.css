@@ -28,6 +28,11 @@
   .sheet { width: min(460px, 100%); max-height: none; height: 100%; padding: 28px 32px; border-radius: 0; box-shadow: -12px 0 40px color-mix(in srgb, var(--color-midnight-ink) 14%, transparent); }
 }
 
+/* The grab handle: a phone's sheet is pulled down from here. Wide screens close with the button or a click outside. */
+.handle { display: block; width: 44px; height: 5px; margin: -6px auto 14px; border-radius: 3px; background: var(--k-line-strong); touch-action: none; cursor: grab; }
+.handle::before { content: ""; display: block; height: 28px; margin: -12px -30px 0; }
+@media (min-width: 761px) { .handle { display: none; } }
+
 .head { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 18px; }
 .kicker { margin: 0; color: var(--color-kelus); font-size: 0.75rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; }
 .close { display: grid; place-items: center; width: 44px; height: 44px; margin: -10px -12px -10px 0; border: 0; border-radius: 10px; background: transparent; color: var(--color-slate); font-size: 1.5rem; line-height: 1; cursor: pointer; }
@@ -41,7 +46,8 @@
 .num { display: grid; place-items: center; width: 36px; height: 36px; border: 1px solid color-mix(in srgb, var(--color-kelus) 40%, var(--k-line-strong)); border-radius: 50%; background: var(--k-card, var(--k-surface)); color: var(--color-kelus); font-family: var(--font-source-serif), Literata, Georgia, serif; font-size: 0.9375rem; font-variant-numeric: oldstyle-nums; }
 
 .label { margin: 7px 0 8px; color: var(--color-kelus); font-size: 0.75rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; }
-.label span { color: var(--color-slate); font-weight: 600; letter-spacing: 0.04em; text-transform: none; }
+.label span { color: var(--color-slate); font-weight: 600; letter-spacing: 0.02em; text-transform: none; }
+.label { text-wrap: balance; }
 
 .quote { margin: 0; padding-left: 14px; border-left: 3px solid var(--k-marigold-text); font-family: var(--font-source-serif), Literata, Georgia, serif; font-size: 1.3125rem; line-height: 1.35; text-wrap: pretty; }
 .next { margin: 10px 0 0; color: var(--color-slate); font-size: var(--text-body-sm, 0.9375rem); line-height: 1.5; }
