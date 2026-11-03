@@ -202,6 +202,59 @@ function CompleteBody() {
           {practised.length} {practised.length === 1 ? "topic" : "topics"}{course && course.name !== "My course" ? ` from ${course.name}` : ""}. Your answers are saved.
         </p>
 
+        <ul className={styles.topics} aria-label="Topics in this block">
+          {practised.map((event, index) => (
+            <motion.li
+              key={event.conceptId}
+              className={styles[event.outcome ?? "partial"]}
+              initial={reduceMotion ? false : { opacity: 0, x: -6 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={reduceMotion ? { duration: 0 } : { duration: 0.3, delay: 0.12 + index * 0.06, ease: [0.22, 1, 0.36, 1] }}
+            >
+              <span className={styles.mark} aria-hidden="true">{event.outcome === "success" ? "✓" : event.outcome === "partial" ? <HalfDot /> : "↻"}</span>
+              <strong>{name(event.conceptId)}</strong>
+              <span className={styles.word}>{OUTCOME[event.outcome ?? "partial"]}</span>
+            </motion.li>
+          ))}
+        </ul>
+
+        {!SAMPLE_COURSE_IDS.has(session.courseId) && practised.length ? <ResultShareCard stats={resultStats} sessionNumber={sessionNumber} /> : null}
+
+        <section className={styles.tomorrow} aria-labelledby="complete-return-title">
+          <div>
+            <h2 id="complete-return-title">
+              {missedToday
+                ? missedToday <= 3
+                  ? <>{missedToday === 1 ? "The line you missed comes" : `The ${missedToday} lines you missed come`} back as a 1-minute warm-up.</>
+                  : <>Tomorrow starts with a 1-minute warm-up on lines you missed, three at a time.</>
+                : nextFresh ? <>Next time, start with <strong>{name(nextFresh.conceptId)}</strong>.</> : "Your plan is saved for next time."}
+            </h2>
+            {missedToday > 3 ? <p>{missedToday} lines are saved for it.</p> : null}
+            {missedToday && nextFresh ? <p>Then {name(nextFresh.conceptId)}, a topic you haven’t done yet.</p> : null}
+            <RemindTomorrow />
+          </div>
+        </section>
+
+        {/* One way on: the next topic when there is one, else the plan. */}
+        <Link href="/today" className={`cta ${styles.primary}`} onClick={() => trackEvent({ name: "next_route_opened", source: "completion" })}>
+          {nextFresh ? <>Keep going with {name(nextFresh.conceptId)}</> : "Back to study plan"} <ArrowRight />
+        </Link>
+
+        <div className={styles.quiet}>
+          {usefulness === null ? (
+            <p role="group" aria-label="Rate study usefulness">
+              Was this useful?{" "}
+              <button type="button" onClick={() => { setUsefulness(true); trackEvent({ name: "session_usefulness_rated", helpful: true, session_number: sessionNumber, course_type: SAMPLE_COURSE_IDS.has(session.courseId) ? "sample" : "real" }); }}>Yes</button>{" · "}
+              <button type="button" onClick={() => { setUsefulness(false); trackEvent({ name: "session_usefulness_rated", helpful: false, session_number: sessionNumber, course_type: SAMPLE_COURSE_IDS.has(session.courseId) ? "sample" : "real" }); }}>Not yet</button>
+            </p>
+          ) : <p role="status">{usefulness ? "Thanks. Good to know." : "Thanks. That helps make it better."}</p>}
+        </div>
+
+        {/* Everything else about this block, one tap away instead of a long scroll: what changed, a bonus round, the
+            week, a calendar file, and what Kelus offers next. */}
+        <details className={styles.more}>
+          <summary>More from this session</summary>
+          <div className={styles.moreBody}>
         {/* What changed, the way a tutor would say it: what you now know, and the one thing to fix next. */}
         <section className={styles.changed} aria-label="What changed">
           {known.length ? (
@@ -223,61 +276,13 @@ function CompleteBody() {
             </p>
           ) : null}
         </section>
-
-        <ul className={styles.topics} aria-label="Topics in this block">
-          {practised.map((event, index) => (
-            <motion.li
-              key={event.conceptId}
-              className={styles[event.outcome ?? "partial"]}
-              initial={reduceMotion ? false : { opacity: 0, x: -6 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={reduceMotion ? { duration: 0 } : { duration: 0.3, delay: 0.12 + index * 0.06, ease: [0.22, 1, 0.36, 1] }}
-            >
-              <span className={styles.mark} aria-hidden="true">{event.outcome === "success" ? "✓" : event.outcome === "partial" ? <HalfDot /> : "↻"}</span>
-              <strong>{name(event.conceptId)}</strong>
-              <span className={styles.word}>{OUTCOME[event.outcome ?? "partial"]}</span>
-            </motion.li>
-          ))}
-        </ul>
-
-        {!SAMPLE_COURSE_IDS.has(session.courseId) && practised.length ? <ResultShareCard stats={resultStats} sessionNumber={sessionNumber} /> : null}
-
         {/* A quick bonus round on the topics just practised, when there are three or more to match. */}
         {matchPairs.length ? <MatchRound pairs={matchPairs} seed={session.id} /> : null}
-
         <HabitStrip events={state.snapshot.events} concepts={courseConcepts} compact />
-
-        <section className={styles.tomorrow} aria-labelledby="complete-return-title">
-          <div>
-            <h2 id="complete-return-title">
-              {missedToday
-                ? missedToday <= 3
-                  ? <>{missedToday === 1 ? "The line you missed comes" : `The ${missedToday} lines you missed come`} back as a 1-minute warm-up.</>
-                  : <>Tomorrow starts with a 1-minute warm-up on lines you missed, three at a time.</>
-                : nextFresh ? <>Next time, start with <strong>{name(nextFresh.conceptId)}</strong>.</> : "Your plan is saved for next time."}
-            </h2>
-            {missedToday > 3 ? <p>{missedToday} lines are saved for it.</p> : null}
-            {missedToday && nextFresh ? <p>Then {name(nextFresh.conceptId)}, a topic you haven’t done yet.</p> : null}
             <button type="button" className={`text-btn ${styles.calendar}`} onClick={addCalendar}>
               Add tomorrow to calendar <ArrowRight />
             </button>
-            <RemindTomorrow />
             {calendarNote ? <p className={styles.note} role="status">{calendarNote}</p> : null}
-          </div>
-        </section>
-
-        <Link href="/today" className={`cta ${styles.primary}`} onClick={() => trackEvent({ name: "next_route_opened", source: "completion" })}>
-          Back to study plan <ArrowRight />
-        </Link>
-
-        <div className={styles.quiet}>
-          {usefulness === null ? (
-            <p role="group" aria-label="Rate study usefulness">
-              Was this useful?{" "}
-              <button type="button" onClick={() => { setUsefulness(true); trackEvent({ name: "session_usefulness_rated", helpful: true, session_number: sessionNumber, course_type: SAMPLE_COURSE_IDS.has(session.courseId) ? "sample" : "real" }); }}>Yes</button>{" · "}
-              <button type="button" onClick={() => { setUsefulness(false); trackEvent({ name: "session_usefulness_rated", helpful: false, session_number: sessionNumber, course_type: SAMPLE_COURSE_IDS.has(session.courseId) ? "sample" : "real" }); }}>Not yet</button>
-            </p>
-          ) : <p role="status">{usefulness ? "Thanks. Good to know." : "Thanks. That helps make it better."}</p>}
           {/* A first session ends on the plan and one question; sharing waits until Kelus has earned it. */}
           {session && !SAMPLE_COURSE_IDS.has(session.courseId) && completedSessions >= 2 ? <ClassInvite sessionNumber={sessionNumber} /> : null}
           {completedSessions === 1 ? (
@@ -292,7 +297,8 @@ function CompleteBody() {
               <WaitlistForm source="session_complete" compact />
             </details>
           ) : null}
-        </div>
+          </div>
+        </details>
       </motion.section>
     </main>
     </>

@@ -539,9 +539,10 @@ export function recordRetrieval(state: DemoState, input: {
     explanation: `Your ${input.outcome === "success" ? "independent" : input.outcome === "partial" ? "partial" : "not-yet"} answer on ${concept.name} changed its mastery estimate.${movedConcept ? ` ${movedConcept.name} now has higher learning value for the remaining time.` : " Kelus recalculated the remaining route."}`,
   } : recalculated.change;
   const completedIds = [...new Set(snapshot.events.filter((item) => item.sessionId === session.id && item.kind === "retrieval").map((item) => item.conceptId))];
+  // Only the topics this session planned: a one-topic first session stays one topic when the route is recalculated.
   const originalIds = session.initialRoute.allocations
     .map((item) => item.conceptId)
-    .filter((id): id is string => id !== "mixed-retrieval");
+    .filter((id): id is string => id !== "mixed-retrieval" && session.plannedConceptIds.includes(id));
   const futureIds = recalculated.route.allocations
     .map((item) => item.conceptId)
     .filter((id): id is string => id !== "mixed-retrieval" && originalIds.includes(id) && !completedIds.includes(id));
@@ -604,6 +605,11 @@ export function startSession(state: DemoState, courseId: string, examId: string,
     const rest = plannedConceptIds.filter((id) => id !== firstConceptId);
     plannedConceptIds.splice(0, plannedConceptIds.length, firstConceptId, ...rest);
   }
+  // A first session is one topic, a few minutes: a stranger finishes it, sees what comes back tomorrow, and the rest
+  // of the course waits on the plan. Later sessions take the whole route.
+  const courseIds = new Set(state.snapshot.concepts.filter((concept) => concept.courseId === courseId).map((concept) => concept.id));
+  const firstEver = !state.snapshot.events.some((event) => event.kind === "retrieval" && courseIds.has(event.conceptId));
+  if (firstEver) plannedConceptIds.splice(1);
   const abandoned = state.snapshot.sessions.map((item) =>
     item.courseId === courseId && item.status === "in_progress"
       ? { ...item, status: "abandoned" as const, endedAt: state.nowIso }

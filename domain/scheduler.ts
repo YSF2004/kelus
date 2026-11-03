@@ -21,9 +21,18 @@ export type RankedConcept = {
   priority: number;
 };
 
+/**
+ * Calendar days from today to the exam day, the way a person counts them: an exam on the 12th is 20 days away on the
+ * 22nd, at any hour. The exam is stored at noon UTC on its chosen day, so its UTC date is that day; today is the
+ * learner's own date. (Rounding up the hours left said 21 in the morning.)
+ */
 export function daysUntilExam(exam: Exam, nowIso: string) {
-  const ms = Date.parse(exam.examDate) - Date.parse(nowIso);
-  return Math.max(0, Math.ceil(ms / 86_400_000));
+  const examDay = new Date(exam.examDate);
+  const now = new Date(nowIso);
+  if (Number.isNaN(examDay.getTime()) || Number.isNaN(now.getTime())) return 0;
+  const exam0 = Date.UTC(examDay.getUTCFullYear(), examDay.getUTCMonth(), examDay.getUTCDate());
+  const today0 = Date.UTC(now.getFullYear(), now.getMonth(), now.getDate());
+  return Math.max(0, Math.round((exam0 - today0) / 86_400_000));
 }
 
 export function examUrgency(exam: Exam, nowIso: string) {

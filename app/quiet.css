@@ -491,7 +491,7 @@ html body.is-course-studio .core-source-remove { display: inline-grid; place-ite
 /* ── Paper: the editorial notebook, by day ─────────────────────────────────────────────────────────────
    A warm paper instead of screen white, warm ink, lines the colour of a ruled page. Every older name that still paints
    a white field reads the paper too, so no screen is left on bright white. Dark (below) replaces all of this at night. */
-:root:not([data-theme="dark"]) :is(body.is-course-studio, body.is-session-booklet, body.is-session-complete, body:has(.start-page)) {
+:root:not([data-theme="dark"]) :is(body.is-course-studio, body.is-session-booklet, body.is-session-complete, body:has(.start-page), body:has([data-shared-result])) {
   --k-ink: #1a1915;
   --k-text-2: #5e5b53;
   --k-text-3: #77736a;
@@ -525,7 +525,7 @@ html body.is-course-studio .core-source-remove { display: inline-grid; place-ite
    data-theme before the first paint (lib/theme.ts). It only covers the product (the plan, sessions,
    topics, progress, materials, the start screen), where tokens carry every colour. A neutral graphite paper in clear
    steps (rail, page, card, floating), warm light ink, and the Kelus green lifted for text; fills keep a deep green. */
-:root[data-theme="dark"] :is(body.is-course-studio, body.is-session-booklet, body.is-session-complete, body:has(.start-page)) {
+:root[data-theme="dark"] :is(body.is-course-studio, body.is-session-booklet, body.is-session-complete, body:has(.start-page), body:has([data-shared-result])) {
   color-scheme: dark;
   --k-ink: #ecebe6;
   --k-text-2: #a9a8a1;

@@ -22,7 +22,7 @@ export function SharedResult() {
   const rise = (delay: number) => (reduce ? {} : { initial: { opacity: 0, y: 8 }, animate: { opacity: 1, y: 0 }, transition: { duration: 0.35, delay, ease: [0.22, 1, 0.36, 1] as const } });
 
   return (
-    <main id="main" className={styles.page}>
+    <main id="main" className={styles.page} data-shared-result="">
       <motion.p className={styles.kicker} {...rise(0)}>{stats ? "A classmate sent you this" : "Kelus"}</motion.p>
       <motion.h1 className={styles.title} {...rise(0.05)}>{stats ? "They revised from their own notes." : "Revise from your own notes."}</motion.h1>
       {stats ? <motion.div {...rise(0.12)}><ResultCardFace stats={stats} kicker="Their revision" /></motion.div> : null}

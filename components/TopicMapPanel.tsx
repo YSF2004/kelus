@@ -13,9 +13,6 @@ import { describeRouteChoice } from "@/lib/today-reason";
 import { percent } from "@/lib/format";
 import { useSyncExternalStore } from "react";
 import { getKnownLines, getServerKnownLines, knownCount, subscribeKnownLines } from "@/lib/known-lines";
-import { getMissedLines, getServerMissedLines, subscribeMissedLines } from "@/lib/missed-lines";
-import { leitner } from "@/domain/leitner";
-import { BoxStrip } from "@/components/BoxStrip";
 import { checkpointKey, getCheckpoints, getServerCheckpoints, PASS_SHARE, passed, subscribeCheckpoints } from "@/lib/checkpoints";
 import { Tick } from "@/components/Marks";
 
@@ -62,13 +59,11 @@ export function TopicMapPanel({ onStart, startLabel }: { onStart?: () => void; s
   const reduce = useReducedMotion() === true;
   const known = useSyncExternalStore(subscribeKnownLines, getKnownLines, getServerKnownLines);
   const results = useSyncExternalStore(subscribeCheckpoints, getCheckpoints, getServerCheckpoints);
-  const missedLines = useSyncExternalStore(subscribeMissedLines, getMissedLines, getServerMissedLines);
   const course = state.snapshot.courses[0];
   if (!course) return <p>No active course.</p>;
 
   const concepts = state.snapshot.concepts
     .filter((concept) => concept.courseId === course.id);
-  const boxes = leitner({ concepts, activities: state.snapshot.learningActivities, known, missed: missedLines, nowIso: state.nowIso });
   const exam = state.snapshot.exams.find((item) => item.courseId === course.id && item.isActive);
   const routeStart = exam
     ? restAware(generateRoute({
@@ -188,8 +183,6 @@ export function TopicMapPanel({ onStart, startLabel }: { onStart?: () => void; s
         </section>
       ) : null}
 
-      {/* Column names for the eye; each row's strip says its boxes to a screen reader. */}
-      <div className="toc-columns" aria-hidden="true"><span>Topic</span><span className="toc-boxes"><i>1</i><i>2</i><i>3</i><i>4</i><i>5</i></span><span>Status</span><span>Page</span></div>
       <ol className={`index-toc ${styles.path}`} aria-label="Topics, in the order of your notes">
         <AnimatePresence initial={false} mode="popLayout">
         {path.flatMap(({ concept, mastery, label, page, due }, index) => {
@@ -213,7 +206,6 @@ export function TopicMapPanel({ onStart, startLabel }: { onStart?: () => void; s
                   <strong className="index-toc-name">{concept.name}</strong>
                 </ConceptTitleTransition>
                 <span className="index-toc-meta">
-                  <BoxStrip lines={boxes.lines.filter((line) => line.conceptId === concept.id)} label={concept.name} />
                   <span className={styles.state} data-level={isStart ? "next" : label.toLocaleLowerCase().replace(/\s+/g, "-")}>{isStart ? "Start here" : label}</span>
                   {mastery == null ? null : <span className={styles.metaSoft}>{checks < 3 ? `${checks} ${checks === 1 ? "try" : "tries"}` : percent(mastery)}</span>}
                   {page ? <span className={styles.metaSoft}><Octicon name="file" className={styles.icoSm} />{page}</span> : null}

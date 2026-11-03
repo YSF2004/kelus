@@ -1,6 +1,6 @@
 import { readFileSync } from "node:fs";
 import { expect, test } from "@playwright/test";
-import { startFromFile } from "./helpers";
+import { playQuickRun, startFromFile } from "./helpers";
 
 // After a block of three topics, a quick match: tap a topic, then its line from the notes. A wrong line keeps the
 // topic picked; the round counts the slips and changes no result.
@@ -8,17 +8,22 @@ test("the done page offers a quick match on the topics just practised", async ({
   test.setTimeout(120_000);
   await page.setViewportSize({ width: 390, height: 844 });
   await startFromFile(page, { name: "biology-ch7-cell-transport.pdf", mimeType: "application/pdf", buffer: readFileSync("tests/fixtures/course-pdfs/biology-ch7-cell-transport.pdf") });
-  for (let i = 0; i < 120 && !/complete/.test(page.url()); i++) {
-    await page.waitForTimeout(250);
-    const skip = page.getByRole("button", { name: "Skip to the questions" }); if (await skip.count()) { await skip.click(); continue; }
-    const choices = page.locator("[aria-label='Choose one'] button:not([disabled])");
-    if (await choices.count()) { await choices.first().click(); const next = page.getByRole("button", { name: /^(Next idea|Next(?! section)|Now say it yourself)/ }).first(); if (await next.count()) await next.click(); continue; }
-    const explain = page.locator("#run-explain");
-    if (await explain.count() && await explain.isEditable().catch(() => false) && !(await explain.inputValue())) { await explain.fill("Particles move from high to low concentration across a membrane."); const check = page.getByRole("button", { name: /^(Compare|Check)/ }).first(); if (await check.count()) await check.click(); continue; }
-    const grade = page.getByRole("button", { name: /Nailed it|Got most|Partly/ }).first(); if (await grade.count()) { await grade.click(); continue; }
-    const more = page.getByRole("button", { name: /^(Continue|Next|Done|Finish|See)/ }).first(); if (await more.count()) { await more.click(); continue; }
-    const gap = page.locator("input[type=text]").first(); if (await gap.count() && await gap.isEditable().catch(() => false)) { await gap.fill("x"); await page.keyboard.press("Enter"); }
-  }
+  // A first session is one topic; the match needs a block of three, so it comes after the second session.
+  const play = async () => {
+    for (let topic = 0; topic < 5 && !/complete/.test(page.url()); topic += 1) {
+      await playQuickRun(page, "Particles move from high to low concentration across a membrane.", "Nailed it");
+      await page.getByRole("button", { name: /^(Continue to|Finish block|See how it went)/ }).first().click();
+      await page.waitForTimeout(400);
+    }
+    await expect(page).toHaveURL(/\/session\/complete/);
+  };
+  await play();
+  await page.goto("/today");
+  await page.locator('button[data-action="start-topic"]').click();
+  await expect(page).toHaveURL(/\/session/);
+  await play();
+  // The round lives in the folded part of the done page.
+  await page.getByText("More from this session").click();
   const round = page.getByRole("region", { name: "Quick match" });
   await expect(round).toBeVisible();
   const lines = round.getByRole("list", { name: "Lines from your notes" }).getByRole("button");

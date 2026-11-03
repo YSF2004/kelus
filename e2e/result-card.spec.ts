@@ -22,7 +22,8 @@ test("the result is one card: verdict with its evidence, what to remember, one n
   // The next step is on screen without scrolling, on a phone too.
   for (const viewport of [{ width: 1280, height: 800 }, { width: 390, height: 780 }]) {
     await page.setViewportSize(viewport);
-    const next = page.getByRole("button", { name: /^Continue to /i });
+    // A first session is one topic, so its one next step is to finish the block.
+    const next = page.getByRole("button", { name: /^(Continue to |Finish block)/i });
     await expect(next).toBeVisible();
     const box = await next.boundingBox();
     expect(box).not.toBeNull();

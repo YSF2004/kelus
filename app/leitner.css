@@ -4,7 +4,7 @@
    action, coral only for a miss. Literata for titles and Inter for text and counts. No paper texture, no ruled lines.
    Loaded after every older sheet, it sets the tokens those sheets read, so they follow without being rewritten. */
 
-:root:not([data-theme="dark"]) :is(body.is-course-studio, body.is-session-booklet, body.is-session-complete, body:has(.start-page)) {
+:root:not([data-theme="dark"]) :is(body.is-course-studio, body.is-session-booklet, body.is-session-complete, body:has(.start-page), body:has([data-shared-result])) {
   --lb-ink: #0e1512;
   --lb-text-2: #4a5550;
   --lb-text-3: #69736e;
@@ -45,7 +45,7 @@
   --color-frost: var(--lb-line-strong);
   background: var(--lb-surface) !important;
 }
-:root[data-theme="dark"] :is(body.is-course-studio, body.is-session-booklet, body.is-session-complete, body:has(.start-page)) {
+:root[data-theme="dark"] :is(body.is-course-studio, body.is-session-booklet, body.is-session-complete, body:has(.start-page), body:has([data-shared-result])) {
   --lb-ink: #eceeed;
   --lb-text-2: #a6ada9;
   --lb-text-3: #8a918d;
