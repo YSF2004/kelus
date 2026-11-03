@@ -908,3 +908,16 @@ html body :is(.site-header .mark, .site-footer .mark, .study-brand, .studio-bran
 /* The K is ink everywhere, as in the header (the footer drew it in green). */
 html body :is(.site-header .mark, .site-footer .mark, .study-brand, .studio-brand-identity) svg,
 html body :is(.site-header .mark, .site-footer .mark, .study-brand, .studio-brand-identity) svg * { color: var(--k-ink, var(--k-ink)) !important; stroke: currentColor; }
+
+/* Buttons move only on the homepage (with How it works) and on pricing: the raised edge that presses down, the
+   brighter hover, the arrow that leans. Everywhere else, the product, they are flat and still: a colour, a label,
+   and a plain darker shade under the pointer. */
+body:not(:has(.home, .pricing-page)) :is(.k-btn, .cta:not(.home-cta)) {
+  box-shadow: none !important;
+  transform: none !important;
+  transition: background-color 120ms, color 120ms !important;
+}
+body:not(:has(.home, .pricing-page)) :is(.k-btn, .cta:not(.home-cta)):hover:not(:disabled) { filter: brightness(0.96) !important; }
+body:not(:has(.home, .pricing-page)) :is(.k-btn, .cta:not(.home-cta)):active:not(:disabled) { transform: none !important; box-shadow: none !important; filter: brightness(0.92) !important; }
+body:not(:has(.home, .pricing-page)) :is(.k-btn, .cta:not(.home-cta)) > span[aria-hidden="true"]:last-child { transform: none !important; transition: none !important; }
+body:not(:has(.home, .pricing-page)) :is(.k-btn, .cta:not(.home-cta)):disabled { box-shadow: inset 0 0 0 1.5px rgba(18, 22, 15, 0.14) !important; }

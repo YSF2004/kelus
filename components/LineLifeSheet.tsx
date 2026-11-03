@@ -102,7 +102,7 @@ export function LineLifeSheet({ life, onClose }: { life: LineLife; onClose: () =
             <motion.li className={styles.step} initial={reduce ? false : { opacity: 0, y: 6 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.3, ease, delay: 0.1 }}>
               <span className={styles.num} aria-hidden="true">{n()}</span>
               <div>
-                <p className={styles.label}>How Kelus asks it</p>
+                <p className={styles.label}>How it’s asked</p>
                 <ul className={styles.asks}>{life.asked.map((ask) => <li key={ask.prompt}><Asked prompt={ask.prompt} /></li>)}</ul>
               </div>
             </motion.li>

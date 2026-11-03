@@ -41,7 +41,7 @@ export function DropNotes({ onFile, first = false, courseName }: { onFile: (file
       setStage("Finding topics in your notes…");
       await onFile(file);
     } catch (caught) {
-      setError(caught instanceof Error && caught.message ? caught.message : "Kelus couldn’t read that source. Try another file or paste the text below.");
+      setError(caught instanceof Error && caught.message ? caught.message : "That source couldn’t be read. Try another file or paste the text below.");
     } finally {
       importing.current = false;
       setBusy(false);
@@ -101,8 +101,8 @@ export function DropNotes({ onFile, first = false, courseName }: { onFile: (file
           <h1 id="start-title" className="destination-page-title">{first ? "Start with your notes." : courseName ? `Add notes to ${courseName}.` : "Add your notes."}</h1>
           <p className="destination-support">
             {first
-              ? "A PDF, photos of your pages, a Notion export or pasted text. Check the topics Kelus finds, then start your first question."
-              : "A PDF, photos of your pages, a Notion export or pasted text. Kelus finds the topics and adds them to today’s plan."}
+              ? "A PDF, photos of your pages, a Notion export or pasted text. Check its topics, then start your first question."
+              : "A PDF, photos of your pages, a Notion export or pasted text. Its topics go straight into today’s plan."}
           </p>
           <label
             className={`setup-first-upload${dragging ? " is-dragging" : ""}`}

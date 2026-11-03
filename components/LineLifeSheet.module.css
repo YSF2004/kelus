@@ -37,7 +37,6 @@
 .kicker { margin: 0; color: var(--color-kelus); font-size: 0.75rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; }
 .close { display: grid; place-items: center; width: 44px; height: 44px; margin: -10px -12px -10px 0; border: 0; border-radius: 10px; background: transparent; color: var(--color-slate); font-size: 1.5rem; line-height: 1; cursor: pointer; }
 .close:hover { background: var(--k-surface-2); color: var(--color-midnight-ink); }
-.close:active { transform: scale(0.96); }
 .close:focus-visible { outline: 2px solid var(--color-kelus); outline-offset: 2px; }
 
 .trail { display: grid; gap: 0; margin: 0; padding: 0; list-style: none; }
@@ -73,4 +72,3 @@
 .boxes li[data-here] { border-color: var(--color-kelus); background: var(--k-green-wash); color: var(--color-kelus); font-weight: 700; }
 .boxes li[data-here][data-state="missed"] { border-color: var(--k-danger); background: var(--k-danger-wash); color: var(--k-danger); }
 
-@media (prefers-reduced-motion: reduce) { .close:active { transform: none; } }

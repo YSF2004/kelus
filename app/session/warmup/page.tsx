@@ -161,7 +161,7 @@ function WarmUp() {
             })}
           </ul>
           <div className={styles.actions}>
-            <motion.button type="button" className={`k-btn ${styles.primary}`} onClick={continueOn} whileTap={reduce ? undefined : { scale: 0.97 }}>
+            <motion.button type="button" className={`k-btn ${styles.primary}`} onClick={continueOn}>
               {nextName ? `Continue to ${nextName}` : "Continue to your next topic"} <ArrowRight />
             </motion.button>
             <Link href={checkpoint ? "/today?section=map" : "/today"} className={`k-btn k-btn--paper ${styles.secondary}`}>{checkpoint ? "See it on your path" : "Back to study plan"}</Link>

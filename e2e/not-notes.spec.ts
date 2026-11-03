@@ -10,6 +10,6 @@ test("a CV is not turned into a study plan without asking, and the student can s
   await expect(page.locator(".first-source-kind")).toContainText("This looks like a CV, not course notes.");
   await expect(page.getByRole("button", { name: /^Use \d+ topics?$/ })).toBeHidden();
   await page.getByRole("button", { name: "Use it anyway" }).click();
-  await expect(page.getByRole("heading", { name: "Check the topics Kelus found." })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Check the topics in your notes." })).toBeVisible();
   await expect(page.getByRole("button", { name: /^Use \d+ topics?$/ })).toBeVisible();
 });

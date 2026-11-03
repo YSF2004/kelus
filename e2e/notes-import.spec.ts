@@ -37,7 +37,7 @@ test("notes too short to study from get a plain reason, and nothing is saved", a
   await page.getByText("Or paste your notes").click();
   await page.locator("#paste-notes").fill("Osmosis is water.");
   await page.getByRole("button", { name: "Use these notes" }).click();
-  await expect(page.getByRole("heading", { name: /couldn.t find topics/ })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "No topics found in this file." })).toBeVisible();
   await expect(page.getByRole("heading", { name: "Start with your notes." })).toHaveCount(0);
 });
 
@@ -215,7 +215,7 @@ test("a file with no real topics says so plainly and returns to the start screen
   await gotoStart(page);
   const admin = "# Syllabus\nOffice hours are on Monday afternoons in the main building and attendance is recorded each week.\n\n# Grading policy\nLate submissions lose ten percent per day and the course schedule is posted on the noticeboard.";
   await page.locator('input[type="file"]').setInputFiles({ name: "admin.md", mimeType: "text/markdown", buffer: Buffer.from(admin) });
-  await expect(page.getByRole("heading", { name: "Kelus couldn’t find topics in this file." })).toBeVisible({ timeout: 30_000 });
+  await expect(page.getByRole("heading", { name: "No topics found in this file." })).toBeVisible({ timeout: 30_000 });
   await page.getByRole("button", { name: "Try another file" }).click();
   await expect(page.getByRole("heading", { name: /^(Start with your notes|Add notes to .+|Add your notes)\.$/ })).toBeVisible();
   // The failed file is gone, so a good one works straight away.

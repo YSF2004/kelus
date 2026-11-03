@@ -61,7 +61,7 @@ export function ExamDateCard({ onSave, courseName }: { onSave: (date: string, ta
   return (
     <section className={styles.card} aria-labelledby="exam-date-title">
       <h2 id="exam-date-title">When is your exam?</h2>
-      <p>Kelus spreads your topics over the days you have left, and tells you how many to do each day.</p>
+      <p>Your topics are spread over the days you have left, with how many to do each day.</p>
       <div className={styles.field} data-empty={date ? undefined : ""} onClick={openPicker}>
         <label htmlFor="exam-date-input" className="sr-only">Exam date</label>
         <input

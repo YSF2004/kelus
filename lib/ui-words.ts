@@ -5,7 +5,7 @@ const EN = {
   readTitle: "Read it first, then it’s your turn.",
   continue: "Continue",
   fromMemory: "Now from memory",
-  flowHint: "Kelus turns lines from this source into questions. Answer from memory, then check the exact evidence.",
+  flowHint: "Each question comes from one of these lines. Answer from memory, then check it against the page.",
   skip: "Skip to the questions",
   oneWord: "One word",
   check: "Check",

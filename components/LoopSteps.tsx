@@ -46,7 +46,7 @@ const STEPS: Array<{ id: LoopStepId; label: string; line: string; art: ReactNode
   {
     id: "mark",
     label: "Mark",
-    line: "Kelus updates your route",
+    line: "Your route updates",
     art: (
       <>
         <circle cx="32" cy="30" r="20" />
