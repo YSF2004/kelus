@@ -33,6 +33,7 @@ export type KelusAnalyticsEvent =
   | { name: "next_route_opened"; source: "completion" | "calendar" }
   | { name: "reminder_downloaded" }
   | { name: "nudges_enabled" }
+  | { name: "exam_added_to_calendar"; calendar: "google" | "file" }
   | { name: "app_installed" }
   | { name: "anki_exported"; card_count: number }
   | { name: "today_opened"; returning: boolean; has_next_route: boolean }

@@ -39,6 +39,6 @@ test("an exam that has passed gives a single block, not an endless repeat", () =
 
 test("names with commas and semicolons are escaped and a short block is at least 15 minutes", () => {
   const ics = buildDailyStudyIcs({ ...base, courseName: "Bio; Chem, Lab", minutes: 5 });
-  assert.match(ics, /SUMMARY:Kelus · Bio\; Chem\\, Lab/);
+  assert.match(ics, /SUMMARY:Kelus · Bio\\; Chem\\, Lab/);
   assert.match(ics, /DTEND:20261010T181500/);
 });
