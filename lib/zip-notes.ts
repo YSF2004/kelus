@@ -1,5 +1,6 @@
 import { notesFromTexts, notesFromZip, sourceOfPaths, type NotesFromZip } from "@/domain/notion-zip";
 import { ZipError } from "@/domain/zip-read";
+import { pptxToMarkdown } from "@/domain/pptx";
 
 export const MAX_ZIP_BYTES = 40 * 1024 * 1024;
 
@@ -8,6 +9,13 @@ export async function zipToNotesFile(file: File): Promise<File> {
   if (file.size > MAX_ZIP_BYTES) throw new ZipError("This zip is over 40 MB. Export fewer pages and try again.");
   const notes = await notesFromZip(await file.arrayBuffer());
   return asNotesFile(notes, file.name.replace(/\.zip$/i, "").replace(/\s+[0-9a-f]{32}$/i, ""));
+}
+
+/** A PowerPoint deck becomes Markdown notes, one heading per titled slide, named after the file. */
+export async function slidesToNotesFile(file: File): Promise<File> {
+  if (file.size > MAX_ZIP_BYTES) throw new ZipError("This deck is over 40 MB. Save it without large images, or export it as a PDF.");
+  const markdown = await pptxToMarkdown(await file.arrayBuffer());
+  return new File([markdown], `${file.name.replace(/\.pptx$/i, "").trim() || "slides"}.md`, { type: "text/markdown" });
 }
 
 // RFC 7763's variant parameter keeps where the notes came from, so the library can show Notion's or Obsidian's mark.

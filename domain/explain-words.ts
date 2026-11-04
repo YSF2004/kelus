@@ -55,6 +55,8 @@ const GROUPS: string[][] = [
   ["end", "finish"],
   ["need", "require", "depend"],
   ["break-down", "breaks-down", "broke-down", "denature", "destroy"],
+  ["convert", "turn", "change", "transform"],
+  ["store", "keep", "hold", "save"],
 ];
 
 /** Opposite groups, by their first word. A student using the opposite has not said the page's idea. */

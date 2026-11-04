@@ -55,11 +55,16 @@ export function isZipFile(file: Pick<File, "name" | "type">) {
   return /\.zip$/i.test(file.name) || file.type === "application/zip" || file.type === "application/x-zip-compressed";
 }
 
-export function isSourceFile(file: Pick<File, "name" | "type">) {
-  return isPdfFile(file) || isNotesFile(file) || isZipFile(file);
+/** A PowerPoint deck: lecture slides are what most students have, so they are read as they are. */
+export function isSlidesFile(file: Pick<File, "name" | "type">) {
+  return /\.pptx$/i.test(file.name) || file.type === "application/vnd.openxmlformats-officedocument.presentationml.presentation";
 }
 
-export const SOURCE_FILE_ACCEPT = "application/pdf,.pdf,text/markdown,text/plain,.md,.markdown,.txt,.zip,application/zip";
+export function isSourceFile(file: Pick<File, "name" | "type">) {
+  return isPdfFile(file) || isNotesFile(file) || isZipFile(file) || isSlidesFile(file);
+}
+
+export const SOURCE_FILE_ACCEPT = "application/pdf,.pdf,text/markdown,text/plain,.md,.markdown,.txt,.zip,application/zip,.pptx,application/vnd.openxmlformats-officedocument.presentationml.presentation";
 
 /** What a saved source is called in a sentence: "PDF" or "notes". */
 export function sourceNoun(kind: MaterialKind | undefined) {

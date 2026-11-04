@@ -10,9 +10,17 @@ test("French notes get French buttons and feedback, not only French questions", 
   await page.getByRole("button", { name: "Use these notes" }).click();
   await startBuiltPlan(page);
   await page.getByRole("button", { name: "Skip to the questions" }).click();
-  await expect(page.getByRole("region", { name: /^Check \d of \d$/ })).toBeVisible();
-  await expect(page.getByRole("button", { name: "I’m not sure" })).toBeVisible();
+  // Two lines a topic leave nothing to check but which topic a line is about, which is never asked: the topic opens
+  // on the question in your own words. Either way the question is French and the interface stays English.
+  const check = page.getByRole("region", { name: /^Check \d of \d$/ });
+  await expect(check.or(page.locator("#run-explain")).first()).toBeVisible();
   await expect(page.getByRole("button", { name: "More session options" })).toHaveText("More");
-  await page.getByRole("button", { name: "I’m not sure" }).click();
-  await expect(page.getByRole("button", { name: /^(Next|Now say it yourself)/ })).toBeVisible();
+  if (await check.count()) {
+    await page.getByRole("button", { name: "I’m not sure" }).click();
+    await expect(page.getByRole("button", { name: /^(Next|Now say it yourself)/ })).toBeVisible();
+  } else {
+    await expect(page.locator("main")).toContainText(/tes notes|Explique|Comment expliquerais/);
+    await page.locator("#run-explain").fill("Les plantes fabriquent du glucose.");
+    await expect(page.getByRole("button", { name: /Compare with the page/ })).toBeVisible();
+  }
 });
