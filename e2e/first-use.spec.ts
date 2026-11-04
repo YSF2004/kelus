@@ -328,7 +328,7 @@ test("a real PDF becomes a first question, then Today, topics and a full session
   await expect(page.getByRole("heading", { name: /^(Needs another attempt|Partly there)\.$/ })).toBeVisible();
   await expect(page.getByText(/first (?:check|try)/)).toBeVisible();
   // The next step is named once: by the "Continue to …" button, or the route line when the plan has news.
-  await expect(page.getByRole("button", { name: /^(Continue to |See how it went|Finish block)/ }).or(page.getByRole("status").filter({ hasText: /(Next: |last topic for now)/ })).first()).toBeVisible();
+  await expect(page.getByRole("button", { name: /^(Continue to |See how it went|Finish session)/ }).or(page.getByRole("status").filter({ hasText: /(Next: |last topic for now)/ })).first()).toBeVisible();
   for (const width of [320, 375, 414]) {
     await page.setViewportSize({ width, height: 844 });
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
@@ -340,7 +340,7 @@ test("a real PDF becomes a first question, then Today, topics and a full session
   await playQuickRun(page, "I still cannot explain it.", "Missed it");
   await expect(page.getByText(/try 2/)).toBeVisible();
   // The one-topic first session ends here; the rest of the course is the next session, from Today.
-  await page.getByRole("button", { name: /^(Continue to|See how it went|Finish block)/ }).first().click();
+  await page.getByRole("button", { name: /^(Continue to|See how it went|Finish session)/ }).first().click();
   await expect(page).toHaveURL(/\/session\/complete/);
   await expect(page.getByRole("link", { name: /^(Keep going with|Back to study plan)/ })).toBeVisible();
   await page.goto("/today");

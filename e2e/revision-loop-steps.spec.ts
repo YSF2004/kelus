@@ -7,7 +7,7 @@ test("How it works owns the detailed source, recall, and route walkthrough", asy
   await expect(story.locator("h2")).toHaveText([
     "Start with what you were taught.",
     "Show what you can recall.",
-    "See the route respond.",
+    "See the plan respond.",
     "Keep what you learned.",
   ]);
 

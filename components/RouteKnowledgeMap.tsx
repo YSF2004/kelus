@@ -15,7 +15,7 @@ export function RouteKnowledgeMap({ concepts, route, readiness, target }: { conc
   return (
     <figure className="route-map">
       <svg viewBox="0 0 560 340" role="img" aria-labelledby="route-map-title route-map-desc">
-        <title id="route-map-title">Recommended route to the exam</title>
+        <title id="route-map-title">Recommended plan to the exam</title>
         <desc id="route-map-desc">A path from your current estimated readiness through the next concepts toward your target.</desc>
         <path className="route-map-possibility" d="M 88 282 C 180 278 160 120 260 176 S 390 270 520 56" />
         <path className="route-map-possibility" d="M 88 282 C 150 190 275 300 360 202 S 445 120 520 56" />

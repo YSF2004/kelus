@@ -17,8 +17,8 @@ const COPY: Record<
   { title: string; body: string }
 > = {
   first_session: {
-    title: "Take this route to exam day",
-    body: "Your first route is free. Kelus Plus ($4.99/month) adds priority support when subscriptions open.",
+    title: "Take this plan to exam day",
+    body: "Your first plan is free. Kelus Plus ($4.99/month) adds priority support when subscriptions open.",
   },
   third_material: {
     title: "Keep this course together",

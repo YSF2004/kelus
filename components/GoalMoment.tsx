@@ -93,7 +93,7 @@ export function GoalMoment({ today, streak, goal, week, backTomorrow, nextName, 
         </motion.p>
 
         <motion.div className={styles.actions} {...rise(0.75)}>
-          <button ref={button} type="button" className={`k-btn ${styles.go}`} onClick={onContinue}>{nextName ? `Continue to ${nextName}` : "Finish block"} <ArrowRight /></button>
+          <button ref={button} type="button" className={`k-btn ${styles.go}`} onClick={onContinue}>{nextName ? `Continue to ${nextName}` : "Finish session"} <ArrowRight /></button>
           <button type="button" className={styles.done} onClick={onDone}>Done for today</button>
         </motion.div>
       </div>
