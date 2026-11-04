@@ -1,7 +1,7 @@
 import { hintInNotesLanguage, inNotesLanguage, noteLanguage } from "./note-language";
 import type { PracticeItem } from "./types";
 import { lintQuestion, standsAlone } from "./question-lint";
-import { contrastChoices, effectQuestions, framePairs, notMatching, trueOrFalse, termFromMeaning, whyChoices } from "./question-types";
+import { contrastChoices, effectQuestions, framePairs, notMatching, trueOrFalse, termFromMeaning, whyChoices, predicateChoices } from "./question-types";
 
 /**
  * Builds teaching facts and varied practice from a topic's own page text, with no outside knowledge.
@@ -300,6 +300,24 @@ export function maskName(sentence: string, name: string) {
   return `${plural ? "These ideas" : "This idea"}${rest}`;
 }
 
+const escape = (value: string) => value.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+const timesIn = (phrase: string, text: string) => (text.match(new RegExp(`(?<![\\p{L}])${escape(phrase)}(?![\\p{L}])`, "giu")) ?? []).length;
+
+/** "active site", "active transport": a pair named in the topic, or used twice in the notes, is one term. */
+function fixedTerm(pair: string, text: string) {
+  const [name] = text.split("\n");
+  return timesIn(pair, name) > 0 || timesIn(pair, text) >= 2;
+}
+
+/** The gap word with the word beside it is a term the course uses more than once ("carbon dioxide"). */
+function halfOfTerm(sentence: string, gap: string, text: string) {
+  const around = sentence.match(new RegExp(`([\\p{L}-]+)?\\s*(?<![\\p{L}])${escape(gap)}(?![\\p{L}])\\s*([\\p{L}-]+)?`, "u"));
+  if (!around) return false;
+  const [, before, after] = around;
+  const content = (word?: string) => Boolean(word) && word!.length >= 4 && !GLUE.has(word!.toLocaleLowerCase());
+  return (content(after) && timesIn(`${gap} ${after}`, text) >= 2) || (content(before) && timesIn(`${before} ${gap}`, text) >= 2);
+}
+
 export function buildPractice(input: {
   conceptId: string;
   name: string;
@@ -387,8 +405,9 @@ export function buildPractice(input: {
 
   // 3b. Understanding you can check instantly: why, how two ideas differ, which term a definition belongs to.
   const terms = [...new Set(sentences.map((sentence) => pickGapWord(sentence, name, excerpt, true)).filter((term): term is string => Boolean(term) && !/^\d/.test(term as string)))];
-  const ctx = { conceptId, name, locator, sentences, siblingNames: input.siblingNames, others, terms };
-  for (const draft of [...whyChoices(ctx), ...effectQuestions(ctx, flipOneWord), ...notMatching(ctx, flipOneWord), ...trueOrFalse(ctx, flipOneWord), ...contrastChoices(ctx), ...framePairs(ctx), ...termFromMeaning(ctx)]) add(draft);
+  const foreignLines = (input.siblingFacts ?? []).filter((fact) => !excerpt.includes(fact) && standsAlone(fact));
+  const ctx = { conceptId, name, locator, sentences, siblingNames: input.siblingNames, others, terms, foreign: foreignLines };
+  for (const draft of [...whyChoices(ctx), ...effectQuestions(ctx, flipOneWord), ...notMatching(ctx, flipOneWord), ...trueOrFalse(ctx, flipOneWord), ...contrastChoices(ctx), ...framePairs(ctx), ...termFromMeaning(ctx), ...predicateChoices(ctx)]) add(draft);
 
   // 4. Fill the gap in a key sentence: up to four, from different sentences with different words. A looser pass runs
   // only when the strict one leaves fewer than two, so a sparse topic still gets a short run.
@@ -405,6 +424,8 @@ export function buildPractice(input: {
     const gapSource = pair && sentence.includes(pair.meaning) ? pair.meaning : sentence;
     const gap = pickGapWord(gapSource, pair ? `${name} ${pair.term}` : name, excerpt, relaxed);
     if (!gap || usedGaps.has(gap.toLocaleLowerCase())) continue;
+    // "_____ dioxide": a gap in a two-word term the course keeps using is answered by its other half.
+    if (halfOfTerm(sentence, gap, `${name}\n${excerpt}\n${(input.siblingFacts ?? []).join("\n")}`)) continue;
     usedGaps.add(gap.toLocaleLowerCase());
     gapSentences.add(sentence);
     // Every occurrence: a figure or term that appears twice would otherwise give the answer away.
@@ -511,6 +532,10 @@ export function buildPractice(input: {
     if (!original) continue;
     const word = original[0];
     const opposite = SWAP.get(word.toLocaleLowerCase())!;
+    // "the _____ site", "_____ transport": half of a fixed term (named in the topic or used again on the page) has
+    // only one possible word; "passive site" is not a thing, so the question asks nothing.
+    const next = entry.sentence.slice((original.index ?? 0) + word.length).match(/^\s+([\p{L}-]+)/u)?.[1];
+    if (next && fixedTerm(`${word} ${next}`, `${name}\n${excerpt}`)) continue;
     const blanked = (entry.sentence.slice(0, original.index) + "_____" + entry.sentence.slice((original.index ?? 0) + word.length)).replace(/\b([Aa])n? _____/g, "$1/an _____");
     const options = [word.toLocaleLowerCase(), opposite].sort((x, y) => hash(`${conceptId}d${entry.sentence}${x}`) - hash(`${conceptId}d${entry.sentence}${y}`));
     const reasoning = /\b(?:when|if|because|so|than|as|while|whereas|therefore)\b/i.test(entry.sentence);

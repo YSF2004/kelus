@@ -111,7 +111,8 @@ export function buildQuickRun(input: { activity: LearningActivity; name: string;
   // A fill-in gap on a line shown seconds ago tests recognition, not recall. Save it for a return visit.
   // Which topic a line belongs to is sorting, not recall: those questions are left out, and a page with nothing else
   // to check goes straight from reading to the question in your own words.
-  const anyDrillable = own.filter((item) => isDrillable(item) && !sortsByTopic(item) && (!input.readFirst || item.kind !== "cloze"));
+  // Finishing the line the explanation asks for shows its whole answer: that one is never a check in the same run.
+  const anyDrillable = own.filter((item) => isDrillable(item) && !sortsByTopic(item) && (!input.readFirst || item.kind !== "cloze") && !(item.variant === "complete" && overlaps(item.sourceQuote, activity.retrieve.modelAnswer)));
   const drillable = anyDrillable;
   // The explanation at the end asks for this sentence, so a check that shows it first would spoil it.
   const fresh = drillable.filter((item) => !overlaps(item.sourceQuote, explainAnswer));

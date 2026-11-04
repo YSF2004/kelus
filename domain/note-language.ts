@@ -41,6 +41,7 @@ const PROMPTS: Rule[] = [
   [/^Which one matches: (“.+”)\?$/s, (m) => `Lequel de ces termes correspond : ${m[1]} ?`],
   [/^In your notes, what comes right after: (“.+”)\?$/s, (m) => `Dans tes notes, qu’est-ce qui vient juste après : ${m[1]} ?`],
   [/^Your notes say: (“.+”) Why does that happen\? Explain it in your own words\.$/s, (m) => `Tes notes disent : ${m[1]} Pourquoi ? Explique-le avec tes mots.`],
+  [/^Finish the line from your notes: (“.+”)$/s, (m) => `Termine la phrase de tes notes : ${m[1]}`],
   [/^Why, according to your notes\? (“.+”)$/s, (m) => `Pourquoi, d’après tes notes ? ${m[1]}`],
   [/^Your notes describe two cases\. Which ending is right\? (“.+”)$/s, (m) => `Tes notes décrivent deux cas. Quelle fin est la bonne ? ${m[1]}`],
   [/^Your notes also say: (“.+”) Explain what that means, and give an example of your own\.$/s, (m) => `Tes notes disent aussi : ${m[1]} Explique ce que cela veut dire, avec un exemple à toi.`],
@@ -53,6 +54,7 @@ const PROMPTS: Rule[] = [
 
 const HINTS: Rule[] = [
   [/^It is one word\. It starts with (“.+?”) and has (\d+) letters\.$/, (m) => `Un seul mot. Il commence par ${m[1]} et compte ${m[2]} lettres.`],
+  [/^The other endings are true of other topics in this course\.$/, () => "Les autres fins sont vraies pour d’autres sujets de ce cours."],
   [/^It is a number from the page\.$/, () => "C’est un nombre de la page."],
   [/^Think about what (.+?) is mostly about\.$/, (m) => `Pense au sujet principal de ${where(m[1])}.`],
 ];

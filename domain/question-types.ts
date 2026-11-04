@@ -7,7 +7,7 @@ import type { PracticeItem } from "./types";
  */
 
 type Draft = Omit<PracticeItem, "id" | "origin">;
-type Ctx = { conceptId: string; name: string; locator: string; sentences: string[]; siblingNames: string[]; others: string[]; /** Key words from this page: wrong options that belong to the same topic. */ terms: string[] };
+type Ctx = { conceptId: string; name: string; locator: string; sentences: string[]; siblingNames: string[]; others: string[]; /** Key words from this page: wrong options that belong to the same topic. */ terms: string[]; /** Lines from the course's other topics: real statements, true of something else. */ foreign?: string[] };
 
 function h(value: string) {
   let out = 2166136261;
@@ -20,7 +20,7 @@ const cap = (text: string) => (text ? text[0].toLocaleUpperCase() + text.slice(1
 const words = (text: string) => text.split(/\s+/).filter(Boolean).length;
 const PRONOUN_START = /^(?:it|they|this|these|that|those|he|she|its|their|there)\b/i;
 
-const VERBS = "is|are|was|were|has|have|had|binds|bind|moves|move|uses|use|produces|produce|requires|require|gains|gain|loses|lose|dissociates|dissociate|causes|cause|increases|increase|decreases|decrease|shifts|shift|reduces|reduce|raises|raise|lowers|lower|takes|take|runs|run|works|work|stores|store|needs|need|means|mean|occurs|occur|describes|describe|ignores|ignore|allows|allow|provides|provide|splits|split|speeds|speed|measures|measure|states|state|resolves|resolve|gives|give|ends|end|forms|form|slopes|slope|lasts|last|finds|find|stays|stay|acts|act|points|point|exerts|exert|equals|equal|depends|depend|keeps|keep|stops|stop|sets|set|stand|stands|remain|remains|become|becomes|travels|travel|absorbs|absorb|releases|release|converts|convert|carries|carry|controls|control|regulates|regulate|protects|protect|contains|contain|includes|include|consists|consist|helps|help|leads|lead|breaks|break|joins|join|attaches|attach|enters|enter|leaves|leave|creates|create|destroys|destroy|waits|wait|drops|drop|grows|grow|falls|fall|rises|rise";
+const VERBS = "is|are|was|were|has|have|had|binds|bind|moves|move|uses|use|produces|produce|requires|require|gains|gain|loses|lose|dissociates|dissociate|causes|cause|increases|increase|decreases|decrease|shifts|shift|reduces|reduce|raises|raise|lowers|lower|takes|take|runs|run|works|work|stores|store|needs|need|means|mean|occurs|occur|describes|describe|ignores|ignore|allows|allow|provides|provide|splits|split|speeds|speed|measures|measure|states|state|resolves|resolve|gives|give|ends|end|forms|form|slopes|slope|lasts|last|finds|find|stays|stay|acts|act|points|point|exerts|exert|equals|equal|depends|depend|keeps|keep|stops|stop|sets|set|stand|stands|remain|remains|become|becomes|travels|travel|absorbs|absorb|releases|release|converts|convert|carries|carry|controls|control|regulates|regulate|protects|protect|contains|contain|includes|include|consists|consist|helps|help|leads|lead|breaks|break|joins|join|attaches|attach|enters|enter|leaves|leave|creates|create|destroys|destroy|waits|wait|drops|drop|grows|grow|falls|fall|rises|rise|blamed|declared|wanted|competed|built|showed|mobilised|mobilized|entered|invaded|signed|joined|promised|launched|killed|began|started|led|won|lost|became|caused|supported|formed|ruled|fought|attacked|believed|threatened|feared|made|gave|took|used|produced|moved|released|absorbed|increased|decreased|reduced|raised|created|destroyed|introduced|ended|divided|united";
 
 /** "A competitive inhibitor binds the active site" → { subject: "a competitive inhibitor", predicate: "binds the active site" }. */
 export function subjectPredicate(clause: string): { subject: string; predicate: string } | null {
@@ -51,6 +51,11 @@ export function whyChoices(ctx: Ctx): Draft[] {
   const out: Draft[] = [];
   for (const entry of parts.slice(0, 3)) {
     const wrong = parts.filter((other) => other.sentence !== entry.sentence && similarLength(entry.parts.reason, other.parts.reason) && other.parts.reason.toLocaleLowerCase() !== entry.parts.reason.toLocaleLowerCase()).map((other) => other.parts.reason);
+    // Reasons the notes give elsewhere in the course: each explains something real, only one explains this.
+    if (wrong.length < 3) {
+      const elsewhere = (ctx.foreign ?? []).map(becauseParts).filter((other): other is { effect: string; reason: string } => other !== null && similarLength(entry.parts.reason, other.reason) && other.reason.toLocaleLowerCase() !== entry.parts.reason.toLocaleLowerCase()).map((other) => other.reason);
+      wrong.push(...shuffle([...new Set(elsewhere)], `${ctx.conceptId}f${entry.sentence}`).slice(0, 3 - wrong.length));
+    }
     // With fewer than two other reasons, other true statements from the same page work as wrong options:
     // they are real, on-topic, and only one of them explains this effect.
     if (wrong.length < 2) {
@@ -58,6 +63,11 @@ export function whyChoices(ctx: Ctx): Draft[] {
         .filter((other) => other !== entry.sentence && !PRONOUN_START.test(other) && !/\bbecause\b/i.test(other) && similarLength(entry.parts.reason, strip(other)) && !other.toLocaleLowerCase().includes(entry.parts.effect.toLocaleLowerCase().slice(0, 24)))
         .map(strip);
       wrong.push(...shuffle(statements, `${ctx.conceptId}s${entry.sentence}`).slice(0, 3 - wrong.length));
+    }
+    // A short topic: true statements from the course's other topics, which explain nothing here.
+    if (wrong.length < 2) {
+      const elsewhere = (ctx.foreign ?? []).filter((other) => !PRONOUN_START.test(other) && !/\bbecause\b/i.test(other) && strip(other).length >= entry.parts.reason.length * 0.5 && strip(other).length <= entry.parts.reason.length * 2.4).map(strip);
+      wrong.push(...shuffle(elsewhere, `${ctx.conceptId}e${entry.sentence}`).slice(0, 3 - wrong.length));
     }
     if (wrong.length < 2) continue;
     const reasons = [entry.parts.reason, ...shuffle(wrong, `${ctx.conceptId}${entry.sentence}`).slice(0, 3)];
@@ -74,6 +84,64 @@ export function whyChoices(ctx: Ctx): Draft[] {
       choices,
       correctIndex: choices.indexOf(cap(entry.parts.reason)),
     });
+  }
+  return out;
+}
+
+/** The verb's form, so every ending agrees with the subject and with each other: "uses", "use" or "blamed". */
+const verbForm = (predicate: string) => {
+  const verb = predicate.split(/\s+/)[0].toLocaleLowerCase();
+  if (/^(?:was|were|had|did|made|built|began|led|won|lost|became|fought|gave|took|shot|held|kept|left|brought|thought|sought|grew|drew|rose|fell)$/.test(verb) || /ed$/.test(verb)) return "past";
+  if (/^(?:is|has|does)$/.test(verb) || /[^s]s$/.test(verb)) return "one";
+  return "many";
+};
+/** A subject that names a thing: not a condition ("If PED"), a time ("Before 1914") or a clause cut off ("A good that"). */
+const wholeSubject = (subject: string) => !/^(?:if|when|whenever|as|once|unless|although|though|because|before|after|while|in|on|at|during|since|until|for|by|with|without)\b/i.test(subject) && !/\b(?:that|which|who|whose|where|and|or|of)$/i.test(subject);
+const contentWords = (text: string) => new Set(text.toLocaleLowerCase().match(/\p{L}{4,}/gu) ?? []);
+
+/**
+ * Finish the line: the subject from the notes, and what it does, among what other things in the same course do.
+ * "Aerobic respiration …" → "uses oxygen and produces carbon dioxide and water" against "are used, and oxygen is
+ * released as a by-product" (photosynthesis): the mix-ups a student really makes between topics. Wrong options come
+ * only from other topics, so none of them is also true of this subject's own topic; each agrees with the subject in
+ * number, so grammar never gives the answer away.
+ */
+export function predicateChoices(ctx: Ctx): Draft[] {
+  const elsewhere = (ctx.foreign ?? [])
+    .map((sentence) => subjectPredicate(sentence))
+    .filter((sp): sp is { subject: string; predicate: string } => sp !== null && wholeSubject(sp.subject) && words(sp.predicate) >= 3 && !PRONOUN_START.test(sp.predicate));
+  const out: Draft[] = [];
+  // The topic's own definition is what the explanation asks for, so the other lines come first.
+  const namesTopic = (sentence: string) => sentence.toLocaleLowerCase().startsWith(ctx.name.toLocaleLowerCase());
+  for (const sentence of [...ctx.sentences.filter((s) => !namesTopic(s)), ...ctx.sentences.filter(namesTopic)]) {
+    const sp = subjectPredicate(sentence);
+    if (!sp || !wholeSubject(sp.subject) || words(sp.predicate) < 3 || words(sp.predicate) > 18 || words(sp.subject) < 1) continue;
+    // "Photosynthesis is …" asked of Photosynthesis is fine; a subject that is only a frame word is not.
+    if (/^(?:most|some|many|all|one|each|both)(?:\s+of)?(?:\s+the)?$/i.test(sp.subject)) continue;
+    const own = contentWords(sp.predicate);
+    const wrong = [...new Set(elsewhere
+      .filter((other) => other.subject.toLocaleLowerCase() !== sp.subject.toLocaleLowerCase()
+        && verbForm(other.predicate) === verbForm(sp.predicate)
+        && similarLength(sp.predicate, other.predicate)
+        // Not a near copy of the right answer: at most half its key words shared.
+        && [...contentWords(other.predicate)].filter((word) => own.has(word)).length <= Math.max(1, own.size / 2))
+      .map((other) => other.predicate))];
+    if (wrong.length < 2) continue;
+    const choices = shuffle([sp.predicate, ...shuffle(wrong, `${ctx.conceptId}p${sentence}`).slice(0, 3)], `${ctx.conceptId}q${sentence}`).map((choice) => `… ${choice}`);
+    const answer = `… ${sp.predicate}`;
+    out.push({
+      kind: "choice",
+      variant: "complete",
+      level: "recall",
+      prompt: `Finish the line from your notes: “${cap(sp.subject)} …”`,
+      modelAnswer: answer,
+      hint: `The other endings are true of other topics in this course.`,
+      explanation: `${ctx.locator}: “${sentence}”`,
+      sourceQuote: sentence,
+      choices,
+      correctIndex: choices.indexOf(answer),
+    });
+    if (out.length >= 3) break;
   }
   return out;
 }
@@ -245,7 +313,7 @@ export function effectQuestions(ctx: Ctx, flip: (sentence: string) => string | n
       choices,
       correctIndex: choices.indexOf(answer),
     });
-    if (out.length >= 2) break;
+    if (out.length >= 3) break;
   }
   return out;
 }
