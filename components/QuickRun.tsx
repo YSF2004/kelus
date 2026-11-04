@@ -588,9 +588,10 @@ export function QuickRun({ run: providedRun, persistenceKey, onPersistenceChange
                   </div>
                 ) : null}
                 {onShowLine && run.explainQuote ? (
-                  <div className={styles.evidence} data-testid="text-explanation-evidence">
+                  <div className={styles.evidence} data-testid="text-explanation-evidence" data-compact={run.explainQuote === run.explainAnswer ? "" : undefined}>
                     <span>{w.evidence}{sourceLocation ? ` · ${sourceLocation}` : ""}</span>
-                    <p className={styles.quote}>“{run.explainQuote}”</p>
+                    {/* The page's line is already shown just above, marked word by word: only its place in the notes is new here. */}
+                    {run.explainQuote !== run.explainAnswer ? <p className={styles.quote}>“{run.explainQuote}”</p> : null}
                     <button type="button" className={styles.listen} data-testid="button-show-explanation-source" onClick={() => onShowLine(run.explainQuote)}>{w.seeOnPage}</button>
                   </div>
                 ) : null}

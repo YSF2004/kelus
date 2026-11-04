@@ -2,7 +2,7 @@
 .ring { position: relative; display: grid; justify-items: center; width: 132px !important; justify-self: start; margin: 0 0 18px; }
 .ring svg { width: 132px !important; height: 132px !important; margin: 0 !important; rotate: -90deg; }
 .track { fill: none; stroke: color-mix(in srgb, var(--k-ink, #12160f) 9%, transparent); stroke-width: 8; }
-.fill { fill: none; stroke: color-mix(in srgb, var(--k-ink, #12160f) 82%, transparent); stroke-width: 8; stroke-linecap: round; }
+.fill { fill: none; stroke: var(--color-kelus, #1f6b45); stroke-width: 8; stroke-linecap: round; }
 .solid .fill { stroke: var(--color-kelus, #1f6b45); }
 .count { position: absolute; top: 0; left: 0; display: flex; align-items: baseline; justify-content: center; width: 132px; height: 132px; padding-top: 44px; box-sizing: border-box; }
 .count b { font-family: var(--font-source-serif), Georgia, serif; font-size: 38px; font-weight: 500; line-height: 1; letter-spacing: -0.02em; font-variant-numeric: lining-nums tabular-nums; color: var(--k-ink, #12160f); }

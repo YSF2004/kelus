@@ -126,7 +126,8 @@ export function RecallMap({ concepts, activities, nowIso, heading, noteFor, fall
         <h2 id="recall-title">Lines you can recall</h2>
         <p className={styles.now}><b>{state.recalled}</b> of {state.total}{back ? <span> · {back} coming back first</span> : null}</p>
       </header>
-      {series.length ? <RecallChart series={series} total={state.total} /> : <p className={styles.empty}>Answer a question and your line starts here.</p>}
+      {/* A line flat on zero is an empty chart, not progress: until a line is recalled, one sentence says what will draw it. */}
+      {series.some((point) => point.recalled > 0) ? <RecallChart series={series} total={state.total} /> : <p className={styles.empty}>{series.length ? "Recall a line on its next return and your line starts rising here." : "Answer a question and your line starts here."}</p>}
       {heading ? <section className={styles.list} aria-labelledby="progress-headline">{heading}{rows}</section> : rows}
       <LineList lines={state.lines} onOpen={(line) => setOpenQuote(line.quote)} />
       <AnimatePresence>{life ? <LineLifeSheet key={life.quote} life={life} onClose={() => setOpenQuote(null)} /> : null}</AnimatePresence>

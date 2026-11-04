@@ -144,3 +144,6 @@
 
 /* The header already carries the K: the page leads with its sentence. */
 .mark { display: none; }
+
+/* The one action on this screen gets the product's full primary height, as Continue does in a session. */
+.actions :global(.k-btn) { min-height: 48px !important; height: auto !important; }

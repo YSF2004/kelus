@@ -272,8 +272,8 @@ export function TodayRoute({
         <motion.ul className={q.chips} data-block="today-page-folio" aria-label="What this topic holds">
           <li className={q.status}>{startLabel ? "In progress" : goalDone ? "Extra for today" : "Due now"}</li>
           <li><Octicon name="clock" className={q.ico} />{first.minutes} min</li>
-          {firstChecks ? <li><Octicon name="check-circle" className={q.ico} />{firstChecks} {firstChecks === 1 ? "check" : "checks"}</li> : null}
-          <li><Octicon name="pencil" className={q.ico} />Explain it</li>
+          {/* What the run holds, in one mark: the quick checks, then the line in your own words. */}
+          <li><Octicon name="check-circle" className={q.ico} />{firstChecks ? `${firstChecks} ${firstChecks === 1 ? "check" : "checks"} + explain` : "Explain it"}</li>
           {!noteLine && firstSource?.locator && !/^Section\b/.test(firstSource.locator) ? <li><Octicon name="file" className={q.ico} />{firstSource.locator}</li> : null}
         </motion.ul>
         {noteLine ? (
