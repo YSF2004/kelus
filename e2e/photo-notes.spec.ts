@@ -16,9 +16,9 @@ test("a photo of a printed page is read on the device and its topics are found",
   await expect(page.getByRole("button", { name: "Add another page" })).toBeVisible();
   await page.getByRole("button", { name: "Read this page" }).click();
 
-  // The same next step as a PDF: the topics Kelus found, or straight to the ready card.
+  // The same next step as a PDF: the topics Kelus found, or straight to the first question.
   const review = page.getByRole("heading", { name: "Check the topics in your notes." });
-  const ready = page.locator("#built-title");
+  const ready = page.getByLabel(/^Check 1 of \d$/).or(page.getByRole("region", { name: "Read it first" })).or(page.locator("#run-explain"));
   await review.or(ready).first().waitFor({ timeout: 150_000 });
   // The same three topics the original PDF gives, and not its title or a sentence tail.
   const found = await page.locator("body").innerText();
