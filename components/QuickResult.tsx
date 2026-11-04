@@ -134,7 +134,8 @@ export function QuickResult({
       <motion.ul {...rise(0.16)} className={styles.tiles} aria-hidden="true">
         {stats && stats.total > 0 ? <li><Octicon name="check-circle" className={styles.tileIcon} /><b><CountUp value={stats.right} reduce={reduce} />/{stats.total}</b><span>{stats.total === 1 ? w.checkRight : w.checksRight}</span></li> : null}
         {stats?.coverage && stats.coverage.keys >= 3 ? <li><Octicon name="pencil" className={styles.tileIcon} /><b><CountUp value={stats.coverage.hits} reduce={reduce} />/{stats.coverage.keys}</b><span>{w.keyIdeas}</span></li> : null}
-        <li><Octicon name="calendar" className={styles.tileIcon} /><b className={/^\d/.test(backShort(comesBack)) ? undefined : styles.tileWord}>{backShort(comesBack)}</b><span>{w.comesBack}</span></li>
+        {/* When it comes back is said once: in the lines' own box below, when there is one; a tile only without it. */}
+        {conceptId ? null : <li><Octicon name="calendar" className={styles.tileIcon} /><b className={/^\d/.test(backShort(comesBack)) ? undefined : styles.tileWord}>{backShort(comesBack)}</b><span>{w.comesBack}</span></li>}
       </motion.ul>
 
 
@@ -146,7 +147,7 @@ export function QuickResult({
       {/* Today's count lives on the study plan; here it only shows the moment the goal is reached. */}
       {goalMet ? <motion.p {...rise(0.54)} className={styles.goal}><PackArt name="award" className={styles.icon} /> Today’s goal reached: {goal} topics.</motion.p> : null}
 
-      {conceptId ? <motion.div {...rise(0.3)}><TopicBoxes conceptId={conceptId} /></motion.div> : null}
+      {conceptId ? <motion.div {...rise(0.3)}><TopicBoxes conceptId={conceptId} back={comesBack} /></motion.div> : null}
       {/* The course path in one line: a step for every topic, filled as each is practised. */}
       {path && path.total > 1 ? (
         <motion.div {...rise(0.6)} className={styles.path} aria-label={`${path.practised} of ${path.total} topics practised`}>

@@ -15,7 +15,9 @@ test("the result is one card: verdict with its evidence, what to remember, one n
   // The evidence is said once: as tiles to the eye, as one sentence to a screen reader.
   await expect(page.locator(".sr-only", { hasText: /\d of \d checks? right|\d of \d key ideas in your explanation|not enough in your answer to measure yet/ })).toHaveCount(1);
   await expect(page.getByText(/^checks? right$|^key ideas said$/).first()).toBeVisible();
-  await expect(page.getByText("comes back", { exact: true })).toBeVisible();
+  // When it comes back is said once, at the head of the topic's lines.
+  await expect(page.getByRole("region", { name: /when its lines come back$/ })).toContainText(/Back (?:later|tomorrow|in|next)|When its/);
+  await expect(page.getByText("comes back", { exact: true })).toHaveCount(0);
   await expect(page.getByText("Quick checks", { exact: true })).toHaveCount(0);
   await expect(page.getByText(/^(?:Worth remembering|The line you missed|A line you missed|One more line from your notes)/)).toBeVisible();
 
