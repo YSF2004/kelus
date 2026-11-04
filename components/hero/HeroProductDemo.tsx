@@ -111,7 +111,7 @@ export function HeroProductDemo() {
                             setRouteOutcome("again");
                           }}
                         >
-                          Practise again
+                          Practice again
                         </button>
                         <button
                           type="button"
@@ -169,7 +169,7 @@ export function HeroProductDemo() {
               <p className="hero-demo-signal" aria-live="polite">
                 <span aria-hidden="true">↳</span>
                 {practiceResult === "remembered"
-                  ? "A stronger answer can make room to practise another topic."
+                  ? "A stronger answer can make room to practice another topic."
                   : practiceResult === "again"
                     ? "This topic stays first because it needs another attempt."
                   : example.signal}

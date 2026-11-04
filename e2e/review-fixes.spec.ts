@@ -30,7 +30,7 @@ async function playChecks(page: Page) {
     else await page.getByRole("group", { name: "Choose one" }).getByRole("button").first().click();
     const move = (await page.getByLabel(/^This line: /).getAttribute("aria-label").catch(() => "")) ?? "";
     asked.push({ prompt, move });
-    await page.getByRole("button", { name: /^(Next idea|Next(?! section)|Now say it yourself)/ }).click();
+    await page.getByRole("button", { name: /^(Next question|Next(?! section)|Now say it yourself)/ }).click();
   }
   return asked;
 }

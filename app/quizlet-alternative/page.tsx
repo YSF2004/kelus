@@ -80,7 +80,7 @@ export default function QuizletAlternative() {
         rows: ROWS,
         fair: "Quizlet is the better choice when someone has already made a good set for your course, when you want its games and native apps, or when you are learning vocabulary lists. Kelus is for revising the notes your own lecturer gave you.",
       }}
-      why={{ title: "Questions from what your lecturer said.", body: "A borrowed set is someone else’s course. Kelus asks about the sentences in your own notes and quotes them back, so what you practise is what your exam will test." }}
+      why={{ title: "Questions from what your lecturer said.", body: "A borrowed set is someone else’s course. Kelus asks about the sentences in your own notes and quotes them back, so what you practice is what your exam will test." }}
       faq={FAQ}
       credit="Example: LibreTexts BIOL 101: General Biology I Laboratory Manual by Brad Basehore, Michelle A. Bucks and Christine M. Mummert, CC BY 4.0. Quizlet is a trademark of Quizlet, Inc.; Kelus is not affiliated with Quizlet or LibreTexts."
     />

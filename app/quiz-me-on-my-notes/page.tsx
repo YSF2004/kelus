@@ -67,7 +67,7 @@ export default function QuizMeOnMyNotes() {
         </div>
       }
       steps={STEPS}
-      why={{ title: "Quizzed on what your lecturer said.", body: "A chatbot quiz can drift from your course. Every Kelus question comes from a sentence in your own notes and shows it with the answer, so what you practise is what your exam will test." }}
+      why={{ title: "Quizzed on what your lecturer said.", body: "A chatbot quiz can drift from your course. Every Kelus question comes from a sentence in your own notes and shows it with the answer, so what you practice is what your exam will test." }}
       faq={FAQ}
       credit="Example: LibreTexts BIOL 101: General Biology I Laboratory Manual by Brad Basehore, Michelle A. Bucks and Christine M. Mummert, CC BY 4.0. Kelus is not affiliated with LibreTexts."
     />

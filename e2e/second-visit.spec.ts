@@ -24,7 +24,7 @@ test("the second visit opens with what you missed, warms up on it, then goes on 
     await expect(page.getByRole("button", { name: "I’m not sure" }).or(page.getByRole("heading", { name: /came back|Not yet/ }))).toBeVisible();
     if (await page.getByRole("heading", { name: /came back|Not yet/ }).count()) break;
     await page.getByRole("button", { name: "I’m not sure" }).click();
-    await page.getByRole("button", { name: /^(Next idea|Next(?! section)|See how it went)/ }).click();
+    await page.getByRole("button", { name: /^(Next question|Next(?! section)|See how it went)/ }).click();
   }
   await expect(page.getByRole("heading", { name: "Not yet. That’s what warm-ups are for." })).toBeVisible();
   await page.getByRole("button", { name: /^Continue to / }).click();

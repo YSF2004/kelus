@@ -104,7 +104,7 @@ function KeepVisual({ hidden }: VisualProps) {
           <motion.p {...row(3)} className={sheets.anki}><BrandIcon brand="anki" size={16} />Export every question to Anki</motion.p>
         </div>
       </div>
-      <figcaption className={styles.visualCaption}><span>At the end</span><strong>What you practised, and what comes back.</strong><small>Your cards go to Anki too, with the line from your notes on the back.</small></figcaption>
+      <figcaption className={styles.visualCaption}><span>At the end</span><strong>What you practiced, and what comes back.</strong><small>Your cards go to Anki too, with the line from your notes on the back.</small></figcaption>
     </figure>
   );
 }
@@ -113,7 +113,7 @@ const stages = [
   { number: "01", cue: "Source", icon: "folder", title: "Start with what you were taught.", body: "Add a lecture PDF, slides, notes or a Notion export. Kelus finds the topics and links each one back to its page. Rename or remove any topic, any time.", Visual: SourceVisual, tone: "source" },
   { number: "02", cue: "Recall", icon: "clipboard-check", title: "Show what you can recall.", body: "Each topic is up to three quick checks written from your own lines, then one explanation in your own words. Kelus lays it beside the page and shows what you left out, or said the wrong way round.", Visual: RecallVisual, tone: "recall" },
   { number: "03", cue: "Route", icon: "diagram-project", title: "See the plan respond.", body: "A weak answer brings a topic forward; a stronger one gives it room. The next session starts from what actually happened, not a fixed schedule.", Visual: RerouteVisual, tone: "route" },
-  { number: "04", cue: "Keep", icon: "award", title: "Keep what you learned.", body: "Each session ends on what you practised and what comes back. The lines you missed open tomorrow as a one-minute warm-up, and every question can go to Anki.", Visual: KeepVisual, tone: "route" },
+  { number: "04", cue: "Keep", icon: "award", title: "Keep what you learned.", body: "Each session ends on what you practiced and what comes back. The lines you missed open tomorrow as a one-minute warm-up, and every question can go to Anki.", Visual: KeepVisual, tone: "route" },
 ] as const;
 
 function Chapter({ stage }: { stage: (typeof stages)[number] }) {
@@ -149,7 +149,7 @@ export function HowItWorks() {
         </span>
         <h1 id="how-title">Your lessons become <br />a better revision habit.</h1>
         <div className={styles.heroBottom}>
-          <p>Bring your course. Recall what you know. Let each answer shape what you practise next.</p>
+          <p>Bring your course. Recall what you know. Let each answer shape what you practice next.</p>
           <Link className={styles.primaryAction} href="/today">Set up my course<span className={styles.primaryArrow} aria-hidden="true">→</span></Link>
         </div>
       </section>
@@ -163,7 +163,7 @@ export function HowItWorks() {
         <dl>
           <div><dt>What can I add?</dt><dd>A lecture PDF, slides, notes, a Notion export, or pasted text. Kelus finds the topics; you can rename or remove any of them.</dd></div>
           <div><dt>Do I need an account?</dt><dd>No. You can start revising for free on this device. Sign-in is optional when sync is available.</dd></div>
-          <div><dt>Will Kelus predict my exam grade?</dt><dd>No. It gives you a plan to practise, not a predicted grade: what to review next, from your own answers. Readiness is an estimate from that evidence, never a promise about your result.</dd></div>
+          <div><dt>Will Kelus predict my exam grade?</dt><dd>No. It gives you a plan to practice, not a predicted grade: what to review next, from your own answers. Readiness is an estimate from that evidence, never a promise about your result.</dd></div>
         </dl>
       </section>
       <motion.footer ref={finalRef} className={styles.final} initial={false} animate={revealTarget(finalHidden, 14)} transition={{ duration: 0.55, ease: kelusEase }}>

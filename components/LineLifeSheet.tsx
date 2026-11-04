@@ -24,7 +24,7 @@ function Asked({ prompt }: { prompt: string }) {
 
 function backLine(life: LineLife) {
   if (life.state === "missed") return "Missed last time, so it opens your next warm-up.";
-  if (life.state === "new") return life.answers.length ? "In Box 1: asked again the next time you practise this topic." : "Not asked yet. It comes up when you reach this topic.";
+  if (life.state === "new") return life.answers.length ? "In Box 1: asked again the next time you practice this topic." : "Not asked yet. It comes up when you reach this topic.";
   return life.backOn ? `Back on ${day(life.backOn)}.` : "Back soon.";
 }
 

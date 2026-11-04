@@ -112,7 +112,7 @@ export function ProgressView({ concepts, events, nowIso, daysToExam, targetPerce
         />
         {/* The next step, then the quiet way to read it all back: one row, the green key first. */}
         <div className={styles.actions}>
-          <Link href="/today" className={`k-btn ${styles.cta}`}>Practise a topic <ArrowRight /></Link>
+          <Link href="/today" className={`k-btn ${styles.cta}`}>Practice a topic <ArrowRight /></Link>
           <Link href="/sheet" className={styles.sheetLink}>Open your revision sheet</Link>
         </div>
         {/* On a phone there is no sidebar: today's progress is shared from here. */}
@@ -135,10 +135,10 @@ export function ProgressView({ concepts, events, nowIso, daysToExam, targetPerce
         {fresh ? null : <dl className={styles.stats}>
           <div><dt>Answers</dt><dd>{summary.answers}</dd></div>
           <div><dt>Days studied</dt><dd>{summary.daysStudied}<small> of 7</small></dd></div>
-          <div><dt>Topics practised</dt><dd>{summary.topicsPractised}<small> of {concepts.length}</small></dd></div>
+          <div><dt>Topics practiced</dt><dd>{summary.topicsPractised}<small> of {concepts.length}</small></dd></div>
         </dl>}
         <div className={styles.actions}>
-          <Link href="/today" className={`k-btn ${styles.cta}`}>{fresh ? "Practise a topic" : "Practise next topic"} <ArrowRight /></Link>
+          <Link href="/today" className={`k-btn ${styles.cta}`}>{fresh ? "Practice a topic" : "Practice next topic"} <ArrowRight /></Link>
           <Link href="/sheet" className={styles.sheetLink}>Open your revision sheet</Link>
         </div>
         <div className={styles.share}><ShareProgress variant="inline" /></div>

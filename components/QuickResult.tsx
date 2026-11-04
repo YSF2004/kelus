@@ -150,7 +150,7 @@ export function QuickResult({
       {conceptId ? <motion.div {...rise(0.3)}><TopicBoxes conceptId={conceptId} back={comesBack} /></motion.div> : null}
       {/* The course path in one line: a step for every topic, filled as each is practised. */}
       {path && path.total > 1 ? (
-        <motion.div {...rise(0.6)} className={styles.path} aria-label={`${path.practised} of ${path.total} topics practised`}>
+        <motion.div {...rise(0.6)} className={styles.path} aria-label={`${path.practised} of ${path.total} topics practiced`}>
           <span className={styles.pathSteps} aria-hidden="true">
             {/* One step per topic, in the order of the notes; this topic's step is marked. Practised steps fill. */}
             {path.total <= 24 ? Array.from({ length: path.total }, (_, index) => <i key={index} data-here={index === path.here ? "true" : undefined} data-done={(path.done?.[index] ?? index < path.practised) ? "true" : undefined} />) : <i className={styles.pathFill} style={{ ["--share" as string]: path.practised / path.total }} />}

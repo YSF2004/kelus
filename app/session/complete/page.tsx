@@ -147,7 +147,7 @@ function CompleteBody() {
         </header>
         <main id="main" className={styles.empty}>
           <h1>Nothing finished yet.</h1>
-          <p>When you finish a session, this page shows what you practised and what comes back tomorrow.</p>
+          <p>When you finish a session, this page shows what you practiced and what comes back tomorrow.</p>
           <Link href="/today" className="k-btn">Back to your plan <ArrowRight /></Link>
         </main>
       </>
@@ -160,7 +160,8 @@ function CompleteBody() {
   const known = practised.filter((event) => event.outcome === "success");
   const rank = { failure: 0, partial: 1, success: 2 } as const;
   const weakest = [...practised].filter((event) => event.outcome !== "success").sort((a, b) => rank[a.outcome ?? "partial"] - rank[b.outcome ?? "partial"])[0];
-  const missedToday = (state.missedLines ?? []).filter((line) => line.at >= session.startedAt && practised.some((event) => event.conceptId === line.conceptId)).length;
+  const missedLinesToday = [...new Set((state.missedLines ?? []).filter((line) => line.at >= session.startedAt && practised.some((event) => event.conceptId === line.conceptId)).map((line) => line.quote))];
+  const missedToday = missedLinesToday.length;
   const nextFresh = nextStopId ? { conceptId: nextStopId } : undefined;
   const matchPairs = buildMatchRound(practised.map((event) => event.conceptId), state.snapshot.concepts, state.snapshot.learningActivities);
 
@@ -211,16 +212,22 @@ function CompleteBody() {
                   : <>Tomorrow starts with a 1-minute warm-up on lines you missed, three at a time.</>
                 : nextFresh ? <>Next time, start with <strong>{name(nextFresh.conceptId)}</strong>.</> : "Your plan is saved for next time."}
             </h2>
+            {/* The lines themselves, in the notes' own words: what comes back is yours, not a deck. */}
+            {missedToday && missedToday <= 3 ? (
+              <ul className={styles.missedLines} aria-label={missedToday === 1 ? "The line you missed" : "The lines you missed"}>
+                {missedLinesToday.map((quote) => <li key={quote}>“{quote}”</li>)}
+              </ul>
+            ) : null}
             {missedToday > 3 ? <p>{missedToday} lines are saved for it.</p> : null}
             {missedToday && nextFresh ? <p>Then {name(nextFresh.conceptId)}, a topic you haven’t done yet.</p> : null}
-            <RemindTomorrow />
           </div>
         </section>
 
-        {/* One way on: the next topic when there is one, else the plan. */}
+        {/* One way on: the next topic when there is one, else the plan. The reminder is the quiet second choice. */}
         <Link href="/today" className={`cta ${styles.primary}`} onClick={() => trackEvent({ name: "next_route_opened", source: "completion" })}>
           {nextFresh ? <>Keep going with {name(nextFresh.conceptId)}</> : "Back to study plan"} <ArrowRight />
         </Link>
+        <RemindTomorrow />
         {/* Sharing is one quiet button under the way on; it opens the card in a sheet. */}
         {!SAMPLE_COURSE_IDS.has(session.courseId) && practised.length ? <div className={styles.share}><ShareProgress variant="inline" /></div> : null}
 
