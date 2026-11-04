@@ -626,19 +626,22 @@
   }
 }
 
+/* "I'm not sure" is a real choice, not a hidden link: the same shape as the answers, outlined in dashes so it never
+   reads as one of them. Choosing it shows the line and costs nothing. */
 .unsure {
-  justify-self: start;
-  min-height: 44px;
-  padding: 0 4px;
-  border: 0;
+  justify-self: stretch;
+  min-height: 48px;
+  padding: 0 16px;
+  border: 1px dashed var(--lb-line-strong, var(--color-frost));
+  border-radius: 12px;
   background: none;
   color: var(--color-slate);
   font: inherit;
-  font-size: var(--text-body-sm);
-  text-decoration: underline;
-  text-underline-offset: 4px;
+  font-size: 0.9375rem;
+  text-align: left;
   cursor: pointer;
 }
+.unsure:hover { border-color: color-mix(in srgb, var(--color-kelus) 45%, var(--lb-line-strong, var(--color-frost))); color: var(--color-midnight-ink); }
 
 .unsure:hover {
   color: var(--color-midnight-ink);
@@ -993,7 +996,7 @@
 /* Outrank the global studio button rule without changing unrelated controls. */
 .run .card button.primary[type] { min-height: 48px !important; }
 .feedback .primary:focus-visible, .primary:focus-visible { outline: 2px solid var(--color-midnight-ink); outline-offset: 3px; }
-.listen, .flagLink, .link, .unsure { border-radius: 6px; }
+.listen, .flagLink, .link { border-radius: 6px; }
 .flagLink:focus-visible, .link:focus-visible { outline: 2px solid var(--color-kelus); outline-offset: 2px; }
 .evidence { padding: 12px 14px; border-left: 3px solid var(--color-hero-orange); border-radius: 0 8px 8px 0; background: color-mix(in srgb, var(--color-hero-orange-wash) 30%, var(--k-surface)); }
 .evidence > span { color: var(--color-hero-orange); font-weight: 600; }

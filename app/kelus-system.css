@@ -66,3 +66,50 @@ html body.is-course-studio [class*="TodayQuiet"][class*="tomorrow"] {
   html body.is-course-studio [class*="TodayQuiet"][class*="next"] { padding: 20px 18px 22px !important; }
   html body.is-course-studio [class*="ExamDateCard"][class*="card"] { padding: 18px !important; }
 }
+
+/* ── Buttons, in the product ──────────────────────────────────────────────────────────────────────────
+   Three levels, each with one look, and nothing that moves. Corners stay 12px in every state: the rounding into a
+   pill under the pointer, the press squeeze and the leaning arrow belong to the homepage and pricing only.
+     Primary    the next step: solid green, 48px.
+     Secondary  another way on: an outline, 44px.
+     Text       the least: green words, underlined, 44px to tap.
+   States: hover a shade darker, focus a ring 3px off the edge, unavailable a quiet outline, working (aria-busy) dims
+   and shows the wait cursor while its label says what is happening ("Making the card…"). */
+body {
+  --sys-btn-radius: 12px;
+  --sys-btn-green: var(--k-green, #1f6b45);
+  --sys-btn-green-hover: #185638;
+}
+body:not(:has(.home, .pricing-page)) :is(.k-btn, .cta, [class*="TodayQuiet"][class*="go"], [class*="primaryAction"]) {
+  min-height: 48px;
+  border-radius: var(--sys-btn-radius) !important;
+  box-shadow: none !important;
+  filter: none !important;
+  transform: none !important;
+  transition: background-color 120ms linear, color 120ms linear, border-color 120ms linear !important;
+}
+@media (hover: hover) and (pointer: fine) {
+  body:not(:has(.home, .pricing-page)) :is(.k-btn, .cta, [class*="TodayQuiet"][class*="go"], [class*="primaryAction"]):hover:not(:disabled):not([aria-disabled="true"]) { border-radius: var(--sys-btn-radius) !important; }
+}
+body:not(:has(.home, .pricing-page)) :is(.k-btn, .cta, [class*="TodayQuiet"][class*="go"], [class*="primaryAction"]):active:not(:disabled) { transform: none !important; }
+body:not(:has(.home, .pricing-page)) :is(.k-btn, .cta, [class*="TodayQuiet"][class*="go"], [class*="primaryAction"]) > span[aria-hidden="true"]:last-child { transform: none !important; transition: none !important; }
+
+/* Secondary: the paper button reads as an outline of the primary, never a grey slab. */
+body:not(:has(.home, .pricing-page)) :is(.k-btn--paper, .k-btn--small:not(.k-btn--primary)) {
+  min-height: 44px;
+  border: 1px solid var(--sys-card-line) !important;
+  background: var(--sys-card-bg) !important;
+  color: var(--sys-title-ink) !important;
+}
+@media (hover: hover) and (pointer: fine) {
+  body:not(:has(.home, .pricing-page)) :is(.k-btn--paper, .k-btn--small:not(.k-btn--primary)):hover:not(:disabled) { border-color: color-mix(in srgb, var(--sys-btn-green) 45%, var(--sys-card-line)) !important; background: var(--sys-card-bg) !important; }
+}
+
+/* Focus, the same everywhere in the product: a ring 3px off the edge. */
+body:not(:has(.home, .pricing-page)) :is(.k-btn, .cta, [class*="TodayQuiet"][class*="go"], [class*="primaryAction"]):focus-visible { outline: 2px solid var(--sys-btn-green) !important; outline-offset: 3px !important; }
+
+/* Working: the label carries the news; the button stays put, dimmed, with the wait cursor. */
+body:not(:has(.home, .pricing-page)) :is(.k-btn, .cta)[aria-busy="true"] { opacity: 0.8; cursor: progress !important; }
+
+/* No corner in the product ever animates: an older rule or a new one cannot round a card or a field on hover. */
+body:not(:has(.home, .pricing-page)) :is(button, a, input, select, [class*="card"], [class*="choice"]) { transition-property: background-color, border-color, color, opacity !important; }
