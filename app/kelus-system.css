@@ -127,7 +127,6 @@ body:not(:has(.home, .pricing-page)) :is(
   .text-btn:not(header .text-btn, .study-folio-actions .text-btn),
   button[class*="QuickRun"][class*="__link"],
   button[class*="QuickRun"][class*="__listen"],
-  .today-source-desktop,
   a[class*="ExamDateCard"][class*="calendar"],
   a[class*="ProgressView"][class*="sheetLink"]
 ) {
@@ -174,13 +173,18 @@ body:not(:has(.home, .pricing-page)) :is(
 }
 body:not(:has(.home, .pricing-page)) :is(.photo-notes-start, [class*="PasteNotes"][class*="paste"] > summary, .material-add-page > summary)::-webkit-details-marker { display: none; }
 @media (hover: hover) and (pointer: fine) {
-  body:not(:has(.home, .pricing-page)) :is(.photo-notes-start, [class*="PasteNotes"][class*="paste"] > summary, .material-add-page > summary, .text-btn:not(header .text-btn, .study-folio-actions .text-btn), button[class*="QuickRun"][class*="__link"], button[class*="QuickRun"][class*="__listen"], .today-source-desktop, a[class*="ExamDateCard"][class*="calendar"], a[class*="ProgressView"][class*="sheetLink"], button[class*="QuickRun"][class*="flagLink"], [class*="complete-module"][class*="quiet"] button, .material-actions > :is(button, a)):hover:not(:disabled) {
+  body:not(:has(.home, .pricing-page)) :is(.photo-notes-start, [class*="PasteNotes"][class*="paste"] > summary, .material-add-page > summary, .text-btn:not(header .text-btn, .study-folio-actions .text-btn), button[class*="QuickRun"][class*="__link"], button[class*="QuickRun"][class*="__listen"], a[class*="ExamDateCard"][class*="calendar"], a[class*="ProgressView"][class*="sheetLink"], button[class*="QuickRun"][class*="flagLink"], [class*="complete-module"][class*="quiet"] button, .material-actions > :is(button, a)):hover:not(:disabled) {
     border-color: color-mix(in srgb, var(--sys-btn-green) 45%, var(--sys-card-line)) !important;
   }
 }
-body:not(:has(.home, .pricing-page)) :is(.photo-notes-start, [class*="PasteNotes"][class*="paste"] > summary, .material-add-page > summary, .text-btn:not(header .text-btn, .study-folio-actions .text-btn), button[class*="QuickRun"][class*="__link"], button[class*="QuickRun"][class*="__listen"], .today-source-desktop, a[class*="ExamDateCard"][class*="calendar"], a[class*="ProgressView"][class*="sheetLink"], button[class*="QuickRun"][class*="flagLink"], [class*="complete-module"][class*="quiet"] button, .material-actions > :is(button, a)):focus-visible { outline: 2px solid var(--sys-btn-green) !important; outline-offset: 3px !important; }
-/* "See notes beside plan" is the desktop control; under 1120px the plan has no room beside it and "Open notes" takes
-   its place. The button look above must not bring it back. */
-@media (max-width: 1120px) {
-  body:not(:has(.home, .pricing-page)) .today-source-desktop { display: none !important; }
+body:not(:has(.home, .pricing-page)) :is(.photo-notes-start, [class*="PasteNotes"][class*="paste"] > summary, .material-add-page > summary, .text-btn:not(header .text-btn, .study-folio-actions .text-btn), button[class*="QuickRun"][class*="__link"], button[class*="QuickRun"][class*="__listen"], a[class*="ExamDateCard"][class*="calendar"], a[class*="ProgressView"][class*="sheetLink"], button[class*="QuickRun"][class*="flagLink"], [class*="complete-module"][class*="quiet"] button, .material-actions > :is(button, a)):focus-visible { outline: 2px solid var(--sys-btn-green) !important; outline-offset: 3px !important; }
+/* "See notes beside plan" is the desktop control: a button only where it shows (over 1120px). Under that width the
+   plan has no room beside it and "Open notes" takes its place, so its own hide rule stays in charge. */
+@media (min-width: 1121px) {
+  body:not(:has(.home, .pricing-page)) .today-source-desktop {
+    display: inline-flex !important; align-items: center; min-height: 44px !important; padding: 0 16px !important;
+    border: 1px solid var(--sys-card-line) !important; border-radius: var(--sys-btn-radius, 12px) !important;
+    background: var(--sys-card-bg) !important; color: var(--sys-title-ink) !important; font-size: 0.9375rem !important;
+    font-weight: 600 !important; text-decoration: none !important; cursor: pointer;
+  }
 }
