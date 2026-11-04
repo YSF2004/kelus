@@ -11,4 +11,5 @@ export const SEARCH_PAGES = [
   { href: "/notes-to-flashcards/", label: "Notes to flashcards", blurb: "Paste your notes; get cards written from your own lines." },
   { href: "/quizlet-alternative/", label: "A free Quizlet alternative", blurb: "Questions from your notes instead of borrowed sets." },
   { href: "/anki-alternative/", label: "An Anki alternative", blurb: "Spaced repetition without writing every card yourself." },
+  { href: "/notebooklm-alternative/", label: "Kelus vs NotebookLM", blurb: "Revising your notes for an exam, not chatting with them." },
 ] as const;
