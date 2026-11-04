@@ -175,11 +175,14 @@ export function QuickRun({ run: providedRun, persistenceKey, onPersistenceChange
     const given = typeof value === "number" ? item.choices?.[value] ?? "" : value.trim();
     const fromChips = typeof value === "string" && tapped !== null && tapped === value;
     // The very first line a student ever recalls: the moment to say what Kelus does with it.
-    const firstEver = ok && !fromChips && known !== undefined && known.size === 0 && knownNow.length === 0;
+    // Only an answer the student produced is a recall: a typed gap. A right pick from choices (which topic, which
+    // word, true or false) is recognition, scored but not moving the line on.
+    const recalled = item.kind === "cloze" && !fromChips;
+    const firstEver = ok && recalled && known !== undefined && known.size === 0 && knownNow.length === 0;
     setAnswered({ right: ok, how: verdict.how, given, picked: fromChips, firstEver, elsewhere: ok ? null : whereAnswerBelongs(item, given, run.sentences) });
     if (ok) {
       setRight((count) => count + 1);
-      if (!fromChips) { setKnownNow((list) => [...list, item.sourceQuote]); if (!known?.has(item.sourceQuote)) { setBump((count) => count + 1); setChange("+1"); } }
+      if (recalled) { setKnownNow((list) => [...list, item.sourceQuote]); if (!known?.has(item.sourceQuote)) { setBump((count) => count + 1); setChange("+1"); } }
     } else {
       setMissed((list) => [...list, item.sourceQuote]);
       if (known?.has(item.sourceQuote) && !missed.includes(item.sourceQuote)) { setDrop((count) => count + 1); setChange("−1"); }
@@ -221,7 +224,13 @@ export function QuickRun({ run: providedRun, persistenceKey, onPersistenceChange
   }
 
   function finish(self: SelfGrade, at: number) {
-    onFinish({ right, total, unsure, self, explained, elapsedMs: Math.max(0, Math.round(at - started.current)), missed, known: knownNow, coverage: useful ? { hits: useful.hits, keys: useful.keys } : null });
+    // The own-words answer is the truest recall: said from memory and nailed, with most of the page's key ideas in
+    // it where they could be counted, its line counts as recalled.
+    const explainedWell = self === "nailed" && (!useful || useful.hits / useful.keys >= 0.6) && !missed.includes(run.explainQuote);
+    const knownLines = explainedWell && !knownNow.includes(run.explainQuote) ? [...knownNow, run.explainQuote] : knownNow;
+    // Not said in full is not recalled yet: the line comes back first in the next warm-up, like a missed check.
+    const missedLines = self !== "nailed" && !missed.includes(run.explainQuote) ? [...missed, run.explainQuote] : missed;
+    onFinish({ right, total, unsure, self, explained, elapsedMs: Math.max(0, Math.round(at - started.current)), missed: missedLines, known: knownLines, coverage: useful ? { hits: useful.hits, keys: useful.keys } : null });
     clearDraft();
   }
 
@@ -492,7 +501,7 @@ export function QuickRun({ run: providedRun, persistenceKey, onPersistenceChange
                   </li>
                 </ol>
                 {/* Where this answer puts the line in the five boxes, moved as you watch. Not for a shrug: nothing was tried. */}
-                {answered.unsure ? null : <LineMove quote={item.sourceQuote} right={answered.right} nowIso={new Date().toISOString()} />}
+                {answered.unsure ? null : <LineMove quote={item.sourceQuote} right={answered.right} recall={item.kind === "cloze" && !answered.picked} nowIso={new Date().toISOString()} />}
                 {/* Accepted on purpose, and said so: the student sees the notes' own word, not a silent pass. */}
                 {answered.right && item.kind === "cloze" && answered.how && answered.how !== "exact" ? <p className={styles.accepted}>{acceptedNote(answered.how, item.modelAnswer)}</p> : null}
                 {answered.firstEver ? <p className={styles.firstNote}><PackArt name="ranking" className={styles.firstArt} size={64} /><span>A short review is planned in a few days to help this idea stay familiar.</span></p> : null}

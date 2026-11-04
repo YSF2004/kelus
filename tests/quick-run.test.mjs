@@ -13,9 +13,12 @@ const activity = {
   sourceReferences: [{ materialId: "m", label: "doc", locator: "Page 6" }],
 };
 
-test("a run is two to three checks from the page, then one explanation", () => {
+test("a run is up to three checks from the page, never which topic a line is about, then one explanation", async () => {
+  const { sortsByTopic } = await import("../domain/quick-run.ts");
   const run = buildQuickRun({ activity, name: "Tax Incidence", siblingNames: ["Tax Incidence", "Total Revenue Test", "Cross-Price Elasticity"] });
-  assert.ok(run.checks.length >= 2 && run.checks.length <= 3);
+  assert.ok(run.checks.length <= 3);
+  assert.ok(run.checks.every((item) => !sortsByTopic(item)), "sorting a line into its topic is not recall");
+  assert.equal(new Set(run.checks.map((item) => item.prompt)).size, run.checks.length, "no question asked twice");
   assert.ok(run.checks.every((item) => item.kind === "choice" || item.kind === "cloze"));
   assert.ok(run.checks.every((item) => quoteIsOnPage(item.sourceQuote, page)));
   assert.equal(run.explainPrompt, activity.retrieve.prompt);

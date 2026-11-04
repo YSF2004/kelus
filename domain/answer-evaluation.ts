@@ -129,7 +129,7 @@ export function looksLikeWords(text: string) {
 /** Words that carry no idea on their own, on top of the stopwords: they never count as a key word to remember. */
 const FILLER = new Set(["also", "because", "been", "being", "both", "each", "every", "more", "most", "only", "other", "some", "such", "than", "there", "these", "they", "those", "very", "what", "when", "where", "will", "would", "about", "after", "before", "between", "during", "over", "under", "your", "make", "makes", "made", "does", "done", "much", "many", "same", "into", "onto", "upon", "across", "through", "within", "without", "toward", "towards", "along",
   // Academic frame words: "X is the study of", "the way things are", "a kind of". They frame an idea, they are not one.
-  "study", "studies", "way", "ways", "thing", "things", "kind", "kinds", "type", "types", "form", "forms", "part", "parts", "called", "known", "refers", "used", "uses", "example", "examples", "world", "should", "could", "might", "must"]);
+  "study", "studies", "way", "ways", "thing", "things", "kind", "kinds", "type", "types", "form", "forms", "part", "parts", "called", "known", "refers", "used", "uses", "example", "examples", "world", "should", "could", "might", "must", "process", "processes"]);
 
 export type ExplainPart = { text: string; key: boolean; hit: boolean; /** The student's word that says the opposite of this one. */ flip?: string };
 export type ExplainMatch = { parts: ExplainPart[]; keys: number; hits: number; missed: string[]; /** Opposites: what the page says, and what the student wrote instead. */ flipped: Array<{ page: string; said: string }>; suggest: "nailed" | "partly" | "missed" };
@@ -140,6 +140,50 @@ export type ExplainMatch = { parts: ExplainPart[]; keys: number; hits: number; m
  * for "turgid"), or as an everyday word for the same idea ("rises" for "increases"). Saying the opposite ("loses"
  * where the page says "gains") is never a match, and is named. It only suggests a self-grade.
  */
+// Words that give a sentence its direction: what goes in comes before them, what comes out after.
+const DIRECTION = new Set(["into", "to", "becomes", "become", "produces", "produce", "forms", "form", "releases", "release", "yields", "turns"]);
+const isKey = (word: string) => word.length >= 4 && !STOPWORDS.has(word) && !FILLER.has(word) && !/^\d+$/.test(word);
+
+/** The key-word families on each side of each direction word, stopping at punctuation or another direction word. */
+function sides(text: string) {
+  const tokens = text.toLocaleLowerCase().split(/(\s+|[,.;:!?()])/).map((token) => token.trim()).filter(Boolean);
+  const out: Array<{ before: Set<string>; after: Set<string>; word: string; beforeText: string; afterText: string }> = [];
+  tokens.forEach((token, at) => {
+    if (!DIRECTION.has(token)) return;
+    const collect = (step: -1 | 1) => {
+      const found: string[] = [];
+      for (let index = at + step, seen = 0; index >= 0 && index < tokens.length && seen < 5; index += step, seen += 1) {
+        const word = tokens[index].replace(/[^\p{L}\p{N}-]+/gu, "");
+        if (!word || DIRECTION.has(word)) break;
+        if (isKey(word)) found.push(word);
+      }
+      return step < 0 ? found.reverse() : found;
+    };
+    const before = collect(-1);
+    const after = collect(1);
+    out.push({ before: new Set(before.map(family)), after: new Set(after.map(family)), word: token, beforeText: before.join(" "), afterText: after.join(" ") });
+  });
+  return out;
+}
+
+/**
+ * The page's words in the reverse direction: "chemical energy into light energy" where the notes say "light energy
+ * into chemical energy". Every word matches, so only the order shows the idea is backwards.
+ */
+export function reversedRelations(answer: string, reference: string) {
+  const reversed: Array<{ page: string; said: string }> = [];
+  const said = sides(answer);
+  for (const page of sides(reference)) {
+    const shared = new Set([...page.before].filter((word) => page.after.has(word)));
+    const from = [...page.before].filter((word) => !shared.has(word));
+    const to = [...page.after].filter((word) => !shared.has(word));
+    if (!from.length || !to.length) continue;
+    const match = said.find((other) => other.word === page.word && from.some((word) => other.after.has(word)) && to.some((word) => other.before.has(word)));
+    if (match) reversed.push({ page: `${page.beforeText} ${page.word} ${page.afterText}`, said: `${match.beforeText} ${match.word} ${match.afterText}` });
+  }
+  return reversed;
+}
+
 export function explainMatch(answer: string, reference: string, topic = ""): ExplainMatch {
   const said = readAnswer(answer);
   const ownGroups = pageGroups(reference);
@@ -172,9 +216,15 @@ export function explainMatch(answer: string, reference: string, topic = ""): Exp
   }
   flush();
   const share = keys ? hits / keys : 0;
-  const flipped = [...new Map(parts.filter((part) => part.flip).map((part) => [part.flip!, { page: part.text.replace(/[^\p{L}\p{N}-]+/gu, "").toLocaleLowerCase(), said: part.flip! }])).values()];
-  // An opposite is a wrong idea, not a gap: it never suggests a full mark.
-  const suggest = !answer.trim() || share < 0.35 ? "missed" : share < 0.75 || flipped.length ? "partly" : "nailed";
+  const flipped = [
+    ...new Map(parts.filter((part) => part.flip).map((part) => [part.flip!, { page: part.text.replace(/[^\p{L}\p{N}-]+/gu, "").toLocaleLowerCase(), said: part.flip! }])).values(),
+    // The right words in the wrong direction are a wrong idea too.
+    ...reversedRelations(answer, reference),
+  ];
+  // An opposite or a reversal is a wrong idea, not a gap: it never suggests a full mark.
+  // The page's idea backwards ("chemical energy into light energy") is the wrong idea, however many words match.
+  const backwards = reversedRelations(answer, reference).length > 0;
+  const suggest = !answer.trim() || share < 0.35 || backwards ? "missed" : share < 0.75 || flipped.length ? "partly" : "nailed";
   // "dilute solution" already says "solution": a phrase whose words were all named before is not listed again.
   const named2: string[] = [];
   for (const original of missed) {

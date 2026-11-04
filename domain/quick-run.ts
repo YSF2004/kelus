@@ -26,6 +26,18 @@ export function asksForTheTopic(item: PracticeItem) {
   return /^(?:Which idea|Quelle notion)\b/.test(item.prompt);
 }
 
+/**
+ * Questions that ask which topic a line belongs to: "Which idea does this describe?" and "Which of these is about
+ * Photosynthesis?". They are answered by matching words to the topic's name, often from a line read seconds before,
+ * so they test sorting, not recall of the content. They are never quick checks.
+ */
+export function sortsByTopic(item: PracticeItem) {
+  return asksForTheTopic(item) || /^(?:Which of these is about|Laquelle de ces phrases parle de)\b/.test(item.prompt);
+}
+
+/** A question as the student reads it: two checks with the same words are the same question asked twice. */
+const wording = (item: PracticeItem) => item.prompt.replace(/\s+/g, " ").trim().toLocaleLowerCase();
+
 /** The words around a gap: "In a _____ solution" twice is the same question twice, whatever the answer. */
 function gapFrame(item: PracticeItem) {
   if (item.kind !== "cloze") return null;
@@ -97,8 +109,10 @@ export function buildQuickRun(input: { activity: LearningActivity; name: string;
   const explainAnswer = activity.retrieve.modelAnswer;
   // "Which idea does this describe?" is answered by the topic name at the top of the screen, so it is a last resort.
   // A fill-in gap on a line shown seconds ago tests recognition, not recall. Save it for a return visit.
-  const anyDrillable = own.filter((item) => isDrillable(item) && (!input.readFirst || item.kind !== "cloze"));
-  const drillable = anyDrillable.filter((item) => !asksForTheTopic(item));
+  // Which topic a line belongs to is sorting, not recall: those questions are left out, and a page with nothing else
+  // to check goes straight from reading to the question in your own words.
+  const anyDrillable = own.filter((item) => isDrillable(item) && !sortsByTopic(item) && (!input.readFirst || item.kind !== "cloze"));
+  const drillable = anyDrillable;
   // The explanation at the end asks for this sentence, so a check that shows it first would spoil it.
   const fresh = drillable.filter((item) => !overlaps(item.sourceQuote, explainAnswer));
   // A very short page may have nothing else to ask; then a check on the main sentence beats no quick run at all.
@@ -114,7 +128,8 @@ export function buildQuickRun(input: { activity: LearningActivity; name: string;
   const firstVisit = input.readFirst && picked.length < 2 ? wordChoices(own.filter((item) => isDrillable(item) && item.kind === "cloze"), activity, explainAnswer, picked) : [];
   // A topic met for the first time opens on its quickest check to read, so the first answer is an early win; a
   // "which does NOT match" (four whole sentences to compare) never opens a topic when anything else can.
-  const chosen = [...picked, ...firstVisit].slice(0, MAX_CHECKS);
+  // The same question once: identical wording twice in a topic reads as a repeat, whatever the options.
+  const chosen = [...picked, ...firstVisit].filter((item, index, all) => all.findIndex((other) => wording(other) === wording(item)) === index).slice(0, MAX_CHECKS);
   const usable = spreadStyles(input.readFirst ? [...chosen].sort((a, b) => readingLoad(a) - readingLoad(b)) : chosen);
   if (!explainAnswer.trim()) return null;
   const sentences = splitSentences([activity.learn.explanation, ...activity.learn.keyPoints].join("\n"));

@@ -66,9 +66,9 @@ import {
 import type { AnalysisPayload } from "@/lib/material-ingest-machine";
 import { assessPdfTextQuality, MAX_READ_PAGES, ocrPdfPages, pageNeedsOcr } from "@/lib/pdf-extraction";
 import { extractSourcePages } from "@/lib/source-extraction";
-import { SOURCE_FILE_ACCEPT, isNotesFile, isZipFile, sourceNoun } from "@/domain/materials";
+import { SOURCE_FILE_ACCEPT, isNotesFile, isSlidesFile, isZipFile, sourceNoun } from "@/domain/materials";
 import { MAX_NOTES_BYTES } from "@/domain/markdown-pages";
-import { zipToNotesFile } from "@/lib/zip-notes";
+import { zipToNotesFile, slidesToNotesFile } from "@/lib/zip-notes";
 
 function formatBytes(bytes: number | null) {
   if (bytes === null) return null;
@@ -510,10 +510,10 @@ export function MaterialLibrary({ embedded = false, incomingFile = null, onIncom
     // The sample course asks before anything of yours goes near it.
     if (interceptFile?.(picked)) { if (fileRef.current) fileRef.current.value = ""; return; }
     let file = picked;
-    if (isZipFile(picked)) {
-      dispatch({ type: "WORK_STARTED", step: "saving", message: "Reading your export…" });
+    if (isSlidesFile(picked) || isZipFile(picked)) {
+      dispatch({ type: "WORK_STARTED", step: "saving", message: isSlidesFile(picked) ? "Reading your slides…" : "Reading your export…" });
       try {
-        file = await zipToNotesFile(picked);
+        file = isSlidesFile(picked) ? await slidesToNotesFile(picked) : await zipToNotesFile(picked);
       } catch (caught) {
         dispatch({ type: "FAIL", kind: "generic", message: caught instanceof Error && caught.message ? caught.message : "This zip couldn’t be read. Export your notes from Notion and try again." });
         return;
@@ -751,7 +751,7 @@ export function MaterialLibrary({ embedded = false, incomingFile = null, onIncom
             >
               <input ref={fileRef} type="file" title="" accept={SOURCE_FILE_ACCEPT} onChange={(event) => void savePdf(event.target.files?.[0])} disabled={busy} />
               <strong>{busy ? (statusMessage ?? "Reading your file…") : "Choose a file"}</strong>
-              <span>{busy && statusMessage ? statusMessage : "or drop it here · PDF, plain text or a Notion .zip"}</span>
+              <span>{busy && statusMessage ? statusMessage : "or drop it here · PDF, slides, plain text or a Notion .zip"}</span>
             </label>
             <p className="material-ingest-hint">Its topics are added to your plan. PDFs with selectable text are read fastest.</p>
             <div className="material-role-field">

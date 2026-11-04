@@ -6,8 +6,8 @@ import { PackArt } from "@/components/PackArt";
 import { PasteNotes } from "@/components/PasteNotes";
 import { PhotoNotes } from "@/components/PhotoNotes";
 import { MAX_NOTES_BYTES } from "@/domain/markdown-pages";
-import { SOURCE_FILE_ACCEPT, isNotesFile, isSourceFile, isZipFile } from "@/domain/materials";
-import { folderToNotesFile, zipToNotesFile } from "@/lib/zip-notes";
+import { SOURCE_FILE_ACCEPT, isNotesFile, isSlidesFile, isSourceFile, isZipFile } from "@/domain/materials";
+import { folderToNotesFile, zipToNotesFile, slidesToNotesFile } from "@/lib/zip-notes";
 import { takePendingSetupFile } from "@/lib/pending-setup-file";
 import { photosToPdfFile } from "@/lib/photo-notes";
 import styles from "./DropNotes.module.css";
@@ -56,10 +56,10 @@ export function DropNotes({ onFile, first = false, courseName }: { onFile: (file
     if (isPhoto(picked)) return takePhotos([picked]);
     if (!isSourceFile(picked)) {
       setSourceName(picked.name);
-      return setError("Choose a PDF, a notes text file, a Notion export or an Obsidian vault (.zip or a folder).");
+      return setError("Choose a PDF, PowerPoint slides, a notes text file, a Notion export or an Obsidian vault (.zip or a folder).");
     }
-    await importSource(picked.name, async () => isZipFile(picked) ? zipToNotesFile(picked) : picked,
-      isZipFile(picked) ? "Opening your notes archive…" : "Reading your file…");
+    await importSource(picked.name, async () => isSlidesFile(picked) ? slidesToNotesFile(picked) : isZipFile(picked) ? zipToNotesFile(picked) : picked,
+      isSlidesFile(picked) ? "Reading your slides…" : isZipFile(picked) ? "Opening your notes archive…" : "Reading your file…");
   }
 
   async function takePhotos(photos: File[]) {
@@ -116,7 +116,7 @@ export function DropNotes({ onFile, first = false, courseName }: { onFile: (file
             <span className="setup-upload-mark" aria-hidden="true"><PackArt name="folder" size={44} /></span>
             <strong>{busy ? stage : "Choose a PDF or notes"}</strong>
             {/* Dragging only exists with a mouse or trackpad; a phone gets the file types instead. */}
-            <span>{busy ? "Larger files and scanned pages can take longer." : <><span className="drop-hint">or drop it here · </span>PDF, plain text or a <span className="brand-inline"><BrandIcon brand="notion" size={14} />Notion</span> .zip</>}</span>
+            <span>{busy ? "Larger files and scanned pages can take longer." : <><span className="drop-hint">or drop it here · </span>PDF, slides, plain text or a <span className="brand-inline"><BrandIcon brand="notion" size={14} />Notion</span> .zip</>}</span>
           </label>
           <div role="status" aria-live="polite" aria-atomic="true" className={styles.status}>
             {busy ? <><strong>{sourceName}</strong><span>{stage} Keep this page open while Kelus reads the source.</span></> : null}

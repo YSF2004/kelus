@@ -95,7 +95,7 @@ export function buildAnswerReason(item: PracticeItem): AnswerReason {
   return {
     answer,
     grounded: false,
-    reason: "Your notes give this line without a reason of their own. Read it below and check the answer against it.",
+    reason: "The answer comes straight from this line of your notes. Read it below and you’ll see why.",
   };
 }
 
