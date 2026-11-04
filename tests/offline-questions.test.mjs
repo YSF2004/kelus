@@ -68,3 +68,27 @@ test("a run never asks you to finish the line its explanation will ask for", () 
     }
   }
 });
+
+test("word options are the same kind of word as the answer: no verb for a thing, no grammar word, names keep their capital", async () => {
+  const { gapChoices } = await import("../domain/quick-run.ts");
+  const sentences = [
+    "Photosynthesis is the process by which green plants convert light energy into chemical energy stored in glucose.",
+    "It takes place in the chloroplasts, which contain the green pigment chlorophyll.",
+    "Carbon dioxide and water are used, and oxygen is released as a by-product.",
+  ];
+  const item = { id: "g", kind: "cloze", prompt: "Fill the gap: “Carbon dioxide and water are used, and oxygen is released as a _____.”", modelAnswer: "by-product", hint: "", explanation: "", sourceQuote: sentences[2], origin: "offline" };
+  const options = gapChoices(item, { checks: [item], sentences, explainPrompt: "", explainAnswer: sentences[0], explainQuote: sentences[0], topic: "Photosynthesis" });
+  assert.ok(options.includes("by-product"));
+  assert.ok(!options.includes("contain"), "contain is a verb in these notes");
+  assert.ok(!options.includes("that"));
+
+  const history = [
+    "The powers competed for colonies in Africa and Asia.",
+    "The Moroccan crises of 1905 and 1911 showed that Germany wanted a larger empire and pushed Britain and France closer together.",
+  ];
+  const africa = { id: "a", kind: "cloze", prompt: "Fill the gap: “The powers competed for colonies in _____ and Asia.”", modelAnswer: "Africa", hint: "", explanation: "", sourceQuote: history[0], origin: "offline" };
+  const year = { ...africa, id: "y", prompt: "Fill the gap: “The Moroccan crises of _____ and 1911 …”", modelAnswer: "1905", sourceQuote: history[1] };
+  const names = gapChoices(africa, { checks: [africa, year], sentences: history, explainPrompt: "", explainAnswer: "", explainQuote: "", topic: "Imperialism" });
+  assert.ok(!names.includes("1905"), "a year never stands in for a place");
+  for (const option of names) assert.match(option, /^\p{Lu}/u, `${option} is a name, written as one`);
+});
