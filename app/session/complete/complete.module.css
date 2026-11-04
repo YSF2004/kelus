@@ -329,3 +329,8 @@
 .more[open] > summary::after { content: "–"; }
 .more > summary:focus-visible { outline: 2px solid var(--color-kelus); outline-offset: 3px; border-radius: 4px; }
 .moreBody { display: grid; gap: 18px; padding: 8px 0 4px; }
+
+/* Sharing, under the one way on: a quiet outlined button that opens the card in a sheet. */
+.share { margin-top: 12px; }
+.share:empty { display: none; }
+.quiet p button { margin-left: 6px; }

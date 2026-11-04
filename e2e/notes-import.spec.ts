@@ -98,8 +98,11 @@ test("the original notes stay within reach of the study plan", async ({ page }) 
     });
   })).toBe(true);
   await page.screenshot({ path: "/tmp/kelus-today-with-notes-desktop.png", fullPage: true });
+  // Each switch waits for its section to be the one on screen: a click sent while Materials is still opening is lost.
   await page.getByRole("button", { name: "Materials", exact: true }).first().click();
+  await expect(page.getByRole("button", { name: "Materials", exact: true }).first()).toHaveAttribute("aria-pressed", "true");
   await page.getByRole("button", { name: "Study plan", exact: true }).first().click();
+  await expect(page.getByRole("button", { name: "Study plan", exact: true }).first()).toHaveAttribute("aria-pressed", "true");
   await expect(page.locator(".core-workspace-grid.is-notes-open .core-source-reader")).toBeVisible();
   await page.getByRole("button", { name: "Hide notes" }).click();
   await expect(page.locator(".core-workspace-grid.is-notes-open")).toHaveCount(0);

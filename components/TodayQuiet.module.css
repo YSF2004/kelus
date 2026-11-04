@@ -330,3 +330,5 @@
   --paper: #1a1e1c;
   box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05), 0 0 0 1px rgba(255, 255, 255, 0.06), 0 24px 48px -24px rgba(0, 0, 0, 0.7) !important;
 }
+/* On a return, the warm-up is part of this topic's run, said once on the page: its own line, in the warm-up's amber. */
+.page .chips li.warm { flex-basis: 100%; color: var(--k-marigold-text, #8d5410); }

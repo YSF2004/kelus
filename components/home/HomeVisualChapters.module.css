@@ -119,3 +119,5 @@
 /* Pack drawings: ink on paper, sized to sit beside the copy. */
 .packArt { display: block; width: min(100%, 26rem); height: auto; margin: 0 auto; }
 .returnArt .packArt { width: min(60%, 15rem); }
+
+.action { align-self: flex-start; margin-top: 8px; }

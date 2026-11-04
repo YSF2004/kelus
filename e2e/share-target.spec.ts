@@ -43,7 +43,7 @@ test("a PDF shared from another app is read like a dropped one, once", async ({ 
   const review = page.getByRole("heading", { name: "Check the topics in your notes." });
   const course = page.getByRole("heading", { name: /Cell Transport/, level: 1 });
   await review.or(course).first().waitFor({ timeout: 45_000 });
-  if (await review.count()) await page.getByRole("button", { name: /^Use \d+ topics?$/ }).click();
+  if (await review.count()) await page.getByRole("button", { name: /^(?:Use|Start with) \d+ topics?$/ }).click();
   await expect(course).toBeVisible({ timeout: 45_000 });
   await expect(page.getByRole("heading", { name: "Diffusion", level: 2 })).toBeVisible();
   await expect(page).toHaveURL(/\/today\/?$/);

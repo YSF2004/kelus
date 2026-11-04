@@ -312,7 +312,8 @@ export function QuickRun({ run: providedRun, persistenceKey, onPersistenceChange
           <Octicon name={soundOn ? "unmute" : "mute"} size={16} />
         </button>
       </header>
-      {persistenceKey ? (
+      {/* Saving is silent when it works: the note appears only when something happened worth knowing. */}
+      {persistenceKey && (saveFailed || resume.kind === "restored" || resume.kind === "changed" || resume.kind === "invalid") ? (
         <p className={`${styles.saveStatus}${saveFailed ? ` ${styles.saveError}` : resume.kind !== "restored" && resume.kind !== "changed" && resume.kind !== "invalid" ? ` ${styles.saveQuiet}` : ""}`} role={saveFailed ? "alert" : "status"} data-testid="status-study-save">
           {saveFailed
             ? "This browser couldn’t save your place. Keep this tab open, or enable browser storage."

@@ -13,13 +13,11 @@ test("the second visit opens with what you missed, warms up on it, then goes on 
   // Two days later.
   await page.clock.setSystemTime(new Date("2026-10-08T18:30:00"));
   await page.goto("/today");
-  const card = page.getByRole("region", { name: "Good evening." });
-  await expect(card).toContainText("2 days ago you practised Osmosis.");
-  await expect(card).not.toContainText("One line to choose the right word for");
-  await expect(card.getByRole("list", { name: "Lines to warm up on" }).locator("li").first()).toBeVisible();
-  await expect(page.locator('[data-action="start-topic"]')).toBeVisible();
-
-  await card.getByRole("link", { name: /Warm up · 1 min/ }).click();
+  // One page, one button: the topic's own Start says it opens with the warm-up, and goes there.
+  await expect(page.getByRole("region", { name: "Good evening." })).toHaveCount(0);
+  const lead = page.locator('[data-block="today-lead"]');
+  await expect(lead).toContainText(/Starts with a 1-minute warm-up on the (line|\d lines) you missed/);
+  await page.locator('[data-action="start-topic"]').click();
   await expect(page).toHaveURL(/\/session\/warmup/);
   await expect(page.getByRole("heading", { name: "Warm up on what you missed" })).toBeVisible();
   for (let guard = 0; guard < 4; guard += 1) {

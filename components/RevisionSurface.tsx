@@ -395,7 +395,7 @@ export function RevisionSurface({ topicId }: { /** A topic's own page, opened in
                     <button type="button" className="today-source-desktop" aria-controls="today-source-reader" aria-expanded={sourceBesidePlan} onClick={() => router.replace(hrefForMode("today", selectedMaterialId, !sourceBesidePlan), { scroll: false })}>{sourceBesidePlan ? "Hide notes" : "See notes beside plan"}</button>
                     <button type="button" className="today-source-mobile" onClick={() => setMode("materials")}>Open notes</button>
                   </div> : null}
-                  <AutoStart ready={route.allocations.length > 0} plan={builtPlan} showPlan={!snapshot.events.some((event) => event.kind === "retrieval")} onStart={openSession ? resume : begin} />
+                  <AutoStart ready={route.allocations.length > 0} plan={builtPlan} showPlan={false} onStart={openSession ? resume : begin} />
                   {/* With smarter questions on, the next topics are written in the background so a session opens at once. */}
                   <AiPrefetch route={route} concepts={concepts} activities={snapshot.learningActivities} />
                   <TodayRoute

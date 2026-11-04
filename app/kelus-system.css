@@ -115,3 +115,67 @@ body:not(:has(.home, .pricing-page)) :is(button, a, input, select, [class*="card
 /* Today's side column keeps one 16px rhythm: quiet.css gives the extra cards a 40px top margin from when they sat
    under the plan, which would open a hole under the list. */
 html body.is-course-studio [data-block="today-side"] > :is([class*="ExamDateCard"], [class*="NudgeCard"], [class*="InstallCard"], [class*="ReminderCard"])[class*="card"] { margin-block: 0 !important; }
+
+/* ── Every action is a button ──────────────────────────────────────────────────────────────────────────
+   Anything that does something looks like it can be pressed: the secondary button (an outline, 44px, 12px corners),
+   or its small form (36px) for actions inside a row. Plain text stays for what is not an action: navigation, names
+   you can rename, list rows, disclosures. Nothing moves; only the border warms on hover. */
+body:not(:has(.home, .pricing-page)) :is(
+  .photo-notes-start,
+  [class*="PasteNotes"][class*="paste"] > summary,
+  .material-add-page > summary,
+  .text-btn:not(header .text-btn, .study-folio-actions .text-btn),
+  button[class*="QuickRun"][class*="__link"],
+  button[class*="QuickRun"][class*="__listen"],
+  .today-source-desktop,
+  a[class*="ExamDateCard"][class*="calendar"],
+  a[class*="ProgressView"][class*="sheetLink"]
+) {
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: auto;
+  min-height: 44px !important;
+  padding: 0 16px !important;
+  border: 1px solid var(--sys-card-line) !important;
+  border-radius: var(--sys-btn-radius, 12px) !important;
+  background: var(--sys-card-bg) !important;
+  box-shadow: none !important;
+  color: var(--sys-title-ink) !important;
+  font-size: 0.9375rem !important;
+  font-weight: 600 !important;
+  line-height: 1.2 !important;
+  text-decoration: none !important;
+  list-style: none;
+  cursor: pointer;
+  transform: none !important;
+  transition: border-color 120ms linear, background-color 120ms linear !important;
+}
+body:not(:has(.home, .pricing-page)) :is(
+  button[class*="QuickRun"][class*="flagLink"],
+  [class*="complete-module"][class*="quiet"] button,
+  .material-actions > :is(button, a)
+) {
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+  min-height: 36px !important;
+  padding: 0 12px !important;
+  border: 1px solid var(--sys-card-line) !important;
+  border-radius: 10px !important;
+  background: var(--sys-card-bg) !important;
+  color: var(--sys-title-ink) !important;
+  font-size: 0.875rem !important;
+  font-weight: 600 !important;
+  text-decoration: none !important;
+  cursor: pointer;
+  transform: none !important;
+}
+body:not(:has(.home, .pricing-page)) :is(.photo-notes-start, [class*="PasteNotes"][class*="paste"] > summary, .material-add-page > summary)::-webkit-details-marker { display: none; }
+@media (hover: hover) and (pointer: fine) {
+  body:not(:has(.home, .pricing-page)) :is(.photo-notes-start, [class*="PasteNotes"][class*="paste"] > summary, .material-add-page > summary, .text-btn:not(header .text-btn, .study-folio-actions .text-btn), button[class*="QuickRun"][class*="__link"], button[class*="QuickRun"][class*="__listen"], .today-source-desktop, a[class*="ExamDateCard"][class*="calendar"], a[class*="ProgressView"][class*="sheetLink"], button[class*="QuickRun"][class*="flagLink"], [class*="complete-module"][class*="quiet"] button, .material-actions > :is(button, a)):hover:not(:disabled) {
+    border-color: color-mix(in srgb, var(--sys-btn-green) 45%, var(--sys-card-line)) !important;
+  }
+}
+body:not(:has(.home, .pricing-page)) :is(.photo-notes-start, [class*="PasteNotes"][class*="paste"] > summary, .material-add-page > summary, .text-btn:not(header .text-btn, .study-folio-actions .text-btn), button[class*="QuickRun"][class*="__link"], button[class*="QuickRun"][class*="__listen"], .today-source-desktop, a[class*="ExamDateCard"][class*="calendar"], a[class*="ProgressView"][class*="sheetLink"], button[class*="QuickRun"][class*="flagLink"], [class*="complete-module"][class*="quiet"] button, .material-actions > :is(button, a)):focus-visible { outline: 2px solid var(--sys-btn-green) !important; outline-offset: 3px !important; }
