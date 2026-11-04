@@ -28,6 +28,8 @@ import "./a11y.css";
 import "./kelus-buttons.css";
 import "./quiet.css";
 import "./leitner.css";
+// Last: the system pieces (card, label, card title) settle what the layers above disagree on.
+import "./kelus-system.css";
 import { LearnerProvider } from "@/components/LearnerProvider";
 import { RouteTransition } from "@/components/RouteTransition";
 import { SiteHeader } from "@/components/SiteHeader";

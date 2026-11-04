@@ -104,7 +104,7 @@ function CompleteBody() {
   const sessionNumber = sessionContext({ sessions: state.snapshot.sessions, sessionId: session?.id, nowIso: state.nowIso }).session_number;
   const minutes = session?.plannedMinutes || exam?.availableMinutes || 45;
 
-  useDocumentTitle(summary ? `Done · ${course?.name ?? "Your block"} — Kelus` : null);
+  useDocumentTitle(summary ? `Done · ${course?.name ?? "Your session"} — Kelus` : null);
 
   useEffect(() => {
     document.body.classList.add("is-session-booklet", "is-session-complete");
@@ -134,7 +134,7 @@ function CompleteBody() {
     });
     setCalendarNote(
       ok
-        ? "Calendar file downloaded. Open it to add tomorrow’s study block — works even if this tab is closed."
+        ? "Calendar file downloaded. Open it to add tomorrow’s study session — works even if this tab is closed."
         : "Could not build a calendar file in this browser.",
     );
   }
@@ -150,7 +150,7 @@ function CompleteBody() {
         </header>
         <main id="main" className={styles.empty}>
           <h1>Nothing finished yet.</h1>
-          <p>When you finish a block, this page shows what you practised and what comes back tomorrow.</p>
+          <p>When you finish a session, this page shows what you practised and what comes back tomorrow.</p>
           <Link href="/today" className="k-btn">Back to your plan <ArrowRight /></Link>
         </main>
       </>
@@ -202,7 +202,7 @@ function CompleteBody() {
           {practised.length} {practised.length === 1 ? "topic" : "topics"}{course && course.name !== "My course" ? ` from ${course.name}` : ""}. Your answers are saved.
         </p>
 
-        <ul className={styles.topics} aria-label="Topics in this block">
+        <ul className={styles.topics} aria-label="Topics in this session">
           {practised.map((event, index) => (
             <motion.li
               key={event.conceptId}
@@ -310,7 +310,7 @@ export default function SessionCompletePage() {
     <Suspense
       fallback={
         <main id="main" className="study-shell is-complete-page">
-          <p>Updating your route…</p>
+          <p>Updating your plan…</p>
         </main>
       }
     >

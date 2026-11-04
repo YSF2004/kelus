@@ -48,3 +48,21 @@ The homepage takes link.com's structure and keeps Kelus's face (Literata titles,
 - After a course is ready, the course workspace uses the same light paper-and-ink system as the marketing site: a quiet compact rail, a single course context line, and Study plan / Materials / Topics. The study plan leads with one recommendation and its evidence; next topics remain secondary. First-run setup shares this shell. Focused sessions retain distraction-free reading, but must show the same course context, learning-step sequence, and source/recall/route colors rather than reverting to a separate faux notebook.
 - The topic map shows relationships when confirmed; the ranked list remains the selectable surface.
 - Homepage header does not duplicate the hero sample CTA.
+
+## Words (since 2026-11-04)
+
+Every screen uses the same five words, and only these, for the same five things:
+
+| Word | Means | Never |
+|---|---|---|
+| topic | a part of your notes you study | section (except the notes' own "Section 2"), idea, concept |
+| line | one sentence from your notes | fact, card, item |
+| session | one sitting, from Start to Done | block, run |
+| plan | what to study and when, to the exam | route |
+| warm-up | missed lines, first thing next time | review, retry |
+
+## Pieces (since 2026-11-04)
+
+`app/kelus-system.css` holds the few pieces product screens are built from: a card (one surface, one hairline,
+14px corner, no shadow), a quiet card (a well, no border, for secondary information), a label (small green caps)
+and a card title (sans, 17px, 600). New screens use them; older screens move onto them one at a time.

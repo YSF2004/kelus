@@ -1,0 +1,68 @@
+/*
+ * Kelus system: the few pieces every product screen is built from, in one place.
+ *
+ *   Card        a sheet on the page: one surface, one hairline, one corner, no shadow.
+ *   Raised card the one thing to do now (Today's topic): a card lifted by a soft shadow, once per screen.
+ *   Quiet card  secondary information beside a card (tomorrow, a tip): a well, no border.
+ *   Label       the small green caps above a heading: "FROM YOUR NOTES", "NOT QUITE YET".
+ *   Card title  the sans heading inside a card ("When is your exam?").
+ *
+ * Colours come from the theme (light and dark are set once, in leitner.css and quiet.css); these tokens only name
+ * which theme colour each piece uses, so a card looks the same on every screen. Words follow the glossary in
+ * design.md: topic, line, session, plan, warm-up.
+ *
+ * Declared on body, not :root: the theme sets its colours on body, and a token resolves where it is declared.
+ */
+body {
+  --sys-card-bg: var(--k-card, var(--lb-surface, #fff));
+  --sys-card-line: var(--lb-line, var(--k-line, #e8e4db));
+  --sys-card-radius: 14px;
+  --sys-card-pad: 20px 22px;
+  --sys-raise: 0 14px 36px -22px rgba(14, 21, 18, 0.32);
+  --sys-quiet-bg: var(--lb-well, var(--k-surface-2, #f3f4f1));
+  --sys-label: var(--color-kelus, #1f6b45);
+  --sys-title-ink: var(--lb-ink, var(--k-ink, #12160f));
+  --sys-text-2: var(--lb-text-2, var(--k-text-2, #5e5b53));
+}
+
+.k-card {
+  padding: var(--sys-card-pad);
+  border: 1px solid var(--sys-card-line);
+  border-radius: var(--sys-card-radius);
+  background: var(--sys-card-bg);
+  box-shadow: none;
+}
+.k-card--raised { box-shadow: var(--sys-raise); }
+.k-card--quiet { border-color: transparent; background: var(--sys-quiet-bg); }
+.k-label { margin: 0; color: var(--sys-label); font-size: 0.75rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; }
+.k-card-title { margin: 0; color: var(--sys-title-ink); font-family: var(--font-inter), system-ui, sans-serif; font-size: 1.0625rem; font-weight: 600; letter-spacing: -0.005em; }
+
+/* ── Today, on the system: every card one sheet; Tomorrow a quiet card. ── */
+html body.is-course-studio :is([class*="TodayQuiet"][class*="next"], [class*="ExamDateCard"][class*="card"], [class*="NudgeCard"][class*="card"], [class*="ReminderCard"][class*="card"], [class*="InstallCard"][class*="card"]) {
+  border: 1px solid var(--sys-card-line) !important;
+  border-radius: var(--sys-card-radius) !important;
+  background: var(--sys-card-bg) !important;
+  box-shadow: none !important;
+}
+/* The topic due now is the one raised card: what to do first stands out by height, not by a different style. */
+html body.is-course-studio [class*="TodayQuiet"][class*="next"] { padding: 24px 24px 26px !important; box-shadow: var(--sys-raise) !important; }
+/* The exam card lost its padding to an older rule; the nudge and reminder cards keep theirs, which leaves room on the
+   right for their button. */
+html body.is-course-studio [class*="ExamDateCard"][class*="card"] { padding: var(--sys-card-pad) !important; }
+html body.is-course-studio :is([class*="ExamDateCard"], [class*="NudgeCard"], [class*="ReminderCard"], [class*="InstallCard"])[class*="card"] h2 {
+  margin: 0 !important;
+  color: var(--sys-title-ink) !important;
+  font-family: var(--font-inter), system-ui, sans-serif !important;
+  font-size: 1.0625rem !important;
+  font-weight: 600 !important;
+  letter-spacing: -0.005em !important;
+}
+html body.is-course-studio [class*="TodayQuiet"][class*="tomorrow"] {
+  border: 0 !important;
+  border-radius: var(--sys-card-radius) !important;
+  background: var(--sys-quiet-bg) !important;
+}
+@media (max-width: 640px) {
+  html body.is-course-studio [class*="TodayQuiet"][class*="next"] { padding: 20px 18px 22px !important; }
+  html body.is-course-studio [class*="ExamDateCard"][class*="card"] { padding: 18px !important; }
+}

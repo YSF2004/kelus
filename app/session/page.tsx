@@ -243,7 +243,7 @@ function SessionBody() {
       <main id="main" className="study-shell">
         <section className="materials-empty is-session-empty">
           <h1>No active revision yet.</h1>
-          <p>Sessions open from your study plan. Each block walks one topic through the same loop:</p>
+          <p>Sessions open from your study plan. Each one walks a topic through the same loop:</p>
           <LoopSteps />
           <div className="materials-empty-actions">
             <button className="cta" type="button" onClick={() => router.replace("/today")}>
@@ -518,9 +518,9 @@ function SessionBody() {
                 },
               }] : []),
               {
-                label: "Discard block",
+                label: "Discard session",
                 danger: true,
-                confirm: { question: "Discard this block? Your answers so far are kept.", yes: "Discard" },
+                confirm: { question: "Discard this session? Your answers so far are kept.", yes: "Discard" },
                 onSelect: () => { trackEvent({ name: "session_abandoned" }); abandon(session.id); router.push("/today"); },
               },
             ]}
@@ -624,7 +624,7 @@ function SessionBody() {
               animate={{ opacity: 1, y: 0 }}
               transition={reduceMotion ? { duration: 0.12 } : { type: "spring", bounce: 0, duration: 0.5, delay: 0.1 }}
             >
-              {routeOrderChanged ? "The remaining topic order changed." : "The topic order stayed; the time plan changed."} {nextConceptName ? `${nextConceptName} is next.` : "You have reached the end of this block."}
+              {routeOrderChanged ? "The remaining topic order changed." : "The topic order stayed; the time plan changed."} {nextConceptName ? `${nextConceptName} is next.` : "You have reached the end of this session."}
             </motion.p>
             {nextConceptName ? (
               <motion.p
@@ -646,7 +646,7 @@ function SessionBody() {
               />
             ) : null}
             {minuteChanges.length ? <MinuteShift changes={minuteChanges.slice(0, 3)} /> : null}
-            <p className="reroute-whisper" aria-label="How this answer affected the route">{evaluation?.label ?? "New evidence"} · {routeOrderChanged ? "Order updated" : "Time updated"}</p>
+            <p className="reroute-whisper" aria-label="How this answer changed your plan">{evaluation?.label ?? "New evidence"} · {routeOrderChanged ? "Order updated" : "Time updated"}</p>
             <motion.button
               type="button"
               className="cta"
@@ -744,8 +744,8 @@ function SessionBody() {
               {lastOutcome === "success" ? "You used the idea in your own words." : `Return to the source idea: ${activity.retrieve.modelAnswer}`}
             </motion.p>
             <p className="study-reroute-lede" role="status">
-              {routeOrderChanged ? "The remaining topic order changed. " : minuteChanges.length ? "The topic order stayed, but the time plan changed. " : "The remaining route is unchanged. "}
-              {nextConceptName ? `${nextConceptName} is next.` : "This is the last topic in this block."}
+              {routeOrderChanged ? "The remaining topic order changed. " : minuteChanges.length ? "The topic order stayed, but the time plan changed. " : "The rest of your plan is unchanged. "}
+              {nextConceptName ? `${nextConceptName} is next.` : "This is the last topic in this session."}
             </p>
             <div className="session-value-proof" aria-label="What changed in this session">
               <div>
@@ -770,7 +770,7 @@ function SessionBody() {
             ) : null}
             <div className="study-result-actions">
               {lastOutcome !== "success" ? <motion.button type="button" className="cta" onClick={retryCurrentConcept} transition={{ type: "spring", bounce: 0, duration: 0.28 }}>Try again <span aria-hidden="true">↻</span></motion.button> : null}
-              <button type="button" className={lastOutcome === "success" ? "cta" : "text-btn"} onClick={advance}>{nextConceptName ? `Continue to ${nextConceptName}` : "Finish block"} <ArrowRight /></button>
+              <button type="button" className={lastOutcome === "success" ? "cta" : "text-btn"} onClick={advance}>{nextConceptName ? `Continue to ${nextConceptName}` : "Finish session"} <ArrowRight /></button>
             </div>
               </>
             )}
@@ -1046,7 +1046,7 @@ function SessionBody() {
 
 export default function SessionPage() {
   return (
-    <Suspense fallback={<main id="main" className="study-shell"><p>Opening route…</p></main>}>
+    <Suspense fallback={<main id="main" className="study-shell"><p>Opening your plan…</p></main>}>
       <SessionBody />
     </Suspense>
   );

@@ -88,7 +88,7 @@ test("setup starts with a PDF and shows the full route to study", async () => {
 
 test("session makes the evidence-to-route change explicit", async () => {
   const session = await source("app/session/page.tsx");
-  assert.match(session, /aria-label="How this answer affected the route"/);
+  assert.match(session, /aria-label="How this answer changed your plan"/);
   assert.match(session, /reroute-whisper/);
   assert.doesNotMatch(session, /reroute-lines|reroute-cause|mastery-reward|answer-comparison/);
   assert.match(session, /answer-pages/);

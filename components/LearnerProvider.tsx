@@ -113,7 +113,7 @@ export function LearnerProvider({ children }: { children: ReactNode }) {
         return;
       }
       writeInFlight.current = userId;
-      setRouteSyncMessage("Syncing your learning route…");
+      setRouteSyncMessage("Syncing your study plan…");
       try {
         await writeLearnerState(userId, claimed);
         if (syncedUser.current !== userId) return;
@@ -158,7 +158,7 @@ export function LearnerProvider({ children }: { children: ReactNode }) {
     syncedUser.current = null;
     lastWritten.current = "";
     readFailed.current = false;
-    queueMicrotask(() => { if (active) setRouteSyncMessage("Syncing your learning route…"); });
+    queueMicrotask(() => { if (active) setRouteSyncMessage("Syncing your study plan…"); });
     readLearnerState(userId).then((remote) => {
       if (!active) return;
       if (remote) {

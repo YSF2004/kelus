@@ -12,7 +12,7 @@ test("the done page offers a quick match on the topics just practised", async ({
   const play = async () => {
     for (let topic = 0; topic < 5 && !/complete/.test(page.url()); topic += 1) {
       await playQuickRun(page, "Particles move from high to low concentration across a membrane.", "Nailed it");
-      await page.getByRole("button", { name: /^(Continue to|Finish block|See how it went)/ }).first().click();
+      await page.getByRole("button", { name: /^(Continue to|Finish session|See how it went)/ }).first().click();
       await page.waitForTimeout(400);
     }
     await expect(page).toHaveURL(/\/session\/complete/);

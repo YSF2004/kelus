@@ -181,7 +181,7 @@ export function KnowledgeMap({
             </svg>
             <p className="topic-map-graph-note">
               {startOnGraph
-                ? "Green marks what still needs work · Start here is first on today’s route"
+                ? "Green marks what still needs work · Start here is first in today’s plan"
                 : `${nodes.length} of ${concepts.length} topics on the map${edges.length ? ` · ${edges.length} link${edges.length === 1 ? "" : "s"} between them` : ""}`}
               {concepts.length > nodes.length ? " · full list below" : ""}.
             </p>

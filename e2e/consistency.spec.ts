@@ -21,7 +21,7 @@ test("the result card, Today and Topics all name the same next topic, and a past
   await page.getByRole("button", { name: "I don’t remember" }).click();
   await page.getByRole("button", { name: /^Continue/ }).click();
   // A first session is one topic: the next topic is named where the block ends, on the done page.
-  await page.getByRole("button", { name: /Finish block/ }).click();
+  await page.getByRole("button", { name: /Finish session/ }).click();
   await expect(page).toHaveURL(/\/session\/complete/);
   const next = ((await page.getByRole("link", { name: /^Keep going with / }).innerText()).match(/Keep going with (.+?)\s*→?$/) ?? [])[1]?.trim();
   expect(next).toBeTruthy();
