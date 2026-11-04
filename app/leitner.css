@@ -82,7 +82,7 @@ html body.is-course-studio :is(.studio-page, .studio-main, .studio-topbar, .stud
 /* The primary action: one green key, flat, as the Link-style buttons in quiet.css shape it. */
 html body :is(body.is-course-studio, body.is-session-booklet, body.is-session-complete, body:has(.start-page)) :is(.k-btn, .cta):not(.k-btn--paper):not(:disabled),
 html :is(body.is-course-studio, body.is-session-booklet, body.is-session-complete, body:has(.start-page)) :is(.k-btn, .cta):not(.k-btn--paper):not(:disabled) {
-  border-radius: 11px !important;
+  border-radius: var(--sys-btn-radius, 12px) !important;
   font-weight: 600 !important;
   box-shadow: none !important;
 }
