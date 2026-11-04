@@ -196,7 +196,7 @@ test("primary CTA language and readiness stay consistent", async () => {
   assert.doesNotMatch(how, /Try sample|today\?sample=1/);
   assert.doesNotMatch(surface, /<MasteryEvidence/);
   // The end of a block shows each topic's own outcome; the full evidence lives on Progress and each topic page.
-  assert.match(await source("app/session/complete/page.tsx"), /Topics in this block/);
+  assert.match(await source("app/session/complete/page.tsx"), /Topics in this session/);
   assert.doesNotMatch(surface, /Est\. readiness/);
   assert.match(await source("components/MasteryEvidence.tsx"), /not a predicted grade|not a grade prediction/);
   assert.match(await source("components/TodayRoute.tsx"), /data-block="today-lead"/);

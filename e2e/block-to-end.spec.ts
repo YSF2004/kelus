@@ -28,7 +28,7 @@ test("a whole block runs from the first question to the end with no stop between
     await page.getByRole("button", { name: "I don’t remember" }).click();
     await page.getByRole("button", { name: /^Continue/ }).click();
     const next = page.getByRole("button", { name: /^Continue to / });
-    await next.or(page.getByRole("button", { name: /Finish block/ })).first().waitFor();
+    await next.or(page.getByRole("button", { name: /Finish session/ })).first().waitFor();
     if (!(await next.count())) break;
     await next.click();
     // Straight into the next topic: no "Updated." route screen in between.
@@ -36,9 +36,9 @@ test("a whole block runs from the first question to the end with no stop between
     await skipReading(page);
     await page.locator('#run-explain, button:has-text("I’m not sure")').first().waitFor();
   }
-  await page.getByRole("button", { name: /Finish block/ }).click();
+  await page.getByRole("button", { name: /Finish session/ }).click();
   await expect(page).toHaveURL(/\/session\/complete/);
-  const list = page.getByRole("list", { name: "Topics in this block" });
+  const list = page.getByRole("list", { name: "Topics in this session" });
   await expect(list.locator("li")).toHaveCount(seen.length);
   for (const name of seen) await expect(list).toContainText(name);
   await expect(list).toContainText("Needs another attempt"); // every check unsure and nothing remembered: honest, not flattering

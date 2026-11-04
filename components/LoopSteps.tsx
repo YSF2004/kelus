@@ -46,7 +46,7 @@ const STEPS: Array<{ id: LoopStepId; label: string; line: string; art: ReactNode
   {
     id: "mark",
     label: "Mark",
-    line: "Your route updates",
+    line: "Your plan updates",
     art: (
       <>
         <circle cx="32" cy="30" r="20" />
@@ -61,7 +61,7 @@ const STEPS: Array<{ id: LoopStepId; label: string; line: string; art: ReactNode
  * The Read → Retrieve → Use → Mark loop as four ink drawings.
  * Decorative art is aria-hidden; the ordered list carries the meaning.
  */
-export function LoopSteps({ current, compact = false, label = "How each block works" }: { current?: LoopStepId; compact?: boolean; label?: string }) {
+export function LoopSteps({ current, compact = false, label = "How each session works" }: { current?: LoopStepId; compact?: boolean; label?: string }) {
   const currentIndex = current ? STEPS.findIndex((step) => step.id === current) : -1;
   return (
     <ol className={`${styles.loop} ${compact ? styles.compact : ""}`} aria-label={label}>

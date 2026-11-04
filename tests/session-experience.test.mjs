@@ -51,7 +51,7 @@ test("the session executes learn, retrieve, apply and evaluate before updating t
   assert.match(page, /This check/);
   assert.match(page, /Try again/);
   assert.match(page, /Continue to \$\{nextConceptName\}/);
-  assert.match(page, /remaining route is unchanged/);
+  assert.match(page, /rest of your plan is unchanged/);
   assert.match(page, /time plan changed/);
   assert.doesNotMatch(page, /Revisit \$\{concept\.name\} before moving on/);
   assert.doesNotMatch(page, /percent\(masteryBefore\)/);

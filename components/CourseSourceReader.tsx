@@ -217,16 +217,16 @@ export function CourseSourceReader({ id, material, initialPage = 1, concealed = 
         {concealed ? (
           <div className="core-source-state is-concealed"><span aria-hidden="true">◌</span><strong>Source closed for recall</strong><p>Try the question from memory. You can reopen the original page if you need it.</p>{onShowSource ? <button type="button" onClick={onShowSource}>Show source</button> : null}</div>
         ) : !material ? (
-          <div className="core-source-state"><ArrowOut /><strong>Your course, beside your route.</strong><p>Add a PDF to keep the original page within reach while you revise.</p><Link href="/today?section=materials">Add a source →</Link></div>
+          <div className="core-source-state"><ArrowOut /><strong>Your course, beside your plan.</strong><p>Add a PDF to keep the original page within reach while you revise.</p><Link href="/today?section=materials">Add a source →</Link></div>
         ) : material.id.startsWith("material-demo-") ? (
-          <div className="core-source-state"><strong>Course source unavailable</strong><p>Add your course PDF to read the original pages beside your route.</p><Link href="/today?section=materials">Add a source →</Link></div>
+          <div className="core-source-state"><strong>Course source unavailable</strong><p>Add your course PDF to read the original pages beside your plan.</p><Link href="/today?section=materials">Add a source →</Link></div>
         ) : material.storage === "url" ? (
           <div className="core-source-state"><ArrowOut /><strong>{material.title}</strong><p>This source was saved as a link. Open the original in a new tab.</p>{material.sourceUrl ? <a href={material.sourceUrl} target="_blank" rel="noreferrer">Open source ↗</a> : null}</div>
         ) : (
           <>
             {status === "loading" ? <p className="core-source-loading" role="status">Opening original page…</p> : null}
             {status === "missing" ? <div className="core-source-state"><strong>{isNotes ? "Notes not available here" : "PDF not available here"}</strong><p>The source is saved, but its file could not be opened on this device.</p><Link href="/today?section=materials">Add the PDF again →</Link></div> : null}
-            {status === "error" ? <div className="core-source-state"><strong>Couldn’t show this page</strong><p>Your source and study route are still saved. Try the PDF from Materials.</p><Link href="/today?section=materials">Open Materials →</Link></div> : null}
+            {status === "error" ? <div className="core-source-state"><strong>Couldn’t show this page</strong><p>Your source and study plan are still saved. Try the PDF from Materials.</p><Link href="/today?section=materials">Open Materials →</Link></div> : null}
             {isNotes ? (
               status === "ready" && sections[displayPage - 1] ? (
                 <div className={notesStyles.stack}>

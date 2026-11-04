@@ -71,7 +71,7 @@ test("a checkpoint run is remembered on the path, with its score and when", asyn
     for (let topic = 0; topic < 3; topic += 1) {
       await playQuickRun(page, "Water moves across the membrane.", "Partly");
       const next = page.getByRole("button", { name: /^Continue to / });
-      const finish = page.getByRole("button", { name: /Finish block/ });
+      const finish = page.getByRole("button", { name: /Finish session/ });
       await next.or(finish).first().waitFor();
       if (!(await next.count())) { await finish.click(); await expect(page).toHaveURL(/\/session\/complete/); break; }
       await next.click();

@@ -60,7 +60,7 @@ const EN = {
   comesBack: "comes back",
   tryAgain: "Try again",
   continueTo: (name: string) => `Continue to ${name}`,
-  finish: "Finish block",
+  finish: "Finish session",
   changed: "What changed in your plan",
   practised: (done: number, total: number) => `${done} of ${total} topics practised`,
   topicOf: (index: number, total: number) => `Topic ${index} of ${total}`,

@@ -23,7 +23,7 @@ test("the result is one card: verdict with its evidence, what to remember, one n
   for (const viewport of [{ width: 1280, height: 800 }, { width: 390, height: 780 }]) {
     await page.setViewportSize(viewport);
     // A first session is one topic, so its one next step is to finish the block.
-    const next = page.getByRole("button", { name: /^(Continue to |Finish block)/i });
+    const next = page.getByRole("button", { name: /^(Continue to |Finish session)/i });
     await expect(next).toBeVisible();
     const box = await next.boundingBox();
     expect(box).not.toBeNull();

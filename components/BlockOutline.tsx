@@ -21,7 +21,7 @@ export function BlockOutline({ course, topics }: { course: string; topics: Outli
   const reduce = useReducedMotion() === true;
   if (topics.length < 2) return null;
   return (
-    <nav className={styles.outline} aria-label="This block">
+    <nav className={styles.outline} aria-label="This session">
       <p className={styles.course}>{course}</p>
       <ol>
         {topics.map((topic, index) => (
