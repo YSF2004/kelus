@@ -1,6 +1,7 @@
 "use client";
 
 import { ArrowRight } from "@/components/Marks";
+import { ShareProgress } from "@/components/ShareProgress";
 import Link from "next/link";
 import { motion, useReducedMotion } from "motion/react";
 import { progressHeadline, progressSummary, type TopicChange } from "@/domain/progress";
@@ -114,6 +115,8 @@ export function ProgressView({ concepts, events, nowIso, daysToExam, targetPerce
           <Link href="/today" className={`k-btn ${styles.cta}`}>Practise a topic <ArrowRight /></Link>
           <Link href="/sheet" className={styles.sheetLink}>Open your revision sheet</Link>
         </div>
+        {/* On a phone there is no sidebar: today's progress is shared from here. */}
+        <div className={styles.share}><ShareProgress variant="inline" /></div>
       </div>
     );
   }
@@ -138,6 +141,7 @@ export function ProgressView({ concepts, events, nowIso, daysToExam, targetPerce
           <Link href="/today" className={`k-btn ${styles.cta}`}>{fresh ? "Practise a topic" : "Practise next topic"} <ArrowRight /></Link>
           <Link href="/sheet" className={styles.sheetLink}>Open your revision sheet</Link>
         </div>
+        <div className={styles.share}><ShareProgress variant="inline" /></div>
       </motion.section>
 
       <RecallMap concepts={concepts} activities={activities} nowIso={nowIso} />
