@@ -179,3 +179,8 @@ body:not(:has(.home, .pricing-page)) :is(.photo-notes-start, [class*="PasteNotes
   }
 }
 body:not(:has(.home, .pricing-page)) :is(.photo-notes-start, [class*="PasteNotes"][class*="paste"] > summary, .material-add-page > summary, .text-btn:not(header .text-btn, .study-folio-actions .text-btn), button[class*="QuickRun"][class*="__link"], button[class*="QuickRun"][class*="__listen"], .today-source-desktop, a[class*="ExamDateCard"][class*="calendar"], a[class*="ProgressView"][class*="sheetLink"], button[class*="QuickRun"][class*="flagLink"], [class*="complete-module"][class*="quiet"] button, .material-actions > :is(button, a)):focus-visible { outline: 2px solid var(--sys-btn-green) !important; outline-offset: 3px !important; }
+/* "See notes beside plan" is the desktop control; under 1120px the plan has no room beside it and "Open notes" takes
+   its place. The button look above must not bring it back. */
+@media (max-width: 1120px) {
+  body:not(:has(.home, .pricing-page)) .today-source-desktop { display: none !important; }
+}
