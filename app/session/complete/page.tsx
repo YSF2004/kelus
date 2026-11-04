@@ -8,7 +8,6 @@ import { Suspense, useEffect, useRef, useState, useSyncExternalStore } from "rea
 import { useLearner } from "@/components/LearnerProvider";
 import { HabitStrip } from "@/components/HabitStrip";
 import { generateRoute } from "@/domain/routing-engine";
-import { BlockRing } from "@/components/BlockRing";
 import { MatchRound } from "@/components/MatchRound";
 import { buildMatchRound } from "@/domain/match-round";
 import { WaitlistForm } from "@/components/WaitlistForm";
@@ -17,9 +16,7 @@ import { downloadTomorrowStudyIcs } from "@/lib/study-reminder";
 import { getNudgeSettings, getServerNudgeSettings, nudgesSupported, subscribeNudgeSettings, turnOnNudges } from "@/lib/nudge";
 import { SAMPLE_COURSE_IDS, sessionContext } from "@/lib/pilot";
 import { ClassInvite } from "@/components/ClassInvite";
-import { ResultShareCard } from "@/components/ResultShareCard";
-import { habitSummary } from "@/domain/habit";
-import { leitner } from "@/domain/leitner";
+import { ShareProgress } from "@/components/ShareProgress";
 import { trackEvent } from "@/lib/analytics";
 import { useDocumentTitle } from "@/lib/use-title";
 import { KelusLogoMark } from "@/components/KelusLogoMark";
@@ -165,19 +162,6 @@ function CompleteBody() {
   const weakest = [...practised].filter((event) => event.outcome !== "success").sort((a, b) => rank[a.outcome ?? "partial"] - rank[b.outcome ?? "partial"])[0];
   const missedToday = (state.missedLines ?? []).filter((line) => line.at >= session.startedAt && practised.some((event) => event.conceptId === line.conceptId)).length;
   const nextFresh = nextStopId ? { conceptId: nextStopId } : undefined;
-  const allGood = practised.length > 0 && practised.every((event) => event.outcome === "success");
-  // The result as numbers a student can send: lines right and missed in this block, the course's own count, the streak.
-  const inBlock = (line: { at: string; conceptId: string }) => line.at >= session.startedAt && practised.some((event) => event.conceptId === line.conceptId);
-  const courseLines = leitner({ concepts: courseConcepts, activities: state.snapshot.learningActivities, known: state.knownLines ?? [], missed: state.missedLines ?? [], nowIso: state.nowIso });
-  const resultStats = {
-    course: course && course.name !== "My course" ? course.name : null,
-    recalled: (state.knownLines ?? []).filter(inBlock).length,
-    missed: missedToday,
-    topics: practised.length,
-    courseRecalled: courseLines.recalled,
-    courseTotal: courseLines.total,
-    streak: habitSummary({ events: state.snapshot.events, concepts: courseConcepts, nowMs: Date.parse(state.nowIso) }).streak,
-  };
   const matchPairs = buildMatchRound(practised.map((event) => event.conceptId), state.snapshot.concepts, state.snapshot.learningActivities);
 
   return (
@@ -196,7 +180,7 @@ function CompleteBody() {
         animate={{ opacity: 1, y: 0 }}
         transition={reduceMotion ? { duration: 0.12 } : { duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
       >
-        <BlockRing done={practised.length} of={Math.max(practised.length, session.plannedConceptIds.length)} allSolid={allGood} />
+        {/* The end of a session, short: what you did, what comes back, one way on. The list says how many topics. */}
         <h1>Done.</h1>
         <p className={styles.lede}>
           {practised.length} {practised.length === 1 ? "topic" : "topics"}{course && course.name !== "My course" ? ` from ${course.name}` : ""}. Your answers are saved.
@@ -218,8 +202,6 @@ function CompleteBody() {
           ))}
         </ul>
 
-        {!SAMPLE_COURSE_IDS.has(session.courseId) && practised.length ? <ResultShareCard stats={resultStats} sessionNumber={sessionNumber} /> : null}
-
         <section className={styles.tomorrow} aria-labelledby="complete-return-title">
           <div>
             <h2 id="complete-return-title">
@@ -239,12 +221,14 @@ function CompleteBody() {
         <Link href="/today" className={`cta ${styles.primary}`} onClick={() => trackEvent({ name: "next_route_opened", source: "completion" })}>
           {nextFresh ? <>Keep going with {name(nextFresh.conceptId)}</> : "Back to study plan"} <ArrowRight />
         </Link>
+        {/* Sharing is one quiet button under the way on; it opens the card in a sheet. */}
+        {!SAMPLE_COURSE_IDS.has(session.courseId) && practised.length ? <div className={styles.share}><ShareProgress variant="inline" /></div> : null}
 
         <div className={styles.quiet}>
           {usefulness === null ? (
             <p role="group" aria-label="Rate study usefulness">
               Was this useful?{" "}
-              <button type="button" onClick={() => { setUsefulness(true); trackEvent({ name: "session_usefulness_rated", helpful: true, session_number: sessionNumber, course_type: SAMPLE_COURSE_IDS.has(session.courseId) ? "sample" : "real" }); }}>Yes</button>{" · "}
+              <button type="button" onClick={() => { setUsefulness(true); trackEvent({ name: "session_usefulness_rated", helpful: true, session_number: sessionNumber, course_type: SAMPLE_COURSE_IDS.has(session.courseId) ? "sample" : "real" }); }}>Yes</button>{" "}
               <button type="button" onClick={() => { setUsefulness(false); trackEvent({ name: "session_usefulness_rated", helpful: false, session_number: sessionNumber, course_type: SAMPLE_COURSE_IDS.has(session.courseId) ? "sample" : "real" }); }}>Not yet</button>
             </p>
           ) : <p role="status">{usefulness ? "Thanks. Good to know." : "Thanks. That helps make it better."}</p>}

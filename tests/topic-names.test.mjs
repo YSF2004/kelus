@@ -27,13 +27,14 @@ test("saved topics called 1, 2 or 3 get a name from their own text, and keep the
   assert.equal(nameNumberedTopics(named).changed, false);
 });
 
-test("partly there is a half-filled dot, not a minus, and the done ring fills with the topics practised", () => {
+test("partly there is a half-filled dot, not a minus, and Done lists the topics without a second count", () => {
   const page = readFileSync(new URL("../app/session/complete/page.tsx", import.meta.url), "utf8");
   const stamp = readFileSync(new URL("../components/MarkStamp.tsx", import.meta.url), "utf8");
   assert.doesNotMatch(page, /"–"/);
   assert.match(page, /<HalfDot \/>/);
-  // The ring measures what was done; how well each topic went is in the list under it.
-  assert.match(page, /<BlockRing done=\{practised\.length\}/);
+  // The list says what was done and how each topic went; no ring repeats the count above it.
+  assert.doesNotMatch(page, /<BlockRing/);
+  assert.match(page, /aria-label="Topics in this session"/);
   assert.doesNotMatch(stamp, /M44 60H76/);
 });
 

@@ -9,8 +9,8 @@ async function begin(page: Page) {
   await page.getByText("Or paste your notes").click();
   await page.locator("#paste-notes").fill(notes);
   await page.getByRole("button", { name: "Use these notes" }).click();
+  // Confirming the topics opens the first one straight away.
   await confirmImportedTopics(page);
-  await page.getByRole("button", { name: /^Start$/ }).click();
   await expect(page).toHaveURL(/\/session/, { timeout: 30_000 });
 }
 

@@ -15,7 +15,8 @@ export function StudyMoment() {
         <div className={styles.studyCopy}>
           <h2 id="study-moment-title">Your notes stay open beside the question.</h2>
           <p>Miss one, and “Show it in your notes” opens that line with the lines around it. Listen reads it out. Every question comes from your own pages, so you never have to wonder where an answer came from.</p>
-          <Link href="/today" className={styles.textLink}>Set up my course</Link>
+          {/* An action is a button, the homepage's own green key, never a line of underlined text. */}
+          <Link href="/today" className={`cta home-cta ${styles.action}`}>Set up my course <span className="arrow" aria-hidden="true">→</span></Link>
         </div>
       </div>
     </section>

@@ -5,13 +5,14 @@ import { topicLevel } from "@/lib/format";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import type { Concept, ConceptRelationship, LearningActivity, LearningEvent, RoutePlan, StudySession } from "@/domain/types";
 import { dayKey, habitSummary, studyPath } from "@/domain/habit";
 import { NudgeCard } from "@/components/NudgeCard";
 import { InstallCard } from "@/components/InstallCard";
 import { getNudgeSettings, getServerNudgeSettings, nudgesSupported, subscribeNudgeSettings } from "@/lib/nudge";
 import { installState, serverInstallState, subscribeInstall } from "@/lib/install-app";
-import { useReturnVisit, WelcomeBack } from "@/components/WelcomeBack";
+import { useReturnVisit } from "@/components/WelcomeBack";
 import { ReminderCard } from "@/components/ReminderCard";
 import { ExamDateCard } from "@/components/ExamDateCard";
 import { estimatedReadiness } from "@/domain/readiness";
@@ -94,6 +95,7 @@ export function TodayRoute({
   const [nudgesOffAtOpen] = useState(() => typeof window !== "undefined" && !getNudgeSettings().on);
   // When the visit opens with a warm-up, that is the one green button; the topic waits one step quieter.
   const warmupFirst = !isSampleCourse && visit.returning && visit.warmup.length > 0;
+  const router = useRouter();
   // With today's goal done, the next topic is offered as an extra, not pressed on.
   const habit = habitSummary({ events, concepts });
   const knownLines = useSyncExternalStore(subscribeKnownLines, getKnownLines, getServerKnownLines);
@@ -117,6 +119,7 @@ export function TodayRoute({
     if (back && firstTimeToday(nowIso)) trackEvent({ name: "learner_returned", ...back, course_type: "real" });
   }, [hasPriorEvidence, isSampleCourse, route.allocations.length, sessions, nowIso]);
 
+
   // Enter on Today starts (or continues) the next topic.
   useEffect(() => {
     const onKey = (event: KeyboardEvent) => {
@@ -124,7 +127,9 @@ export function TodayRoute({
       const target = event.target as HTMLElement | null;
       if (target && target !== document.body && target.closest("input, textarea, select, button, a, [contenteditable], [role=dialog]")) return;
       event.preventDefault();
-      onStart();
+      // Enter does what the page's one Start does (the warm-up first on a return), so it presses that button.
+      const start = document.querySelector<HTMLButtonElement>('[data-action="start-topic"]');
+      if (start) start.click(); else onStart();
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
@@ -150,6 +155,8 @@ export function TodayRoute({
   const firstConcept = concepts.find((item) => item.id === first.conceptId);
   const firstActivity = activities.find((item) => item.conceptId === first.conceptId);
   const firstName = firstConcept?.name ?? "A mix of earlier topics";
+  // One way in: on a return with lines to warm up on, Start opens the warm-up, which goes straight on to this topic.
+  const begin = () => { if (warmupFirst) router.push(`/session/warmup?next=${encodeURIComponent(firstConcept?.name ?? "")}`); else onStart(); };
   const firstChapter = firstConcept ? concepts.findIndex((concept) => concept.id === firstConcept.id) + 1 : 0;
   // The same run the session builds, so the count here is the count the student gets.
   const firstChecks = firstActivity && firstConcept
@@ -214,20 +221,19 @@ export function TodayRoute({
   // a few pixels into place, never from transparent.
   const settle = (index: number) => (reduceMotion || index < 2 ? {} : { initial: { y: 6 }, animate: { y: 0 }, transition: { duration: 0.24, delay: (index - 2) * 0.04, ease } });
   // The warm-up leads on a return, so the topic's button steps back; otherwise it is the one green key on the page.
-  const quietStart = warmupFirst;
+  const quietStart = false;
   // One line of the student's own notes on the card, as the homepage shows it: the page, then the words.
   const noteLine = firstActivity?.teach?.facts?.find((fact) => fact.length >= 30 && fact.length <= 220) ?? null;
 
   return (
     <div className={q.page}>
-      {!isSampleCourse ? <WelcomeBack visit={visit} nowIso={nowIso} nextName={firstName} /> : null}
 
       {/* The course, then three things a student checks at a glance: the streak, today's goal, how far through. */}
       <motion.header className={q.head} {...settle(0)}>
         {/* The top of today's page: the day, then the course, as a notebook is dated before it is written in. */}
         <p className={q.date}>{new Date(nowIso).toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" })}</p>
         <h1 className={q.title} data-block="course-title">{hasCoursePdf ? <CourseFolderIcon /> : null}{onRenameCourse ? <InlineName value={courseName} label="Rename course" onSave={onRenameCourse} /> : <span>{courseName}</span>}</h1>
-        {warmupFirst ? null : (
+        {(
           <ul className={q.stats} role="group" aria-label="Your path through the course">
             {/* A sample says so on the page itself, now the top bar carries no labels. */}
             {isSampleCourse ? <li className={q.sample}>Sample course</li> : null}
@@ -276,9 +282,10 @@ export function TodayRoute({
             the quote when there is one, so it is not said twice. */}
         <motion.ul className={q.chips} data-block="today-page-folio" aria-label="What this topic holds">
           <li className={q.status}>{startLabel ? "In progress" : goalDone ? "Extra for today" : "Due now"}</li>
-          <li>{first.minutes} min</li>
+          <li>{warmupFirst ? first.minutes + 1 : first.minutes} min</li>
           {/* What the run holds: the quick checks, then the line in your own words. */}
           <li>{firstChecks ? `${firstChecks} ${firstChecks === 1 ? "check" : "checks"}, then explain it` : "Explain it in your words"}</li>
+          {warmupFirst ? <li className={q.warm}>Starts with a 1-minute warm-up on {visit.warmup.length === 1 ? "the line" : `the ${visit.warmup.length} lines`} you missed</li> : null}
           {!noteLine && firstSource?.locator && !/^Section\b/.test(firstSource.locator) ? <li><Octicon name="file" className={q.ico} />{firstSource.locator}</li> : null}
         </motion.ul>
         {noteLine ? (
@@ -295,12 +302,11 @@ export function TodayRoute({
             aria-keyshortcuts="Enter"
             title="Enter"
             className={`k-btn ${quietStart ? `k-btn--paper ${q.go}` : q.go}`}
-            onClick={onStart}
+            onClick={begin}
             transition={pressSpring}
           >
             {startLabel ?? "Start this topic"} <ArrowRight />
           </motion.button>
-          <span className={q.key} aria-hidden="true">or press <kbd>Enter</kbd></span>
         </motion.div>
       </motion.section>
 
@@ -348,7 +354,7 @@ export function TodayRoute({
 
       {/* One extra at a time, most useful first: the exam date gives the path its finish line, then the nudge that
           brings you back, then the home-screen app, then the calendar reminder. */}
-      {isSampleCourse || warmupFirst ? null
+      {isSampleCourse ? null
         : examDatePending && onSetExamDate ? <ExamDateCard onSave={onSetExamDate} courseName={courseName} />
         : hasPriorEvidence && (nudgesOffAtOpen || !nudges.on) && nudgesSupported() ? <NudgeCard />
         : hasPriorEvidence && installable ? <InstallCard />

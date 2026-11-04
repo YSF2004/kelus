@@ -152,7 +152,7 @@ test("first import shows source coverage and lets the student reject a topic bef
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
   await page.screenshot({ path: "/tmp/kelus-source-review-mobile.png", fullPage: true });
   await review.getByRole("listitem").filter({ hasText: "Osmosis" }).getByRole("checkbox").uncheck();
-  await expect(review.getByRole("button", { name: "Use 2 topics" })).toBeEnabled();
+  await expect(review.getByRole("button", { name: "Start with 2 topics" })).toBeEnabled();
   await confirmImportedTopics(page);
   await startBuiltPlan(page);
   await expect(page).toHaveURL(/\/session/);
