@@ -22,6 +22,7 @@ import { AppTabBar } from "@/components/AppTabBar";
 import { AiSetting } from "@/components/AiConsent";
 import { AiPrefetch } from "@/components/AiPrefetch";
 import { InlineName } from "@/components/InlineName";
+import { ShareProgress } from "@/components/ShareProgress";
 import { CourseFolderIcon } from "@/components/CourseFolderIcon";
 import { kelusEase } from "@/components/motion";
 import { useAuth } from "@/components/AuthProvider";
@@ -330,6 +331,7 @@ export function RevisionSurface({ topicId }: { /** A topic's own page, opened in
           <button type="button" className="core-add-source" onClick={() => sourcePickerRef.current?.click()}><Plus /> Add source</button>
         </div>
         <div className="studio-rail-bottom">
+          <ShareProgress variant="rail" />
           <div className="studio-theme"><ThemeSwitch /></div>
           <Link href="/" className="studio-home-link"><ArrowLeft /> Back</Link>
           {auth.user ? (

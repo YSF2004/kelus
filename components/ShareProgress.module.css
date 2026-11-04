@@ -1,0 +1,63 @@
+/* The sidebar card: a quiet sheet with one round mark, a title and a line, like a settings card. Nothing moves. */
+.card {
+  display: grid;
+  justify-items: start;
+  gap: 4px;
+  width: 100%;
+  margin: 0 0 12px;
+  padding: 14px 14px 15px;
+  border: 1px solid var(--sys-card-line, var(--lb-line));
+  border-radius: 14px;
+  background: var(--sys-card-bg, var(--lb-surface, #fff));
+  color: var(--sys-text-2, var(--lb-text-2));
+  font: inherit;
+  font-size: 0.8125rem;
+  line-height: 1.4;
+  text-align: left;
+  cursor: pointer;
+  transition: border-color 120ms linear, background-color 120ms linear;
+}
+.card strong { color: var(--sys-title-ink, var(--lb-ink)); font-size: 0.875rem; font-weight: 600; }
+.icon {
+  display: grid;
+  place-items: center;
+  width: 32px;
+  height: 32px;
+  margin-bottom: 6px;
+  border-radius: 999px;
+  background: var(--sys-quiet-bg, var(--lb-well));
+  color: var(--sys-label, var(--color-kelus));
+}
+@media (hover: hover) and (pointer: fine) {
+  .card:hover { border-color: color-mix(in srgb, var(--sys-label, #1f6b45) 40%, var(--sys-card-line, #e8e4db)); }
+}
+.card:focus-visible { outline: 2px solid var(--sys-label, #1f6b45); outline-offset: 3px; }
+
+.inline { gap: 8px; }
+
+/* The sheet: the Done screen's share card, centred over a dimmed page; a full-width sheet from the bottom on a phone. */
+.sheet {
+  position: fixed;
+  inset: 0;
+  margin: auto !important;
+  height: fit-content;
+  width: min(100% - 32px, 440px);
+  max-height: calc(100dvh - 48px);
+  padding: 20px;
+  overflow: auto;
+  border: 1px solid var(--sys-card-line, var(--lb-line));
+  border-radius: 16px;
+  background: var(--sys-card-bg, var(--lb-surface, #fff));
+  color: var(--sys-title-ink, var(--lb-ink));
+  box-shadow: 0 24px 60px -24px rgba(14, 21, 18, 0.45);
+}
+.sheet::backdrop { background: rgba(14, 21, 18, 0.38); }
+.sheetHead { display: flex; align-items: center; justify-content: space-between; margin: 0 0 12px; }
+.sheetHead .title { margin: 0 !important; color: var(--sys-title-ink, var(--lb-ink)) !important; font-family: var(--font-inter), system-ui, sans-serif !important; font-size: 1.0625rem !important; font-weight: 600 !important; letter-spacing: -0.005em !important; }
+/* The share card's green key reads white on green here as on the Done screen; the app's text colour must not reach it. */
+.sheet :global(.k-btn):not(:global(.k-btn--paper)) { color: #fff !important; }
+.close { display: grid; place-items: center; width: 36px; height: 36px; border: 0; border-radius: 10px; background: transparent; color: var(--sys-text-2, var(--lb-text-2)); cursor: pointer; }
+.close:hover { background: var(--sys-quiet-bg, var(--lb-well)); }
+@media (max-width: 560px) {
+  .sheet { width: 100%; max-width: none; margin: auto 0 0 !important; border-radius: 16px 16px 0 0; }
+}
