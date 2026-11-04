@@ -65,11 +65,6 @@ html body.is-course-studio .studio-rail-bottom :is(a, button, summary):hover { b
 
 /* Top bar: a quiet breadcrumb, the page itself carries the title. */
 html body.is-course-studio .studio-topbar { min-height: 44px !important; border-bottom: 0 !important; background: transparent !important; }
-html body.is-course-studio .studio-topbar-course { color: var(--q-text-2) !important; font-size: 0.8125rem !important; font-weight: 500 !important; }
-html body.is-course-studio .studio-topbar-course { display: inline-flex; align-items: center; min-width: 0; gap: 0.4rem; }
-html body.is-course-studio .studio-topbar-course .course-folder-icon { width: 1.35rem; height: auto; flex: none; }
-html body.is-course-studio .studio-topbar-course > button { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-html body.is-course-studio .studio-topbar-status { color: var(--q-text-3) !important; font-size: 0.8125rem !important; }
 
 /* The extras under Today (exam date, nudges, install, reminder, welcome): flat sections under a hairline. */
 html body.is-course-studio [class*="ExamDateCard"][class*="card"],
@@ -134,7 +129,6 @@ html body.is-session-complete #complete-return-title {
   letter-spacing: -0.015em !important;
 }
 html body.is-course-studio [class*="ProgressView"] :is(.group h3, h3) { font-size: 0.9375rem !important; font-weight: 600 !important; }
-html body.is-course-studio .kelus-paper-lede, html body.is-course-studio .kelus-space-lede { font-size: 0.875rem !important; color: var(--q-text-2) !important; }
 
 /* Questions keep their weight but step down to the section size. */
 html body.is-session-booklet [class*="QuickRun"][class*="prompt"] { font-size: 1.25rem !important; line-height: 1.4 !important; }
@@ -205,8 +199,6 @@ html body.is-session-complete [class*="complete"][class*="changed"] { background
     display: flex !important; align-items: center !important; justify-content: flex-end !important; gap: 10px;
   }
   html body.is-course-studio .studio-topbar-leading { min-width: 0; }
-  html body.is-course-studio .studio-topbar-course { overflow: hidden; max-width: 46vw; white-space: nowrap; text-overflow: ellipsis; }
-  html body.is-course-studio .studio-topbar-status { display: none !important; }
   html body.is-course-studio .studio-topbar-signin { margin: 0 !important; }
 }
 
@@ -347,12 +339,6 @@ html body.is-course-studio .surface-map .topic-cards > li.is-start .index-toc-ro
   background: none !important;
   box-shadow: none !important;
 }
-html body.is-course-studio .surface-map .topic-cards > li .index-toc-row.topic-card:hover {
-  border-color: var(--q-line) !important;
-  border-radius: 6px !important;
-  background: var(--q-hover) !important;
-  box-shadow: none !important;
-}
 html body.is-course-studio .surface-map .topic-cards :is(.index-toc-name, .is-start .index-toc-name) {
   font-family: var(--font-inter) !important;
   font-size: 1rem !important;
@@ -385,7 +371,6 @@ html body .pricing-page .pricing-hero-art {
 }
 @media (max-width: 900px) { html body .pricing-page .pricing-hero-art { display: none; } }
 html body .pricing-page .pricing-plan-name .kicker { display: inline-flex; align-items: center; gap: 8px; }
-html body .pricing-page .pricing-plan-icon { width: 20px; height: 20px; }
 html body .pricing-page .pricing-faq { margin-top: clamp(40px, 6vw, 64px); }
 html body .pricing-page .pricing-faq h2 {
   margin: 0 0 14px;

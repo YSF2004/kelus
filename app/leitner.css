@@ -165,16 +165,11 @@ html body.is-course-studio .surface-map.is-toc [class*="TopicMapPanel"][class*="
   html body.is-course-studio .surface-map.is-toc .index-toc-meta [class*="TopicMapPanel"][class*="state"] { grid-column: 2; grid-row: 1; }
   html body.is-course-studio .surface-map.is-toc .index-toc-meta [class*="TopicMapPanel"][class*="metaSoft"] { display: none; }
 }
-html body.is-course-studio .surface-map.is-toc .toc-columns { display: grid; grid-template-columns: minmax(0, 1fr) auto 9rem 4rem; align-items: end; column-gap: 24px; padding: 0 48px 8px 12px; color: var(--lb-text-3); font-size: 12.5px; font-weight: 500; }
-html body.is-course-studio .surface-map.is-toc .toc-columns > span:last-child { justify-self: end; }
-html body.is-course-studio .surface-map.is-toc .toc-boxes { display: inline-grid; grid-template-columns: repeat(5, 26px); gap: 3px; }
-html body.is-course-studio .surface-map.is-toc .toc-boxes i { font-style: normal; text-align: center; font-family: var(--font-geist-mono), ui-monospace, monospace; font-size: 11px; }
 html body.is-course-studio .surface-map.is-toc li[class*="TopicMapPanel"][class*="step"] { min-height: 0 !important; height: auto !important; }
 html body.is-course-studio .surface-map.is-toc .index-toc-row { min-height: 52px !important; padding-top: 0 !important; padding-bottom: 0 !important; }
 html body.is-course-studio .surface-map.is-toc li[class*="TopicMapPanel"][class*="checkpoint"] { display: flex !important; align-items: center; justify-content: space-between; width: auto !important; grid-template-columns: none !important; }
 html body.is-course-studio .surface-map.is-toc li[class*="TopicMapPanel"][class*="checkpoint"] > span { flex: 1; min-width: 0; }
 html body.is-course-studio .surface-map.is-toc [class*="AnkiExport"][class*="card"] { width: auto !important; max-width: none !important; padding-inline: 0 !important; }
-@media (max-width: 650px) { html body.is-course-studio .surface-map.is-toc .toc-columns { display: none; } }
 html body.is-course-studio .surface-map.is-toc li[class*="TopicMapPanel"][class*="step"] { position: relative !important; }
 html body.is-course-studio .surface-map.is-toc li[class*="TopicMapPanel"][class*="step"] > button[class*="remove"] { position: absolute !important; right: 6px; top: 50%; width: 32px !important; height: 32px !important; margin: 0 !important; transform: translateY(-50%); }
 
@@ -359,13 +354,6 @@ html body.is-course-studio .surface-map.is-toc [class*="TopicMapPanel"][class*="
 html body.is-course-studio .surface-map.is-toc [class*="TopicMapPanel"][class*="nextStepReason"] {
   color: var(--lb-text-2);
   font-size: 13px;
-}
-html body.is-course-studio .surface-map.is-toc .toc-columns {
-  grid-template-columns: minmax(0, 1fr) auto !important;
-  padding: 0 48px 8px 12px !important;
-}
-html body.is-course-studio .surface-map.is-toc .toc-columns > :not(:first-child) {
-  display: none;
 }
 html body.is-course-studio .surface-map.is-toc .index-toc-row {
   display: grid !important;
@@ -568,9 +556,6 @@ html body.is-course-studio [class*="ProgressView"][class*="empty"] {
   html body.is-course-studio .surface-map.is-toc .index-toc-meta {
     gap: 6px 9px;
   }
-  html body.is-course-studio .surface-map.is-toc .toc-columns {
-    display: none !important;
-  }
   html body.is-course-studio [class*="ProgressView"][class*="page"] {
     width: min(100% - 32px, 45rem) !important;
     margin: 18px auto 36px !important;
@@ -663,7 +648,6 @@ html body.is-course-studio .today-source-access button {
   min-height: 44px;
   border-radius: 8px;
 }
-html body.is-course-studio .today-route-inline,
 html body.is-course-studio .core-source-inline {
   border-color: var(--lb-line-strong);
   border-radius: 10px;
@@ -736,11 +720,6 @@ html body.is-course-studio .surface-map.is-toc {
 html body.is-course-studio .surface-map.is-toc .pathHead {
   max-width: none;
   padding: 0 0 14px;
-}
-html body.is-course-studio .surface-map.is-toc .toc-columns {
-  grid-template-columns: minmax(0, 1fr) auto 9rem minmax(4rem, auto);
-  column-gap: 20px;
-  border-bottom: 1px solid var(--lb-line);
 }
 html body.is-course-studio .surface-map.is-toc .index-toc-row {
   grid-template-columns: minmax(0, 1fr) auto 9rem minmax(4rem, auto) !important;
