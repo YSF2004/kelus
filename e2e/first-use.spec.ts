@@ -306,7 +306,8 @@ test("a real PDF becomes a first question, then Today, topics and a full session
   await start.click();
 
   await expect(page).toHaveURL(/\/session/);
-  await expect(page.locator(".study-topic-kicker span")).toHaveText(/^Topic 1 of \d+$/);
+  // A first session is one topic: the kicker names it, with no "of" count to run through.
+  await expect(page.locator(".study-topic-kicker")).toBeVisible();
   // One topic is a short run: instant checks, then one explanation in your own words.
   // The optional reading counts as the first step even when skipped, so the first question can be step 1 or 2.
   await expect(page.getByRole("list", { name: /^Step [12] of \d+$/ })).toBeVisible();
@@ -327,7 +328,7 @@ test("a real PDF becomes a first question, then Today, topics and a full session
   await expect(page.getByRole("heading", { name: /^(Needs another attempt|Partly there)\.$/ })).toBeVisible();
   await expect(page.getByText(/first (?:check|try)/)).toBeVisible();
   // The next step is named once: by the "Continue to …" button, or the route line when the plan has news.
-  await expect(page.getByRole("button", { name: /^Continue to / }).or(page.getByRole("status").filter({ hasText: /(Next: |last topic for now)/ })).first()).toBeVisible();
+  await expect(page.getByRole("button", { name: /^(Continue to |See how it went|Finish block)/ }).or(page.getByRole("status").filter({ hasText: /(Next: |last topic for now)/ })).first()).toBeVisible();
   for (const width of [320, 375, 414]) {
     await page.setViewportSize({ width, height: 844 });
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
@@ -338,18 +339,14 @@ test("a real PDF becomes a first question, then Today, topics and a full session
   await expect(page.getByLabel(/^Check 1 of \d$/)).toBeVisible();
   await playQuickRun(page, "I still cannot explain it.", "Missed it");
   await expect(page.getByText(/try 2/)).toBeVisible();
-  await page.getByRole("button", { name: /Continue to/ }).click();
-  // The next topic opens on its first check, or on its reading when it is new.
-  await expect(page.locator(".reroute-view h1, section[aria-label^=\"Check 1 of\"], section[aria-label=\"Read it first\"], .session-learn h1").first()).toBeVisible();
-  await expect(page.locator(".reroute-lines")).toHaveCount(0);
-  await expect(page.locator(".reroute-cause")).toHaveCount(0);
-  await page.getByRole("button", { name: "Close", exact: true }).click();
-  await expect(page).toHaveURL(/\/today/);
-  await expect(page.locator("#today-title")).toBeVisible();
-  await page.reload();
-  await page.getByRole("button", { name: /^Continue/ }).click();
+  // The one-topic first session ends here; the rest of the course is the next session, from Today.
+  await page.getByRole("button", { name: /^(Continue to|See how it went|Finish block)/ }).first().click();
+  await expect(page).toHaveURL(/\/session\/complete/);
+  await expect(page.getByRole("link", { name: /^(Keep going with|Back to study plan)/ })).toBeVisible();
+  await page.goto("/today");
+  await page.locator('button[data-action="start-topic"]').click();
   await expect(page).toHaveURL(/\/session/);
-  await expect(page.locator(".study-topic-kicker")).toContainText("2 of 3");
+  await expect(page.locator(".study-topic-kicker")).toContainText(/of [23]/);
   await page.goto("/today?section=materials");
   await page.getByRole("button", { name: "Remove", exact: true }).click();
   const confirmation = page.getByRole("group", { name: /Confirm remove cell biology lecture/ });

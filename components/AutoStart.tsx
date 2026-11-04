@@ -61,7 +61,8 @@ export function AutoStart({ ready, plan, showPlan, onStart }: { ready: boolean; 
   if (!showPlan) return createPortal(<div className={styles.cover} />, document.body);
 
   // Time from what there is to do: about 40 seconds a question and a minute and a half to explain each topic.
-  const minutes = Math.max(2, Math.ceil(plan.questions * 0.7 + plan.topics * 1.5));
+  // The first session is one topic, so the time is one topic's: its share of the questions and one explanation.
+  const minutes = Math.max(2, Math.ceil((plan.questions / Math.max(1, plan.topics)) * 0.7 + 1.5));
   const time = minutes < 10 ? `${minutes} minutes` : `${Math.round(minutes / 5) * 5} minutes`;
   const others = (plan.names ?? []).filter((name) => name !== plan.firstName);
   const shown = others.slice(0, 4);
@@ -92,7 +93,7 @@ export function AutoStart({ ready, plan, showPlan, onStart }: { ready: boolean; 
         <motion.h1 {...rise(0.06)} id="built-title">Let’s start with {plan.firstName}.</motion.h1>
         {shown.length ? (
           <motion.div {...rise(0.14)} className={styles.after}>
-            <span>Then</span>
+            <span>Later</span>
             <ul aria-label="The other topics in your notes">
               {shown.map((name, index) => (
                 <motion.li key={name} initial={reduce ? false : { opacity: 0, x: -4 }} animate={{ opacity: 1, x: 0 }} transition={{ duration: 0.36, delay: 0.2 + after + index * 0.06, ease }}>{name}</motion.li>
@@ -101,7 +102,7 @@ export function AutoStart({ ready, plan, showPlan, onStart }: { ready: boolean; 
             </ul>
           </motion.div>
         ) : null}
-        <motion.p {...rise(0.3)} className={styles.how}>Every question quotes a line from {plan.course === "My course" ? "your notes" : plan.course}, and what you miss comes back tomorrow. About {time} for all of it.</motion.p>
+        <motion.p {...rise(0.3)} className={styles.how}>One topic first, about {time}. Every question quotes a line from {plan.course === "My course" ? "your notes" : plan.course}, and what you miss comes back tomorrow.</motion.p>
         <motion.div {...rise(0.36)} className={styles.actions}>
           <button type="button" className="k-btn" onClick={start}>Start <span aria-hidden="true">→</span></button>
           <button type="button" className={styles.later} onClick={later}>See the plan first</button>

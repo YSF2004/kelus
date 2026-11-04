@@ -23,8 +23,6 @@ import { CourseFolderIcon } from "@/components/CourseFolderIcon";
 import { Octicon } from "@/components/Octicon";
 import { InlineName } from "@/components/InlineName";
 import { toneOf } from "@/lib/topic-tone";
-import { leitner } from "@/domain/leitner";
-import { LeitnerPanel } from "@/components/LeitnerPanel";
 import { recallMap } from "@/domain/recall-map";
 import { getKnownLines, getServerKnownLines, subscribeKnownLines } from "@/lib/known-lines";
 import q from "./TodayQuiet.module.css";
@@ -100,7 +98,6 @@ export function TodayRoute({
   const habit = habitSummary({ events, concepts });
   const knownLines = useSyncExternalStore(subscribeKnownLines, getKnownLines, getServerKnownLines);
   const recall = recallMap({ concepts, activities, known: knownLines, missed, nowIso });
-  const boxes = leitner({ concepts, activities, known: knownLines, missed, nowIso });
   const eve = !isSampleCourse && !examDatePending && daysToExam > 0 && daysToExam <= 3 && recall.total ? { days: daysToExam, recalled: recall.recalled, total: recall.total, back: recall.back } : null;
   const goalDone = !isSampleCourse && habit.goalMet;
   const goalDoneCount = habit.topicsToday;
@@ -348,8 +345,6 @@ export function TodayRoute({
         : reminder ? <ReminderCard {...reminder} nextStopName={firstName} />
         : null}
       </div>
-      {/* The signature: every line of the notes in its Leitner box, beside what is due now. */}
-      <LeitnerPanel state={boxes} />
       </div>
     </div>
   );

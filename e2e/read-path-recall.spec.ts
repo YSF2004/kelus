@@ -65,12 +65,17 @@ test("Topics is a path in the order of the notes, with an exam check that opens 
 test("a checkpoint run is remembered on the path, with its score and when", async ({ page }) => {
   test.setTimeout(150_000);
   await begin(page);
-  for (let topic = 0; topic < 3; topic += 1) {
-    await playQuickRun(page, "Water moves across the membrane.", "Partly");
-    const next = page.getByRole("button", { name: /^Continue to / });
-    await next.or(page.getByRole("button", { name: /Finish block/ })).first().waitFor();
-    if (!(await next.count())) break;
-    await next.click();
+  // The first session is one topic; the checkpoint opens once every topic is practised, in the next session.
+  for (let session = 0; session < 2; session += 1) {
+    if (session) { await page.goto("/today"); await page.locator('button[data-action="start-topic"]').click(); await expect(page).toHaveURL(/\/session/); }
+    for (let topic = 0; topic < 3; topic += 1) {
+      await playQuickRun(page, "Water moves across the membrane.", "Partly");
+      const next = page.getByRole("button", { name: /^Continue to / });
+      const finish = page.getByRole("button", { name: /Finish block/ });
+      await next.or(finish).first().waitFor();
+      if (!(await next.count())) { await finish.click(); await expect(page).toHaveURL(/\/session\/complete/); break; }
+      await next.click();
+    }
   }
   await page.goto("/today?section=map");
   const path = page.getByRole("list", { name: "Topics, in the order of your notes" });
