@@ -31,7 +31,7 @@ function capital(text: string) { return text.charAt(0).toUpperCase() + text.slic
 
 /** Where the plan goes after a topic, naming the topic an answer pulled forward. */
 export function planLine({ next, movedUp, orderChanged }: { next?: string; movedUp?: string; orderChanged: boolean }) {
-  if (!next) return "That was the last topic for now.";
+  if (!next) return "That was the last topic in this session.";
   if (movedUp && movedUp === next) return `Your answer moved ${next} up, so it is next.`;
   if (movedUp) return `Your answer moved ${movedUp} up in your plan. Next: ${next}.`;
   if (orderChanged) return `Your plan changed around this answer. Next: ${next}.`;

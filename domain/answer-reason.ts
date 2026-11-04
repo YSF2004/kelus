@@ -105,11 +105,13 @@ export function buildAnswerReason(item: PracticeItem): AnswerReason {
  */
 export function feedbackHeadline(reason: AnswerReason, outcome: { right: boolean; unsure?: boolean; given?: string }) {
   const given = outcome.given?.trim() ?? "";
+  // A quoted word is never split at its hyphen across two lines ("by-" / "product"): a non-breaking hyphen keeps it whole.
+  const whole = (word: string) => word.replace(/-/g, "\u2011");
   if (reason.shape === "gap") {
-    if (outcome.right) return `“${reason.answer}” is the word your notes use.`;
+    if (outcome.right) return `“${whole(reason.answer)}” is the word your notes use.`;
     return given && !/\s/.test(given) && given.toLocaleLowerCase() !== reason.answer.toLocaleLowerCase() && !outcome.unsure
-      ? `The word is “${reason.answer}”, not “${given}”.`
-      : `The word is “${reason.answer}”.`;
+      ? `The word is “${whole(reason.answer)}”, not “${whole(given)}”.`
+      : `The word is “${whole(reason.answer)}”.`;
   }
   if (reason.shape === "changed" && reason.changed) return `Your notes say “${reason.changed.source}”, not “${reason.changed.statement}”.`;
   if (reason.shape === "same") return "The statement uses your notes’ own words.";

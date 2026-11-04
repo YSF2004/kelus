@@ -7,7 +7,8 @@ test("on Progress a line opens its whole story: the notes, how it is asked, its 
   await startFromPaste(page, notes);
   await playQuickRun(page, "Water moves across a membrane.", "Partly");
   await page.goto("/today?section=progress");
-  await expect(page.getByRole("img", { name: /^Lines you can recall/ })).toBeVisible();
+  // The chart draws once a line is recalled; until then one sentence stands in for a line flat on zero.
+  await expect(page.getByRole("img", { name: /^Lines you can recall/ }).or(page.getByText(/your line starts rising here/))).toBeVisible();
   await page.getByRole("button", { name: /See this line's answers and when it is back$/ }).first().click();
   const sheet = page.getByRole("dialog", { name: "The life of this line" });
   await expect(sheet).toBeVisible();

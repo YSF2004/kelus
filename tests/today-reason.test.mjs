@@ -8,7 +8,7 @@ test("a first attempt is described as missing evidence, not low ability", () => 
     { retrievalAttempts: 0 },
   );
   assert.deepEqual(explanation, [
-    "For new topics, your plan follows your notes. You haven’t tried this one yet.",
+    "Next in your notes, and new to you.",
   ]);
 });
 
@@ -69,7 +69,7 @@ test("after a topic, the plan line names the topic your answer moved", async () 
   assert.equal(planLine({ next: "Elasticity", movedUp: "Elasticity", orderChanged: true }), "Your answer moved Elasticity up, so it is next.");
   assert.equal(planLine({ next: "Elasticity", movedUp: "Tax incidence", orderChanged: true }), "Your answer moved Tax incidence up in your plan. Next: Elasticity.");
   assert.equal(planLine({ next: "Elasticity", orderChanged: false }), "Next: Elasticity.");
-  assert.equal(planLine({ orderChanged: false }), "That was the last topic for now.");
+  assert.equal(planLine({ orderChanged: false }), "That was the last topic in this session.");
 });
 
 test("a passed checkpoint is the latest evidence, so Start here never calls the topic shaky after it", () => {

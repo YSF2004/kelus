@@ -957,11 +957,13 @@
 /* A long topic name never widens the screen: on a phone it takes the room that is left and ends in an ellipsis
    ("Determinants of elast…"); the full name is the page's own title a moment later. */
 .top { min-width: 0; }
-.top :global(.study-topic-kicker) { min-width: 0; overflow: hidden; white-space: nowrap; }
+.top :global(.study-topic-kicker) { flex: 1 1 auto; min-width: 0; overflow: hidden; white-space: nowrap; }
 .top :global(.study-topic-kicker) b { display: inline-block; max-width: 100%; overflow: hidden; text-overflow: ellipsis; vertical-align: bottom; }
 /* The name is a rename button inside the <b>, so the button itself has to end in the ellipsis, not be cut mid-letter. */
 .top :global(.study-topic-kicker) b { min-width: 0; }
-.top :global(.study-topic-kicker) b > button { display: block; max-width: 100%; overflow: hidden; text-overflow: ellipsis; }
+/* No negative margin here: the <b> sizes to the button's margin box, so -4px each side cut the last letters off every
+   name ("Photosynth…") however much room was left. */
+.top :global(.study-topic-kicker) b > button { display: block; max-width: 100%; margin: 0; overflow: hidden; text-overflow: ellipsis; }
 @media (max-width: 560px) {
   .top { gap: 10px; }
   /* A set width: the segments have none of their own, so an auto width collapsed the bar to its gaps. */
@@ -1062,3 +1064,7 @@
 .reasoningEvidence .evidenceLocation { padding: 0; background: none; }
 .reasoningEvidence .quote, .reasoningEvidence .around { padding-left: 12px; border-left: 2px solid color-mix(in srgb, var(--color-kelus) 45%, var(--k-line-strong)); }
 .reasoningEvidence .quote { font-size: 1rem; line-height: 1.55; }
+
+/* When the page's line is already shown above, the evidence is only where it is: one quiet line, no second frame. */
+.evidence[data-compact] { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 12px; padding: 0 !important; border: 0 !important; background: transparent !important; }
+.evidence[data-compact] > span { margin: 0; }

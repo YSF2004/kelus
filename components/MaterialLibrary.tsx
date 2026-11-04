@@ -703,7 +703,7 @@ export function MaterialLibrary({ embedded = false, incomingFile = null, onIncom
         <div className="first-source-review-actions" hidden={asking}>
           <button type="button" className="cta" disabled={!selectedIds.size} onClick={buildMap}>Use {selectedIds.size} {selectedIds.size === 1 ? "topic" : "topics"} <ArrowRight /></button>
           {previewUrl ? <a href={previewUrl} target="_blank" rel="noreferrer">Open original PDF ↗</a> : null}
-          {onStartOver ? <button type="button" className="text-btn" onClick={onStartOver}>Choose another file</button> : null}
+          {onStartOver ? <button type="button" className="text-btn" onClick={onStartOver}>Use other notes</button> : null}
         </div>
       </section>
     );
