@@ -16,7 +16,6 @@ import { estimatedReadiness } from "@/domain/readiness";
 import { TopicMapPanel } from "@/components/TopicMapPanel";
 import { ProgressView } from "@/components/ProgressView";
 import { AutoStart } from "@/components/AutoStart";
-import { ankiCards } from "@/domain/anki-export";
 import { PackArt, type PackArtName } from "@/components/PackArt";
 import { AppTabBar } from "@/components/AppTabBar";
 import { AiSetting } from "@/components/AiConsent";
@@ -171,17 +170,6 @@ export function RevisionSurface({ topicId }: { /** A topic's own page, opened in
   // Straight after a block, "Up next" is a topic you have not just answered (the session starts in this order too).
   const route = { ...plannedRoute, allocations: restAware(plannedRoute.allocations, snapshot.events, nowIso, concepts) };
   const days = daysUntilExam(exam, nowIso);
-  const firstTopic = route.allocations.find((item) => item.conceptId !== "mixed-retrieval");
-  const builtPlan = {
-    course: course.name,
-    topics: concepts.length,
-    questions: ankiCards(concepts, snapshot.learningActivities).length,
-    minutes: plannedRoute.allocations.reduce((sum, item) => sum + item.minutes, 0),
-    firstName: concepts.find((concept) => concept.id === firstTopic?.conceptId)?.name ?? "your first topic",
-    // In plan order, so the first one named is the one you start with.
-    names: [...plannedRoute.allocations.map((item) => concepts.find((concept) => concept.id === item.conceptId)?.name), ...concepts.map((concept) => concept.name)]
-      .filter((name, index, all): name is string => Boolean(name) && all.indexOf(name) === index),
-  };
   const examDatePending = Boolean(exam.datePlaceholder);
   const isSampleCourse = course.id === "course-microeconomics" && exam.id === "exam-microeconomics-final";
   const courseId = course.id;
@@ -395,7 +383,7 @@ export function RevisionSurface({ topicId }: { /** A topic's own page, opened in
                     <button type="button" className="today-source-desktop" aria-controls="today-source-reader" aria-expanded={sourceBesidePlan} onClick={() => router.replace(hrefForMode("today", selectedMaterialId, !sourceBesidePlan), { scroll: false })}>{sourceBesidePlan ? "Hide notes" : "See notes beside plan"}</button>
                     <button type="button" className="today-source-mobile" onClick={() => setMode("materials")}>Open notes</button>
                   </div> : null}
-                  <AutoStart ready={route.allocations.length > 0} plan={builtPlan} showPlan={false} onStart={openSession ? resume : begin} />
+                  <AutoStart ready={route.allocations.length > 0} onStart={openSession ? resume : begin} />
                   {/* With smarter questions on, the next topics are written in the background so a session opens at once. */}
                   <AiPrefetch route={route} concepts={concepts} activities={snapshot.learningActivities} />
                   <TodayRoute

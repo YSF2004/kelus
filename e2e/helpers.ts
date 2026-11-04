@@ -30,7 +30,7 @@ export async function startBuiltPlan(page: Page) {
   await review.or(start).or(inSession).first().waitFor({ timeout: 45_000 });
   // Act on what is on screen now: the topic check may still be closing when this is called right after confirming.
   if (await use.isVisible()) await use.click();
-  // The ready card ("Let's start with …") opens a moment after the topics are confirmed: wait for it, not a snapshot.
+  // The first question opens a moment after the topics are confirmed: wait for it, not a snapshot.
   await start.or(inSession).first().waitFor({ timeout: 30_000 });
   if (await start.isVisible()) await start.click();
 }
