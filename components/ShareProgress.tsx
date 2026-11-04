@@ -8,7 +8,7 @@ import { todayShareStats } from "@/lib/progress-share";
 import styles from "./ShareProgress.module.css";
 
 /**
- * Today's progress, shareable from anywhere: in the sidebar as a small card ("Share your progress"), on Progress as a
+ * Today's progress, shareable from anywhere: in the sidebar as one quiet row ("Share today's progress"), on Progress as a
  * quiet button. Both open the same card the Done screen shows, with today's numbers. Shown only once there is
  * something from today to share; only numbers and the course's chosen name ever leave the device.
  */
@@ -34,10 +34,9 @@ export function ShareProgress({ variant }: { variant: "rail" | "inline" }) {
   return (
     <>
       {variant === "rail" ? (
-        <button type="button" className={styles.card} onClick={open}>
-          <span className={styles.icon} aria-hidden="true"><Octicon name="paper-airplane" size={16} /></span>
-          <strong>Share your progress</strong>
-          <span>{asked ? `${stats.recalled} of ${asked} ${asked === 1 ? "line" : "lines"} recalled today. Send it to your study group.` : "Send today’s revision to your study group."}</span>
+        // A row like the sidebar's own links, not a card: it is there when there is news, and never shouts.
+        <button type="button" className={styles.row} onClick={open} title={asked ? `${stats.recalled} of ${asked} ${asked === 1 ? "line" : "lines"} recalled today` : undefined}>
+          <Octicon name="paper-airplane" size={15} /> Share today’s progress
         </button>
       ) : (
         <button type="button" className={`k-btn k-btn--paper ${styles.inline}`} onClick={open}>

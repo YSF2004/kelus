@@ -164,22 +164,17 @@ export function TopicMapPanel({ onStart, startLabel }: { onStart?: () => void; s
         </span>
       </div>
 
-      {start ? (
+      {/* Where to start is Today's job; the topic list only repeats it where it can start the run itself. */}
+      {start && onStart ? (
         <section className={styles.nextStep} aria-label="Next study step">
           <div className={styles.nextStepCopy}>
             <span className={styles.nextStepLabel}>Next to practise</span>
             <strong>{start.concept.name}</strong>
             <span className={styles.nextStepReason}>{startReason ?? "First in your current study plan."}</span>
           </div>
-          {onStart ? (
-            <button type="button" className={`k-btn ${styles.nextStepButton}`} onClick={onStart}>
-              {startLabel ?? "Start session"} <ArrowRight />
-            </button>
-          ) : (
-            <Link href="/today" className={`k-btn ${styles.nextStepButton}`}>
-              Open study plan <ArrowRight />
-            </Link>
-          )}
+          <button type="button" className={`k-btn ${styles.nextStepButton}`} onClick={onStart}>
+            {startLabel ?? "Start session"} <ArrowRight />
+          </button>
         </section>
       ) : null}
 

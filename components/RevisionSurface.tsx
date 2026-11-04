@@ -42,12 +42,18 @@ import { removeRemoteMaterial } from "@/lib/material-sync";
 
 export type SurfaceMode = "today" | "materials" | "map" | "progress";
 
-const MODES: Array<{ id: SurfaceMode; label: string; art: PackArtName; tone: "green" | "marigold" | "iris" }> = [
+const ALL_MODES: Array<{ id: SurfaceMode; label: string; art: PackArtName; tone: "green" | "marigold" | "iris" }> = [
   { id: "today", label: "Study plan", art: "list-check", tone: "green" },
   { id: "materials", label: "Materials", art: "folder", tone: "marigold" },
   { id: "map", label: "Topics", art: "diagram-project", tone: "iris" },
   { id: "progress", label: "Progress", art: "award", tone: "iris" },
 ];
+/**
+ * Three sections, not four: Topics and Progress listed the same topics twice, so the topic list (exam check, topic
+ * edits, revision sheet, Anki) opens from Progress and counts as part of it. ?section=map still opens it directly.
+ */
+const MODES = ALL_MODES.filter((item) => item.id !== "map");
+const navMode = (mode: SurfaceMode): SurfaceMode => (mode === "map" ? "progress" : mode);
 
 
 const pressSpring = { type: "spring", bounce: 0, duration: 0.24 } as const;
@@ -105,7 +111,7 @@ export function RevisionSurface({ topicId }: { /** A topic's own page, opened in
   const materials = useSyncExternalStore(subscribeMaterials, getMaterialsSnapshot, getServerMaterialsSnapshot);
   const mode = topicId ? "map" : modeFromSection(searchParams.get("section"));
   // The tab says where you are, like any good app: "Topics · Cell biology — Kelus".
-  const tabSection = topicId ? state.snapshot.concepts.find((item) => item.id === topicId)?.name : MODES.find((item) => item.id === mode)?.label;
+  const tabSection = topicId ? state.snapshot.concepts.find((item) => item.id === topicId)?.name : ALL_MODES.find((item) => item.id === mode)?.label;
   const tabCourse = state.snapshot.courses[0]?.name;
   useDocumentTitle(tabSection ? `${tabSection}${tabCourse ? ` · ${tabCourse}` : ""} — Kelus` : null);
 
@@ -195,7 +201,7 @@ export function RevisionSurface({ topicId }: { /** A topic's own page, opened in
         return route.allocations.find((item) => item.conceptId === conceptId) ?? openSession.latestRoute.allocations.find((item) => item.conceptId === conceptId);
       })()
     : undefined;
-  const modeMeta = MODES.find((item) => item.id === mode)!;
+  const modeMeta = ALL_MODES.find((item) => item.id === mode)!;
   const courseMaterials = materials.filter((item) => item.courseId === courseId);
   const hasCoursePdf = courseMaterials.some((item) => item.kind === "pdf" && !item.id.startsWith("material-demo-"));
   const firstConceptId = resumeAllocation?.conceptId ?? route.allocations[0]?.conceptId;
@@ -270,7 +276,7 @@ export function RevisionSurface({ topicId }: { /** A topic's own page, opened in
         </button>
         <nav className="studio-nav revision-surface-modes" aria-label="Revision sections">
           {MODES.map((item) => {
-            const active = item.id === mode;
+            const active = item.id === navMode(mode);
             return (
               <motion.button
                 key={item.id}
@@ -427,7 +433,7 @@ export function RevisionSurface({ topicId }: { /** A topic's own page, opened in
             {mode === "progress" ? <ProgressView concepts={concepts} activities={snapshot.learningActivities} events={snapshot.events} nowIso={nowIso} daysToExam={days} targetPercent={exam.targetPercent} examDatePending={examDatePending} /> : null}
           </motion.div>}
         </main>
-        <AppTabBar tabs={MODES} active={mode} onSelect={setMode} />
+        <AppTabBar tabs={MODES} active={navMode(mode)} onSelect={setMode} />
       </div>
       {sampleFile ? (
         <SampleReplaceConfirm
