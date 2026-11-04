@@ -113,3 +113,7 @@ body:not(:has(.home, .pricing-page)) :is(.k-btn, .cta)[aria-busy="true"] { opaci
 
 /* No corner in the product ever animates: an older rule or a new one cannot round a card or a field on hover. */
 body:not(:has(.home, .pricing-page)) :is(button, a, input, select, [class*="card"], [class*="choice"]) { transition-property: background-color, border-color, color, opacity !important; }
+
+/* Today's side column keeps one 16px rhythm: quiet.css gives the extra cards a 40px top margin from when they sat
+   under the plan, which would open a hole under the list. */
+html body.is-course-studio [data-block="today-side"] > :is([class*="ExamDateCard"], [class*="NudgeCard"], [class*="InstallCard"], [class*="ReminderCard"])[class*="card"] { margin-block: 0 !important; }

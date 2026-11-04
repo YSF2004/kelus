@@ -299,6 +299,11 @@ export function TodayRoute({
         </motion.div>
       </motion.section>
 
+      </div>
+
+      {/* Beside what is due now, what comes after it: tomorrow, the next stops, then one extra. On a narrow screen
+          this column follows the card, in the same order. */}
+      <div className={q.side} data-block="today-side">
       {/* Day two, shown on day one: what you missed today is what tomorrow opens with, so the plan says so now. */}
       {tomorrowLine ? (
         <motion.p className={q.tomorrow} data-block="today-tomorrow" {...settle(2)}>
