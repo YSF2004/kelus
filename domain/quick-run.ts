@@ -1,5 +1,6 @@
 import { buildPractice, splitSentences } from "./content-engine";
 import { isDrillable } from "./practice-check";
+import { VERBS } from "./question-types";
 import { inNotesLanguage, noteLanguage } from "./note-language";
 import type { LearningActivity, PracticeItem, RetrievalOutcome } from "./types";
 
@@ -256,13 +257,14 @@ function wordChoices(gaps: PracticeItem[], activity: LearningActivity, explainAn
   // would make a word question out of nothing.
   const sentenceGaps = gaps.filter((item) => /[.!?]["”’)]?$/.test(item.sourceQuote.trim()) && item.sourceQuote.trim().split(/\s+/).length >= 6);
   const fresh = sentenceGaps.filter((item) => !overlaps(item.sourceQuote, explainAnswer));
-  const pool = fresh.length >= 2 ? fresh : sentenceGaps;
+  // Never the line the explanation asks for: a word chosen from it would hand over half the answer a minute later.
+  const pool = fresh;
   const out: PracticeItem[] = [];
   for (const gap of pool) {
     if (already.length + out.length >= 2) break;
     if ([...already, ...out].some((other) => clashes(other, gap))) continue;
     const options = gapChoices(gap, { checks: pool, sentences, explainPrompt: "", explainAnswer, explainQuote: explainAnswer, topic: "" });
-    if (options.length < 4) continue;
+    if (options.length < 3) continue;
     out.push({ ...gap, id: `${gap.id}-word`, kind: "choice", prompt: `Which word completes this statement from your notes? “${lineOf(gap.prompt)}”`, choices: options, correctIndex: options.indexOf(gap.modelAnswer) });
   }
   return out;
@@ -272,23 +274,43 @@ function wordChoices(gaps: PracticeItem[], activity: LearningActivity, explainAn
  * On a phone, a gap can be answered by tapping one of four words: the right one and three that also appear in this
  * topic's notes, of a similar length, none of them already in the sentence. Fewer than three such words: no chips.
  */
+const VERB_WORDS = new Set([...VERBS.split("|"), "make", "makes", "made", "believe", "believes", "achieve", "achieves", "unite", "defend", "drag", "spread", "switch", "compete", "measure", "respond", "responds"]);
+const GLUE_WORDS = new Set(["and", "or", "but", "is", "are", "was", "were", "be", "to", "of", "in", "on", "at", "by", "for", "with", "from", "as", "than", "that", "which", "the", "a", "an"]);
+
 export function gapChoices(item: PracticeItem, run: QuickRun) {
   if (item.kind !== "cloze" || !item.modelAnswer || /\s/.test(item.modelAnswer)) return [];
   const answer = item.modelAnswer;
   const shown = norm(item.prompt);
   const isNumber = /^\d/.test(answer);
   const pool = new Set<string>();
-  for (const other of run.checks) if (other !== item && other.kind === "cloze" && other.modelAnswer && !/\s/.test(other.modelAnswer)) pool.add(other.modelAnswer);
+  // Another gap's answer is a good wrong word only if it is the same kind: a year never stands in for a place.
+  for (const other of run.checks) if (other !== item && other.kind === "cloze" && other.modelAnswer && !/\s/.test(other.modelAnswer) && /^\d/.test(other.modelAnswer) === isNumber) pool.add(other.modelAnswer);
   for (const sentence of run.sentences) {
     for (const word of sentence.match(/[\p{L}\d][\p{L}\d'-]*/gu) ?? []) {
       if (isNumber ? !/^\d/.test(word) : !/^\p{L}{4,}$/u.test(word)) continue;
       pool.add(word);
     }
   }
+  const allTokens = run.sentences.map((sentence) => sentence.match(/[\p{L}\d][\p{L}\d'-]*/gu) ?? []);
+  // A name is a word the notes capitalise in the middle of a sentence ("Britain", "Africa", "ATP"), never at its start only.
+  const properNoun = (word: string) => {
+    const lower = word.toLocaleLowerCase();
+    let capitalMid = false;
+    for (const words of allTokens) words.forEach((token, at) => {
+      if (token.toLocaleLowerCase() !== lower) return;
+      if (at > 0 && /^\p{Lu}/u.test(token)) capitalMid = true;
+    });
+    // "ATP", "DNA": an abbreviation is the name of a thing, and other things in the notes are fair options beside it.
+    return capitalMid && !/^\p{Lu}{2,}$/u.test(word);
+  };
   const candidates = [...pool]
     .filter((word) => norm(word) !== norm(answer) && !hasWord(shown, word) && Math.abs(word.length - answer.length) <= 4)
     .filter((word) => !/^(?:which|their|there|these|those|about|other|where|while|because|between|without|through|higher|lower|larger|smaller|greater|faster|slower|better|worse|easier|harder|easily|often|always|never|usually|also|only|very|much|many|more|most|less|least|each|every|some|such|cannot|could|would|should|might|must)$/i.test(word))
-    .map((word) => (/^\p{Lu}/u.test(answer) ? word : word.toLocaleLowerCase()));
+    // Grammar words are never an answer worth guessing: "Most of the that".
+    .filter((word) => !/^(?:that|this|then|than|with|from|into|onto|have|been|were|they|them|what|when|another|other|such|both|either|neither|same|will|unless|until|upon|within)$/i.test(word))
+    // A name keeps its capital, and a name only stands in for a name: "france" is not a word anyone would write.
+    .filter((word) => properNoun(word) === properNoun(answer))
+    .map((word) => (properNoun(word) || /^\p{Lu}/u.test(answer) ? word : word.toLocaleLowerCase()));
   const otherAnswers = new Set(run.checks.filter((other) => other !== item && other.kind === "cloze").map((other) => norm(other.modelAnswer)));
   const ending = answer.toLocaleLowerCase().slice(-3);
   // A wrong word should fit the sentence, or the right one gives itself away: "Demand falls as equals rises" is
@@ -304,15 +326,47 @@ export function gapChoices(item: PracticeItem, run: QuickRun) {
   const before = gapAt > 0 ? around[gapAt - 1] : "";
   const after = gapAt >= 0 ? around[gapAt + 1] ?? "" : "";
   const fits = (word: string) => tokens.some((words) => words.some((other, at) => other === norm(word) && ((after && words[at + 1] === after) || (before && words[at - 1] === before))));
-  const misfit = (word: string) => (form(word) !== form(answer) ? 3 : 0) + (verbish.has(norm(word)) !== verbish.has(norm(answer)) ? 4 : 0) - (fits(word) ? 2 : 0);
+  // How the notes use a word stands in for a grammar: a word followed by "the", "its", "their" or "it" is a verb
+  // ("contain the", "believe their", "achieve it"); one after "is", "was" or "became", or only ever before another
+  // content word ("chemical energy"), describes something rather than naming it.
+  const OBJECT = new Set(["the", "a", "an", "its", "their", "his", "her", "it", "them", "our", "these", "those", "many", "people"]);
+  const COPULA = new Set(["is", "are", "was", "were", "be", "been", "became", "becomes", "become"]);
+  const uses = (word: string) => {
+    const target = norm(word);
+    let object = 0; let described = 0; let before = 0; let seen = 0;
+    for (const words of tokens) words.forEach((token, at) => {
+      if (token !== target) return;
+      seen += 1;
+      const next = words[at + 1];
+      if (next && OBJECT.has(next)) object += 1;
+      if (at > 0 && COPULA.has(words[at - 1])) described += 1;
+      if (next && next.length >= 4 && !GLUE_WORDS.has(next) && !OBJECT.has(next)) before += 1;
+    });
+    return { verb: object > 0 || verbish.has(target) || VERB_WORDS.has(target), describes: described > 0 || (seen > 0 && before === seen) };
+  };
+  const answerUse = uses(answer);
+  const nameSlot = /^(?:a|an|the|its|their|his|her|our|this|these|those|of|in|from|by|for|with|used)$/.test(before);
+  const misfit = (word: string) => {
+    const use = uses(word);
+    return (form(word) !== form(answer) ? 3 : 0) + (verbish.has(norm(word)) !== verbish.has(norm(answer)) ? 4 : 0) - (fits(word) ? 2 : 0)
+      + (use.describes !== answerUse.describes ? 3 : 0);
+  };
   // The best wrong words are the same kind of word: one that fits the slot, another answer from this topic, then a
   // word with the same ending.
   const score = (word: string) => (misfit(word) + (otherAnswers.has(norm(word)) ? 0 : 2) + (word.toLocaleLowerCase().endsWith(ending) ? 0 : 1)) * 10 + Math.abs(word.length - answer.length);
   const unique = [...new Set(candidates)]
+    // A word the notes only ever write at the start of a sentence ("Europe", "Before") could be a name or not: it stays
+    // only when the notes use it in the gap's own slot ("Supply rises" for "Demand falls as _____ rises").
+    .filter((word) => properNoun(word) || fits(word) || allTokens.some((words) => words.some((token, at) => token.toLocaleLowerCase() === word.toLocaleLowerCase() && (at > 0 || !/^\p{Lu}/u.test(token)))))
+    // A verb where the notes name a thing gives the answer away at a glance: "released as a contain".
+    .filter((word) => answerUse.verb || !uses(word).verb)
+    // "its joined", "a armed": a past form where the notes name a thing.
+    .filter((word) => !nameSlot || form(answer) === "ed" || form(word) !== "ed")
     // An adverb ("quickly") never fills a noun's gap; "supply" and "apply" only look like one.
     .filter((word) => /ly$/i.test(answer) || !/(?<!p)ly$/i.test(word))
     .sort((a, b) => score(a) - score(b) || a.localeCompare(b));
-  if (unique.length < 3) return [];
+  // Three fair options beat four with one that gives itself away: two wrong words of the right kind are enough.
+  if (unique.length < 2) return [];
   const seed = [...answer].reduce((sum, char) => sum + char.charCodeAt(0), 0);
   const options = [answer, ...unique.slice(0, 3)];
   return options.map((word, index) => ({ word, key: (index * 7 + seed) % 11 })).sort((a, b) => a.key - b.key || a.word.localeCompare(b.word)).map((entry) => entry.word);

@@ -19,12 +19,14 @@ const activity = {
   practice: buildPractice({ conceptId: "c", name: "Photosynthesis", excerpt: prose.join("\n"), locator: "Section 1", siblingNames: [] }),
 };
 
-test("notes written as plain sentences still get two checks on a first visit, as words to choose from the same notes", () => {
+test("notes written as plain sentences still get a check on a first visit, as words to choose from the same notes", () => {
   const run = buildQuickRun({ activity, name: "Photosynthesis", siblingNames: [], readFirst: true });
-  assert.ok(run.checks.length >= 2, `got ${run.checks.length} checks`);
+  assert.ok(run.checks.length >= 1, `got ${run.checks.length} checks`);
+  // "The _____ cycle" (Calvin) is a name with no other fitting name in the notes: no options that give it away.
+  assert.ok(!run.checks.some((check) => check.modelAnswer === "Calvin"));
   for (const check of run.checks) {
     assert.equal(check.kind, "choice");
-    assert.equal(check.choices.length, 4);
+    assert.ok(check.choices.length >= 3 && check.choices.length <= 4);
     assert.equal(check.choices[check.correctIndex], check.modelAnswer);
     assert.ok(quoteIsOnPage(check.sourceQuote, prose.join("\n")));
     assert.match(check.prompt, /^Which word completes this statement from your notes\? “[^“”]*_____[^“”]*”$/);
