@@ -334,32 +334,6 @@ html body.is-course-studio .surface-map.is-toc [class*="TopicMapPanel"][class*="
   color: var(--lb-ink);
   font-size: 14px;
 }
-html body.is-course-studio .surface-map.is-toc section[class*="TopicMapPanel"][class*="nextStep"] {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 24px;
-  margin: 0 0 26px;
-  padding: 20px 22px;
-  border: 1px solid color-mix(in srgb, var(--lb-green) 24%, var(--lb-line-strong)) !important;
-  border-radius: 12px;
-  background: color-mix(in srgb, var(--lb-green) 5%, var(--lb-surface)) !important;
-}
-html body.is-course-studio .surface-map.is-toc [class*="TopicMapPanel"][class*="nextStepLabel"] {
-  color: var(--lb-green-ink);
-  font-size: 12px;
-  font-weight: 600;
-  letter-spacing: .01em;
-}
-html body.is-course-studio .surface-map.is-toc [class*="TopicMapPanel"][class*="nextStepCopy"] > strong {
-  font-size: clamp(19px, 2vw, 23px);
-  line-height: 1.25;
-  letter-spacing: -.02em;
-}
-html body.is-course-studio .surface-map.is-toc [class*="TopicMapPanel"][class*="nextStepReason"] {
-  color: var(--lb-text-2);
-  font-size: 13px;
-}
 html body.is-course-studio .surface-map.is-toc .toc-columns {
   grid-template-columns: minmax(0, 1fr) auto !important;
   padding: 0 48px 8px 12px !important;
@@ -547,16 +521,6 @@ html body.is-course-studio [class*="ProgressView"][class*="empty"] {
   }
   html body.is-course-studio .surface-map.is-toc [class*="TopicMapPanel"][class*="pathHead"] {
     margin-bottom: 14px !important;
-  }
-  html body.is-course-studio .surface-map.is-toc section[class*="TopicMapPanel"][class*="nextStep"] {
-    display: grid;
-    gap: 12px;
-    margin-bottom: 20px;
-    padding: 17px 16px;
-  }
-  html body.is-course-studio .surface-map.is-toc [class*="TopicMapPanel"][class*="nextStepButton"] {
-    width: 100%;
-    justify-content: center;
   }
   html body.is-course-studio .surface-map.is-toc .index-toc {
     padding-inline: 0 !important;
