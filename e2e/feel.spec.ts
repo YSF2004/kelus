@@ -140,7 +140,9 @@ test("⌘Z takes back a newly set exam date", async ({ page }) => {
   await expect(page.getByRole("region", { name: "When is your exam?" })).toBeVisible();
   await saveExamDate(page, 9);
   await expect(pace).toContainText(/\d+ days? to exam/);
-  await page.locator("body").click({ position: { x: 600, y: 760 } });
+  // Out of the date field, so ⌘Z is the page's undo, not the field's: the plan fits the window now, so there is no
+  // empty spot below it to click.
+  await page.evaluate(() => (document.activeElement as HTMLElement | null)?.blur());
   await page.keyboard.press("ControlOrMeta+z");
   await expect(page.getByText("Exam date removed")).toBeVisible();
   await expect(page.getByRole("region", { name: "When is your exam?" })).toBeVisible();

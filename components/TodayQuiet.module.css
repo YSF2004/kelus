@@ -34,8 +34,12 @@
 .ico { display: inline-block; flex: none; width: 15px; height: 15px; color: var(--lb-text-3); }
 
 /* ── Desk: the plan beside the boxes ── */
-.desk { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 580px); gap: 28px; align-items: start; }
+/* ── Desk: what is due now, and beside it what comes next ──
+   The card takes the wide column; tomorrow, the next stops and the one extra card sit in a narrower one to its right,
+   so a wide screen reads "now | next" in one glance instead of a card in a corner. */
+.desk { display: grid; grid-template-columns: minmax(0, 1fr) minmax(300px, 380px); gap: 32px; align-items: start; }
 .lead { display: grid; gap: 16px; min-width: 0; }
+.side { display: grid; gap: 16px; min-width: 0; align-content: start; }
 @media (max-width: 1100px) { .desk { grid-template-columns: minmax(0, 1fr); } }
 
 /* ── What is due now: the one raised card ── */
@@ -197,3 +201,6 @@
   .then li { min-height: 60px; }
   .stats li { min-height: 32px; }
 }
+
+/* The column sets its own rhythm: a card that brings an old margin of its own sits 16px under the list like the rest. */
+.side > * { align-self: start; margin-block: 0 !important; }
