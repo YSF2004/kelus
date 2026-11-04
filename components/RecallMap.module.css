@@ -1,5 +1,5 @@
 /* Progress as a line you can read at a glance: how many lines you can recall, day by day, against every line in
-   the course. Then each topic as a filled bar, then the lines themselves in plain groups. */
+   the course. Then each topic as a filled bar with its own lines under it. */
 .map { display: grid; gap: 14px; padding: 0 0 28px; border-bottom: 1px solid var(--lb-line); }
 
 .head { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 4px 16px; }
@@ -8,7 +8,8 @@
 .now b { color: var(--lb-ink); font-family: var(--font-source-serif), Literata, Georgia, serif; font-size: 1.75rem; font-weight: 600; font-variant-numeric: lining-nums tabular-nums; }
 .now span { color: var(--lb-miss-ink, var(--lb-text-2)); }
 
-.chart { display: block; width: 100%; height: auto; overflow: visible; }
+/* Drawn for a phone's width: on a wide screen it stays that size, so its labels stay text-sized, not 20px. */
+.chart { display: block; width: 100%; max-width: 640px; height: auto; overflow: visible; }
 .line { fill: none; stroke: var(--color-kelus); stroke-width: 3; stroke-linecap: round; stroke-linejoin: round; vector-effect: non-scaling-stroke; }
 .area { fill: color-mix(in srgb, var(--color-kelus) 12%, transparent); }
 .dot { fill: var(--color-kelus); stroke: var(--lb-surface, #fff); stroke-width: 3; transform-box: fill-box; transform-origin: center; }
@@ -27,17 +28,19 @@
 .list { display: grid; margin-top: 10px; }
 .list > h2 { margin: 0 0 4px !important; }
 
-.lines { display: grid; gap: 18px; margin-top: 10px; }
-.group h3 { display: flex; align-items: center; gap: 8px; margin: 0 0 6px; color: var(--lb-ink); font-size: 0.875rem; font-weight: 600; }
-.group h3 small { color: var(--lb-text-3); font-weight: 500; font-variant-numeric: tabular-nums; }
-.key { width: 8px; height: 8px; border-radius: 50%; background: var(--lb-line-strong); }
+.key { display: inline-block; flex: none; width: 8px; height: 8px; border-radius: 50%; background: var(--lb-line-strong); }
 .key[data-state="missed"] { background: var(--lb-miss, #c4492e); }
 .key[data-state="recalled"] { background: var(--color-kelus); }
-.group ul { margin: 0; padding: 0; list-style: none; border-top: 1px solid var(--lb-line); }
-.group li { border-bottom: 1px solid var(--lb-line); }
-.group li button { display: grid; gap: 2px; width: 100%; min-height: 48px; padding: 10px 0; border: 0; background: none; color: inherit; font: inherit; text-align: left; cursor: pointer; }
-.group li button:hover .quote { color: var(--color-kelus); }
-.group li button:focus-visible { outline: 2px solid var(--color-kelus); outline-offset: 2px; border-radius: 4px; }
 .quote { display: -webkit-box; overflow: hidden; color: var(--lb-ink); font-size: 0.9375rem; line-height: 1.45; -webkit-box-orient: vertical; -webkit-line-clamp: 2; }
-.group li small { color: var(--lb-text-3); font-size: 0.8125rem; }
 .more { min-height: 44px; padding: 0; border: 0; background: none; color: var(--color-kelus); font: inherit; font-size: 0.875rem; font-weight: 600; text-decoration: underline; text-underline-offset: 4px; cursor: pointer; }
+
+/* Each topic's lines sit under its bar, once: a dot for where the line is, then its words. */
+.topicLines { grid-column: 1 / -1; display: grid; margin: 4px 0 0; padding: 0; list-style: none; }
+.topicLines button { display: grid; grid-template-columns: 8px minmax(0, 1fr); align-items: baseline; gap: 10px; width: 100%; min-height: 40px; padding: 8px 0; border: 0; background: none; color: inherit; font: inherit; text-align: left; cursor: pointer; }
+.topicLines .key { transform: translateY(-1px); }
+.topicLines .quote { -webkit-line-clamp: 1; font-size: 0.875rem; color: var(--lb-text-2); }
+.topicLines button:hover .quote { color: var(--color-kelus); }
+.topicLines button:focus-visible { outline: 2px solid var(--color-kelus); outline-offset: 2px; border-radius: 4px; }
+.topic > .more { grid-column: 1 / -1; justify-self: start; min-height: 36px; }
+.legend { display: flex; flex-wrap: wrap; gap: 6px 18px; margin: 2px 0 6px; padding: 0; color: var(--lb-text-3); font-size: 0.8125rem; }
+.legend > span { display: inline-flex; align-items: center; gap: 7px; }

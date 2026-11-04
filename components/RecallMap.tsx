@@ -45,46 +45,39 @@ function RecallChart({ series, total }: { series: RecallPoint[]; total: number }
   );
 }
 
-const GROUPS: Array<{ state: LeitnerLine["state"]; title: string }> = [
+const LEGEND: Array<{ state: LeitnerLine["state"]; title: string }> = [
   { state: "missed", title: "Coming back first" },
   { state: "recalled", title: "Recalled" },
   { state: "new", title: "Not asked yet" },
 ];
-const SHOWN = 5;
+const ORDER: Record<LeitnerLine["state"], number> = { missed: 0, recalled: 1, new: 2 };
+const SHOWN = 3;
 
-/** Every line, in plain groups: what comes back first, what you recalled, what is still to come. A line opens its story. */
-function LineList({ lines, onOpen }: { lines: LeitnerLine[]; onOpen: (line: LeitnerLine) => void }) {
-  const [all, setAll] = useState<Record<string, boolean>>({});
+/** One topic's lines under its row, each once: what comes back first, then what you recalled, then the rest. */
+function TopicLines({ lines, onOpen }: { lines: LeitnerLine[]; onOpen: (line: LeitnerLine) => void }) {
+  const [all, setAll] = useState(false);
+  const sorted = [...lines].sort((a, b) => ORDER[a.state] - ORDER[b.state]);
+  const shown = all ? sorted : sorted.slice(0, SHOWN);
   return (
-    <div className={styles.lines}>
-      {GROUPS.map(({ state, title }) => {
-        const group = lines.filter((line) => line.state === state);
-        if (!group.length) return null;
-        const shown = all[state] ? group : group.slice(0, SHOWN);
-        return (
-          <section key={state} className={styles.group} aria-label={title}>
-            <h3><span className={styles.key} data-state={state} aria-hidden="true" />{title} <small>{group.length}</small></h3>
-            <ul>
-              {shown.map((line) => (
-                <li key={line.quote}>
-                  <button type="button" onClick={() => onOpen(line)} aria-label={`${short(line.quote)}. See this line's answers and when it is back`}>
-                    <span className={styles.quote}>{short(line.quote)}</span>
-                    <small>{line.topic}</small>
-                  </button>
-                </li>
-              ))}
-            </ul>
-            {group.length > SHOWN && !all[state] ? <button type="button" className={styles.more} onClick={() => setAll({ ...all, [state]: true })}>Show all {group.length}</button> : null}
-          </section>
-        );
-      })}
-    </div>
+    <>
+      <ul className={styles.topicLines}>
+        {shown.map((line) => (
+          <li key={line.quote}>
+            <button type="button" onClick={() => onOpen(line)} aria-label={`${short(line.quote)}. ${LEGEND.find((item) => item.state === line.state)?.title}. See this line's answers and when it is back`}>
+              <span className={styles.key} data-state={line.state} aria-hidden="true" />
+              <span className={styles.quote}>{short(line.quote)}</span>
+            </button>
+          </li>
+        ))}
+      </ul>
+      {sorted.length > SHOWN && !all ? <button type="button" className={styles.more} onClick={() => setAll(true)}>Show all {sorted.length} lines</button> : null}
+    </>
   );
 }
 
 /**
- * Progress, counted rather than estimated: the lines you can recall as a line over the days, each topic as a row
- * with how much of it you can recall, and every line in plain groups that open its story. With a heading, the rows
+ * Progress, counted rather than estimated: the lines you can recall as a line over the days, then each topic as a row
+ * with how much of it you can recall and its own lines under it, each line once, opening its story. With a heading, the rows
  * are that heading's list and each can carry a note (how it went, when it is back), so topics are never listed twice.
  */
 export function RecallMap({ concepts, activities, nowIso, heading, noteFor, fallback = null }: { concepts: Concept[]; activities: LearningActivity[]; nowIso: string; heading?: ReactNode; noteFor?: (conceptId: string) => string | null; fallback?: ReactNode }) {
@@ -114,10 +107,18 @@ export function RecallMap({ concepts, activities, nowIso, heading, noteFor, fall
             <span className={styles.bar} aria-hidden="true">
               <motion.i initial={reduce ? false : { scaleX: 0 }} animate={{ scaleX: recalled / lines.length }} transition={{ duration: 0.6, delay: reduce ? 0 : 0.2 + index * 0.05, ease }} />
             </span>
+            <TopicLines lines={lines} onOpen={(line) => setOpenQuote(line.quote)} />
           </li>
         );
       })}
     </ol>
+  );
+
+  // What the dots under each topic mean, said once, before the first dot.
+  const legendList = (
+    <p className={styles.legend} aria-hidden="true">
+      {LEGEND.map(({ state: key, title }) => <span key={key}><span className={styles.key} data-state={key} />{title}</span>)}
+    </p>
   );
 
   return (
@@ -128,8 +129,7 @@ export function RecallMap({ concepts, activities, nowIso, heading, noteFor, fall
       </header>
       {/* A line flat on zero is an empty chart, not progress: until a line is recalled, one sentence says what will draw it. */}
       {series.some((point) => point.recalled > 0) ? <RecallChart series={series} total={state.total} /> : <p className={styles.empty}>{series.length ? "Recall a line on its next return and your line starts rising here." : "Answer a question and your line starts here."}</p>}
-      {heading ? <section className={styles.list} aria-labelledby="progress-headline">{heading}{rows}</section> : rows}
-      <LineList lines={state.lines} onOpen={(line) => setOpenQuote(line.quote)} />
+      {heading ? <section className={styles.list} aria-labelledby="progress-headline">{heading}{legendList}{rows}</section> : <>{legendList}{rows}</>}
       <AnimatePresence>{life ? <LineLifeSheet key={life.quote} life={life} onClose={() => setOpenQuote(null)} /> : null}</AnimatePresence>
     </section>
   );
