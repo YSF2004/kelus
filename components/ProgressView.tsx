@@ -113,6 +113,8 @@ export function ProgressView({ concepts, events, nowIso, daysToExam, targetPerce
         {/* The next step, then the quiet way to read it all back: one row, the green key first. */}
         <div className={styles.actions}>
           <Link href="/today" className={`k-btn ${styles.cta}`}>Practise a topic <ArrowRight /></Link>
+          {/* Topics lives here now: the exam check, editing the topic list and the Anki export are one click away. */}
+          <Link href="/today?section=map" className={styles.sheetLink}>Topics and exam check</Link>
           <Link href="/sheet" className={styles.sheetLink}>Open your revision sheet</Link>
         </div>
         {/* On a phone there is no sidebar: today's progress is shared from here. */}
@@ -139,6 +141,8 @@ export function ProgressView({ concepts, events, nowIso, daysToExam, targetPerce
         </dl>}
         <div className={styles.actions}>
           <Link href="/today" className={`k-btn ${styles.cta}`}>{fresh ? "Practise a topic" : "Practise next topic"} <ArrowRight /></Link>
+          {/* Topics lives here now: the exam check, editing the topic list and the Anki export are one click away. */}
+          <Link href="/today?section=map" className={styles.sheetLink}>Topics and exam check</Link>
           <Link href="/sheet" className={styles.sheetLink}>Open your revision sheet</Link>
         </div>
         <div className={styles.share}><ShareProgress variant="inline" /></div>
