@@ -38,14 +38,13 @@ body {
 .k-card-title { margin: 0; color: var(--sys-title-ink); font-family: var(--font-inter), system-ui, sans-serif; font-size: 1.0625rem; font-weight: 600; letter-spacing: -0.005em; }
 
 /* ── Today, on the system: every card one sheet; Tomorrow a quiet card. ── */
-html body.is-course-studio :is([class*="TodayQuiet"][class*="next"], [class*="ExamDateCard"][class*="card"], [class*="NudgeCard"][class*="card"], [class*="ReminderCard"][class*="card"], [class*="InstallCard"][class*="card"]) {
+html body.is-course-studio :is([class*="ExamDateCard"][class*="card"], [class*="NudgeCard"][class*="card"], [class*="ReminderCard"][class*="card"], [class*="InstallCard"][class*="card"]) {
   border: 1px solid var(--sys-card-line) !important;
   border-radius: var(--sys-card-radius) !important;
   background: var(--sys-card-bg) !important;
   box-shadow: none !important;
 }
-/* The topic due now is the one raised card: what to do first stands out by height, not by a different style. */
-html body.is-course-studio [class*="TodayQuiet"][class*="next"] { padding: 24px 24px 26px !important; box-shadow: var(--sys-raise) !important; }
+/* The topic due now is Today's own page (TodayQuiet.module.css, "Today's page"): it is styled there, not here. */
 /* The exam card lost its padding to an older rule; the nudge and reminder cards keep theirs, which leaves room on the
    right for their button. */
 html body.is-course-studio [class*="ExamDateCard"][class*="card"] { padding: var(--sys-card-pad) !important; }
@@ -63,7 +62,6 @@ html body.is-course-studio [class*="TodayQuiet"][class*="tomorrow"] {
   background: var(--sys-quiet-bg) !important;
 }
 @media (max-width: 640px) {
-  html body.is-course-studio [class*="TodayQuiet"][class*="next"] { padding: 20px 18px 22px !important; }
   html body.is-course-studio [class*="ExamDateCard"][class*="card"] { padding: 18px !important; }
 }
 

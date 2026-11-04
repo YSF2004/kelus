@@ -150,6 +150,7 @@ export function TodayRoute({
   const firstConcept = concepts.find((item) => item.id === first.conceptId);
   const firstActivity = activities.find((item) => item.conceptId === first.conceptId);
   const firstName = firstConcept?.name ?? "A mix of earlier topics";
+  const firstChapter = firstConcept ? concepts.findIndex((concept) => concept.id === firstConcept.id) + 1 : 0;
   // The same run the session builds, so the count here is the count the student gets.
   const firstChecks = firstActivity && firstConcept
     ? buildQuickRun({ activity: firstActivity, name: firstConcept.name, siblingNames: concepts.filter((item) => item.courseId === firstConcept.courseId).map((item) => item.name), round: firstConcept.retrievalAttempts, readFirst: firstConcept.retrievalAttempts === 0 })?.checks.length ?? 0
@@ -223,6 +224,8 @@ export function TodayRoute({
 
       {/* The course, then three things a student checks at a glance: the streak, today's goal, how far through. */}
       <motion.header className={q.head} {...settle(0)}>
+        {/* The top of today's page: the day, then the course, as a notebook is dated before it is written in. */}
+        <p className={q.date}>{new Date(nowIso).toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" })}</p>
         <h1 className={q.title} data-block="course-title">{hasCoursePdf ? <CourseFolderIcon /> : null}{onRenameCourse ? <InlineName value={courseName} label="Rename course" onSave={onRenameCourse} /> : <span>{courseName}</span>}</h1>
         {warmupFirst ? null : (
           <ul className={q.stats} role="group" aria-label="Your path through the course">
@@ -266,14 +269,16 @@ export function TodayRoute({
       ) : null}
 
       <motion.section className={q.next} data-block="today-lead" data-tone={toneOf(first.conceptId, concepts)} aria-labelledby="today-title" {...settle(1)}>
+        {/* The topic's place in your notes, as a chapter number in the margin of the page. */}
+        {firstChapter ? <span className={q.chapter} aria-hidden="true">{firstChapter}</span> : null}
         <motion.h2 id="today-title" className={q.topic}>{firstName}</motion.h2>
         {/* Where this topic stands, then what the run holds: one line of marks read in a glance. The page is named on
             the quote when there is one, so it is not said twice. */}
         <motion.ul className={q.chips} data-block="today-page-folio" aria-label="What this topic holds">
           <li className={q.status}>{startLabel ? "In progress" : goalDone ? "Extra for today" : "Due now"}</li>
-          <li><Octicon name="clock" className={q.ico} />{first.minutes} min</li>
-          {/* What the run holds, in one mark: the quick checks, then the line in your own words. */}
-          <li><Octicon name="check-circle" className={q.ico} />{firstChecks ? `${firstChecks} ${firstChecks === 1 ? "check" : "checks"} + explain` : "Explain it"}</li>
+          <li>{first.minutes} min</li>
+          {/* What the run holds: the quick checks, then the line in your own words. */}
+          <li>{firstChecks ? `${firstChecks} ${firstChecks === 1 ? "check" : "checks"}, then explain it` : "Explain it in your words"}</li>
           {!noteLine && firstSource?.locator && !/^Section\b/.test(firstSource.locator) ? <li><Octicon name="file" className={q.ico} />{firstSource.locator}</li> : null}
         </motion.ul>
         {noteLine ? (
