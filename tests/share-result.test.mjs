@@ -41,3 +41,12 @@ test("nothing from the notes can reach the message: it is built from numbers and
   const keys = Object.keys(stats).sort();
   assert.deepEqual(keys, ["course", "courseRecalled", "courseTotal", "missed", "recalled", "streak", "topics"]);
 });
+
+test("a day with nothing recalled leads with the lines practiced, never with a zero", async () => {
+  const { leadStat, shareHeadline, shareText } = await import("../lib/share-result.ts");
+  const day = { course: null, recalled: 0, missed: 2, topics: 1, courseRecalled: 0, courseTotal: 7, streak: 1 };
+  assert.deepEqual(leadStat(day), { value: 2, of: null, what: "lines practiced from my notes" });
+  assert.equal(shareHeadline(day), "2 lines practiced");
+  assert.match(shareText(day), /^I practiced 2 lines from my notes today, and the 2 I missed come back tomorrow\./);
+  assert.deepEqual(leadStat({ ...day, recalled: 3, missed: 1 }), { value: 3, of: 4, what: "lines recalled from my notes" });
+});

@@ -4,7 +4,7 @@ import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { useEffect, useState, useSyncExternalStore } from "react";
 import { trackEvent } from "@/lib/analytics";
 import { Octicon } from "@/components/Octicon";
-import { drawResultCard, shareHeadline, shareText, shareUrl, whatsappUrl, type ResultStats } from "@/lib/share-result";
+import { drawResultCard, leadStat, shareHeadline, shareText, shareUrl, whatsappUrl, type ResultStats } from "@/lib/share-result";
 import styles from "./ResultShareCard.module.css";
 
 const noSubscribe = () => () => {};
@@ -15,7 +15,7 @@ const noSubscribe = () => () => {};
  * picture where the sheet takes images, else the text and link; on a computer it copies them. Only numbers and the
  * course's chosen name leave the device, never the notes.
  */
-export function ResultShareCard({ stats, sessionNumber }: { stats: ResultStats; sessionNumber: number }) {
+export function ResultShareCard({ stats, sessionNumber, full = false }: { stats: ResultStats; sessionNumber: number; /** On Done: the card at the picture's own 4:5 shape. */ full?: boolean }) {
   const reduce = useReducedMotion() === true;
   const [note, setNote] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
@@ -37,6 +37,24 @@ export function ResultShareCard({ stats, sessionNumber }: { stats: ResultStats; 
       setNote("Copied. Paste it in your study group.");
     } catch {
       setNote(`Copy this: ${text} ${url}`);
+    }
+  }
+
+  // On a computer the card is saved as the picture itself, ready to drop into a group chat or a story.
+  async function save() {
+    setBusy(true);
+    try {
+      const blob = await drawResultCard(stats);
+      if (!blob) return void copy();
+      const link = document.createElement("a");
+      link.href = URL.createObjectURL(blob);
+      link.download = "kelus-result.png";
+      link.click();
+      window.setTimeout(() => URL.revokeObjectURL(link.href), 4000);
+      trackEvent({ name: "result_shared", method: "image", session_number: sessionNumber });
+      setNote("Saved. Only your numbers are on it, not your notes.");
+    } finally {
+      setBusy(false);
     }
   }
 
@@ -64,6 +82,7 @@ export function ResultShareCard({ stats, sessionNumber }: { stats: ResultStats; 
   return (
     <motion.section
       className={styles.wrap}
+      data-full={full ? "" : undefined}
       aria-label="Share this result"
       initial={reduce ? false : { opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
@@ -71,20 +90,19 @@ export function ResultShareCard({ stats, sessionNumber }: { stats: ResultStats; 
     >
       <ResultCardFace stats={stats} />
       <div className={styles.actions}>
+        {/* One clear action, the way Duolingo and Strava end on their card: Share on a phone, the picture on a computer. */}
+        <button type="button" className={`k-btn ${styles.share}`} onClick={touch ? share : save} disabled={busy} aria-busy={busy || undefined}>
+          <Octicon name="paper-airplane" size={16} /> {busy ? "Making the card…" : touch ? "Share" : "Save image"}
+        </button>
         <div className={styles.buttons}>
-          {touch ? (
-            <button type="button" className={`k-btn ${styles.share}`} onClick={share} disabled={busy} aria-busy={busy || undefined}>
-              {busy ? "Making the card…" : "Share this result"}
-            </button>
-          ) : null}
-          <button type="button" className={touch ? styles.secondary : `k-btn ${styles.share}`} onClick={() => void copy()} aria-live="polite">
+          <button type="button" className={`k-btn k-btn--paper ${styles.secondary}`} onClick={() => void copy()} aria-live="polite">
             <AnimatePresence mode="popLayout" initial={false}>
               <motion.span key={copied ? "done" : "copy"} className={styles.copyLabel} initial={reduce ? false : { opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }} exit={reduce ? { opacity: 0 } : { opacity: 0, y: -4 }} transition={{ duration: 0.16 }}>
                 {copied ? <><Octicon name="check" size={16} /> Copied</> : "Copy summary"}
               </motion.span>
             </AnimatePresence>
           </button>
-          <a className={styles.secondary} href={whatsappUrl(stats)} target="_blank" rel="noopener noreferrer" onClick={() => trackEvent({ name: "result_shared", method: "whatsapp", session_number: sessionNumber })}>WhatsApp</a>
+          <a className={`k-btn k-btn--paper ${styles.secondary}`} href={whatsappUrl(stats)} target="_blank" rel="noopener noreferrer" onClick={() => trackEvent({ name: "result_shared", method: "whatsapp", session_number: sessionNumber })}>WhatsApp</a>
         </div>
         <p className={styles.privacy}>{note ?? "Shares your numbers and a link to Kelus. Your notes stay on this device."}</p>
       </div>
@@ -94,15 +112,15 @@ export function ResultShareCard({ stats, sessionNumber }: { stats: ResultStats; 
 
 /** The card itself: one big number, three small figures, kelus.me. The same face on the Done screen and on /r. */
 export function ResultCardFace({ stats, kicker }: { stats: ResultStats; kicker?: string }) {
-  const asked = stats.recalled + stats.missed;
+  const lead = leadStat(stats);
   return (
     <div className={styles.card} data-testid="result-share-card">
       <p className={styles.kicker}>{kicker ?? stats.course ?? "Today’s revision"}</p>
       <h2 className="sr-only">{shareHeadline(stats)}</h2>
       <p className={styles.big} aria-hidden="true">
-        {asked ? <>{stats.recalled}<span>/{asked}</span></> : stats.topics}
+        {lead.value}{lead.of !== null ? <span>/{lead.of}</span> : null}
       </p>
-      <p className={styles.what}>{asked ? "lines recalled from my notes" : stats.topics === 1 ? "topic practiced" : "topics practiced"}</p>
+      <p className={styles.what}>{lead.what}</p>
       <dl className={styles.figures}>
         <div><dt>back tomorrow</dt><dd>{stats.missed}</dd></div>
         <div><dt>in the course</dt><dd>{stats.courseRecalled}<span>/{stats.courseTotal}</span></dd></div>
