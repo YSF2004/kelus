@@ -47,16 +47,28 @@ export function whatsappUrl(stats: ResultStats) {
   return `https://wa.me/?text=${encodeURIComponent(`${shareText(stats)} ${shareUrl(stats)}`)}`;
 }
 
+/**
+ * The one number the card leads with, chosen so it is worth sending (as Duolingo's and Strava's cards lead with the
+ * stat a learner is proud of): lines recalled when there are any, else the lines practiced, else the topics.
+ */
+export function leadStat(stats: ResultStats): { value: number; of: number | null; what: string } {
+  const asked = stats.recalled + stats.missed;
+  if (stats.recalled > 0) return { value: stats.recalled, of: asked, what: "lines recalled from my notes" };
+  if (asked > 0) return { value: asked, of: null, what: asked === 1 ? "line practiced from my notes" : "lines practiced from my notes" };
+  return { value: stats.topics, of: null, what: stats.topics === 1 ? "topic practiced" : "topics practiced" };
+}
+
 export function shareHeadline(stats: ResultStats) {
   const asked = stats.recalled + stats.missed;
-  return asked ? `${stats.recalled} of ${asked} lines recalled` : `${stats.topics} ${stats.topics === 1 ? "topic" : "topics"} practiced`;
+  if (stats.recalled > 0) return `${stats.recalled} of ${asked} lines recalled`;
+  return asked ? `${asked} ${asked === 1 ? "line" : "lines"} practiced` : `${stats.topics} ${stats.topics === 1 ? "topic" : "topics"} practiced`;
 }
 
 /** The message that goes with the link: what happened, in plain words, and why a friend might care. */
 export function shareText(stats: ResultStats) {
   const from = stats.course ? ` from ${stats.course}` : " from my notes";
   const asked = stats.recalled + stats.missed;
-  const today = asked ? `I recalled ${stats.recalled} of ${asked} lines${from} today` : `I practiced ${stats.topics} ${stats.topics === 1 ? "topic" : "topics"}${from} today`;
+  const today = stats.recalled > 0 ? `I recalled ${stats.recalled} of ${asked} lines${from} today` : asked ? `I practiced ${asked} ${asked === 1 ? "line" : "lines"}${from} today` : `I practiced ${stats.topics} ${stats.topics === 1 ? "topic" : "topics"}${from} today`;
   const back = stats.missed ? `, and the ${stats.missed === 1 ? "one" : stats.missed} I missed ${stats.missed === 1 ? "comes" : "come"} back tomorrow` : "";
   const streak = stats.streak > 1 ? ` (${stats.streak}-day streak)` : "";
   return `${today}${back}${streak}. Kelus turns your own notes into questions:`;
@@ -106,18 +118,18 @@ export async function drawResultCard(stats: ResultStats): Promise<Blob | null> {
   ctx.fillText((stats.course ?? "Today's revision").toUpperCase().slice(0, 34), 150, 220);
   ctx.letterSpacing = "0px";
 
-  const asked = stats.recalled + stats.missed;
+  const lead = leadStat(stats);
   ctx.fillStyle = ink;
   ctx.font = `600 260px ${serif}`;
-  const big = asked ? String(stats.recalled) : String(stats.topics);
+  const big = String(lead.value);
   ctx.fillText(big, 140, 520);
   const bigWidth = ctx.measureText(big).width;
   ctx.fillStyle = muted;
   ctx.font = `400 120px ${serif}`;
-  if (asked) ctx.fillText(`/${asked}`, 150 + bigWidth, 520);
+  if (lead.of !== null) ctx.fillText(`/${lead.of}`, 150 + bigWidth, 520);
   ctx.fillStyle = ink;
   ctx.font = `500 54px ${sans}`;
-  ctx.fillText(asked ? "lines recalled from my notes" : stats.topics === 1 ? "topic practiced" : "topics practiced", 150, 610);
+  ctx.fillText(lead.what, 150, 610);
 
   // Three small figures under a rule, the way a report card closes.
   ctx.fillStyle = "#e8e4db";

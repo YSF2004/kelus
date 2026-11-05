@@ -12,7 +12,7 @@ import styles from "./ShareProgress.module.css";
  * quiet button. Both open the same card the Done screen shows, with today's numbers. Shown only once there is
  * something from today to share; only numbers and the course's chosen name ever leave the device.
  */
-export function ShareProgress({ variant }: { variant: "rail" | "inline" }) {
+export function ShareProgress({ variant }: { variant: "rail" | "inline" | "card" }) {
   const state = useSyncExternalStore(subscribeDemoState, getDemoSnapshot, getServerDemoSnapshot);
   const dialog = useRef<HTMLDialogElement>(null);
   const stats = todayShareStats(state);
@@ -28,6 +28,8 @@ export function ShareProgress({ variant }: { variant: "rail" | "inline" }) {
   }, [stats]);
 
   if (!stats) return null;
+  // On Done the card itself is shown, at full size: the moment worth sharing is the one you are looking at.
+  if (variant === "card") return <ResultShareCard stats={stats} sessionNumber={sessions} full />;
   const asked = stats.recalled + stats.missed;
   const open = () => dialog.current?.showModal();
 

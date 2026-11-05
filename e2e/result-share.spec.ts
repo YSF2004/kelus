@@ -8,10 +8,9 @@ test("the end of a session offers its result as a card, and copying it says so f
   await startFromPaste(page, notes);
   await playQuickRun(page, "Water moves across a membrane.", "Partly");
   await page.goto("/session/complete");
-  // Done keeps sharing to one quiet button; the card opens in a sheet.
-  await page.getByRole("button", { name: /Share today’s progress/ }).click();
+  // Done shows the card itself, whole, with one Share button under it.
   const card = page.getByTestId("result-share-card");
-  await expect(card).toContainText("lines recalled from my notes");
+  await expect(card).toContainText(/lines? (recalled|practiced) from my notes/);
   await expect(card).toContainText("kelus.me");
   await expect(page.getByRole("link", { name: "WhatsApp" })).toHaveAttribute("href", /^https:\/\/wa\.me\/\?text=/);
   await page.getByRole("button", { name: "Copy summary" }).click();

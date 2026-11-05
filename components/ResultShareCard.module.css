@@ -1,6 +1,9 @@
 /* A result worth sending: a sheet of paper with one big number in the book serif, three small figures under a
    hairline, and kelus.me at the foot. The same layout is drawn as the shared picture (lib/share-result.ts). */
-.wrap { display: grid; gap: 12px; }
+.wrap { display: grid; gap: 14px; }
+/* On Done the card is shown whole, the width of the column, its number large: no empty space to fill. */
+.wrap[data-full] .card { min-width: 0; padding: 30px 28px 24px; }
+.wrap[data-full] .card .big { margin-top: 10px; font-size: clamp(4.5rem, 20vw, 6.5rem); }
 
 .card {
   display: grid;
@@ -38,11 +41,14 @@
 .foot { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 4px 12px; margin: 18px 0 0; color: var(--color-slate); font-size: 0.8125rem; }
 .foot b { color: var(--color-midnight-ink); font-size: 0.9375rem; }
 
-.actions { display: grid; justify-items: start; gap: 8px; }
-.buttons { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 18px; }
-.secondary { display: inline-flex; align-items: center; min-height: 44px; padding: 0 2px; border: 0; background: none; color: var(--color-kelus); font: inherit; font-weight: 600; text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 4px; cursor: pointer; }
-.secondary:focus-visible { outline: 2px solid var(--color-kelus); outline-offset: 2px; border-radius: 4px; }
+/* Under the card: one full-width action, then the two quieter ways as outlined buttons side by side. */
+.actions { display: grid; gap: 10px; }
+.buttons { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.secondary { justify-content: center; min-height: 44px; text-decoration: none; }
 .copyLabel { display: inline-flex; align-items: center; gap: 6px; }
-.share { min-height: 44px; }
+.share { display: inline-flex !important; align-items: center; justify-content: center; gap: 8px; width: 100%; min-height: 48px; }
 .privacy { margin: 0; color: var(--color-slate); font-size: var(--text-body-sm, 0.875rem); line-height: 1.45; }
 
+/* .share repeated: an older rule sets every product button to 36px with !important; the card's one action is 48px. */
+.share.share { min-height: 48px !important; height: 48px !important; }
+.secondary.secondary { min-height: 44px !important; }

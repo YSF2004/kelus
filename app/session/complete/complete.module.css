@@ -351,3 +351,6 @@
 .share { margin-top: 12px; }
 .share:empty { display: none; }
 .quiet p button { margin-left: 6px; }
+/* The share card gets its own band: a rule above, room around it, the width of the column. */
+.shareCard { margin-top: 24px; padding-top: 24px; border-top: 1px solid var(--k-line); }
+.shareCard:empty { display: none; }

@@ -228,8 +228,8 @@ function CompleteBody() {
           {nextFresh ? <>Keep going with {name(nextFresh.conceptId)}</> : "Back to study plan"} <ArrowRight />
         </Link>
         <RemindTomorrow />
-        {/* Sharing is one quiet button under the way on; it opens the card in a sheet. */}
-        {!SAMPLE_COURSE_IDS.has(session.courseId) && practised.length ? <div className={styles.share}><ShareProgress variant="inline" /></div> : null}
+        {/* The session as a card worth sending, shown whole: the picture it shares, one Share button under it. */}
+        {!SAMPLE_COURSE_IDS.has(session.courseId) && practised.length ? <div className={styles.shareCard}><ShareProgress variant="card" /></div> : null}
 
         <div className={styles.quiet}>
           {usefulness === null ? (
