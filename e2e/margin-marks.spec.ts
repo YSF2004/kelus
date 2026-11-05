@@ -14,7 +14,7 @@ test("a missed line can be seen circled on the student's own PDF page", async ({
     else await page.getByRole("group", { name: "Choose one" }).getByRole("button").nth(1).click();
     const see = page.getByRole("button", { name: "See it on your page" });
     if (await see.count()) { await see.click(); break; }
-    await page.getByRole("button", { name: /^(Next idea|Next(?! section)|Now say it yourself)/ }).click();
+    await page.getByRole("button", { name: /^(Next question|Next(?! section)|Now say it yourself)/ }).click();
   }
   await expect(page.locator(".core-source-marker").first()).toBeVisible({ timeout: 15_000 });
   await expect(page.locator(".core-source-loop")).toHaveCount(1);

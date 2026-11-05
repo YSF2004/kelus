@@ -16,7 +16,7 @@ test("the result card, Today and Topics all name the same next topic, and a past
     await page.locator('#run-explain, button:has-text("I’m not sure")').first().waitFor();
     if (await page.locator("#run-explain").count()) break;
     await page.getByRole("button", { name: "I’m not sure" }).click();
-    await page.getByRole("button", { name: /^(Next idea|Next(?! section)|Now say)/ }).click();
+    await page.getByRole("button", { name: /^(Next question|Next(?! section)|Now say)/ }).click();
   }
   await page.getByRole("button", { name: "I don’t remember" }).click();
   await page.getByRole("button", { name: /^Continue/ }).click();

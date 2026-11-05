@@ -5,7 +5,7 @@ import { SiteFooter } from "@/components/SiteFooter";
 
 export const metadata: Metadata = {
   title: "Kelus",
-  description: "Add a lecture PDF, syllabus, or notes. Kelus helps you recall the material, check your answers, and decide which topic to practise next.",
+  description: "Add a lecture PDF, syllabus, or notes. Kelus helps you recall the material, check your answers, and decide which topic to practice next.",
   alternates: { canonical: "/route" },
   openGraph: {
     title: "How to Revise from Your Notes | Kelus",

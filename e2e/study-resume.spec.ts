@@ -27,7 +27,7 @@ test("a learner's feedback, source jump and unfinished explanation survive a rel
   for (let count = 0; count < 3 && await check.count(); count += 1) {
     const unsure = check.getByRole("button", { name: "I’m not sure", exact: true });
     if (await unsure.isVisible()) await unsure.click();
-    await check.getByRole("button", { name: /^(Next idea|Next(?! section)|Now say it yourself)$/ }).click();
+    await check.getByRole("button", { name: /^(Next question|Next(?! section)|Now say it yourself)$/ }).click();
   }
   const explanation = page.locator("#run-explain");
   const answer = "The side with fewer alternatives cannot change its behaviour as easily.";

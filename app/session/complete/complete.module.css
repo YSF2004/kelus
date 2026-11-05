@@ -190,6 +190,23 @@
   pointer-events: none;
 }
 
+.missedLines {
+  display: grid;
+  gap: 6px;
+  margin: 4px 0 2px;
+  padding: 0;
+  list-style: none;
+}
+
+.missedLines li {
+  padding-left: 12px;
+  border-left: 2px solid color-mix(in srgb, var(--k-marigold-text) 45%, transparent);
+  color: var(--k-ink);
+  font-family: var(--font-display);
+  font-size: 1rem;
+  line-height: 1.45;
+}
+
 .calendar {
   justify-self: start;
   margin-top: 4px;

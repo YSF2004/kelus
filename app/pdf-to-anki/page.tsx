@@ -70,7 +70,7 @@ export default function PdfToAnki() {
         </>
       }
       steps={STEPS}
-      why={{ title: "A deck that matches what you were taught.", body: "Every card is written from a sentence in your lecture notes, and the back quotes it with its page. When your exam tests what the lecturer said, that is what you have practised." }}
+      why={{ title: "A deck that matches what you were taught.", body: "Every card is written from a sentence in your lecture notes, and the back quotes it with its page. When your exam tests what the lecturer said, that is what you have practiced." }}
       faq={FAQ}
       credit="Example: LibreTexts BIOL 101: General Biology I Laboratory Manual by Brad Basehore, Michelle A. Bucks and Christine M. Mummert, CC BY 4.0. Kelus is not affiliated with LibreTexts or with Anki."
     />

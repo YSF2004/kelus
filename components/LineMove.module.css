@@ -1,10 +1,5 @@
-/* Five boxes in a row, the line's chip sliding along them: small, exact, and the one moving thing in the feedback. */
-.move { display: flex; align-items: center; gap: 14px; margin: 4px 0 2px; }
-.track { position: relative; display: grid; grid-template-columns: repeat(5, 1fr); gap: 4px; width: 210px; margin: 0; padding: 0; list-style: none; }
-.track li { display: grid; place-items: center; height: 26px; border-radius: 6px; background: var(--lb-well, #f5f7f6); box-shadow: inset 0 0 0 1px var(--lb-line, #e3e8e5); }
-.track li span { font-family: var(--font-geist-mono), ui-monospace, monospace; font-size: 11px; color: var(--lb-text-3, #69736e); }
-.chip { display: grid; place-items: center; font-family: var(--font-geist-mono), ui-monospace, monospace; font-size: 11px; font-style: normal; font-weight: 600; color: var(--lb-miss-ink, #9b3622); position: absolute; top: 0; width: calc(20% - 3.2px); height: 26px; border-radius: 6px; background: var(--lb-surface, #fff); box-shadow: 0 0 0 1.5px var(--lb-miss, #c4492e); }
-.chip[data-right] { color: #fff; background: var(--lb-green, #1f6b45); box-shadow: 0 2px 6px -2px rgba(31, 107, 69, 0.5); }
+/* When the line comes back, in one short sentence: green when it moved on, coral when it starts again. */
+.move { margin: 4px 0 2px; }
 .words { font-size: 13px; font-weight: 600; color: var(--lb-text-2, #4a5550); font-variant-numeric: tabular-nums; }
 .move[data-dir="up"] .words { color: var(--lb-green-ink, #1f6b45); }
 .move[data-dir="down"] .words { color: var(--lb-miss-ink, #9b3622); }

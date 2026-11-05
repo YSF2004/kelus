@@ -49,14 +49,14 @@ export function whatsappUrl(stats: ResultStats) {
 
 export function shareHeadline(stats: ResultStats) {
   const asked = stats.recalled + stats.missed;
-  return asked ? `${stats.recalled} of ${asked} lines recalled` : `${stats.topics} ${stats.topics === 1 ? "topic" : "topics"} practised`;
+  return asked ? `${stats.recalled} of ${asked} lines recalled` : `${stats.topics} ${stats.topics === 1 ? "topic" : "topics"} practiced`;
 }
 
 /** The message that goes with the link: what happened, in plain words, and why a friend might care. */
 export function shareText(stats: ResultStats) {
   const from = stats.course ? ` from ${stats.course}` : " from my notes";
   const asked = stats.recalled + stats.missed;
-  const today = asked ? `I recalled ${stats.recalled} of ${asked} lines${from} today` : `I practised ${stats.topics} ${stats.topics === 1 ? "topic" : "topics"}${from} today`;
+  const today = asked ? `I recalled ${stats.recalled} of ${asked} lines${from} today` : `I practiced ${stats.topics} ${stats.topics === 1 ? "topic" : "topics"}${from} today`;
   const back = stats.missed ? `, and the ${stats.missed === 1 ? "one" : stats.missed} I missed ${stats.missed === 1 ? "comes" : "come"} back tomorrow` : "";
   const streak = stats.streak > 1 ? ` (${stats.streak}-day streak)` : "";
   return `${today}${back}${streak}. Kelus turns your own notes into questions:`;
@@ -117,7 +117,7 @@ export async function drawResultCard(stats: ResultStats): Promise<Blob | null> {
   if (asked) ctx.fillText(`/${asked}`, 150 + bigWidth, 520);
   ctx.fillStyle = ink;
   ctx.font = `500 54px ${sans}`;
-  ctx.fillText(asked ? "lines recalled from my notes" : stats.topics === 1 ? "topic practised" : "topics practised", 150, 610);
+  ctx.fillText(asked ? "lines recalled from my notes" : stats.topics === 1 ? "topic practiced" : "topics practiced", 150, 610);
 
   // Three small figures under a rule, the way a report card closes.
   ctx.fillStyle = "#e8e4db";

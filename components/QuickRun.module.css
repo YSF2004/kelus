@@ -794,7 +794,7 @@
 .flagDone { margin: 0; display: flex; flex-wrap: wrap; align-items: center; gap: 4px 8px; }
 
 /* Listen and "Show it in your notes": small tools under a line, quieter than the main action. */
-.lineTools { display: flex; flex-wrap: wrap; gap: 4px 16px; margin-top: -4px; }
+.lineTools { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 16px; }
 .listen { display: inline-flex; align-items: center; gap: 6px; min-height: 44px; padding: 0; border: 0; background: none; color: var(--color-slate); font: inherit; font-size: var(--text-body-sm); cursor: pointer; }
 .listen:hover, .listen[aria-pressed="true"] { color: var(--color-kelus); }
 .listen:focus-visible { outline: 2px solid var(--color-kelus); outline-offset: 2px; border-radius: 4px; }
@@ -839,7 +839,7 @@
   }
   .feedback strong { font-size: 1.25rem; }
   .feedback .primary { order: 10; justify-self: stretch; justify-content: center; width: 100%; min-height: 50px; }
-  .feedback .flag { order: 11; }
+  .feedback .lineTools { order: 11; }
 }
 .feedback.isUnsure { background: var(--k-surface-2); }
 

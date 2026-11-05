@@ -150,9 +150,9 @@ export function TopicMapPanel() {
   return (
     <div className="surface-map is-toc">
       <div className={styles.pathHead} role="group" aria-label="Where you are">
-        <p className="sr-only">{practised} of {path.length} topics practised{solid ? `, ${solid} solid` : ""}{recalled ? `, ${recalled} ${recalled === 1 ? "line" : "lines"} answered correctly` : ""}{passedCount ? `, ${passedCount} ${passedCount === 1 ? "checkpoint" : "checkpoints"} passed` : ""}.</p>
+        <p className="sr-only">{practised} of {path.length} topics practiced{solid ? `, ${solid} solid` : ""}{recalled ? `, ${recalled} ${recalled === 1 ? "line" : "lines"} answered correctly` : ""}{passedCount ? `, ${passedCount} ${passedCount === 1 ? "checkpoint" : "checkpoints"} passed` : ""}.</p>
         <ul className={styles.stats} aria-hidden="true">
-          <li><Octicon name="list-unordered" className={styles.ico} /><strong>{practised}/{path.length}</strong><span>practised</span></li>
+          <li><Octicon name="list-unordered" className={styles.ico} /><strong>{practised}/{path.length}</strong><span>practiced</span></li>
           {solid ? <li data-tone="green"><Octicon name="check-circle" className={styles.ico} /><strong>{solid}</strong><span>solid</span></li> : null}
           {recalled ? <li><Octicon name="check-circle" className={styles.ico} /><strong>{recalled}</strong><span>{recalled === 1 ? "line" : "lines"} recalled</span></li> : null}
           {passedCount ? <li data-tone="marigold"><Octicon name="trophy" className={styles.ico} /><strong>{passedCount}</strong><span>{passedCount === 1 ? "checkpoint" : "checkpoints"}</span></li> : null}

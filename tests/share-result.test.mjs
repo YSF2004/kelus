@@ -17,7 +17,7 @@ test("the default course name is never shared, one miss reads as one, and a firs
 });
 
 test("a session with only own-words answers still has something true to say", () => {
-  assert.equal(shareText({ ...stats, recalled: 0, missed: 0, topics: 1, streak: 1 }), "I practised 1 topic from Cell Biology today. Kelus turns your own notes into questions:");
+  assert.equal(shareText({ ...stats, recalled: 0, missed: 0, topics: 1, streak: 1 }), "I practiced 1 topic from Cell Biology today. Kelus turns your own notes into questions:");
 });
 
 test("the link opens the result page with its numbers only, tagged so arrivals can be counted", () => {

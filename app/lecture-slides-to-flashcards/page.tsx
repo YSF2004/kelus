@@ -70,7 +70,7 @@ export default function LectureSlidesToFlashcards() {
         </>
       }
       steps={STEPS}
-      why={{ title: "Practise what the lecture actually said.", body: "The cards come from your lecturer's own slides, not from a summary of the subject. When the exam follows the lecture, so does your practice." }}
+      why={{ title: "Practice what the lecture actually said.", body: "The cards come from your lecturer's own slides, not from a summary of the subject. When the exam follows the lecture, so does your practice." }}
       faq={FAQ}
       credit="Example: Kelus's own example lecture deck (Economics, Lecture 4: Elasticity), the slides file Kelus is tested on."
     />

@@ -439,7 +439,8 @@ export function QuickRun({ run: providedRun, persistenceKey, onPersistenceChange
                 initial={reduce ? false : touch ? { opacity: 1, y: "100%" } : { opacity: 0, y: 8, scale: 0.98 }} animate={{ opacity: 1, y: 0, scale: 1 }} transition={touch ? { type: "spring", bounce: 0, duration: 0.38 } : { type: "spring", bounce: 0, duration: 0.28 }}>
                 {/* A small verdict, then one line that names the exact difference: the teacher's sentence, not a label. */}
                 <span className={styles.verdict}>{answered.right ? <PackArt name="check" className={styles.mark} /> : null}{answered.unsure ? w.workItOut : answered.right ? (answered.firstEver ? w.firstRightShort : w.rightShort) : w.notQuiteYet}</span>
-                <strong className={styles.headline}>{headline ?? (answered.unsure ? (item.kind === "cloze" ? w.itWas(item.modelAnswer) : w.lineFrom) : answered.right ? (answered.firstEver ? w.firstRight : w.right) : item.kind === "cloze" ? w.notQuiteWas(item.modelAnswer) : w.notQuite)}</strong>
+                {/* A wrong pick with nothing more to say gets no headline: "Not quite yet" above it already says "Not quite." */}
+                {headline || answered.unsure || answered.right || item.kind === "cloze" ? <strong className={styles.headline}>{headline ?? (answered.unsure ? (item.kind === "cloze" ? w.itWas(item.modelAnswer) : w.lineFrom) : answered.right ? (answered.firstEver ? w.firstRight : w.right) : w.notQuiteWas(item.modelAnswer))}</strong> : null}
                 {answered.right && answered.picked ? <p className={styles.pickedNote}>{w.pickedNote}</p> : null}
                 <ol className={styles.reasoningTrace} aria-label="Your answer, the reason, and the source">
                   <li className={`${styles.reasoningStep}${headlineSaysIt ? " sr-only" : ""}`}>
@@ -501,14 +502,11 @@ export function QuickRun({ run: providedRun, persistenceKey, onPersistenceChange
                     </div>
                   </li>
                 </ol>
-                {/* Where this answer puts the line in the five boxes, moved as you watch. Not for a shrug: nothing was tried. */}
+                {/* When this line comes back, in words. Not for a shrug: nothing was tried. */}
                 {answered.unsure ? null : <LineMove quote={item.sourceQuote} right={answered.right} recall={item.kind === "cloze" && !answered.picked} nowIso={new Date().toISOString()} />}
                 {/* Accepted on purpose, and said so: the student sees the notes' own word, not a silent pass. */}
                 {answered.right && item.kind === "cloze" && answered.how && answered.how !== "exact" ? <p className={styles.accepted}>{acceptedNote(answered.how, item.modelAnswer)}</p> : null}
                 {answered.firstEver ? <p className={styles.firstNote}><PackArt name="ranking" className={styles.firstArt} size={64} /><span>A short review is planned in a few days to help this idea stay familiar.</span></p> : null}
-                <div className={styles.lineTools}>
-                  <ListenButton key={`listen-q-${step}`} text={item.sourceQuote} className={styles.listen} label={w.listen} stopLabel={w.stop} />
-                </div>
                 {answered.elsewhere ? (
                   <div className={styles.elsewhere}>
                     <span>{answered.given && !/\s/.test(answered.given) ? w.belongsWord(answered.given) : w.belongs}</span>
@@ -518,30 +516,34 @@ export function QuickRun({ run: providedRun, persistenceKey, onPersistenceChange
                 <button ref={nextRef} type="button" className={`k-btn ${styles.primary}`} onClick={next}>{nextLabel} <ArrowRight /></button>
                 {/* The swipe is said once, on the first answer of a run, where a thumb would try it. */}
                 {touch && step === 0 && !reduce ? <p className={styles.swipeHint} aria-hidden="true">or swipe this left</p> : null}
-                {/* A bad question is the student's to call. One tap counts it and drops it from later runs; its words
-                    go to the Kelus team only on a second, explicit tap. */}
-                <div className={styles.flag}>
-                  {flag === null ? (
-                    <button type="button" className={styles.flagLink} onClick={() => setFlag("choosing")}>{w.flag}</button>
-                  ) : flag === "choosing" ? (
-                    <div className={styles.flagReasons} role="group" aria-label="What is wrong with this question?">
-                      {FLAG_REASONS.map((reason) => (
-                        <button key={reason.value} type="button" className={styles.flagReason} onClick={() => { flagQuestion(item, reason.value, courseType); setFlag({ reason: reason.value, sent: "no" }); }}>{reason.label}</button>
-                      ))}
-                      <button type="button" className={styles.flagLink} onClick={() => setFlag(null)}>Cancel</button>
-                    </div>
-                  ) : (
-                    <p className={styles.flagDone} role="status">
-                      Flagged. Kelus won’t ask it again.{" "}
-                      {flag.sent === "yes" ? "Sent to the Kelus team, thank you." : flag.sent === "sending" ? "Sending…" : (
-                        <button type="button" className={styles.flagLink} onClick={() => {
-                          const reason = flag.reason;
-                          setFlag({ reason, sent: "sending" });
-                          void sendFlaggedQuestion(item, reason, run.topic || "Warm-up", answered.given).then((ok) => setFlag({ reason, sent: ok ? "yes" : "failed" }));
-                        }}>{flag.sent === "failed" ? "Couldn’t send. Try again" : "Send it to the Kelus team"}</button>
-                      )}
-                    </p>
-                  )}
+                {/* The quiet tools, in one row under the way on: hear the line, or flag a bad question. A bad question is
+                    the student's to call. One tap counts it and drops it from later runs; its words go to the Kelus team
+                    only on a second, explicit tap. */}
+                <div className={styles.lineTools}>
+                  <ListenButton key={`listen-q-${step}`} text={item.sourceQuote} className={styles.listen} label={w.listen} stopLabel={w.stop} />
+                  <div className={styles.flag}>
+                    {flag === null ? (
+                      <button type="button" className={styles.flagLink} onClick={() => setFlag("choosing")}>{w.flag}</button>
+                    ) : flag === "choosing" ? (
+                      <div className={styles.flagReasons} role="group" aria-label="What is wrong with this question?">
+                        {FLAG_REASONS.map((reason) => (
+                          <button key={reason.value} type="button" className={styles.flagReason} onClick={() => { flagQuestion(item, reason.value, courseType); setFlag({ reason: reason.value, sent: "no" }); }}>{reason.label}</button>
+                        ))}
+                        <button type="button" className={styles.flagLink} onClick={() => setFlag(null)}>Cancel</button>
+                      </div>
+                    ) : (
+                      <p className={styles.flagDone} role="status">
+                        Flagged. Kelus won’t ask it again.{" "}
+                        {flag.sent === "yes" ? "Sent to the Kelus team, thank you." : flag.sent === "sending" ? "Sending…" : (
+                          <button type="button" className={styles.flagLink} onClick={() => {
+                            const reason = flag.reason;
+                            setFlag({ reason, sent: "sending" });
+                            void sendFlaggedQuestion(item, reason, run.topic || "Warm-up", answered.given).then((ok) => setFlag({ reason, sent: ok ? "yes" : "failed" }));
+                          }}>{flag.sent === "failed" ? "Couldn’t send. Try again" : "Send it to the Kelus team"}</button>
+                        )}
+                      </p>
+                    )}
+                  </div>
                 </div>
               </motion.div>
             ) : null}

@@ -23,7 +23,7 @@ async function playRun(page: Page) {
     const gap = page.locator('input[id^="run-gap"]:not([disabled])');
     if (await gap.count()) { await gap.fill("zzz"); await page.getByRole("button", { name: "Check", exact: true }).click(); }
     else await page.getByRole("group", { name: "Choose one" }).getByRole("button").first().click();
-    await page.getByRole("button", { name: /^(Next idea|Next(?! section)|Now say it yourself)/ }).click();
+    await page.getByRole("button", { name: /^(Next question|Next(?! section)|Now say it yourself)/ }).click();
   }
   await page.locator("#run-explain").fill("It moves water toward more solute.");
   await page.getByRole("button", { name: /Compare with the page/ }).click();
@@ -40,7 +40,7 @@ test("a brand-new course says it is too early instead of inventing a trend", asy
   await expect(page.getByText("Readiness after 6 answers", { exact: false })).toHaveCount(0);
   await expect(page.getByRole("img", { name: /Estimated readiness over 14 days/ })).toHaveCount(0); // no chart yet
   await expect(page.getByRole("region", { name: "Not started" })).toContainText("Osmosis");
-  await expect(page.getByRole("link", { name: /Practise a topic/ })).toBeVisible();
+  await expect(page.getByRole("link", { name: /Practice a topic/ })).toBeVisible();
 });
 
 test("after answering, the screen counts the answers but still does not claim a trend from one topic", async ({ page }) => {

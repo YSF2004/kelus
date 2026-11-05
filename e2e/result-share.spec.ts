@@ -17,7 +17,7 @@ test("the end of a session offers its result as a card, and copying it says so f
   await page.getByRole("button", { name: "Copy summary" }).click();
   await expect(page.getByRole("button", { name: "Copied" })).toBeVisible();
   const copied = await page.evaluate(() => navigator.clipboard.readText());
-  expect(copied).toMatch(/^I (recalled|practised) .* Kelus turns your own notes into questions: http.*\/r\/\?l=/);
+  expect(copied).toMatch(/^I (recalled|practiced) .* Kelus turns your own notes into questions: http.*\/r\/\?l=/);
   expect(copied).not.toMatch(/membrane|osmosis/i);
   await expect(page.getByRole("button", { name: "Copy summary" })).toBeVisible({ timeout: 4_000 });
 });

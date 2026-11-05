@@ -102,7 +102,7 @@ export function ResultCardFace({ stats, kicker }: { stats: ResultStats; kicker?:
       <p className={styles.big} aria-hidden="true">
         {asked ? <>{stats.recalled}<span>/{asked}</span></> : stats.topics}
       </p>
-      <p className={styles.what}>{asked ? "lines recalled from my notes" : stats.topics === 1 ? "topic practised" : "topics practised"}</p>
+      <p className={styles.what}>{asked ? "lines recalled from my notes" : stats.topics === 1 ? "topic practiced" : "topics practiced"}</p>
       <dl className={styles.figures}>
         <div><dt>back tomorrow</dt><dd>{stats.missed}</dd></div>
         <div><dt>in the course</dt><dd>{stats.courseRecalled}<span>/{stats.courseTotal}</span></dd></div>

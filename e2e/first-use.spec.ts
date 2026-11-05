@@ -96,14 +96,14 @@ async function playQuickRun(page: Page, explanation: string, grade: string, expe
     await expect(reasoningTrace).toContainText("Evidence from your notes");
     if (expectTwoIdeaIntro && guard === 0) {
       await expect(page.getByLabel("Check 1 of 2")).toBeVisible();
-      await expect(page.getByRole("button", { name: "Next idea", exact: true })).toBeVisible();
-      await page.getByRole("button", { name: "Next idea", exact: true }).click();
+      await expect(page.getByRole("button", { name: "Next question", exact: true })).toBeVisible();
+      await page.getByRole("button", { name: "Next question", exact: true }).click();
       await expect(page.getByLabel("Check 2 of 2")).toBeVisible();
     } else {
       if (expectTwoIdeaIntro && guard === 1) {
         await expect(page.getByRole("button", { name: "Now say it yourself", exact: true })).toBeVisible();
       }
-      await page.getByRole("button", { name: /^(Next idea|Next(?! section)|Now say it yourself)/ }).click();
+      await page.getByRole("button", { name: /^(Next question|Next(?! section)|Now say it yourself)/ }).click();
     }
   }
   await page.locator("#run-explain").fill(explanation);
