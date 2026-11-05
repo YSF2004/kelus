@@ -24,6 +24,8 @@ import { CourseFolderIcon } from "@/components/CourseFolderIcon";
 import { Octicon } from "@/components/Octicon";
 import { InlineName } from "@/components/InlineName";
 import { toneOf } from "@/lib/topic-tone";
+import { leitner } from "@/domain/leitner";
+import { LeitnerPanel } from "@/components/LeitnerPanel";
 import { recallMap } from "@/domain/recall-map";
 import { getKnownLines, getServerKnownLines, subscribeKnownLines } from "@/lib/known-lines";
 import q from "./TodayQuiet.module.css";
@@ -100,6 +102,7 @@ export function TodayRoute({
   const habit = habitSummary({ events, concepts });
   const knownLines = useSyncExternalStore(subscribeKnownLines, getKnownLines, getServerKnownLines);
   const recall = recallMap({ concepts, activities, known: knownLines, missed, nowIso });
+  const boxes = leitner({ concepts, activities, known: knownLines, missed, nowIso });
   const eve = !isSampleCourse && !examDatePending && daysToExam > 0 && daysToExam <= 3 && recall.total ? { days: daysToExam, recalled: recall.recalled, total: recall.total, back: recall.back } : null;
   const goalDone = !isSampleCourse && habit.goalMet;
   const goalDoneCount = habit.topicsToday;
@@ -315,6 +318,7 @@ export function TodayRoute({
       {/* Beside what is due now, what comes after it: tomorrow, the next stops, then one extra. On a narrow screen
           this column follows the card, in the same order. */}
       <div className={q.side} data-block="today-side">
+      <LeitnerPanel state={boxes} />
       {/* Day two, shown on day one: what you missed today is what tomorrow opens with, so the plan says so now. */}
       {tomorrowLine ? (
         <motion.p className={q.tomorrow} data-block="today-tomorrow" {...settle(2)}>

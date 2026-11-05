@@ -68,7 +68,6 @@ html body.is-course-studio .studio-topbar { min-height: 44px !important; border-
 
 /* The extras under Today (exam date, nudges, install, reminder, welcome): flat sections under a hairline. */
 html body.is-course-studio [class*="ExamDateCard"][class*="card"],
-html body.is-course-studio [class*="NudgeCard"][class*="card"],
 html body.is-course-studio [class*="InstallCard"][class*="card"],
 html body.is-course-studio [class*="ReminderCard"][class*="card"] {
   margin-top: 40px !important;
@@ -80,13 +79,12 @@ html body.is-course-studio [class*="ReminderCard"][class*="card"] {
   box-shadow: none !important;
 }
 html body.is-course-studio [class*="ExamDateCard"][class*="card"] h2,
-html body.is-course-studio [class*="NudgeCard"][class*="card"] h2,
 html body.is-course-studio [class*="InstallCard"][class*="card"] h2,
 html body.is-course-studio [class*="ReminderCard"][class*="card"] h2 { font-size: 0.9375rem !important; font-weight: 600 !important; letter-spacing: -0.01em !important; }
 html body.is-course-studio [class*="ExamDateCard"] :is(input, select),
-html body.is-course-studio [class*="NudgeCard"] select { min-height: 34px !important; border: 1px solid var(--q-line-strong) !important; border-radius: 7px !important; font-size: 0.875rem !important; }
+html body.is-course-studio [class*="InstallCard"] select,
+html body.is-course-studio [class*="ReminderCard"] select { min-height: 34px !important; border: 1px solid var(--q-line-strong) !important; border-radius: 7px !important; font-size: 0.875rem !important; }
 html body.is-course-studio [class*="ExamDateCard"] button,
-html body.is-course-studio [class*="NudgeCard"] button,
 html body.is-course-studio [class*="InstallCard"] button.k-btn {
   min-height: 34px !important; height: 34px !important; padding: 0 14px !important; border-radius: 7px !important;
   background: var(--k-surface) !important; color: var(--q-ink) !important; border: 1px solid var(--q-line-strong) !important;
@@ -94,6 +92,18 @@ html body.is-course-studio [class*="InstallCard"] button.k-btn {
 }
 html body.is-course-studio [class*="ExamDateCard"] button:hover,
 html body.is-course-studio [class*="NudgeCard"] button:hover { background: var(--q-hover) !important; }
+html body.is-course-studio [class*="NudgeCard"] button {
+  min-height: 44px !important;
+  height: 44px !important;
+  padding-inline: 16px !important;
+  border: 1px solid var(--q-line-strong) !important;
+  border-radius: 8px !important;
+  background: var(--k-surface) !important;
+  color: var(--q-ink) !important;
+  box-shadow: none !important;
+  font-size: 0.875rem !important;
+  font-weight: 500 !important;
+}
 
 @media (prefers-reduced-motion: reduce) { html body.is-course-studio * { transition-duration: 1ms !important; } }
 
