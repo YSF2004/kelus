@@ -880,8 +880,6 @@ html body .auth-backdrop { z-index: 200; }
 /* Decorative drawings are gone from the product, so the space reserved for them goes too. */
 html body [class*="ReminderCard"][class*="card"],
 html body [class*="NudgeCard"][class*="card"],
-html body [class*="WelcomeBack"][class*="body"],
-html body [class*="WelcomeBack"][class*="card"],
 html body [class*="complete"][class*="tomorrow"],
 html body [class*="complete"][class*="tomorrow"] > div { padding-right: 18px !important; grid-template-columns: minmax(0, 1fr) !important; }
 /* Topic cards are text and a progress ring: no icon column. */

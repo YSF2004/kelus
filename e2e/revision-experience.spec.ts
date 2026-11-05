@@ -63,7 +63,8 @@ test("a student can follow the study plan into topics and open one", async ({ pa
   await expect(page.getByLabel("Why this topic is first")).toContainText("last answers here were shaky");
   await expect(page.getByRole("button", { name: /Start this topic/ })).toBeVisible();
 
-  await page.getByRole("button", { name: "Topics" }).click();
+  await page.getByRole("button", { name: "Progress", exact: true }).first().click();
+  await page.getByRole("link", { name: "Topics and exam check" }).first().click();
   await expect(page.getByRole("heading", { name: "Topics" })).toBeVisible();
   // The route's first stop is marked in the source-order topic list.
   await page.locator(".index-toc-row", { hasText: "Start here" }).click();
@@ -87,10 +88,11 @@ test("the course workspace stays legible across its sections and returns home", 
   await expect(sections.getByRole("button", { name: "Materials" })).toHaveAttribute("aria-pressed", "true");
   await expect(sections.getByRole("button", { name: "Materials" })).toHaveCSS("box-shadow", /0px 0px 0px 1px/);
   await expect(page.locator(".material-shelf h2")).toHaveCSS("color", "rgb(14, 21, 18)");
-  await sections.getByRole("button", { name: "Topics" }).click();
+  await sections.getByRole("button", { name: "Progress" }).click();
+  await page.getByRole("link", { name: "Topics and exam check" }).first().click();
   await expect(page.getByRole("heading", { name: "Topics" })).toBeVisible();
-  await expect(sections.getByRole("button", { name: "Topics" })).toHaveAttribute("aria-pressed", "true");
-  await expect(sections.getByRole("button", { name: "Topics" })).toHaveCSS("box-shadow", /0px 0px 0px 1px/);
+  await expect(sections.getByRole("button", { name: "Progress" })).toHaveAttribute("aria-pressed", "true");
+  await expect(sections.getByRole("button", { name: "Progress" })).toHaveCSS("box-shadow", /0px 0px 0px 1px/);
   await expect(page.locator(".index-toc-row", { hasText: "Start here" })).toContainText("Elasticity");
 
   for (const width of [320, 375, 414, 768]) {

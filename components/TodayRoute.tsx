@@ -12,7 +12,7 @@ import { NudgeCard } from "@/components/NudgeCard";
 import { InstallCard } from "@/components/InstallCard";
 import { getNudgeSettings, getServerNudgeSettings, nudgesSupported, subscribeNudgeSettings } from "@/lib/nudge";
 import { installState, serverInstallState, subscribeInstall } from "@/lib/install-app";
-import { useReturnVisit } from "@/components/WelcomeBack";
+import { useReturnVisit } from "@/components/useReturnVisit";
 import { ReminderCard } from "@/components/ReminderCard";
 import { ExamDateCard } from "@/components/ExamDateCard";
 import { estimatedReadiness } from "@/domain/readiness";

@@ -10,7 +10,7 @@
     bottom: 0;
     z-index: 60;
     display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(0, 1fr)); /* as many columns as there are sections */
     padding: 6px 8px calc(6px + env(safe-area-inset-bottom));
     border-top: 1px solid color-mix(in srgb, var(--k-ink) 8%, transparent);
     background: color-mix(in srgb, var(--k-surface) 90%, transparent);

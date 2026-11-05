@@ -16,7 +16,6 @@ import { estimatedReadiness } from "@/domain/readiness";
 import { TopicMapPanel } from "@/components/TopicMapPanel";
 import { ProgressView } from "@/components/ProgressView";
 import { AutoStart } from "@/components/AutoStart";
-import { ankiCards } from "@/domain/anki-export";
 import { PackArt, type PackArtName } from "@/components/PackArt";
 import { AppTabBar } from "@/components/AppTabBar";
 import { AiSetting } from "@/components/AiConsent";
@@ -42,12 +41,18 @@ import { removeRemoteMaterial } from "@/lib/material-sync";
 
 export type SurfaceMode = "today" | "materials" | "map" | "progress";
 
-const MODES: Array<{ id: SurfaceMode; label: string; art: PackArtName; tone: "green" | "marigold" | "iris" }> = [
+const ALL_MODES: Array<{ id: SurfaceMode; label: string; art: PackArtName; tone: "green" | "marigold" | "iris" }> = [
   { id: "today", label: "Study plan", art: "list-check", tone: "green" },
   { id: "materials", label: "Materials", art: "folder", tone: "marigold" },
   { id: "map", label: "Topics", art: "diagram-project", tone: "iris" },
   { id: "progress", label: "Progress", art: "award", tone: "iris" },
 ];
+/**
+ * Three sections, not four: Topics and Progress listed the same topics twice, so the topic list (exam check, topic
+ * edits, revision sheet, Anki) opens from Progress and counts as part of it. ?section=map still opens it directly.
+ */
+const MODES = ALL_MODES.filter((item) => item.id !== "map");
+const navMode = (mode: SurfaceMode): SurfaceMode => (mode === "map" ? "progress" : mode);
 
 
 const pressSpring = { type: "spring", bounce: 0, duration: 0.24 } as const;
@@ -105,7 +110,7 @@ export function RevisionSurface({ topicId }: { /** A topic's own page, opened in
   const materials = useSyncExternalStore(subscribeMaterials, getMaterialsSnapshot, getServerMaterialsSnapshot);
   const mode = topicId ? "map" : modeFromSection(searchParams.get("section"));
   // The tab says where you are, like any good app: "Topics · Cell biology — Kelus".
-  const tabSection = topicId ? state.snapshot.concepts.find((item) => item.id === topicId)?.name : MODES.find((item) => item.id === mode)?.label;
+  const tabSection = topicId ? state.snapshot.concepts.find((item) => item.id === topicId)?.name : ALL_MODES.find((item) => item.id === mode)?.label;
   const tabCourse = state.snapshot.courses[0]?.name;
   useDocumentTitle(tabSection ? `${tabSection}${tabCourse ? ` · ${tabCourse}` : ""} — Kelus` : null);
 
@@ -171,17 +176,6 @@ export function RevisionSurface({ topicId }: { /** A topic's own page, opened in
   // Straight after a block, "Up next" is a topic you have not just answered (the session starts in this order too).
   const route = { ...plannedRoute, allocations: restAware(plannedRoute.allocations, snapshot.events, nowIso, concepts) };
   const days = daysUntilExam(exam, nowIso);
-  const firstTopic = route.allocations.find((item) => item.conceptId !== "mixed-retrieval");
-  const builtPlan = {
-    course: course.name,
-    topics: concepts.length,
-    questions: ankiCards(concepts, snapshot.learningActivities).length,
-    minutes: plannedRoute.allocations.reduce((sum, item) => sum + item.minutes, 0),
-    firstName: concepts.find((concept) => concept.id === firstTopic?.conceptId)?.name ?? "your first topic",
-    // In plan order, so the first one named is the one you start with.
-    names: [...plannedRoute.allocations.map((item) => concepts.find((concept) => concept.id === item.conceptId)?.name), ...concepts.map((concept) => concept.name)]
-      .filter((name, index, all): name is string => Boolean(name) && all.indexOf(name) === index),
-  };
   const examDatePending = Boolean(exam.datePlaceholder);
   const isSampleCourse = course.id === "course-microeconomics" && exam.id === "exam-microeconomics-final";
   const courseId = course.id;
@@ -195,7 +189,7 @@ export function RevisionSurface({ topicId }: { /** A topic's own page, opened in
         return route.allocations.find((item) => item.conceptId === conceptId) ?? openSession.latestRoute.allocations.find((item) => item.conceptId === conceptId);
       })()
     : undefined;
-  const modeMeta = MODES.find((item) => item.id === mode)!;
+  const modeMeta = ALL_MODES.find((item) => item.id === mode)!;
   const courseMaterials = materials.filter((item) => item.courseId === courseId);
   const hasCoursePdf = courseMaterials.some((item) => item.kind === "pdf" && !item.id.startsWith("material-demo-"));
   const firstConceptId = resumeAllocation?.conceptId ?? route.allocations[0]?.conceptId;
@@ -270,7 +264,7 @@ export function RevisionSurface({ topicId }: { /** A topic's own page, opened in
         </button>
         <nav className="studio-nav revision-surface-modes" aria-label="Revision sections">
           {MODES.map((item) => {
-            const active = item.id === mode;
+            const active = item.id === navMode(mode);
             return (
               <motion.button
                 key={item.id}
@@ -395,7 +389,7 @@ export function RevisionSurface({ topicId }: { /** A topic's own page, opened in
                     <button type="button" className="today-source-desktop" aria-controls="today-source-reader" aria-expanded={sourceBesidePlan} onClick={() => router.replace(hrefForMode("today", selectedMaterialId, !sourceBesidePlan), { scroll: false })}>{sourceBesidePlan ? "Hide notes" : "See notes beside plan"}</button>
                     <button type="button" className="today-source-mobile" onClick={() => setMode("materials")}>Open notes</button>
                   </div> : null}
-                  <AutoStart ready={route.allocations.length > 0} plan={builtPlan} showPlan={false} onStart={openSession ? resume : begin} />
+                  <AutoStart ready={route.allocations.length > 0} onStart={openSession ? resume : begin} />
                   {/* With smarter questions on, the next topics are written in the background so a session opens at once. */}
                   <AiPrefetch route={route} concepts={concepts} activities={snapshot.learningActivities} />
                   <TodayRoute
@@ -427,7 +421,7 @@ export function RevisionSurface({ topicId }: { /** A topic's own page, opened in
             {mode === "progress" ? <ProgressView concepts={concepts} activities={snapshot.learningActivities} events={snapshot.events} nowIso={nowIso} daysToExam={days} targetPercent={exam.targetPercent} examDatePending={examDatePending} /> : null}
           </motion.div>}
         </main>
-        <AppTabBar tabs={MODES} active={mode} onSelect={setMode} />
+        <AppTabBar tabs={MODES} active={navMode(mode)} onSelect={setMode} />
       </div>
       {sampleFile ? (
         <SampleReplaceConfirm

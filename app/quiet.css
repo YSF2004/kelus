@@ -99,7 +99,6 @@ html body.is-course-studio [class*="InstallCard"] button.k-btn {
 }
 html body.is-course-studio [class*="ExamDateCard"] button:hover,
 html body.is-course-studio [class*="NudgeCard"] button:hover { background: var(--q-hover) !important; }
-html body.is-course-studio [class*="WelcomeBack"][class*="card"] { padding: 0 0 24px !important; margin-bottom: 28px !important; border: 0 !important; border-bottom: 1px solid var(--q-line) !important; border-radius: 0 !important; background: transparent !important; box-shadow: none !important; }
 
 @media (prefers-reduced-motion: reduce) { html body.is-course-studio * { transition-duration: 1ms !important; } }
 

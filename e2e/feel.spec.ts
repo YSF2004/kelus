@@ -22,12 +22,13 @@ test("Back returns to the section you came from", async ({ page }) => {
   await startFromPaste(page, notes);
   await page.goto("/today");
   const nav = page.locator('nav[aria-label="Revision sections"]');
-  await nav.getByRole("button", { name: "Topics", exact: true }).click();
-  await expect(page).toHaveURL(/section=map/);
+  await nav.getByRole("button", { name: "Materials", exact: true }).click();
+  await expect(page).toHaveURL(/section=materials/);
   await nav.getByRole("button", { name: "Progress", exact: true }).click();
   await expect(page).toHaveURL(/section=progress/);
   await page.goBack();
-  await expect(page).toHaveURL(/section=map/);
+  await expect(page).toHaveURL(/section=materials/);
+  await page.goto("/today?section=map");
   await page.locator(".index-toc-row").first().click();
   await expect(page).toHaveURL(/\/concept/);
   await page.goBack();
@@ -98,9 +99,9 @@ test("a section is on screen at once: no waiting for the old one to fade out", a
   // Watch every frame from the click: the first frame with the new section must already show it (no fade up from
   // nothing), and the old section must never sit on screen beside it while it leaves.
   const seen = await page.evaluate(() => new Promise<{ opacity: number; panels: number }>((resolve) => {
-    document.querySelector<HTMLButtonElement>('nav[aria-label="Revision sections"] button[data-mode="map"]')!.click();
+    document.querySelector<HTMLButtonElement>('nav[aria-label="Revision sections"] button[data-mode="materials"]')!.click();
     const tick = () => {
-      const row = document.querySelector(".revision-surface-panel .index-toc-row");
+      const row = document.querySelector(".revision-surface-panel .material-shelf");
       if (row) resolve({ opacity: Number(getComputedStyle(row.closest(".revision-surface-panel")!).opacity), panels: document.querySelectorAll(".revision-surface-panel").length });
       else requestAnimationFrame(tick);
     };
@@ -127,10 +128,11 @@ test("⌘Z also takes back a rename, and a topic's page keeps the course sidebar
   await page.locator(".index-toc-row").first().click();
   await expect(page).toHaveURL(/\/concept/);
   const nav = page.locator('nav[aria-label="Revision sections"]');
-  await expect(nav.getByRole("button", { name: "Topics", exact: true })).toHaveAttribute("aria-pressed", "true");
+  // A topic's page belongs to Progress, where the topic list now opens.
+  await expect(nav.getByRole("button", { name: "Progress", exact: true })).toHaveAttribute("aria-pressed", "true");
   await expect(page.getByRole("button", { name: /Study this topic|Study it again/ })).toBeVisible();
-  await nav.getByRole("button", { name: "Topics", exact: true }).click();
-  await expect(page).toHaveURL(/section=map/);
+  await nav.getByRole("button", { name: "Progress", exact: true }).click();
+  await expect(page).toHaveURL(/section=progress/);
 });
 
 test("⌘Z takes back a newly set exam date", async ({ page }) => {
