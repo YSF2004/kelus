@@ -54,7 +54,7 @@ function MasteryRing({ value }: { value: number | null }) {
  * Topics as a path in the order of your notes: each topic a step with how it stands, a checkpoint after every three,
  * and an exam check at the end. A direct action opens the same next study session as the Study plan.
  */
-export function TopicMapPanel({ onStart, startLabel }: { onStart?: () => void; startLabel?: string } = {}) {
+export function TopicMapPanel() {
   const { state, removeTopic } = useLearner();
   const reduce = useReducedMotion() === true;
   const known = useSyncExternalStore(subscribeKnownLines, getKnownLines, getServerKnownLines);
@@ -163,20 +163,6 @@ export function TopicMapPanel({ onStart, startLabel }: { onStart?: () => void; s
           <motion.i className={styles.pathSolid} initial={false} animate={{ scaleX: path.length ? solid / path.length : 0 }} transition={{ duration: reduce ? 0 : 0.5, ease: [0.22, 1, 0.36, 1] }} />
         </span>
       </div>
-
-      {/* Where to start is Today's job; the topic list only repeats it where it can start the run itself. */}
-      {start && onStart ? (
-        <section className={styles.nextStep} aria-label="Next study step">
-          <div className={styles.nextStepCopy}>
-            <span className={styles.nextStepLabel}>Next to practice</span>
-            <strong>{start.concept.name}</strong>
-            <span className={styles.nextStepReason}>{startReason ?? "First in your current study plan."}</span>
-          </div>
-          <button type="button" className={`k-btn ${styles.nextStepButton}`} onClick={onStart}>
-            {startLabel ?? "Start session"} <ArrowRight />
-          </button>
-        </section>
-      ) : null}
 
       <ol className={`index-toc ${styles.path}`} aria-label="Topics, in the order of your notes">
         <AnimatePresence initial={false} mode="popLayout">
