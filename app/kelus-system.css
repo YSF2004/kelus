@@ -188,3 +188,18 @@ body:not(:has(.home, .pricing-page)) :is(.photo-notes-start, [class*="PasteNotes
     font-weight: 600 !important; text-decoration: none !important; cursor: pointer;
   }
 }
+
+/* ── Critique 2026-11-05 ──────────────────────────────────────────────────────────────────────────────── */
+/* Start: the two other ways in sit side by side as equals under the drop area, with no rule between them. */
+.start-page :is(.photo-notes, [class*="PasteNotes"][class*="paste"]) { display: inline-block; vertical-align: top; margin: 12px 8px 0 0 !important; padding: 0 !important; border: 0 !important; }
+/* The paste box, once open, takes the full width under both buttons. */
+.start-page [class*="PasteNotes"][class*="paste"][open] { display: block; margin-right: 0 !important; }
+
+/* Session on a phone: every primary action is the same full-width key, as Continue is. */
+@media (max-width: 560px) {
+  body:not(:has(.home, .pricing-page)) main.study-shell :is([class*="QuickRun"][class*="row"], [class*="QuickRun"][class*="actions"]) > .k-btn:not(.k-btn--paper) { width: 100%; justify-content: center; }
+  body:not(:has(.home, .pricing-page)) main.study-shell [class*="QuickRun"][class*="row"] { flex-wrap: wrap; }
+}
+
+/* Feedback actions: Listen and Flag share one height in their row. */
+body:not(:has(.home, .pricing-page)) button[class*="QuickRun"][class*="flagLink"] { min-height: 44px !important; }

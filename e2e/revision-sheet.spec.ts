@@ -7,7 +7,7 @@ test("the revision sheet lays the student's own words beside their notes, and to
   await startFromPaste(page, notes);
   await playQuickRun(page, "Water moves across the membrane to the more concentrated side.", "Nailed it");
   await page.goto("/today?section=map");
-  await page.getByRole("link", { name: /Your revision sheet/ }).click();
+  await page.getByRole("link", { name: "Open the sheet" }).click();
   await expect(page).toHaveURL(/\/sheet/);
   await expect(page.getByRole("heading", { level: 1, name: "The sheet you wrote." })).toBeVisible();
   const list = page.getByRole("list", { name: "Topics, in the order of your notes" });
