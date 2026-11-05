@@ -571,8 +571,7 @@ button, input, textarea { font: inherit; }
   font-size: var(--text-heading-sm);
   font-weight: 500;
 }
-.answer-evaluation > p:not(.kicker),
-.diagnosis-evaluation > p:not(.kicker) {
+.answer-evaluation > p:not(.kicker) {
   max-width: 58ch;
   margin: 0;
   color: var(--color-steel);
@@ -1460,8 +1459,6 @@ button, input, textarea { font: inherit; }
 
 .study-question textarea:focus { outline: 2px solid var(--color-product-green); outline-offset: 2px; }
 
-.diagnosis-feedback > p:not(.kicker) { font-family: var(--font-ledger); font-size: 18px; line-height: 1.5; font-weight: 300; }
-
 
 
 .study-ratings { display: flex; gap: var(--space-product-sm); }
@@ -1561,13 +1558,7 @@ button, input, textarea { font: inherit; }
 .study-question textarea { min-height: 180px; }
 .study-feedback > p { padding: var(--space-product-lg) 0; border-block: 1px solid var(--color-product-border); font-family: var(--font-display), Georgia, serif; font-size: 22px; line-height: 1.5; }
 .study-feedback h2 { margin-top: var(--space-product-xl); font-family: var(--font-sans), sans-serif; font-size: 1rem; letter-spacing: 0; }
-.mastery-reward > p:not(.kicker) { color: var(--color-product-secondary); }
 .reroute-view > p:not(.kicker) { max-width: 55ch; color: var(--color-product-secondary); }
-
-
-
-
-.complete-columns section p:not(.kicker) { margin: 8px 0; font-family: var(--font-display), Georgia, serif; font-size: 22px; }
 
 
 @media (max-width: 720px) {
@@ -2136,7 +2127,16 @@ select {
   font-feature-settings: "ss01" 1, "tnum" 1;
 }
 
-h1,h2,h3,.pulse .days,.plan b,.map-head strong,.detail dd,.study-feedback > p,.complete-columns section p:not(.kicker),.hero-note-num,.story-foot p {
+h1,
+h2,
+h3,
+.pulse .days,
+.plan b,
+.map-head strong,
+.detail dd,
+.study-feedback > p,
+.hero-note-num,
+.story-foot p {
   font-family: var(--font-ledger);
   font-weight: 300;
 }
@@ -2361,27 +2361,6 @@ h1,h2,h3,.pulse .days,.plan b,.map-head strong,.detail dd,.study-feedback > p,.c
 }
 
 /* V1 homepage story: plan → evidence → materials → method. */
-
-
-
-
-
-
-
-
-
-
-
-
-.v1-story-copy > p:not(.kicker),
-.v1-method-heading > p:not(.kicker) {
-  max-width: 38ch;
-  margin: 0;
-  color: var(--color-steel);
-  font-size: var(--text-body-lg);
-  font-weight: 300;
-  line-height: 1.45;
-}
 
 
 
@@ -2691,14 +2670,6 @@ h1,h2,h3,.pulse .days,.plan b,.map-head strong,.detail dd,.study-feedback > p,.c
 
 
 @media (max-width: 720px) {
-  
-
-  
-
-  .v1-story-copy > p:not(.kicker),
-  .v1-method-heading > p:not(.kicker) {
-    font-size: var(--text-body);
-  }
 
   .v1-plan > header,
   .v1-reroute > header,
@@ -3935,49 +3906,6 @@ h1,h2,h3,.pulse .days,.plan b,.map-head strong,.detail dd,.study-feedback > p,.c
   margin: 0;
   padding: var(--spacing-48) 0 var(--spacing-80);
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-.course-workspace-progress li:not(:last-child)::after {
-  content: "";
-  position: absolute;
-  top: 31px;
-  bottom: -5px;
-  left: 11px;
-  width: 1px;
-  background: var(--color-frost);
-}
-
-.course-workspace-progress li.is-complete:not(:last-child)::after { background: var(--color-lavender-border); }
 
 
 
@@ -5382,13 +5310,6 @@ h1,h2,h3,.pulse .days,.plan b,.map-head strong,.detail dd,.study-feedback > p,.c
 
 
 
-.today-brief:has(.today-exam-details) { display: block; }
-
-
-
-
-
-
 .concept-inspector, .study-question, .reroute-view { scroll-margin-top: 150px; }
 
 
@@ -5397,15 +5318,6 @@ h1,h2,h3,.pulse .days,.plan b,.map-head strong,.detail dd,.study-feedback > p,.c
 
 .study-shell.is-source-open > .session-source-panel { grid-row: 4; }
 @media (max-width: 720px) {
-  
-  
-  
-  
-  
-  
-  
-  
-  .today-brief:has(.today-exam-details) { padding-bottom: 16px; }
   
   
   
@@ -5433,7 +5345,6 @@ h1,h2,h3,.pulse .days,.plan b,.map-head strong,.detail dd,.study-feedback > p,.c
 
 
 @media (max-width: 720px) {
-  .course-workspace-progress li:not(.is-current) { display: none; }
   
   
   
