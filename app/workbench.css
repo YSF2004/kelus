@@ -463,13 +463,6 @@ body.is-kelus-space .site-header.is-space .site-header-inner {
   color: var(--color-ink, var(--k-ink));
 }
 
-.kelus-space-lede {
-  margin: 12px 0 0;
-  color: var(--color-steel, var(--k-text-2));
-  font-size: 1rem;
-  line-height: 1.55;
-}
-
 
 .kelus-space-panel {
   min-width: 0;
@@ -1127,14 +1120,6 @@ body.is-paper-column .kelus-paper-head h1 {
   font-weight: 440;
   letter-spacing: -0.035em;
   line-height: 1.05;
-}
-
-body.is-paper-column .kelus-paper-lede {
-  margin: 10px 0 0;
-  max-width: 42ch;
-  color: var(--color-steel, var(--k-text-2));
-  font-size: 1rem;
-  line-height: 1.5;
 }
 
 body.is-paper-column .kelus-paper-body {

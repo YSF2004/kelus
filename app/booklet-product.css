@@ -463,7 +463,6 @@
 .booklet-board .booklet-flow-reveal:hover { background: var(--color-sky-tint); }
 .board-answer { margin: 12px 0; padding: 14px; background: var(--k-marigold-wash); border-radius: 8px; font-size: 14px; line-height: 1.6; color: var(--k-ink); }
 .is-booklet-system :is(.folio-product-stage, .folio-chapter, .folio-method, .how-page.is-booklet-product, .pricing-page.is-booklet-product) { background: var(--color-paper-warmth); }
-.is-booklet-system :is(.folio-chapter-art, .how-stage-visual) { box-shadow: none; }
 
 /* A compact course rail and a spacious, consistent work surface. */
 .course-workspace-layout.is-booklet-product { gap: 32px; background: var(--color-paper-warmth); }
@@ -544,15 +543,6 @@
 
 /* Keep secondary setup information below the primary task. */
 .is-booklet-system .route-transition { background: var(--color-paper-warmth); }
-
-
-
-
-
-
-
-
-.is-booklet-system .home .folio-chapter-art :is(.v1-plan, .v1-reroute, .v1-materials) { box-shadow: none; }
 
 
 
