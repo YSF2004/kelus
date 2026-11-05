@@ -207,7 +207,8 @@ export function TopicMapPanel() {
         {path.length >= 2 ? checkpoint(path, "Exam check", 1, "exam") : null}
       </ol>
       {/* Every topic in the student's own words, ready to read the night before or print. */}
-      <Link href="/sheet" className={styles.sheetLink}><span><strong>Your revision sheet</strong><small>Every topic in your own words, ready to print</small></span><ArrowRight className="k-mark" /></Link>
+      {/* The same row as the Anki export below it: the words, then a button that says what it does. */}
+      <div className={styles.sheetLink}><span><strong>Your revision sheet</strong><small>Every topic in your own words, ready to print</small></span><Link href="/sheet" className="k-btn k-btn--paper k-btn--small">Open the sheet</Link></div>
       <AnkiExport course={course.name} concepts={concepts} activities={state.snapshot.learningActivities} />
     </div>
   );
