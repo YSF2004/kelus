@@ -13,7 +13,7 @@
     grid-template-columns: repeat(auto-fit, minmax(0, 1fr)); /* as many columns as there are sections */
     padding: 6px 8px calc(6px + env(safe-area-inset-bottom));
     border-top: 1px solid color-mix(in srgb, var(--k-ink) 8%, transparent);
-    background: color-mix(in srgb, var(--k-surface) 90%, transparent);
+    background: var(--k-surface);
     -webkit-backdrop-filter: saturate(160%) blur(16px);
     backdrop-filter: saturate(160%) blur(16px);
   }

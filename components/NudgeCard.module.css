@@ -2,10 +2,12 @@
   position: relative;
   display: grid;
   gap: 14px;
-  padding: 18px 150px 18px 20px;
-  border: 1px solid var(--color-frost);
-  border-radius: 10px;
-  background: var(--color-mist);
+  min-width: 0;
+  margin-top: 28px;
+  padding: 18px 20px;
+  border: 1px solid var(--lb-line, var(--color-frost));
+  border-radius: 12px;
+  background: var(--lb-surface, var(--color-mist));
 }
 
 .art {
@@ -20,16 +22,16 @@
   font-family: var(--font-display);
   font-size: 1.125rem;
   font-weight: 600;
-  color: var(--color-midnight-ink);
+  color: var(--lb-ink, var(--color-midnight-ink));
 }
 
 .text p,
 .note {
   margin: 0;
-  max-width: 36rem;
+  max-width: 42rem;
   font-size: var(--text-body-sm);
   line-height: 1.5;
-  color: var(--color-slate);
+  color: var(--lb-text-2, var(--color-slate));
 }
 
 .controls {
@@ -37,6 +39,7 @@
   flex-wrap: wrap;
   align-items: end;
   gap: 12px 16px;
+  min-width: 0;
 }
 
 .controls label {
@@ -44,17 +47,17 @@
   gap: 4px;
   font-size: var(--text-caption);
   font-weight: 600;
-  color: var(--color-slate);
+  color: var(--lb-text-2, var(--color-slate));
 }
 
 .card select {
   min-height: 44px;
   padding: 0 12px;
-  border: 1px solid var(--color-frost);
+  border: 1px solid var(--lb-line-strong, var(--color-frost));
   border-radius: 6px;
-  background: var(--color-pure-white);
+  background: var(--lb-surface, var(--color-pure-white));
   font: inherit;
-  color: var(--color-midnight-ink);
+  color: var(--lb-ink, var(--color-midnight-ink));
 }
 
 .primary {
@@ -142,7 +145,7 @@
 }
 
 @media (max-width: 640px) {
-  .card { padding-right: 20px; }
-  .compact { padding-right: 18px; }
+  .card { margin-top: 24px; padding: 16px; }
+  .compact { padding: 14px 16px; }
   .art { display: none; }
 }

@@ -620,6 +620,12 @@ html body.is-course-studio .core-source-inline {
 html body.is-course-studio [class*="TodayQuiet"][class*="page"] {
   padding-bottom: 52px !important;
 }
+@media (max-width: 650px) {
+  /* Leave the last study-plan item clear of the fixed phone tab bar and its home-indicator inset. */
+  html body.is-course-studio [class*="TodayQuiet"][class*="page"] {
+    padding-bottom: calc(82px + env(safe-area-inset-bottom)) !important;
+  }
+}
 html body.is-course-studio [class*="TodayQuiet"][class*="next"] {
   border-radius: 12px;
   border-color: var(--lb-line-strong);
