@@ -72,19 +72,19 @@ export const metadata: Metadata = {
   // Added to an iPhone home screen, Kelus opens full screen like an app, under its own name.
   appleWebApp: { capable: true, title: "Kelus", statusBarStyle: "default" },
   title: "Kelus",
-  description: "Turn your course notes or PDFs into exam revision. Practise recall, check your answers, and see which topic to review next with Kelus.",
+  description: "Turn your course notes or PDFs into exam revision. Practice recall, check your answers, and see which topic to review next with Kelus.",
   openGraph: {
     type: "website",
     url: "https://kelus.me/",
     siteName: "Kelus",
     title: "Revise from Your Course Notes for Exams | Kelus",
-    description: "Practise recall from your own notes. Check your answers and see which topic to review next.",
+    description: "Practice recall from your own notes. Check your answers and see which topic to review next.",
     images: [{ url: "/og/kelus-social.png", width: 1200, height: 630, alt: "Kelus turns course notes into recall practice and a route for what to review next." }],
   },
   twitter: {
     card: "summary_large_image",
     title: "Revise from Your Course Notes for Exams | Kelus",
-    description: "Practise recall from your own notes. Check your answers and see what to review next.",
+    description: "Practice recall from your own notes. Check your answers and see what to review next.",
     images: ["/og/kelus-social.png"],
   },
 };
