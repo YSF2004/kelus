@@ -153,9 +153,9 @@ export function TopicMapPanel({ onStart, startLabel }: { onStart?: () => void; s
   return (
     <div className="surface-map is-toc source-topic-map">
       <div className={styles.pathHead} role="group" aria-label="Where you are">
-        <p className="sr-only">{practised} of {path.length} topics practised{solid ? `, ${solid} solid` : ""}{recalled ? `, ${recalled} ${recalled === 1 ? "line" : "lines"} answered correctly` : ""}{passedCount ? `, ${passedCount} ${passedCount === 1 ? "checkpoint" : "checkpoints"} passed` : ""}.</p>
+        <p className="sr-only">{practised} of {path.length} topics practiced{solid ? `, ${solid} solid` : ""}{recalled ? `, ${recalled} ${recalled === 1 ? "line" : "lines"} answered correctly` : ""}{passedCount ? `, ${passedCount} ${passedCount === 1 ? "checkpoint" : "checkpoints"} passed` : ""}.</p>
         <ul className={styles.stats} aria-hidden="true">
-          <li><Octicon name="list-unordered" className={styles.ico} /><strong>{practised}/{path.length}</strong><span>practised</span></li>
+          <li><Octicon name="list-unordered" className={styles.ico} /><strong>{practised}/{path.length}</strong><span>practiced</span></li>
           {solid ? <li data-tone="green"><Octicon name="check-circle" className={styles.ico} /><strong>{solid}</strong><span>solid</span></li> : null}
           {recalled ? <li><Octicon name="check-circle" className={styles.ico} /><strong>{recalled}</strong><span>{recalled === 1 ? "line" : "lines"} recalled</span></li> : null}
           {passedCount ? <li data-tone="marigold"><Octicon name="trophy" className={styles.ico} /><strong>{passedCount}</strong><span>{passedCount === 1 ? "checkpoint" : "checkpoints"}</span></li> : null}
@@ -229,7 +229,7 @@ export function TopicMapPanel({ onStart, startLabel }: { onStart?: () => void; s
         {path.length >= 2 ? checkpoint(path, "Exam check", 1, "exam") : null}
       </ol>
       {/* Every topic in the student's own words, ready to read the night before or print. */}
-      <Link href="/sheet" className={styles.sheetLink}><span><strong>Your revision sheet</strong><small>Every topic in your own words, ready to print</small></span><ArrowRight className="k-mark" /></Link>
+      <div className={styles.sheetLink}><span><strong>Your revision sheet</strong><small>Every topic in your own words, ready to print</small></span><Link href="/sheet" className="k-btn k-btn--paper k-btn--small">Open the sheet</Link></div>
       <AnkiExport course={course.name} concepts={concepts} activities={state.snapshot.learningActivities} />
     </div>
   );
