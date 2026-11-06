@@ -1,5 +1,6 @@
 "use client";
 
+import { primaryActivitySourceReference } from "@/domain/source-reference";
 import { ArrowRight } from "@/components/Marks";
 import { topicLevel } from "@/lib/format";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
@@ -175,7 +176,7 @@ export function TodayRoute({
   });
   // A saved session may have moved to this topic without the student ever opening it.
   const decision = startLabel && !(firstConcept?.retrievalAttempts) ? ["Your session is saved. Continue with this topic."] : reasons;
-  const firstSource = firstActivity?.sourceReferences[0];
+  const firstSource = primaryActivitySourceReference(firstActivity);
   // A mixed review is named by what it mixes: answered topics the plan does not already list on their own. With
   // none (day one, or every answered topic is already a row), it is not offered.
   const named = route.allocations.filter((allocation) => allocation.conceptId !== first.conceptId && allocation.conceptId !== "mixed-retrieval").slice(0, 3);

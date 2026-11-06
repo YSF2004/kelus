@@ -1,5 +1,6 @@
 "use client";
 
+import { primaryActivitySourceReference } from "@/domain/source-reference";
 import { ArrowRight } from "@/components/Marks";
 import { topicLevel } from "@/lib/format";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
@@ -96,7 +97,7 @@ export function TopicMapPanel() {
   const totalWeight = concepts.reduce((sum, concept) => sum + Math.max(0, concept.examImportance), 0) || 1;
   const rows = concepts.map((concept) => {
     const activity = state.snapshot.learningActivities.find((item) => item.conceptId === concept.id);
-    const locator = activity?.sourceReferences[0]?.locator?.trim();
+    const locator = primaryActivitySourceReference(activity)?.locator?.trim();
     const due = concept.retrievalAttempts > 0 && !resting.has(concept.id) && Boolean(concept.nextReviewAt) && Date.parse(concept.nextReviewAt!) <= Date.parse(state.nowIso);
     return {
       concept,

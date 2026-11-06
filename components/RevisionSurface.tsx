@@ -1,5 +1,6 @@
 "use client";
 
+import { primaryActivitySourceReference } from "@/domain/source-reference";
 import { ThemeSwitch, ThemeToggle } from "@/components/ThemeSwitch";
 import { ArrowLeft, ArrowOut, Cross, Page, Plus } from "@/components/Marks";
 import { motion, useReducedMotion } from "motion/react";
@@ -193,7 +194,7 @@ export function RevisionSurface({ topicId }: { /** A topic's own page, opened in
   const courseMaterials = materials.filter((item) => item.courseId === courseId);
   const hasCoursePdf = courseMaterials.some((item) => item.kind === "pdf" && !item.id.startsWith("material-demo-"));
   const firstConceptId = resumeAllocation?.conceptId ?? route.allocations[0]?.conceptId;
-  const firstReference = snapshot.learningActivities.find((item) => item.conceptId === firstConceptId)?.sourceReferences[0];
+  const firstReference = primaryActivitySourceReference(snapshot.learningActivities.find((item) => item.conceptId === firstConceptId));
   const firstSourcePage = Math.max(1, Number(firstReference?.locator?.match(/\d+/)?.[0] ?? 1));
   const preferredMaterial = courseMaterials.find((item) => item.id === firstReference?.materialId);
   const chosenMaterial = courseMaterials.find((item) => item.id === selectedMaterialId);

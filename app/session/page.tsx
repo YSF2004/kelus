@@ -15,7 +15,8 @@ import { play, setSounds, soundsOn, subscribeSounds } from "@/lib/sound";
 import { useLearner } from "@/components/LearnerProvider";
 import { evaluateLearningResponse, type AnswerEvaluation } from "@/domain/answer-evaluation";
 import { resumeSessionIndex } from "@/domain/session-engine";
-import type { Concept, LearningActivity, RetrievalOutcome, RouteAllocation } from "@/domain/types";
+import type { Concept, LearningActivity, LearningSourceReference, RetrievalOutcome, RouteAllocation } from "@/domain/types";
+import { primaryActivitySourceReference, resolveEvidenceSource } from "@/domain/source-reference";
 import { getMaterialsSnapshot, getServerMaterialsSnapshot, subscribeMaterials } from "@/lib/material-store";
 import { readMaterialPdf } from "@/lib/material-sync";
 import { useAuth } from "@/components/AuthProvider";
@@ -113,6 +114,7 @@ function SessionBody() {
   const [routeBeforeIds, setRouteBeforeIds] = useState<string[]>([]);
   const [routeBeforeAllocations, setRouteBeforeAllocations] = useState<RouteAllocation[]>([]);
   const [sourcePanel, setSourcePanel] = useState<SourcePanelState | null>(null);
+  const [evidenceSourceOverride, setEvidenceSourceOverride] = useState<{ conceptId: string; reference: LearningSourceReference } | null>(null);
   const [openingSource, setOpeningSource] = useState(false);
   const [sourceRevealed, setSourceRevealed] = useState(false);
   // The full notes slide in from the side when asked for; the page under the question never rearranges.
@@ -145,7 +147,7 @@ function SessionBody() {
   const aiRequest = concept && pageText
     ? {
         name: concept.name,
-        locator: baseActivity?.sourceReferences[0]?.locator ?? "this page",
+        locator: primaryActivitySourceReference(baseActivity)?.locator ?? "this page",
         pageText,
         otherTopics: state.snapshot.concepts.filter((item) => item.id !== concept.id).map((item) => item.name),
       }
@@ -306,6 +308,7 @@ function SessionBody() {
     setSourceRevealed(false);
     setNotesOpen(false);
     setMarkedLine(null);
+    setEvidenceSourceOverride(null);
     setPhase("learn");
     startedAt.current = 0;
     responseTimeMs.current = 0;
@@ -414,10 +417,15 @@ function SessionBody() {
   const goalToday = habitSummary({ events: state.snapshot.events, concepts: state.snapshot.concepts.filter((item) => item.courseId === concept?.courseId) });
   const checkCount = state.snapshot.events.filter((event) => event.conceptId === concept.id && event.kind === "retrieval").length;
   const helpCopy = helpMode === "hint" ? activity.retrieve.hint : helpMode === "explain" ? activity.retrieve.explanation : null;
-  const currentSource = activity.sourceReferences[0];
+  const phaseSource = resolveEvidenceSource(
+    phase === "apply" ? activity.apply.sourceReference : activity.retrieve.sourceReference,
+    activity.sourceReferences,
+  );
+  const currentSource = evidenceSourceOverride?.conceptId === concept.id
+    ? evidenceSourceOverride.reference
+    : phaseSource.reference;
   const currentMaterial = materials.find((item) => item.id === currentSource?.materialId)
     ?? (currentSource?.materialId === "demo-syllabus-microeconomics" ? materials.find((item) => item.id === "material-demo-microeconomics") : null)
-    ?? materials.find((item) => item.courseId === concept.courseId && item.storage === "local")
     ?? null;
   const hasReadableSource = currentMaterial?.storage === "local" && !currentMaterial.id.startsWith("material-demo-");
   const sourcePage = Number(currentSource?.locator?.match(/\d+/)?.[0] ?? 1);
@@ -681,7 +689,7 @@ function SessionBody() {
                 // missed, or a line from the page that this run did not use.
                 remember={quickMissed[0] ?? run?.extraFact ?? activity.retrieve.modelAnswer}
                 rememberLabel={quickMissed[0] ? (quickMissed.length > 1 ? uiw.missedSome : uiw.missedOne) : run?.extraFact ? uiw.oneMore : uiw.worth}
-                locator={activity.sourceReferences[0]?.locator ?? "your notes"}
+                locator={currentSource?.locator ?? "your notes"}
                 goalDone={goalToday.topicsToday}
                 goal={goalToday.goal}
                 habit={{ today: dayKey(new Date(Date.parse(state.nowIso))), streak: goalToday.streak, week: goalToday.week, backTomorrow: goalToday.backTomorrow }}
@@ -796,8 +804,20 @@ function SessionBody() {
                 onPersistenceChange={setDraftSaved}
                 courseType={session?.courseId === "course-microeconomics" ? "sample" : "real"}
                 onRevealSource={() => setSourceRevealed(true)}
-                onShowLine={hasReadableSource ? (quote) => { setMarkedLine(quote); setSourceJump((current) => current + 1); setSourceRevealed(true); setNotesOpen(true); } : undefined}
-                sourceLocation={currentSource?.locator ?? null}
+                sourceReferences={activity.sourceReferences}
+                onShowLine={(quote, reference) => {
+                  setEvidenceSourceOverride({ conceptId: concept.id, reference });
+                  setMarkedLine(quote);
+                  setSourceRevealed(true);
+                  const sourceMaterial = materials.find((material) => material.id === reference.materialId)
+                    ?? (reference.materialId === "demo-syllabus-microeconomics" ? materials.find((material) => material.id === "material-demo-microeconomics") : null);
+                  if (sourceMaterial?.storage === "local" && !sourceMaterial.id.startsWith("material-demo-")) {
+                    setSourceJump((current) => current + 1);
+                    setNotesOpen(true);
+                  } else {
+                    void openSource(reference.materialId, reference.locator);
+                  }
+                }}
                 onFinish={finishQuick}
                 readFirst={round === 0}
                 firstStudySession={firstStudySession && index === 0}

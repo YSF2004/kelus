@@ -1,5 +1,6 @@
 import { buildAnswerReason } from "./answer-reason";
 import { splitSentences } from "./content-engine";
+import { primaryActivitySourceReference } from "./source-reference";
 import type { LeitnerLine } from "./leitner";
 import { isDrillable } from "./practice-check";
 import type { MissedLine } from "./return-visit";
@@ -41,7 +42,7 @@ export function lineLife(input: { line: LeitnerLine; activity: LearningActivity 
   const at = sentences.findIndex((sentence) => key(sentence) === id);
   const next = at >= 0 ? sentences[at + 1] ?? null : null;
   const grounded = items.map((item) => buildAnswerReason(item)).find((reason) => reason.grounded && reason.shape !== "gap");
-  const reference = activity?.sourceReferences[0];
+  const reference = primaryActivitySourceReference(activity);
   const source = reference ? [reference.label, reference.locator].filter(Boolean).join(" · ") || null : null;
   const known = input.known.find((entry) => key(entry.quote) === id);
   const backOn = line.state === "recalled" && known

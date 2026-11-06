@@ -71,6 +71,11 @@ test("confirmed material concepts become the existing learning model", () => {
   assert.equal(model.learningActivities.length, 2);
   assert.equal(model.relationships.length, 0, "PDF order must not fabricate prerequisites");
   assert.deepEqual(model.learningActivities[0].sourceReferences, [{ materialId: "material-1", label: "Lecture 4", locator: "Page 3" }]);
+  const sourceReference = model.learningActivities[0].sourceReferences[0];
+  assert.deepEqual(model.learningActivities[0].retrieve.sourceReference, sourceReference);
+  assert.deepEqual(model.learningActivities[0].apply.sourceReference, sourceReference);
+  assert.ok(model.learningActivities[0].practice?.length);
+  assert.ok(model.learningActivities[0].practice?.every((item) => item.sourceReference?.materialId === sourceReference.materialId));
   assert.match(model.learningActivities[0].retrieve.prompt, /what does elasticity measure/i);
   assert.notEqual(model.concepts[0].examImportance, model.concepts[1].examImportance);
 });

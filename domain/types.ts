@@ -148,6 +148,8 @@ export type PracticeItem = {
   explanation: string;
   /** Verbatim text from the source page that supports the answer. */
   sourceQuote: string;
+  /** Exact file/page that supports this question, when the source is known. */
+  sourceReference?: LearningSourceReference;
   /** For "choice": the options and which one is correct. */
   choices?: string[];
   correctIndex?: number;
@@ -184,11 +186,13 @@ export type LearningActivity = {
     explanation: string;
     example: string;
     modelAnswer: string;
+    sourceReference?: LearningSourceReference;
   };
   apply: {
     prompt: string;
     hint: string;
     modelAnswer: string;
+    sourceReference?: LearningSourceReference;
   };
   assessment?: {
     mode: "biology" | "computer_science" | "history" | "law" | "mathematics" | "general";

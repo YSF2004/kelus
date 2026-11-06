@@ -37,7 +37,7 @@ test("the session executes learn, retrieve, apply and evaluate before updating t
     'phase === "retrieve"',
     'phase === "apply"',
     'phase === "evaluate"',
-  ].map((marker) => page.indexOf(marker));
+  ].map((marker) => page.lastIndexOf(marker));
   assert.ok(order.every((position) => position >= 0));
   assert.ok(order.every((position, index) => index === 0 || position > order[index - 1]));
   assert.match(page, /Hint/);

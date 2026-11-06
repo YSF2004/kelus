@@ -464,6 +464,30 @@
   font-size: var(--text-caption, 0.75rem);
 }
 
+.sourceFallback {
+  margin: 2px 0 0;
+  color: var(--color-slate);
+  font-size: var(--text-body-sm);
+  line-height: 1.5;
+}
+
+.sourceFallback p {
+  margin: 0;
+}
+
+.sourceFallback a {
+  color: var(--color-kelus);
+  font-weight: 600;
+  text-underline-offset: 3px;
+}
+
+.sourceChoices {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 8px;
+}
+
 .sourceJump {
   display: inline-flex;
   min-height: 44px;

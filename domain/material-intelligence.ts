@@ -6,6 +6,7 @@ import type {
   ConceptRelationship,
   ExtractedMaterialPage,
   LearningActivity,
+  LearningSourceReference,
   Prompt,
   ProposedConcept,
 } from "./types";
@@ -555,7 +556,13 @@ function frenchApply(prompt: string, name: string, claim: string) {
 
 function buildActivity(concept: Concept, proposal: ProposedConcept, siblingNames: string[] = [], siblingFacts: string[] = []): LearningActivity {
   const claim = centralClaim(concept.name, proposal.sourceExcerpt, proposal.highlights);
-  const practice = buildPractice({ conceptId: concept.id, name: concept.name, excerpt: proposal.sourceExcerpt, locator: proposal.locator, siblingNames, siblingFacts, highlights: proposal.highlights });
+  const sourceReference: LearningSourceReference = {
+    materialId: proposal.materialId,
+    label: proposal.sourceLabel,
+    locator: proposal.locator,
+  };
+  const practice = buildPractice({ conceptId: concept.id, name: concept.name, excerpt: proposal.sourceExcerpt, locator: proposal.locator, siblingNames, siblingFacts, highlights: proposal.highlights })
+    .map((item) => ({ ...item, sourceReference }));
   // The "Use" step asks something the page actually supports: a stated condition or reason, in the learner's words.
   const facts = teachingFacts(concept.name, proposal.sourceExcerpt);
   const furtherFact = facts.find((fact) => fact !== claim && fact.length >= 30);
@@ -588,14 +595,16 @@ function buildActivity(concept: Concept, proposal: ProposedConcept, siblingNames
       explanation: claim,
       example: `Restate the source claim about ${concept.name} in one sentence, then add one detail from ${proposal.locator}.`,
       modelAnswer: claim,
+      sourceReference,
     },
     apply: {
       prompt: french ? frenchApply(applyPrompt, concept.name, claim) : applyPrompt,
       hint: applyItem?.hint ?? application?.hint ?? language.applyHint,
       modelAnswer: applyItem?.modelAnswer ?? application?.modelAnswer ?? language.applyAnswer,
+      sourceReference,
     },
     assessment: assessmentFor(subjectModeFor(concept.name, proposal.sourceExcerpt), concept.name, claim),
-    sourceReferences: [{ materialId: proposal.materialId, label: proposal.sourceLabel, locator: proposal.locator }],
+    sourceReferences: [sourceReference],
   };
 }
 

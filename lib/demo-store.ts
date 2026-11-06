@@ -1,3 +1,5 @@
+import { primaryActivitySourceReference } from "../domain/source-reference";
+
 import { createDemoSnapshot } from "../data/demo-seed";
 import { ALGORITHM_KIND, SELF_RATING_MASTERY } from "../domain/constants";
 import { advanceDemoClock, isDemoClockEnabled } from "../domain/demo-clock";
@@ -496,7 +498,7 @@ export function nameNumberedTopics(state: DemoState): { state: DemoState; change
     if (isNamedTopic(concept.name)) return concept;
     const activity = state.snapshot.learningActivities.find((item) => item.conceptId === concept.id);
     const text = activity ? [activity.learn.explanation, ...activity.learn.keyPoints].join("\n") : "";
-    const locator = activity?.sourceReferences[0]?.locator ?? `Topic ${concept.name}`;
+    const locator = primaryActivitySourceReference(activity)?.locator ?? `Topic ${concept.name}`;
     let name = topicNameFrom(concept.name, text, locator);
     if (taken.has(name.toLocaleLowerCase())) name = `${name} (${locator})`;
     taken.add(name.toLocaleLowerCase());
