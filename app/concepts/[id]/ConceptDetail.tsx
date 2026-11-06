@@ -1,5 +1,6 @@
 "use client";
 
+import { primaryActivitySourceReference } from "@/domain/source-reference";
 import { ArrowLeft, ArrowRight } from "@/components/Marks";
 import Link from "next/link";
 import { useParams, useRouter, useSearchParams } from "next/navigation";
@@ -70,7 +71,7 @@ export function ConceptDetail({ conceptId, embedded = false }: { conceptId?: str
   const exam = state.snapshot.exams.find((item) => item.courseId === concept.courseId && item.isActive);
   const activity = state.snapshot.learningActivities.find((item) => item.conceptId === concept.id);
   const facts = (activity?.teach?.facts?.length ? activity.teach.facts : activity ? [activity.learn.explanation, ...activity.learn.keyPoints] : []).filter(Boolean).slice(0, 5);
-  const locator = activity?.sourceReferences[0]?.locator;
+  const locator = primaryActivitySourceReference(activity)?.locator;
   const answers = state.snapshot.events.filter((event) => event.conceptId === concept.id && event.kind === "retrieval" && event.outcome).slice().reverse();
   const checks = activity?.practice?.length ?? 0;
   const percent = Math.round(concept.mastery * 100);

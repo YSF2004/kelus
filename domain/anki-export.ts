@@ -1,3 +1,5 @@
+import { primaryActivitySourceReference } from "./source-reference";
+
 import { buildPractice } from "./content-engine";
 import { isDrillable } from "./practice-check";
 import type { Concept, LearningActivity, PracticeItem } from "./types";
@@ -29,7 +31,7 @@ export function ankiCards(concepts: Concept[], activities: LearningActivity[]): 
   for (const concept of concepts) {
     const activity = activities.find((item) => item.conceptId === concept.id);
     if (!activity) continue;
-    const locator = activity.sourceReferences[0]?.locator ?? "your notes";
+    const locator = primaryActivitySourceReference(activity)?.locator ?? "your notes";
     const siblingNames = concepts.map((other) => other.name);
     const items = activity.practice?.length
       ? activity.practice

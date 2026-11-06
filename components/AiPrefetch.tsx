@@ -1,5 +1,6 @@
 "use client";
 
+import { primaryActivitySourceReference } from "@/domain/source-reference";
 import { useEffect, useSyncExternalStore } from "react";
 import { getAiConsent, prefetchAiTopics, subscribeAiConsent } from "@/lib/ai-client";
 import { getLocalAiState, subscribeLocalAi } from "@/lib/local-ai";
@@ -21,7 +22,7 @@ export function AiPrefetch({ route, concepts, activities }: { route: RoutePlan; 
       if (!concept || !pageText) return [];
       return [{
         name: concept.name,
-        locator: activity.sourceReferences[0]?.locator ?? "this page",
+        locator: primaryActivitySourceReference(activity)?.locator ?? "this page",
         pageText,
         otherTopics: concepts.filter((item) => item.id !== id).map((item) => item.name),
       }];

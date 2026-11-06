@@ -2,6 +2,7 @@ import { buildPractice, splitSentences } from "./content-engine";
 import { isDrillable } from "./practice-check";
 import { VERBS } from "./question-types";
 import { inNotesLanguage, noteLanguage } from "./note-language";
+import { primaryActivitySourceReference } from "./source-reference";
 import type { LearningActivity, PracticeItem, RetrievalOutcome } from "./types";
 
 export type SelfGrade = "nailed" | "partly" | "missed";
@@ -11,6 +12,7 @@ export type QuickRun = {
   explainPrompt: string;
   explainAnswer: string;
   explainQuote: string;
+  explainSourceReference?: LearningActivity["retrieve"]["sourceReference"];
   /** The page's sentences, so a wrong answer can be shown where it really belongs. */
   sentences: string[];
   /** A line from the page that no check and no explanation used: something new to end on. */
@@ -102,7 +104,7 @@ export function buildQuickRun(input: { activity: LearningActivity; name: string;
         conceptId: activity.conceptId,
         name,
         excerpt: [activity.learn.explanation, ...activity.learn.keyPoints].join("\n"),
-        locator: activity.sourceReferences[0]?.locator ?? "this page",
+        locator: primaryActivitySourceReference(activity)?.locator ?? "this page",
         siblingNames,
       });
   // One of each kind before a second of any: a run should feel varied, not repeated.
@@ -142,6 +144,7 @@ export function buildQuickRun(input: { activity: LearningActivity; name: string;
     explainPrompt: round % 2 === 1 ? inNotesLanguage(`Close the page. What would you tell a friend about ${name}?`, noteLanguage(sentences.join(" ")), name) : activity.retrieve.prompt,
     explainAnswer,
     explainQuote: explainAnswer,
+    explainSourceReference: activity.retrieve.sourceReference,
     sentences,
     extraFact,
     topic: name,

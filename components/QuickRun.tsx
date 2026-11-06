@@ -2,10 +2,13 @@
 
 import { ArrowRight, Cross, Tick } from "@/components/Marks";
 import type { ReactNode } from "react";
+import Link from "next/link";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { LineMove } from "@/components/LineMove";
 import { buildAnswerReason, feedbackHeadline } from "@/domain/answer-reason";
+import { resolveEvidenceSource, type EvidenceSourceResolution } from "@/domain/source-reference";
+import type { LearningSourceReference } from "@/domain/types";
 import { checkAnswer, type CheckVerdict } from "@/domain/practice-check";
 import { explainMatch, looksLikeWords } from "@/domain/answer-evaluation";
 import { PackArt } from "@/components/PackArt";
@@ -26,6 +29,56 @@ export type QuickRunResult = { right: number; total: number; unsure: number; sel
 const noSubscribe = () => () => {};
 const modKeyNow = () => (/Mac|iPhone|iPad/.test(navigator.platform) ? "⌘" : "Ctrl ");
 const touchNow = () => window.matchMedia("(pointer: coarse)").matches;
+
+function EvidenceSourceAction({ resolution, quote, onShowLine, testId, label }: {
+  resolution: EvidenceSourceResolution;
+  quote: string;
+  onShowLine?: (quote: string, source: LearningSourceReference) => void;
+  testId?: string;
+  label: string;
+}) {
+  if (resolution.kind === "source") {
+    return onShowLine ? (
+      <button
+        data-testid={testId ?? "source-evidence-jump"}
+        type="button"
+        className={styles.sourceJump}
+        onClick={() => onShowLine(quote, resolution.reference)}
+      >
+        {label}<ArrowRight aria-hidden="true" />
+      </button>
+    ) : null;
+  }
+
+  if (resolution.kind === "ambiguous") {
+    return (
+      <div className={styles.sourceFallback} role="group" aria-label="Choose a course source">
+        <p>This saved question isn’t linked to one file. Choose a source to check whether the passage appears there.</p>
+        {onShowLine ? (
+          <div className={styles.sourceChoices}>
+            {resolution.options.map((source) => (
+              <button
+                key={`${source.materialId}-${source.locator ?? ""}`}
+                type="button"
+                className={styles.sourceJump}
+                onClick={() => onShowLine(quote, source)}
+              >
+                {source.label || "Course source"}{source.locator ? ` · ${source.locator}` : ""}
+              </button>
+            ))}
+          </div>
+        ) : null}
+      </div>
+    );
+  }
+
+  return (
+    <p className={styles.sourceFallback} role="status">
+      This quote is saved with the question, but no course file is linked to verify it.{" "}
+      <Link href="/materials">Open Materials</Link>
+    </p>
+  );
+}
 
 /** A line from the notes with the words the checks will ask for marked, so reading points at them. */
 function Marked({ line, words }: { line: string; words: string[] }) {
@@ -51,7 +104,7 @@ function acceptedNote(how: NonNullable<CheckVerdict["how"]>, word: string) {
   return `Counted. The gap was just “${word}”.`;
 }
 
-export function QuickRun({ run: providedRun, persistenceKey, onPersistenceChange, onRevealSource, onShowLine, sourceLocation, onFinish, onChecksDone, context, readFirst = false, firstStudySession = false, known, recalled, courseType = "real" }: {
+export function QuickRun({ run: providedRun, persistenceKey, onPersistenceChange, onRevealSource, onShowLine, sourceReferences = [], onFinish, onChecksDone, context, readFirst = false, firstStudySession = false, known, recalled, courseType = "real" }: {
   run: Run;
   persistenceKey?: string;
   onPersistenceChange?: (saved: boolean) => void;
@@ -64,10 +117,10 @@ export function QuickRun({ run: providedRun, persistenceKey, onPersistenceChange
   known?: Set<string>;
   recalled?: number;
   onRevealSource: () => void;
-  /** Open the original page with this line circled on it. Only when there is an original page to open. */
-  onShowLine?: (quote: string) => void;
-  /** The learner's source locator, displayed beside the evidence when it is known. */
-  sourceLocation?: string | null;
+  /** Available course files; used only when older questions have no saved per-question source. */
+  sourceReferences?: LearningSourceReference[];
+  /** Open this exact source and mark the quoted line when possible. */
+  onShowLine?: (quote: string, source: LearningSourceReference) => void;
   onFinish: (result: QuickRunResult) => void;
   /** A warm-up is checks only: given this, the last Next ends the run instead of opening the explanation. */
   onChecksDone?: (result: { right: number; total: number; missed: string[]; known: string[] }) => void;
@@ -151,6 +204,8 @@ export function QuickRun({ run: providedRun, persistenceKey, onPersistenceChange
   // Below three key words there is too little to compare fairly, so nothing is highlighted or suggested.
   const useful = match && match.keys >= 3 && explained.trim() ? match : null;
   const item = onChecks ? run.checks[step] : null;
+  const checkSource = resolveEvidenceSource(item?.sourceReference, sourceReferences);
+  const explanationSource = resolveEvidenceSource(run.explainSourceReference, sourceReferences);
   const answerReason = item && answered ? buildAnswerReason(item) : null;
   const headline = answerReason && answered ? feedbackHeadline(answerReason, { right: answered.right, unsure: answered.unsure, given: answered.given }) : null;
   // A headline that already says both words ("The word is “price”, not “quantity”.") makes the answer row and the
@@ -467,8 +522,12 @@ export function QuickRun({ run: providedRun, persistenceKey, onPersistenceChange
                     <span className={styles.reasoningNumber} aria-hidden="true">3</span>
                     <div className={styles.reasoningBody}>
                       <div className={styles.evidenceHeading}>
-                        <span className={styles.evidenceLabel}>Evidence from your notes</span>
-                        {sourceLocation?.trim() ? <span className={styles.evidenceLocation}>{sourceLocation}</span> : null}
+                        <span className={styles.evidenceLabel}>{checkSource.kind === "source" ? "Evidence from your notes" : "Quoted passage"}</span>
+                        {checkSource.kind === "source" ? (
+                          <span className={styles.evidenceLocation}>
+                            {checkSource.reference.label}{checkSource.reference.locator ? ` · ${checkSource.reference.locator}` : ""}
+                          </span>
+                        ) : null}
                       </div>
                       {around && linesAround(run, item.sourceQuote) ? (
                         <div className={styles.around} aria-label="This line in your notes">
@@ -477,19 +536,7 @@ export function QuickRun({ run: providedRun, persistenceKey, onPersistenceChange
                           {linesAround(run, item.sourceQuote)!.after ? <p>{linesAround(run, item.sourceQuote)!.after}</p> : null}
                         </div>
                       ) : <p className={styles.quote}>“{item.sourceQuote}”</p>}
-                      {onShowLine ? (
-                        <button
-                          data-testid="source-evidence-jump"
-                          type="button"
-                          className={styles.sourceJump}
-                          onClick={() => {
-                            setAround(true);
-                            onShowLine(item.sourceQuote);
-                          }}
-                        >
-                          {w.seeOnPage}<ArrowRight aria-hidden="true" />
-                        </button>
-                      ) : !around && linesAround(run, item.sourceQuote) ? (
+                      {checkSource.kind === "source" && !onShowLine && !around && linesAround(run, item.sourceQuote) ? (
                         <button
                           data-testid="source-evidence-jump"
                           type="button"
@@ -498,7 +545,17 @@ export function QuickRun({ run: providedRun, persistenceKey, onPersistenceChange
                         >
                           {w.showInNotes}<ArrowRight aria-hidden="true" />
                         </button>
-                      ) : null}
+                      ) : (
+                        <EvidenceSourceAction
+                          resolution={checkSource}
+                          quote={item.sourceQuote}
+                          label={w.seeOnPage}
+                          onShowLine={(quote, source) => {
+                            setAround(true);
+                            onShowLine?.(quote, source);
+                          }}
+                        />
+                      )}
                     </div>
                   </li>
                 </ol>
@@ -590,12 +647,18 @@ export function QuickRun({ run: providedRun, persistenceKey, onPersistenceChange
                     {useful.flipped.length ? <p className={styles.flipNote}>Check the direction: you wrote <b>{useful.flipped[0].said}</b> where your notes say <b>{useful.flipped[0].page}</b>.</p> : null}
                   </div>
                 ) : null}
-                {onShowLine && run.explainQuote ? (
+                {run.explainQuote ? (
                   <div className={styles.evidence} data-testid="text-explanation-evidence" data-compact={run.explainQuote === run.explainAnswer ? "" : undefined}>
-                    <span>{w.evidence}{sourceLocation ? ` · ${sourceLocation}` : ""}</span>
+                    <span>{explanationSource.kind === "source" ? w.evidence : "Quoted passage"}{explanationSource.kind === "source" ? ` · ${explanationSource.reference.label}${explanationSource.reference.locator ? ` · ${explanationSource.reference.locator}` : ""}` : ""}</span>
                     {/* The page's line is already shown just above, marked word by word: only its place in the notes is new here. */}
                     {run.explainQuote !== run.explainAnswer ? <p className={styles.quote}>“{run.explainQuote}”</p> : null}
-                    <button type="button" className={styles.listen} data-testid="button-show-explanation-source" onClick={() => onShowLine(run.explainQuote)}>{w.seeOnPage}</button>
+                    <EvidenceSourceAction
+                      resolution={explanationSource}
+                      quote={run.explainQuote}
+                      onShowLine={onShowLine}
+                      testId="button-show-explanation-source"
+                      label={w.seeOnPage}
+                    />
                   </div>
                 ) : null}
                 {!explained.trim() ? (
