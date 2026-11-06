@@ -30,11 +30,12 @@ const noSubscribe = () => () => {};
 const modKeyNow = () => (/Mac|iPhone|iPad/.test(navigator.platform) ? "⌘" : "Ctrl ");
 const touchNow = () => window.matchMedia("(pointer: coarse)").matches;
 
-function EvidenceSourceAction({ resolution, quote, onShowLine, testId }: {
+function EvidenceSourceAction({ resolution, quote, onShowLine, testId, label }: {
   resolution: EvidenceSourceResolution;
   quote: string;
   onShowLine?: (quote: string, source: LearningSourceReference) => void;
   testId?: string;
+  label: string;
 }) {
   if (resolution.kind === "source") {
     return onShowLine ? (
@@ -44,7 +45,7 @@ function EvidenceSourceAction({ resolution, quote, onShowLine, testId }: {
         className={styles.sourceJump}
         onClick={() => onShowLine(quote, resolution.reference)}
       >
-        Open this passage<ArrowRight aria-hidden="true" />
+        {label}<ArrowRight aria-hidden="true" />
       </button>
     ) : null;
   }
@@ -548,6 +549,7 @@ export function QuickRun({ run: providedRun, persistenceKey, onPersistenceChange
                         <EvidenceSourceAction
                           resolution={checkSource}
                           quote={item.sourceQuote}
+                          label={w.seeOnPage}
                           onShowLine={(quote, source) => {
                             setAround(true);
                             onShowLine?.(quote, source);
@@ -655,6 +657,7 @@ export function QuickRun({ run: providedRun, persistenceKey, onPersistenceChange
                       quote={run.explainQuote}
                       onShowLine={onShowLine}
                       testId="button-show-explanation-source"
+                      label={w.seeOnPage}
                     />
                   </div>
                 ) : null}
