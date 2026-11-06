@@ -21,6 +21,10 @@ test("topic index and topic detail show the same derived practice mastery", asyn
   // A percentage once there are three answers, the number of tries before that: the same on both screens.
   const indexMastery = (await topic.locator(".index-toc-meta").innerText()).match(/\d+%|\d+ tr(?:y|ies)/)?.[0];
   expect(indexMastery).toBeTruthy();
+  await expect(page.getByRole("region", { name: "Next study step" })).toContainText("Elasticity");
+  await expect(topic.locator(".index-toc-meta")).toContainText("Built-in example");
+  await page.setViewportSize({ width: 390, height: 844 });
+  expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
   await topic.click();
   await expect(page.getByRole("heading", { name: "Elasticity" })).toBeVisible();
   await expect(page.getByTestId("topic-standing")).toContainText(indexMastery!);
