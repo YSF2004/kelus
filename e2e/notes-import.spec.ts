@@ -90,6 +90,8 @@ test("the original notes stay within reach of the study plan", async ({ page }) 
   await notesButton.click();
   await expect(page.locator(".core-workspace-grid.is-notes-open .core-source-reader")).toBeVisible();
   await expect(page.locator(".core-workspace-grid.is-notes-open .core-source-reader")).toContainText("cell biology");
+  await expect(page.locator(".today-source-access")).toHaveCSS("position", "static");
+  await expect.poll(() => page.locator('[data-block="course-title"]').evaluate((title) => getComputedStyle(title.parentElement!).paddingRight)).toBe("0px");
   await expect.poll(async () => page.locator('[data-block="today-next"]').evaluate((section) => {
     const edge = section.getBoundingClientRect();
     return [...section.querySelectorAll("li strong")].every((name) => {

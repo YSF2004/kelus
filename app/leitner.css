@@ -286,8 +286,8 @@ html body .pricing-page[data-marketing] .pricing-booklet {
 /* The notes link sits level with the course title at the right, not on a row of its own above it: the page starts at
    once. The head keeps room for it on the right. */
 html body.is-course-studio .core-workspace-grid.is-today-single > .core-workspace-action { position: relative; }
-html body.is-course-studio .core-workspace-grid.is-today-single > .core-workspace-action > .today-source-access { position: absolute; top: 26px; right: 44px; z-index: 2; min-height: 44px !important; margin: 0 !important; padding: 0 !important; }
-html body.is-course-studio .today-source-access ~ [class*="TodayQuiet"][class*="page"] [class*="TodayQuiet"][class*="head"] { justify-content: flex-start; padding-right: 220px; }
+html body.is-course-studio .core-workspace-grid.is-today-single:not(.is-notes-open) > .core-workspace-action > .today-source-access { position: absolute; top: 26px; right: 44px; z-index: 2; min-height: 44px !important; margin: 0 !important; padding: 0 !important; }
+html body.is-course-studio .core-workspace-grid.is-today-single:not(.is-notes-open) .today-source-access ~ [class*="TodayQuiet"][class*="page"] [class*="TodayQuiet"][class*="head"] { justify-content: flex-start; padding-right: 220px; }
 @media (max-width: 650px) {
   html body.is-course-studio .core-workspace-grid.is-today-single > .core-workspace-action > .today-source-access { top: 10px; right: 16px; }
   html body.is-course-studio .today-source-access ~ [class*="TodayQuiet"][class*="page"] [class*="TodayQuiet"][class*="head"] { padding-right: 0; }
