@@ -801,3 +801,46 @@ html body.is-course-studio [class*="ProgressView"][class*="sheetLink"] {
     justify-content: center;
   }
 }
+
+/* The redesigned topic path opts out of the older table-and-box overrides above.
+   Keep these rules inside the signed-in course workspace; marketing pages are unaffected. */
+html body.is-course-studio .surface-map.is-toc.source-topic-map .pathBar {
+  display: block !important;
+}
+html body.is-course-studio .surface-map.is-toc.source-topic-map [class*="TopicMapPanel"][class*="node"] {
+  display: grid !important;
+}
+html body.is-course-studio .surface-map.is-toc.source-topic-map li[class*="TopicMapPanel"][class*="step"] {
+  display: grid !important;
+  grid-template-columns: 40px minmax(0, 1fr) !important;
+  align-items: center;
+  gap: 14px;
+}
+html body.is-course-studio .surface-map.is-toc.source-topic-map [class*="TopicMapPanel"][class*="step"]::before,
+html body.is-course-studio .surface-map.is-toc.source-topic-map [class*="TopicMapPanel"][class*="checkpoint"]::before {
+  display: block !important;
+}
+html body.is-course-studio .surface-map.is-toc.source-topic-map .index-toc-row {
+  display: grid !important;
+  grid-template-columns: minmax(0, 1fr) !important;
+  align-items: start;
+  min-height: 0 !important;
+  padding: 10px 0 !important;
+  border-radius: 0 !important;
+}
+html body.is-course-studio .surface-map.is-toc.source-topic-map .index-toc-meta {
+  display: flex !important;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px 10px;
+}
+@media (max-width: 650px) {
+  html body.is-course-studio .surface-map.is-toc.source-topic-map li[class*="TopicMapPanel"][class*="step"] {
+    grid-template-columns: 36px minmax(0, 1fr) !important;
+    gap: 8px;
+  }
+  html body.is-course-studio .surface-map.is-toc.source-topic-map [class*="TopicMapPanel"][class*="node"] {
+    width: 36px;
+    height: 36px;
+  }
+}

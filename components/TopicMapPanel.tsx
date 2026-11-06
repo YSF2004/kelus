@@ -24,7 +24,6 @@ function whenAgo(at: string, nowIso: string) {
   return days <= 0 ? "today" : days === 1 ? "yesterday" : days < 7 ? `${days} days ago` : days < 14 ? "last week" : `${Math.round(days / 7)} weeks ago`;
 }
 import { Octicon } from "@/components/Octicon";
-import { toneAt } from "@/lib/topic-tone";
 import styles from "./TopicMapPanel.module.css";
 
 
@@ -55,7 +54,7 @@ function MasteryRing({ value }: { value: number | null }) {
  * Topics as a path in the order of your notes: each topic a step with how it stands, a checkpoint after every three,
  * and an exam check at the end. A direct action opens the same next study session as the Study plan.
  */
-export function TopicMapPanel() {
+export function TopicMapPanel({ onStart, startLabel }: { onStart?: () => void; startLabel?: string } = {}) {
   const { state, removeTopic } = useLearner();
   const reduce = useReducedMotion() === true;
   const known = useSyncExternalStore(subscribeKnownLines, getKnownLines, getServerKnownLines);
@@ -94,17 +93,20 @@ export function TopicMapPanel() {
     );
   }
 
-  const totalWeight = concepts.reduce((sum, concept) => sum + Math.max(0, concept.examImportance), 0) || 1;
   const rows = concepts.map((concept) => {
     const activity = state.snapshot.learningActivities.find((item) => item.conceptId === concept.id);
-    const locator = primaryActivitySourceReference(activity)?.locator?.trim();
+    const reference = primaryActivitySourceReference(activity);
+    const locator = reference?.locator?.trim();
     const due = concept.retrievalAttempts > 0 && !resting.has(concept.id) && Boolean(concept.nextReviewAt) && Date.parse(concept.nextReviewAt!) <= Date.parse(state.nowIso);
     return {
       concept,
       label: topicLevel(concept.mastery, concept.retrievalAttempts),
       mastery: concept.retrievalAttempts > 0 ? concept.mastery : null,
-      share: Math.round((Math.max(0, concept.examImportance) / totalWeight) * 100),
-      page: locator && !/not your upload/i.test(locator) && !/^Section\b/.test(locator) ? locator : null,
+      source: reference
+        ? [reference.label.trim(), locator && !/not your upload|from filename/i.test(locator) && !/^Section\b/.test(locator) ? locator : null]
+            .filter(Boolean)
+            .join(" · ")
+        : null,
       due,
     };
   });
@@ -149,11 +151,11 @@ export function TopicMapPanel() {
   };
 
   return (
-    <div className="surface-map is-toc">
+    <div className="surface-map is-toc source-topic-map">
       <div className={styles.pathHead} role="group" aria-label="Where you are">
-        <p className="sr-only">{practised} of {path.length} topics practiced{solid ? `, ${solid} solid` : ""}{recalled ? `, ${recalled} ${recalled === 1 ? "line" : "lines"} answered correctly` : ""}{passedCount ? `, ${passedCount} ${passedCount === 1 ? "checkpoint" : "checkpoints"} passed` : ""}.</p>
+        <p className="sr-only">{practised} of {path.length} topics practised{solid ? `, ${solid} solid` : ""}{recalled ? `, ${recalled} ${recalled === 1 ? "line" : "lines"} answered correctly` : ""}{passedCount ? `, ${passedCount} ${passedCount === 1 ? "checkpoint" : "checkpoints"} passed` : ""}.</p>
         <ul className={styles.stats} aria-hidden="true">
-          <li><Octicon name="list-unordered" className={styles.ico} /><strong>{practised}/{path.length}</strong><span>practiced</span></li>
+          <li><Octicon name="list-unordered" className={styles.ico} /><strong>{practised}/{path.length}</strong><span>practised</span></li>
           {solid ? <li data-tone="green"><Octicon name="check-circle" className={styles.ico} /><strong>{solid}</strong><span>solid</span></li> : null}
           {recalled ? <li><Octicon name="check-circle" className={styles.ico} /><strong>{recalled}</strong><span>{recalled === 1 ? "line" : "lines"} recalled</span></li> : null}
           {passedCount ? <li data-tone="marigold"><Octicon name="trophy" className={styles.ico} /><strong>{passedCount}</strong><span>{passedCount === 1 ? "checkpoint" : "checkpoints"}</span></li> : null}
@@ -165,9 +167,29 @@ export function TopicMapPanel() {
         </span>
       </div>
 
+      {start ? (
+        <section className={styles.nextStep} aria-label="Next study step">
+          <div className={styles.nextStepCopy}>
+            <span className={styles.nextStepLabel}>Next to practise</span>
+            <strong>{start.concept.name}</strong>
+            <span className={styles.nextStepReason}>{startReason ?? "First in your current study plan."}</span>
+          </div>
+          {onStart ? (
+            <button type="button" className={`k-btn ${styles.nextStepButton}`} onClick={onStart}>
+              {startLabel ?? "Start session"} <ArrowRight />
+            </button>
+          ) : (
+            <Link href="/today" className={`k-btn ${styles.nextStepButton}`}>
+              Open study plan <ArrowRight />
+            </Link>
+          )}
+        </section>
+      ) : null}
+
+      {/* The path follows the notes; each row shows its current state and source. */}
       <ol className={`index-toc ${styles.path}`} aria-label="Topics, in the order of your notes">
         <AnimatePresence initial={false} mode="popLayout">
-        {path.flatMap(({ concept, mastery, label, page, due }, index) => {
+        {path.flatMap(({ concept, mastery, label, source, due }, index) => {
           const isStart = startConceptId === concept.id;
           const checks = concept.retrievalAttempts;
           const row = (
@@ -175,7 +197,6 @@ export function TopicMapPanel() {
               key={concept.id}
               layout={!reduce}
               className={`${styles.step}${isStart ? ` ${styles.here}` : ""}`}
-              data-tone={toneAt(index)}
               data-state={checks === 0 ? "new" : label === "Solid" ? "solid" : "practised"}
               initial={reduce ? false : { opacity: 0, y: 8 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
@@ -190,7 +211,7 @@ export function TopicMapPanel() {
                 <span className="index-toc-meta">
                   <span className={styles.state} data-level={isStart ? "next" : label.toLocaleLowerCase().replace(/\s+/g, "-")}>{isStart ? "Start here" : label}</span>
                   {mastery == null ? null : <span className={styles.metaSoft}>{checks < 3 ? `${checks} ${checks === 1 ? "try" : "tries"}` : percent(mastery)}</span>}
-                  {page ? <span className={styles.metaSoft}><Octicon name="file" className={styles.icoSm} />{page}</span> : null}
+                  {source ? <span className={styles.source}><Octicon name="file" className={styles.icoSm} />{source}</span> : null}
                 </span>
                 {isStart && startReason ? <span className={styles.why}>{startReason}</span> : null}
                 {due ? <span className={styles.due}>Review due</span> : null}
@@ -208,8 +229,7 @@ export function TopicMapPanel() {
         {path.length >= 2 ? checkpoint(path, "Exam check", 1, "exam") : null}
       </ol>
       {/* Every topic in the student's own words, ready to read the night before or print. */}
-      {/* The same row as the Anki export below it: the words, then a button that says what it does. */}
-      <div className={styles.sheetLink}><span><strong>Your revision sheet</strong><small>Every topic in your own words, ready to print</small></span><Link href="/sheet" className="k-btn k-btn--paper k-btn--small">Open the sheet</Link></div>
+      <Link href="/sheet" className={styles.sheetLink}><span><strong>Your revision sheet</strong><small>Every topic in your own words, ready to print</small></span><ArrowRight className="k-mark" /></Link>
       <AnkiExport course={course.name} concepts={concepts} activities={state.snapshot.learningActivities} />
     </div>
   );
