@@ -2,7 +2,6 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import { readFileSync } from "node:fs";
 import { buildAnswerReason } from "../domain/answer-reason.ts";
-import { buildFirstStudyExample } from "../lib/first-study-preview.ts";
 
 const quote = "Close substitutes make switching easier, so the response is usually larger.";
 const item = {
@@ -88,15 +87,9 @@ test("source fragments remain in their original language while interface reasoni
   assert.match(result.reason, /“baisse”/);
 });
 
-test("the sample and the live run use the same reason builder without changing the answer or source", () => {
-  const example = buildFirstStudyExample();
-  const before = structuredClone(example.check);
-  assert.equal(buildAnswerReason(example.check).grounded, true);
-  assert.deepEqual(example.check, before);
-  for (const path of ["QuickRun.tsx", "FirstStudyPreview.tsx"]) {
-    const component = readFileSync(new URL(`../components/${path}`, import.meta.url), "utf8");
-    assert.match(component, /buildAnswerReason/);
-  }
+test("the live study run uses the shared reason builder", () => {
+  const component = readFileSync(new URL("../components/QuickRun.tsx", import.meta.url), "utf8");
+  assert.match(component, /buildAnswerReason/);
 });
 
 test("a gap shown with words to choose from gets the same source-restoring explanation as a typed gap", () => {

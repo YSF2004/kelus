@@ -69,7 +69,7 @@ export function DropNotes({ onFile, first = false, courseName }: { onFile: (file
       () => photosToPdfFile(photos), "Preparing your photos…");
   }
 
-  // A file chosen while the sample was open, or shared from another app: start from it instead of asking again.
+  // A file chosen while this screen is open, or shared from another app: start from it instead of asking again.
   useEffect(() => {
     const waiting = takePendingSetupFile();
     if (waiting) queueMicrotask(() => void take(waiting));

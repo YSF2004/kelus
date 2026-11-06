@@ -95,7 +95,7 @@ export function CourseSourceReader({ id, material, initialPage = 1, concealed = 
     if (!material || material.storage !== "local" || concealed) return;
     let cancelled = false;
     let renderTask: { cancel: () => void; promise: Promise<unknown> } | null = null;
-    let document: { destroy: () => Promise<void> } | null = null;
+    let loadingTask: { destroy: () => Promise<void> } | null = null;
     let observer: ResizeObserver | null = null;
 
     async function open() {
@@ -116,8 +116,9 @@ export function CourseSourceReader({ id, material, initialPage = 1, concealed = 
         pdfjs.GlobalWorkerOptions.workerSrc = new URL(
           "pdfjs-dist/legacy/build/pdf.worker.min.mjs", import.meta.url,
         ).toString();
-        const pdf = await pdfjs.getDocument({ data: new Uint8Array(await blob.arrayBuffer()) }).promise;
-        document = pdf;
+        const task = pdfjs.getDocument({ data: new Uint8Array(await blob.arrayBuffer()) });
+        loadingTask = task;
+        const pdf = await task.promise;
         if (cancelled) return;
         setPages(pdf.numPages);
         const pdfPage = await pdf.getPage(Math.min(Math.max(page, 1), pdf.numPages));
@@ -161,7 +162,7 @@ export function CourseSourceReader({ id, material, initialPage = 1, concealed = 
       cancelled = true;
       observer?.disconnect();
       renderTask?.cancel();
-      if (document) void document.destroy();
+      if (loadingTask) void loadingTask.destroy();
     };
   }, [material, page, concealed, auth.user?.id, highlight]);
 

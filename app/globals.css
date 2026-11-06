@@ -1,7 +1,6 @@
 /* Hallmark · Kelus booklet: paper / ink / kelus green · product logic preserved */
 @import "tailwindcss";
 @import "tw-animate-css";
-@import "shadcn/tailwind.css";
 @import "../tokens.css";
 
 @custom-variant dark (&:is(.dark *));
