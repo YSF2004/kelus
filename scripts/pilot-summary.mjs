@@ -180,6 +180,7 @@ const flagLabels = {
   unclear: "Doesn't make sense",
   wrong_answer: "The answer is wrong",
   not_in_notes: "Not what my notes say",
+  unsupported_explanation: "The explanation isn't supported by my notes",
 };
 
 console.log(`## ${cohort}`);

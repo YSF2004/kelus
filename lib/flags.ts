@@ -9,12 +9,13 @@ import { trackEvent } from "@/lib/analytics";
 import { captureCohort } from "@/lib/pilot";
 import { questionsEndpoint, questionsInboxEmail } from "@/lib/questions";
 
-export type FlagReason = "unclear" | "wrong_answer" | "not_in_notes";
+export type FlagReason = "unclear" | "wrong_answer" | "not_in_notes" | "unsupported_explanation";
 
 export const FLAG_REASONS: Array<{ value: FlagReason; label: string }> = [
   { value: "unclear", label: "Doesn’t make sense" },
   { value: "wrong_answer", label: "The answer is wrong" },
   { value: "not_in_notes", label: "Not what my notes say" },
+  { value: "unsupported_explanation", label: "The explanation isn’t supported by my notes" },
 ];
 
 const STORAGE_KEY = "kelus:flagged-questions:v1";
