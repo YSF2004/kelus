@@ -322,11 +322,12 @@ export async function extractPdfPages(file: File, options?: { maxContentPages?: 
     "pdfjs-dist/legacy/build/pdf.worker.min.mjs",
     import.meta.url,
   ).toString();
-  const document = await pdfjs.getDocument({ data: new Uint8Array(await file.arrayBuffer()) }).promise;
+  const loadingTask = pdfjs.getDocument({ data: new Uint8Array(await file.arrayBuffer()) });
   const pages: ExtractedMaterialPage[] = [];
   const maxContentPages = options?.maxContentPages ?? MAX_READ_PAGES;
-  options?.onInfo?.({ totalPages: document.numPages });
   try {
+    const document = await loadingTask.promise;
+    options?.onInfo?.({ totalPages: document.numPages });
     try {
       const outline = (await document.getOutline()) as PdfOutlineNode[] | null;
       const titles = flattenOutline(outline);
@@ -345,7 +346,7 @@ export async function extractPdfPages(file: File, options?: { maxContentPages?: 
       page.cleanup();
     }
   } finally {
-    await document.destroy();
+    await loadingTask.destroy();
   }
   return stripRunningLines(pages);
 }
@@ -429,16 +430,18 @@ export async function ocrPdfPages(
     import.meta.url,
   ).toString();
 
-  throwIfAborted(options?.signal);
-  const documentProxy = await pdfjs.getDocument({ data: new Uint8Array(await file.arrayBuffer()) }).promise;
-  throwIfAborted(options?.signal);
   const { createWorker } = await import("tesseract.js");
-  const worker = await createWorker("eng");
+  throwIfAborted(options?.signal);
+  const loadingTask = pdfjs.getDocument({ data: new Uint8Array(await file.arrayBuffer()) });
+  let worker: Awaited<ReturnType<typeof createWorker>> | null = null;
   const byNumber = new Map(pages.map((page) => [page.pageNumber, page]));
   let ocrPages = 0;
   let timedOut = false;
 
   try {
+    const documentProxy = await loadingTask.promise;
+    throwIfAborted(options?.signal);
+    worker = await createWorker("eng");
     for (let index = 0; index < targets.length; index += 1) {
       throwIfAborted(options?.signal);
       if (Date.now() - startedAt >= timeBudgetMs) {
@@ -491,8 +494,11 @@ export async function ocrPdfPages(
       canvas.height = 0;
     }
   } finally {
-    await worker.terminate();
-    await documentProxy.destroy();
+    try {
+      await worker?.terminate();
+    } finally {
+      await loadingTask.destroy();
+    }
   }
 
   options?.onProgress?.({
