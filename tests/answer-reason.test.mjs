@@ -45,10 +45,22 @@ test("a template never claims a changed mathematical sign is unchanged", () => {
   assert.equal(feedback.grounded, false);
 });
 
-test("substantive authored reasoning is preserved, including for AI questions", () => {
+test("substantive authored reasoning stays supported when it includes the exact source passage", () => {
+  const explanation = `Switching is easier because alternatives are available. The source says: “${quote}”`;
+  for (const origin of ["offline", "ai"]) {
+    const result = buildAnswerReason({ ...item, origin, explanation });
+    assert.equal(result.reason, explanation);
+    assert.equal(result.grounded, true);
+  }
+});
+
+test("authored reasoning without the linked passage is not presented as verified", () => {
   const explanation = "Switching to another supplier is easier when alternatives are available, so a price rise causes a larger response.";
   for (const origin of ["offline", "ai"]) {
-    assert.equal(buildAnswerReason({ ...item, origin, explanation }).reason, explanation);
+    const result = buildAnswerReason({ ...item, origin, explanation });
+    assert.equal(result.grounded, false);
+    assert.doesNotMatch(result.reason, /Switching to another supplier/);
+    assert.match(result.reason, /cannot be verified from this evidence/);
   }
 });
 

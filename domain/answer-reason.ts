@@ -43,6 +43,16 @@ function isOnlyQuotation(explanation: string, quote: string) {
   return same(stripped, quote);
 }
 
+function containsSourcePassage(explanation: string, quote: string) {
+  const normalizePassage = (value: string) => value.normalize("NFKC")
+    .toLocaleLowerCase()
+    .replace(/[“”"'’‘]/g, "")
+    .replace(/\s+/g, " ")
+    .trim();
+  const source = normalizePassage(quote);
+  return source.length > 0 && normalizePassage(explanation).includes(source);
+}
+
 /**
  * Explain the existing answer key; never grade, mutate progress, or invent subject knowledge.
  * Offline comparisons are restricted to the source-preserving templates the generator uses.
@@ -62,8 +72,16 @@ export function buildAnswerReason(item: PracticeItem): AnswerReason {
     grounded: false,
     reason: "This question’s answer key is inconsistent. Compare the suggested answer with the source and report the question for review.",
   };
-  // Keep a substantive authored explanation instead of replacing it with template wording.
-  if (explanation && !isOnlyQuotation(explanation, quote)) return { answer, reason: explanation, grounded: true };
+  // Keep authored reasoning only when it carries its own exact source anchor. An attached quote elsewhere
+  // in the card cannot verify an unrelated explanation.
+  if (explanation && !isOnlyQuotation(explanation, quote)) {
+    if (containsSourcePassage(explanation, quote)) return { answer, reason: explanation, grounded: true };
+    return {
+      answer,
+      grounded: false,
+      reason: "This explanation does not include the linked source passage, so its reasoning cannot be verified from this evidence. Compare the suggested answer with the quotation.",
+    };
+  }
   const statement = statementIn(item.prompt);
   if (item.origin === "offline" && item.variant === "truefalse" && statement) {
     if (answer === "False") {
