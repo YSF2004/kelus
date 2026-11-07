@@ -5,7 +5,7 @@ import { mkdtempSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { pilotMilestones } from "../lib/pilot.ts";
-import { flagKey } from "../lib/flags.ts";
+import { FLAG_REASONS, flagKey } from "../lib/flags.ts";
 
 const at = (day, hour = 12) => new Date(2026, 9, 10 + day, hour).toISOString();
 const answer = (conceptId, day, kind = "retrieval") => ({ kind, conceptId, createdAt: at(day) });
@@ -25,6 +25,10 @@ test("a flagged question has the same key in every later run, and a different qu
   assert.notEqual(flagKey(q), flagKey({ ...q, prompt: "Which term does this describe?" }));
 });
 
+test("unsupported explanations have their own report category", () => {
+  assert.equal(FLAG_REASONS.find((reason) => reason.value === "unsupported_explanation")?.label, "The explanation isn’t supported by my notes");
+});
+
 test("the pilot summary reports starts, completions, returns, usefulness, flags and source types", () => {
   const dir = mkdtempSync(join(tmpdir(), "pilot-"));
   const file = join(dir, "export.csv");
@@ -38,6 +42,7 @@ test("the pilot summary reports starts, completions, returns, usefulness, flags 
     "session_usefulness_rated,bio,(not set),real,true,(not set),(not set),4,4",
     "session_usefulness_rated,bio,(not set),real,false,(not set),(not set),2,2",
     "question_flagged,bio,(not set),real,(not set),wrong_answer,(not set),2,3",
+    "question_flagged,bio,(not set),real,(not set),unsupported_explanation,(not set),1,1",
     "material_processing_completed,bio,(not set),real,(not set),(not set),pdf,5,5",
     "material_processing_completed,bio,(not set),real,(not set),(not set),notes,4,4"].join("\n"));
   writeFileSync(returns, ["Pilot cohort,Course type,Total users,Event count", "bio,real,4,4", "bio,sample,2,2"].join("\n"));
@@ -49,6 +54,7 @@ test("the pilot summary reports starts, completions, returns, usefulness, flags 
   assert.match(out, /Returned within 7 days: 4 of 7 first-session completers \(57%; cohort N=12 invited\)/);
   assert.match(out, /Rated helpful: 4 of 6 usefulness ratings \(67%; cohort N=12 invited\)/);
   assert.match(out, /The answer is wrong: 3/);
+  assert.match(out, /The explanation isn't supported by my notes: 1/);
   assert.match(out, /Source types tested: pdf \(5 processing events\), notes \(4 processing events\)/);
   assert.doesNotMatch(out, /First-session starts: 15/);
 });

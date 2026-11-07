@@ -207,6 +207,7 @@ export function QuickRun({ run: providedRun, persistenceKey, onPersistenceChange
   const checkSource = resolveEvidenceSource(item?.sourceReference, sourceReferences);
   const explanationSource = resolveEvidenceSource(run.explainSourceReference, sourceReferences);
   const answerReason = item && answered ? buildAnswerReason(item) : null;
+  const unsupportedExplanation = answerReason?.qualityIssue === "unsupported_explanation";
   const headline = answerReason && answered ? feedbackHeadline(answerReason, { right: answered.right, unsure: answered.unsure, given: answered.given }) : null;
   // A headline that already says both words ("The word is “price”, not “quantity”.") makes the answer row and the
   // gap's reason a repeat; they stay in the trace for screen readers, out of sight.
@@ -254,6 +255,19 @@ export function QuickRun({ run: providedRun, persistenceKey, onPersistenceChange
     setUnsure((count) => count + 1);
     setMissed((list) => [...list, item.sourceQuote]);
     if (known?.has(item.sourceQuote) && !missed.includes(item.sourceQuote)) { setDrop((count) => count + 1); setChange("−1"); }
+  }
+
+  function recordFlag(reason: FlagReason) {
+    if (!item) return;
+    flagQuestion(item, reason, courseType);
+    setFlag({ reason, sent: "no" });
+  }
+
+  function sendFlag(reason: FlagReason) {
+    if (!item || !answered) return;
+    setFlag({ reason, sent: "sending" });
+    void sendFlaggedQuestion(item, reason, run.topic || "Warm-up", answered.given)
+      .then((ok) => setFlag({ reason, sent: ok ? "yes" : "failed" }));
   }
 
   function next() {
@@ -516,6 +530,24 @@ export function QuickRun({ run: providedRun, persistenceKey, onPersistenceChange
                       <p className={styles.reasoningText}>
                         {answerReason?.reason}
                       </p>
+                      {unsupportedExplanation ? (
+                        <div className={styles.flag}>
+                          {flag !== null && typeof flag === "object" && flag.reason === "unsupported_explanation" ? (
+                            <p className={styles.flagDone} role="status">
+                              Flagged. Kelus won’t ask it again.{" "}
+                              {flag.sent === "yes" ? "Sent to the Kelus team, thank you." : flag.sent === "sending" ? "Sending…" : (
+                                <button type="button" className={styles.flagLink} onClick={() => sendFlag("unsupported_explanation")}>
+                                  {flag.sent === "failed" ? "Couldn’t send. Try again" : "Send it to the Kelus team"}
+                                </button>
+                              )}
+                            </p>
+                          ) : (
+                            <button type="button" className={styles.flagLink} onClick={() => recordFlag("unsupported_explanation")}>
+                              Report this explanation
+                            </button>
+                          )}
+                        </div>
+                      ) : null}
                     </div>
                   </li>
                   <li className={`${styles.reasoningStep} ${styles.reasoningEvidence}`}>
@@ -578,13 +610,13 @@ export function QuickRun({ run: providedRun, persistenceKey, onPersistenceChange
                     only on a second, explicit tap. */}
                 <div className={styles.lineTools}>
                   <ListenButton key={`listen-q-${step}`} text={item.sourceQuote} className={styles.listen} label={w.listen} stopLabel={w.stop} />
-                  <div className={styles.flag}>
+                  {!unsupportedExplanation ? <div className={styles.flag}>
                     {flag === null ? (
                       <button type="button" className={styles.flagLink} onClick={() => setFlag("choosing")}>{w.flag}</button>
                     ) : flag === "choosing" ? (
                       <div className={styles.flagReasons} role="group" aria-label="What is wrong with this question?">
-                        {FLAG_REASONS.map((reason) => (
-                          <button key={reason.value} type="button" className={styles.flagReason} onClick={() => { flagQuestion(item, reason.value, courseType); setFlag({ reason: reason.value, sent: "no" }); }}>{reason.label}</button>
+                        {FLAG_REASONS.filter((reason) => reason.value !== "unsupported_explanation").map((reason) => (
+                          <button key={reason.value} type="button" className={styles.flagReason} onClick={() => recordFlag(reason.value)}>{reason.label}</button>
                         ))}
                         <button type="button" className={styles.flagLink} onClick={() => setFlag(null)}>Cancel</button>
                       </div>
@@ -592,15 +624,13 @@ export function QuickRun({ run: providedRun, persistenceKey, onPersistenceChange
                       <p className={styles.flagDone} role="status">
                         Flagged. Kelus won’t ask it again.{" "}
                         {flag.sent === "yes" ? "Sent to the Kelus team, thank you." : flag.sent === "sending" ? "Sending…" : (
-                          <button type="button" className={styles.flagLink} onClick={() => {
-                            const reason = flag.reason;
-                            setFlag({ reason, sent: "sending" });
-                            void sendFlaggedQuestion(item, reason, run.topic || "Warm-up", answered.given).then((ok) => setFlag({ reason, sent: ok ? "yes" : "failed" }));
-                          }}>{flag.sent === "failed" ? "Couldn’t send. Try again" : "Send it to the Kelus team"}</button>
+                          <button type="button" className={styles.flagLink} onClick={() => sendFlag(flag.reason)}>
+                            {flag.sent === "failed" ? "Couldn’t send. Try again" : "Send it to the Kelus team"}
+                          </button>
                         )}
                       </p>
                     )}
-                  </div>
+                  </div> : null}
                 </div>
               </motion.div>
             ) : null}

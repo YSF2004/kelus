@@ -5,6 +5,8 @@ export type AnswerReason = {
   reason: string;
   /** The attached passage can support this explanation; not a fresh provenance verification. */
   grounded: boolean;
+  /** A specific issue the student can report from this feedback state. */
+  qualityIssue?: "unsupported_explanation";
   /** What kind of evidence the reason rests on, so the verdict can name the exact difference in one line. */
   shape?: "gap" | "changed" | "same";
   changed?: { statement: string; source: string };
@@ -79,6 +81,7 @@ export function buildAnswerReason(item: PracticeItem): AnswerReason {
     return {
       answer,
       grounded: false,
+      qualityIssue: "unsupported_explanation",
       reason: "This explanation does not include the linked source passage, so its reasoning cannot be verified from this evidence. Compare the suggested answer with the quotation.",
     };
   }

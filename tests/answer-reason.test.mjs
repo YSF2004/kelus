@@ -59,6 +59,7 @@ test("authored reasoning without the linked passage is not presented as verified
   for (const origin of ["offline", "ai"]) {
     const result = buildAnswerReason({ ...item, origin, explanation });
     assert.equal(result.grounded, false);
+    assert.equal(result.qualityIssue, "unsupported_explanation");
     assert.doesNotMatch(result.reason, /Switching to another supplier/);
     assert.match(result.reason, /cannot be verified from this evidence/);
   }
@@ -78,8 +79,11 @@ test("the gap explanation is derived only when its replacement restores the sour
 
 test("missing passages, missing reasoning and inconsistent keys are acknowledged rather than invented", () => {
   assert.equal(buildAnswerReason({ ...item, sourceQuote: "" }).grounded, false);
+  assert.equal(buildAnswerReason({ ...item, sourceQuote: "" }).qualityIssue, undefined);
   assert.match(buildAnswerReason({ ...item, sourceQuote: "" }).reason, /cannot be verified/);
-  assert.match(buildAnswerReason({ ...item, correctIndex: 0 }).reason, /inconsistent/);
+  const inconsistent = buildAnswerReason({ ...item, correctIndex: 0 });
+  assert.match(inconsistent.reason, /inconsistent/);
+  assert.equal(inconsistent.qualityIssue, undefined);
   assert.equal(buildAnswerReason({ ...item, origin: "ai" }).grounded, false);
   assert.doesNotThrow(() => buildAnswerReason({ ...item, explanation: undefined, sourceQuote: undefined }));
 });
