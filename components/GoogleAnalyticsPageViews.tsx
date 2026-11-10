@@ -14,7 +14,10 @@ export function GoogleAnalyticsPageViews() {
 
     const sendPageView = () => {
       if (typeof window.gtag !== "function") return;
-      const url = window.location.href;
+      // URL fragments can carry short-lived challenge credentials; never send them to analytics.
+      const pageLocation = new URL(window.location.href);
+      pageLocation.hash = "";
+      const url = pageLocation.toString();
       if (lastTrackedUrl.current === url) return;
       lastTrackedUrl.current = url;
       // Tag this browser before its first view, including a visit from a classmate's invite.

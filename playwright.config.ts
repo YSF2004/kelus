@@ -19,6 +19,8 @@ export default defineConfig({
     // Exercise event capture in browser tests without using the production analytics property.
     env: {
       NEXT_PUBLIC_GA_MEASUREMENT_ID: "G-TEST",
+      // A non-secret test origin lets the recipient route validate a mocked signed-storage response.
+      NEXT_PUBLIC_SUPABASE_URL: "https://challenge-test.supabase.co",
       // Production registers this worker automatically; opt into that same path only for the browser suite.
       NEXT_PUBLIC_E2E_SERVICE_WORKER: "1",
     },

@@ -1,4 +1,5 @@
 import { THEME_BOOT } from "@/lib/theme";
+import { CHALLENGE_LINK_BOOT } from "@/lib/challenge-link-bootstrap";
 import { CommandPalette } from "@/components/CommandPalette";
 import type { Metadata, Viewport } from "next";
 import { Suspense } from "react";
@@ -95,6 +96,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       <head>
         {/* The chosen theme, set before the first paint so the page never flashes the other paper. */}
         <script dangerouslySetInnerHTML={{ __html: THEME_BOOT }} />
+        <script dangerouslySetInnerHTML={{ __html: CHALLENGE_LINK_BOOT }} />
       </head>
       <body className={`${inter.variable} ${literata.variable} is-booklet-system`}>
         <GoogleAnalytics />
