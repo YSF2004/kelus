@@ -21,6 +21,7 @@
   --color-hero-purple: #7859a0;
   --color-hero-purple-wash: #f2edf8;
   --color-study-apply-wash: #fff4e7;
+  --color-amber-ink: #8a5a00;
   --shadow-hero-sheet: 0 6px 24px rgb(18 22 15 / 5%);
   /* Illustration-only washes: action and navigation remain Kelus green. */
   --color-loop-source: oklch(0.92 0.03 210);
@@ -140,6 +141,8 @@
   --color-product-green: var(--color-kelus);
   --color-product-green-soft: var(--color-periwinkle-wash);
   --color-product-warm: var(--color-kelus-hover);
+  --color-product-frost: var(--color-frost);
+  --color-product-danger: #9a3412;
   --space-product-xs: var(--spacing-8);
   --space-product-sm: 0.75rem;
   --space-product-md: var(--spacing-16);
