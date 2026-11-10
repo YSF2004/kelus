@@ -16,7 +16,7 @@ for (const viewport of [{ width: 1440, height: 900 }, { width: 390, height: 844 
 
     await page.goto("/today?section=map");
     await expect(page.locator(".surface-map")).toBeVisible();
-    await expect(page.getByRole("group", { name: "Where you are" }).locator("ul li").first()).toHaveCSS("background-color", "rgba(0, 0, 0, 0)");
+    await expect(page.getByRole("group", { name: "Sample course progress" }).locator("ul li").first()).toHaveCSS("background-color", "rgba(0, 0, 0, 0)");
     await page.screenshot({ path: `/tmp/kelus-quiet-topics-${viewport.width}.png`, fullPage: true });
 
     const horizontalOverflow = await page.evaluate(() => document.documentElement.scrollWidth > innerWidth + 1);

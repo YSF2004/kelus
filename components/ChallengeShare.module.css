@@ -1,0 +1,71 @@
+.card {
+  display: grid;
+  gap: 16px;
+  margin-top: 18px;
+  padding: 20px;
+  border: 1px solid #e7e4dc;
+  border-radius: 10px;
+  background: #fbfaf7;
+  color: #191a18;
+}
+
+.heading { display: grid; gap: 7px; }
+.eyebrow {
+  color: #1f6b45;
+  font-size: 0.75rem;
+  font-weight: 650;
+  letter-spacing: 0.045em;
+  text-transform: uppercase;
+}
+.heading h2 {
+  margin: 0;
+  font-family: var(--font-source-serif), Georgia, serif;
+  font-size: clamp(1.2rem, 2vw, 1.5rem);
+  font-weight: 500;
+  letter-spacing: -0.025em;
+  line-height: 1.2;
+}
+.heading p, .action p, .foot { margin: 0; color: #62665f; line-height: 1.5; }
+.heading p { max-width: 58ch; font-size: 0.9rem; }
+
+.preview {
+  border-top: 1px solid #e7e4dc;
+  border-bottom: 1px solid #e7e4dc;
+  padding: 11px 0;
+}
+.preview summary {
+  cursor: pointer;
+  color: #373b35;
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+.preview ol {
+  display: grid;
+  gap: 10px;
+  margin: 12px 0 0;
+  padding-left: 20px;
+}
+.preview li { padding-left: 3px; }
+.preview li strong, .preview li span, .preview li small { display: block; }
+.preview li strong { font-size: 0.875rem; font-weight: 600; line-height: 1.45; }
+.preview li span { margin-top: 4px; color: #4c514a; font-size: 0.85rem; line-height: 1.45; }
+.preview li small { margin-top: 3px; color: #6a6e66; font-size: 0.78rem; line-height: 1.45; }
+
+.action { display: grid; justify-items: start; gap: 12px; }
+.action p { font-size: 0.84rem; }
+.ready { color: #1f6b45 !important; font-weight: 600; }
+.consent { display: flex; align-items: flex-start; gap: 10px; max-width: 64ch; color: #393d37; font-size: 0.85rem; line-height: 1.45; }
+.consent input { flex: none; width: 18px; height: 18px; margin: 1px 0 0; accent-color: #1f6b45; }
+.buttons { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.shareField { display: grid; gap: 6px; color: #555a53; font-size: 0.78rem; font-weight: 600; }
+.shareField input { width: min(100%, 560px); min-height: 42px; padding: 8px 10px; border: 1px solid #dadbd4; border-radius: 7px; background: #fff; color: #30352f; font: 0.76rem/1.4 ui-monospace, monospace; }
+.revoke { padding: 8px 4px; border: 0; background: transparent; color: #8d382f; font: inherit; font-size: 0.82rem; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
+.revoke:disabled { opacity: 0.55; cursor: wait; }
+.status { margin: 0; color: #1f6b45; font-size: 0.86rem; line-height: 1.45; }
+.foot { font-size: 0.76rem; }
+
+@media (max-width: 560px) {
+  .card { gap: 14px; margin-top: 14px; padding: 16px; }
+  .buttons { width: 100%; }
+  .buttons > * { flex: 1 1 auto; }
+}

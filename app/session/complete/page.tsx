@@ -16,8 +16,10 @@ import { downloadTomorrowStudyIcs } from "@/lib/study-reminder";
 import { getNudgeSettings, getServerNudgeSettings, nudgesSupported, subscribeNudgeSettings, turnOnNudges } from "@/lib/nudge";
 import { SAMPLE_COURSE_IDS, sessionContext } from "@/lib/pilot";
 import { ClassInvite } from "@/components/ClassInvite";
+import { ChallengeShare } from "@/components/ChallengeShare";
 import { ShareProgress } from "@/components/ShareProgress";
 import { trackEvent } from "@/lib/analytics";
+import { cardsForSession } from "@/lib/challenge-share";
 import { useDocumentTitle } from "@/lib/use-title";
 import { KelusLogoMark } from "@/components/KelusLogoMark";
 import { SampleCourseNotice } from "@/components/SampleCourseNotice";
@@ -159,6 +161,7 @@ function CompleteBody() {
   // What this block was: each topic once, with how its last answer went, in the result card's own words.
   const sessionAnswers = state.snapshot.events.filter((event) => event.sessionId === session.id && event.kind === "retrieval");
   const practised = [...new Map(sessionAnswers.map((event) => [event.conceptId, event])).values()];
+  const challengeCards = cardsForSession(state.snapshot.learningActivities, practised.map((event) => event.conceptId));
   const known = practised.filter((event) => event.outcome === "success");
   const rank = { failure: 0, partial: 1, success: 2 } as const;
   const weakest = [...practised].filter((event) => event.outcome !== "success").sort((a, b) => rank[a.outcome ?? "partial"] - rank[b.outcome ?? "partial"])[0];
@@ -233,6 +236,9 @@ function CompleteBody() {
         <RemindTomorrow />
         {/* The session as a card worth sending, shown whole: the picture it shares, one Share button under it. */}
         {!SAMPLE_COURSE_IDS.has(session.courseId) && practised.length ? <div className={styles.shareCard}><ShareProgress variant="card" /></div> : null}
+        {!SAMPLE_COURSE_IDS.has(session.courseId) && completedSessions >= 2 && challengeCards.length
+          ? <ChallengeShare cards={challengeCards} sessionId={session.id} />
+          : null}
 
         <div className={styles.quiet}>
           {usefulness === null ? (

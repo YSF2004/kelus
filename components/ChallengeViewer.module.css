@@ -1,0 +1,59 @@
+.page {
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  gap: 28px;
+  min-height: 100dvh;
+  padding: 20px clamp(16px, 4vw, 48px) 18px;
+  background: #f3f3ee;
+  color: #171a17;
+}
+.header { display: flex; justify-content: space-between; align-items: center; width: min(100%, 900px); margin-inline: auto; }
+.brand { display: inline-flex; align-items: center; gap: 8px; color: #18201b; font-weight: 650; text-decoration: none; }
+.brand > span { font-weight: 500; }
+.tag { color: #73766e; font-size: 0.82rem; }
+.panel {
+  align-self: center;
+  display: grid;
+  gap: 18px;
+  width: min(100%, 680px);
+  margin-inline: auto;
+  padding: clamp(20px, 5vw, 42px);
+  border: 1px solid #e5e4dc;
+  border-radius: 14px;
+  background: #fffefa;
+  box-shadow: 0 12px 34px rgb(28 32 25 / 5%);
+}
+.eyebrow { color: #246b49; font-size: 0.76rem; font-weight: 700; letter-spacing: 0.06em; text-transform: uppercase; }
+.panel h1 { max-width: 18ch; margin: 0; font-family: var(--font-source-serif), Georgia, serif; font-size: clamp(2rem, 5vw, 3.4rem); font-weight: 500; letter-spacing: -0.04em; line-height: 1.02; }
+.panel > p { margin: 0; color: #62665f; line-height: 1.55; }
+.privacy { max-width: 58ch; font-size: 0.88rem; }
+.skeleton { width: 100%; height: 150px; border-radius: 10px; background: linear-gradient(100deg, #efeee8 25%, #f8f7f2 42%, #efeee8 60%); background-size: 220% 100%; animation: shimmer 1.3s ease-in-out infinite; }
+.cardMeta { display: flex; justify-content: space-between; gap: 12px; color: #71756d; font-size: 0.78rem; }
+.progress { height: 3px; overflow: hidden; border-radius: 999px; background: #e7e7e0; }
+.progress > span { display: block; height: 100%; border-radius: inherit; background: #25704b; transition: width 180ms ease; }
+.questionCard { display: grid; gap: 22px; padding: clamp(18px, 4vw, 30px); border: 1px solid #e8e5dc; border-radius: 12px; background: #fff; }
+.questionCard h2 { margin: 0; font-family: var(--font-source-serif), Georgia, serif; font-size: clamp(1.4rem, 3vw, 2rem); font-weight: 500; letter-spacing: -0.025em; line-height: 1.2; white-space: pre-wrap; overflow-wrap: anywhere; }
+.answer { display: grid; gap: 9px; padding-top: 17px; border-top: 1px solid #eceae3; }
+.answerLabel { color: #246b49; font-size: 0.75rem; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; }
+.answer p { margin: 0; color: #343932; line-height: 1.55; white-space: pre-wrap; overflow-wrap: anywhere; }
+.answer .explanation { color: #686c65; font-size: 0.88rem; }
+.feedback { display: grid; gap: 10px; }
+.feedback > p { margin: 0; color: #60645d; font-size: 0.86rem; }
+.actions { display: flex; flex-wrap: wrap; gap: 9px; }
+.rating { min-height: 44px; padding: 10px 15px; border: 1px solid #dadbd4; border-radius: 8px; background: #fff; color: #30352f; font: inherit; cursor: pointer; transition: border-color 140ms ease, background 140ms ease; }
+.rating:hover { border-color: #4d8b68; background: #f4f8f4; }
+.result { color: #1f6b45 !important; font-size: 1.02rem; font-weight: 600; }
+.status { color: #1f6b45 !important; font-size: 0.86rem; }
+.footer { width: min(100%, 900px); margin-inline: auto; color: #777a73; font-size: 0.76rem; text-align: center; }
+
+@keyframes shimmer { to { background-position-x: -220%; } }
+@media (prefers-reduced-motion: reduce) {
+  .skeleton { animation: none; }
+  .progress > span, .rating { transition: none; }
+}
+@media (max-width: 520px) {
+  .page { gap: 18px; padding-top: 15px; }
+  .panel { gap: 15px; border-radius: 12px; }
+  .actions > * { flex: 1 1 100%; }
+  .cardMeta { font-size: 0.74rem; }
+}

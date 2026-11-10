@@ -20,7 +20,7 @@ async function playQuickRun(page: Page) {
 
 test("answering a topic starts a streak and moves today's goal", async ({ page }) => {
   await page.goto("/today?sample=1");
-  const stats = page.getByRole("group", { name: "Your path through the course" });
+  const stats = page.getByRole("group", { name: "Example course overview" });
   await expect(stats).toContainText("0/3today");
   // The sample comes with earlier practice and one day off: a rest day keeps its streak alive, and today keeps it.
   await expect(page.getByRole("status").filter({ hasText: /One topic today keeps your \d+-day streak\./ })).toBeVisible();

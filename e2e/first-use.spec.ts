@@ -206,7 +206,7 @@ test("course workspace fills the viewport without a blank footer band", async ({
   await expect(workspace).toBeVisible();
   expect(await workspace.evaluate((element) => element.getBoundingClientRect().bottom)).toBeGreaterThanOrEqual(899);
   // Where the course stands, as a path: topics started and the days still ahead.
-  const pulse = page.getByRole("group", { name: "Your path through the course" });
+  const pulse = page.getByRole("group", { name: "Example course overview" });
   await expect(pulse).toContainText(/\d+\/\d+topics/);
   await expect(pulse).toContainText(/days? to exam|study days? left|Ready by|All solid/);
   await page.setViewportSize({ width: 390, height: 844 });
@@ -236,9 +236,12 @@ test("sample course without an original PDF gives the route room and makes uploa
   // Today is one column: the next topic. The notes live in Materials.
   await expect(page.locator(".core-workspace-grid.is-today-single")).toBeVisible();
   await expect(page.locator(".core-source-reader")).toHaveCount(0);
-  await expect(page.getByRole("link", { name: "Add your course PDF" })).toBeVisible();
+  const useMyNotes = page.getByRole("note", { name: "Sample course notice" }).getByRole("link", { name: "Use my own notes" });
+  await expect(useMyNotes).toBeVisible();
+  await expect(useMyNotes).toHaveAttribute("href", /section=materials/);
   await page.screenshot({ path: "/tmp/kelus-sample-route-without-pdf.png", fullPage: true });
-  await sectionsNav(page).getByRole("button", { name: "Materials" }).click();
+  await useMyNotes.click();
+  await expect(page).toHaveURL(/section=materials/);
   await expect(page.locator(".material-binder-stack.is-source-first")).toBeVisible();
   await expect(page.locator(".material-row strong").getByText("Built-in Microeconomics example")).toBeVisible();
   await expect(page.getByText("Built-in example · no original PDF")).toBeVisible();
