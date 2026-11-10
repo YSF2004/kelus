@@ -167,15 +167,18 @@ export function TodayRoute({
     ? buildQuickRun({ activity: firstActivity, name: firstConcept.name, siblingNames: concepts.filter((item) => item.courseId === firstConcept.courseId).map((item) => item.name), round: firstConcept.retrievalAttempts, readFirst: firstConcept.retrievalAttempts === 0 })?.checks.length ?? 0
     : 0;
   const runLine = firstChecks ? `${firstChecks} quick check${firstChecks === 1 ? "" : "s"} and 1 explanation` : "1 explanation";
-  // The reason quotes the student's own last answer and names the topics that build on this one.
+  // The reason quotes the student's own evidence, or marks built-in sample history as an example.
   const reasons = describeRouteChoice(first, firstConcept, {
     examDateKnown: !examDatePending,
-    events: isSampleCourse ? [] : events,
+    events,
     nowIso,
+    sampleCourse: isSampleCourse,
     dependents: firstConcept ? dependentNames(firstConcept.id, relationships, concepts) : [],
   });
   // A saved session may have moved to this topic without the student ever opening it.
-  const decision = startLabel && !(firstConcept?.retrievalAttempts) ? ["Your session is saved. Continue with this topic."] : reasons;
+  const decision = startLabel && !(firstConcept?.retrievalAttempts)
+    ? [isSampleCourse ? "This example session is saved. Continue with this topic." : "Your session is saved. Continue with this topic."]
+    : reasons;
   const firstSource = primaryActivitySourceReference(firstActivity);
   // A mixed review is named by what it mixes: answered topics the plan does not already list on their own. With
   // none (day one, or every answered topic is already a row), it is not offered.
@@ -238,7 +241,7 @@ export function TodayRoute({
         <p className={q.date}>{new Date(nowIso).toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" })}</p>
         <h1 className={q.title} data-block="course-title">{hasCoursePdf ? <CourseFolderIcon /> : null}{onRenameCourse ? <InlineName value={courseName} label="Rename course" onSave={onRenameCourse} /> : <span>{courseName}</span>}</h1>
         {(
-          <ul className={q.stats} role="group" aria-label="Your path through the course">
+          <ul className={q.stats} role="group" aria-label={isSampleCourse ? "Example course overview" : "Your path through the course"}>
             {/* A sample says so on the page itself, now the top bar carries no labels. */}
             {isSampleCourse ? <li className={q.sample}>Sample course</li> : null}
             {/* A streak of zero is not news: it appears with the first day studied. */}

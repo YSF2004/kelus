@@ -20,6 +20,7 @@ import { ShareProgress } from "@/components/ShareProgress";
 import { trackEvent } from "@/lib/analytics";
 import { useDocumentTitle } from "@/lib/use-title";
 import { KelusLogoMark } from "@/components/KelusLogoMark";
+import { SampleCourseNotice } from "@/components/SampleCourseNotice";
 import styles from "./complete.module.css";
 
 const OUTCOME: Record<string, string> = { success: "Solid pass", partial: "Partly there", failure: "Needs another attempt" };
@@ -81,6 +82,7 @@ function CompleteBody() {
     : [...state.snapshot.sessions].reverse().find((item) => item.status === "complete");
   const summary = session?.summary;
   const course = state.snapshot.courses.find((item) => item.id === session?.courseId);
+  const sampleCourse = Boolean(session && SAMPLE_COURSE_IDS.has(session.courseId));
   const exam = state.snapshot.exams.find((item) => item.id === session?.examId);
   const name = (id: string) => state.snapshot.concepts.find((concept) => concept.id === id)?.name ?? id;
   const completedSessions = state.snapshot.sessions.filter((item) => item.status === "complete").length;
@@ -175,6 +177,7 @@ function CompleteBody() {
       <Link href="/today" className={styles.barClose}>Close</Link>
     </header>
     <main id="main" className="study-shell is-complete-page">
+      {sampleCourse ? <SampleCourseNotice compact /> : null}
       <motion.section
         className={`complete-folio is-page ${styles.done}`}
         initial={reduceMotion ? { opacity: 0 } : { opacity: 0, y: 10 }}
@@ -182,9 +185,9 @@ function CompleteBody() {
         transition={reduceMotion ? { duration: 0.12 } : { duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
       >
         {/* The end of a session, short: what you did, what comes back, one way on. The list says how many topics. */}
-        <h1>Done.</h1>
+        <h1>{sampleCourse ? "Sample complete." : "Done."}</h1>
         <p className={styles.lede}>
-          {practised.length} {practised.length === 1 ? "topic" : "topics"}{course && course.name !== "My course" ? ` from ${course.name}` : ""}. Your answers are saved.
+          {practised.length} {practised.length === 1 ? "topic" : "topics"}{course && course.name !== "My course" ? ` from ${course.name}` : ""}. {sampleCourse ? "Example answers are saved to this sample course only." : "Your answers are saved."}
         </p>
 
         <ul className={styles.topics} aria-label="Topics in this session">
@@ -208,9 +211,9 @@ function CompleteBody() {
             <h2 id="complete-return-title">
               {missedToday
                 ? missedToday <= 3
-                  ? <>{missedToday === 1 ? "The line you missed comes" : `The ${missedToday} lines you missed come`} back as a 1-minute warm-up.</>
-                  : <>Tomorrow starts with a 1-minute warm-up on lines you missed, three at a time.</>
-                : nextFresh ? <>Next time, start with <strong>{name(nextFresh.conceptId)}</strong>.</> : "Your plan is saved for next time."}
+                  ? <>{sampleCourse ? "In this example, " : ""}{missedToday === 1 ? (sampleCourse ? "the missed line comes" : "The line you missed comes") : sampleCourse ? `the ${missedToday} missed lines come` : `The ${missedToday} lines you missed come`} back as a 1-minute warm-up.</>
+                  : <>{sampleCourse ? "This example starts tomorrow with" : "Tomorrow starts with"} a 1-minute warm-up on {sampleCourse ? "missed lines" : "lines you missed"}, three at a time.</>
+                : nextFresh ? <>{sampleCourse ? "In the example, next time start with" : "Next time, start with"} <strong>{name(nextFresh.conceptId)}</strong>.</> : sampleCourse ? "The example plan is saved for next time." : "Your plan is saved for next time."}
             </h2>
             {/* The lines themselves, in the notes' own words: what comes back is yours, not a deck. */}
             {missedToday && missedToday <= 3 ? (
@@ -250,18 +253,18 @@ function CompleteBody() {
         <section className={styles.changed} aria-label="What changed">
           {known.length ? (
             <p>
-              <span className={styles.changedLabel}>You now know</span>
+              <span className={styles.changedLabel}>{sampleCourse ? "Example result" : "You now know"}</span>
               <b>{known.map((event) => name(event.conceptId)).join(", ")}</b>
             </p>
           ) : (
             <p>
-              <span className={styles.changedLabel}>So far</span>
-              <span className={styles.none}>No topic is solid yet. That’s normal on a first pass: the second one is where lines stick.</span>
+              <span className={styles.changedLabel}>{sampleCourse ? "Example result" : "So far"}</span>
+              <span className={styles.none}>{sampleCourse ? "No topic is solid in this sample yet. Another pass would check these lines again." : "No topic is solid yet. That’s normal on a first pass: the second one is where lines stick."}</span>
             </p>
           )}
           {weakest ? (
             <p>
-              <span className={styles.changedLabel}>Your weak spot</span>
+              <span className={styles.changedLabel}>{sampleCourse ? "Another pass" : "Your weak spot"}</span>
               <b>{name(weakest.conceptId)}</b>
               <span className={styles.none}>{nextStopId === weakest.conceptId ? " · it’s first next time" : " · its missed lines open tomorrow’s warm-up"}</span>
             </p>
@@ -270,19 +273,19 @@ function CompleteBody() {
         {/* A quick bonus round on the topics just practised, when there are three or more to match. */}
         {matchPairs.length ? <MatchRound pairs={matchPairs} seed={session.id} /> : null}
         <HabitStrip events={state.snapshot.events} concepts={courseConcepts} compact />
-            <button type="button" className={`text-btn ${styles.calendar}`} onClick={addCalendar}>
+            {sampleCourse ? null : <button type="button" className={`text-btn ${styles.calendar}`} onClick={addCalendar}>
               Add tomorrow to calendar <ArrowRight />
-            </button>
+            </button>}
             {calendarNote ? <p className={styles.note} role="status">{calendarNote}</p> : null}
           {/* A first session ends on the plan and one question; sharing waits until Kelus has earned it. */}
           {session && !SAMPLE_COURSE_IDS.has(session.courseId) && completedSessions >= 2 ? <ClassInvite sessionNumber={sessionNumber} /> : null}
-          {completedSessions === 1 ? (
+          {!sampleCourse && completedSessions === 1 ? (
             <details>
               <summary>Want Kelus through to exam day?</summary>
               <SoftUpgradePrompt moment="first_session" />
             </details>
           ) : null}
-          {completedSessions >= 2 ? (
+          {!sampleCourse && completedSessions >= 2 ? (
             <details className="complete-waitlist">
               <summary>Get product updates</summary>
               <WaitlistForm source="session_complete" compact />

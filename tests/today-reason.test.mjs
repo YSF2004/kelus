@@ -58,6 +58,24 @@ test("the reason quotes your own last answer and when it was, not a generic labe
   assert.deepEqual(known, ["Last time, 5 days ago, you knew it, so this checks it stays."]);
 });
 
+test("sample course evidence is explicitly labeled as an example", () => {
+  const nowIso = "2026-10-13T10:00:00.000Z";
+  const [line] = describeRouteChoice(
+    { reasons: ["LOW_MASTERY"] },
+    { id: "sample-topic", retrievalAttempts: 2 },
+    {
+      sampleCourse: true,
+      nowIso,
+      events: [
+        { conceptId: "sample-topic", kind: "retrieval", outcome: "failure", createdAt: "2026-10-10T10:00:00.000Z" },
+        { conceptId: "sample-topic", kind: "retrieval", outcome: "failure", createdAt: "2026-10-12T10:00:00.000Z" },
+      ],
+    },
+  );
+  assert.match(line, /^Example history: Last time, yesterday, it needed another attempt/);
+  assert.doesNotMatch(line, /\byour\b|\byou\b/i);
+});
+
 test("many dependents are counted, and no evidence falls back to the plain reason", () => {
   assert.equal(describeRouteChoice({ reasons: ["PREREQUISITE_GAP"] }, { id: "c", retrievalAttempts: 0 }, { dependents: ["A", "B", "C"] })[1], "A and 2 more topics build on it.");
   assert.equal(describeRouteChoice({ reasons: ["PREREQUISITE_GAP"] }, { id: "c", retrievalAttempts: 0 }, { dependents: ["A", "B"] })[1], "A and B build on it.");

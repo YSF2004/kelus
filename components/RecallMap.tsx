@@ -20,7 +20,7 @@ const dayLabel = (day: string) => new Date(`${day}T12:00:00`).toLocaleDateString
  * Lines you can recall, day by day: one line rising toward the dashed line of every line in the course. It draws
  * itself in once, from the first answer to today, and ends on today's number. A first day is a rise from nothing.
  */
-function RecallChart({ series, total }: { series: RecallPoint[]; total: number }) {
+function RecallChart({ series, total, sampleCourse = false }: { series: RecallPoint[]; total: number; sampleCourse?: boolean }) {
   const reduce = useReducedMotion() === true;
   const points = series.length === 1 ? [{ day: series[0].day, recalled: 0 }, series[0]] : series;
   const width = 600;
@@ -32,9 +32,9 @@ function RecallChart({ series, total }: { series: RecallPoint[]; total: number }
   const area = `${line} L${x(points.length - 1).toFixed(1)},${y(0)} L${x(0).toFixed(1)},${y(0)} Z`;
   const last = points[points.length - 1];
   return (
-    <svg className={styles.chart} viewBox={`0 0 ${width} ${height}`} role="img" aria-label={`Lines you can recall, from ${dayLabel(series[0].day)} to today: now ${last.recalled} of ${total}.`}>
+    <svg className={styles.chart} viewBox={`0 0 ${width} ${height}`} role="img" aria-label={`${sampleCourse ? "Example lines recalled" : "Lines you can recall"}, from ${dayLabel(series[0].day)} to today: now ${last.recalled} of ${total}.`}>
       <line className={styles.ceiling} x1={pad.left} x2={width - pad.right} y1={y(total)} y2={y(total)} />
-      <text className={styles.axis} x={width - pad.right} y={y(total) - 6} textAnchor="end">All {total} lines</text>
+      <text className={styles.axis} x={width - pad.right} y={y(total) - 6} textAnchor="end">All {total} {sampleCourse ? "example lines" : "lines"}</text>
       <line className={styles.base} x1={pad.left} x2={width - pad.right} y1={y(0)} y2={y(0)} />
       <motion.path className={styles.area} d={area} initial={reduce ? false : { opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.5, delay: 0.5, ease }} />
       <motion.path className={styles.line} d={line} initial={reduce ? false : { pathLength: 0 }} animate={{ pathLength: 1 }} transition={{ duration: 1, ease }} />
@@ -80,7 +80,7 @@ function TopicLines({ lines, onOpen }: { lines: LeitnerLine[]; onOpen: (line: Le
  * with how much of it you can recall and its own lines under it, each line once, opening its story. With a heading, the rows
  * are that heading's list and each can carry a note (how it went, when it is back), so topics are never listed twice.
  */
-export function RecallMap({ concepts, activities, nowIso, heading, noteFor, fallback = null }: { concepts: Concept[]; activities: LearningActivity[]; nowIso: string; heading?: ReactNode; noteFor?: (conceptId: string) => string | null; fallback?: ReactNode }) {
+export function RecallMap({ concepts, activities, nowIso, heading, noteFor, fallback = null, sampleCourse = false }: { concepts: Concept[]; activities: LearningActivity[]; nowIso: string; heading?: ReactNode; noteFor?: (conceptId: string) => string | null; fallback?: ReactNode; sampleCourse?: boolean }) {
   const reduce = useReducedMotion() === true;
   const known = useSyncExternalStore(subscribeKnownLines, getKnownLines, getServerKnownLines);
   const missed = useSyncExternalStore(subscribeMissedLines, getMissedLines, getServerMissedLines);
@@ -94,7 +94,7 @@ export function RecallMap({ concepts, activities, nowIso, heading, noteFor, fall
   const back = state.lines.filter((line) => line.state === "missed").length;
 
   const rows = (
-    <ol className={styles.topics} aria-label="Topics, in the order of your notes">
+    <ol className={styles.topics} aria-label={sampleCourse ? "Topics in the built-in example" : "Topics, in the order of your notes"}>
       {concepts.map((concept, index) => {
         const lines = state.lines.filter((line) => line.conceptId === concept.id);
         if (!lines.length) return null;
@@ -124,11 +124,11 @@ export function RecallMap({ concepts, activities, nowIso, heading, noteFor, fall
   return (
     <section className={styles.map} aria-labelledby="recall-title">
       <header className={styles.head}>
-        <h2 id="recall-title">Lines you can recall</h2>
-        <p className={styles.now}><b>{state.recalled}</b> of {state.total}{back ? <span> · {back} coming back first</span> : null}</p>
+        <h2 id="recall-title">{sampleCourse ? "Recall in the example" : "Lines you can recall"}</h2>
+        <p className={styles.now}><b>{state.recalled}</b> of {state.total}{sampleCourse ? " example lines" : " lines"}{back ? <span> · {back} coming back first</span> : null}</p>
       </header>
       {/* A line flat on zero is an empty chart, not progress: until a line is recalled, one sentence says what will draw it. */}
-      {series.some((point) => point.recalled > 0) ? <RecallChart series={series} total={state.total} /> : <p className={styles.empty}>{series.length ? "Recall a line on its next return and your line starts rising here." : "Answer a question and your line starts here."}</p>}
+      {series.some((point) => point.recalled > 0) ? <RecallChart series={series} total={state.total} sampleCourse={sampleCourse} /> : <p className={styles.empty}>{series.length ? sampleCourse ? "Recall a line in the example on its next return and the example line starts rising here." : "Recall a line on its next return and your line starts rising here." : sampleCourse ? "Answer an example question and the example line starts here." : "Answer a question and your line starts here."}</p>}
       {heading ? <section className={styles.list} aria-labelledby="progress-headline">{heading}{legendList}{rows}</section> : <>{legendList}{rows}</>}
       <AnimatePresence>{life ? <LineLifeSheet key={life.quote} life={life} onClose={() => setOpenQuote(null)} /> : null}</AnimatePresence>
     </section>

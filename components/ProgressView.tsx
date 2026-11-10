@@ -12,7 +12,7 @@ import styles from "./ProgressView.module.css";
 
 const pct = (value: number) => Math.round(Math.max(0, Math.min(1, value)) * 100);
 
-function Trend({ series, target }: { series: Array<{ label: string; readiness: number; answered: number }>; target: number | null }) {
+function Trend({ series, target, sampleCourse = false }: { series: Array<{ label: string; readiness: number; answered: number }>; target: number | null; sampleCourse?: boolean }) {
   const width = 560;
   const height = 150;
   const pad = { left: 8, right: 8, top: 10, bottom: 22 };
@@ -23,11 +23,11 @@ function Trend({ series, target }: { series: Array<{ label: string; readiness: n
   const last = series[series.length - 1];
   const first = series[0];
   return (
-    <svg className={styles.chart} viewBox={`0 0 ${width} ${height}`} role="img" aria-label={`Estimated readiness over 14 days: from ${pct(first.readiness)}% to ${pct(last.readiness)}%${target === null ? "" : `, aiming for ${target}%`}.`}>
+    <svg className={styles.chart} viewBox={`0 0 ${width} ${height}`} role="img" aria-label={`${sampleCourse ? "Example readiness" : "Estimated readiness"} over 14 days: from ${pct(first.readiness)}% to ${pct(last.readiness)}%${target === null ? "" : sampleCourse ? `, with an example target of ${target}%` : `, aiming for ${target}%`}.`}>
       {target === null ? null : (
         <>
           <line x1={pad.left} x2={width - pad.right} y1={y(target / 100)} y2={y(target / 100)} className={styles.target} />
-          <text x={width - pad.right} y={y(target / 100) - 5} textAnchor="end" className={styles.targetLabel}>Your target {target}%</text>
+          <text x={width - pad.right} y={y(target / 100) - 5} textAnchor="end" className={styles.targetLabel}>{sampleCourse ? "Example target" : "Your target"} {target}%</text>
         </>
       )}
       <path d={area} className={styles.area} />
@@ -42,6 +42,14 @@ function Trend({ series, target }: { series: Array<{ label: string; readiness: n
 
 const EARLY: Record<string, string> = { success: "Solid", partial: "Partly there", failure: "Missed" };
 const LAST: Record<string, string> = { success: "Last answer: solid", partial: "Last answer: partly there", failure: "Last answer: missed" };
+
+function sampleHeadline(summary: ReturnType<typeof progressSummary>) {
+  if (!summary.enough) return "Not enough example answers to see a pattern yet.";
+  const points = summary.points ?? 0;
+  if (points >= 2) return `In this example, answers are up ${points} points this week. ${summary.stronger.length} ${summary.stronger.length === 1 ? "topic feels" : "topics feel"} stronger.`;
+  if (points <= -2) return `In this example, ${Math.abs(points)} points slipped this week. ${summary.needsPass[0]?.name ?? "Some topics"} may need another pass.`;
+  return "Answers in this example look steady this week.";
+}
 
 function Topics({ title, note, items, empty }: { title: string; note: string; items: TopicChange[]; empty: string }) {
   return (
@@ -68,7 +76,7 @@ function Topics({ title, note, items, empty }: { title: string; note: string; it
 }
 
 /** What changed, from your own answers. Honest first: too little data says so instead of drawing a trend. */
-export function ProgressView({ concepts, events, nowIso, daysToExam, targetPercent, examDatePending = false, activities = [] }: { concepts: Concept[]; events: LearningEvent[]; nowIso: string; daysToExam: number; targetPercent: number; examDatePending?: boolean; activities?: LearningActivity[] }) {
+export function ProgressView({ concepts, events, nowIso, daysToExam, targetPercent, examDatePending = false, activities = [], sampleCourse = false }: { concepts: Concept[]; events: LearningEvent[]; nowIso: string; daysToExam: number; targetPercent: number; examDatePending?: boolean; activities?: LearningActivity[]; sampleCourse?: boolean }) {
   const reduce = useReducedMotion() === true;
   const summary = progressSummary({ concepts, events, nowMs: Date.parse(nowIso), daysToExam });
   const target = Math.round(Math.max(0, Math.min(100, targetPercent)));
@@ -85,7 +93,7 @@ export function ProgressView({ concepts, events, nowIso, daysToExam, targetPerce
       const topic = tried.get(id);
       return topic ? `${EARLY[topic.lastOutcome ?? "partial"]}, ${comesBackLine(byId.get(id)?.nextReviewAt, nowIso).replace(/^Comes back/, "back")}` : "Not started";
     };
-    const headline = <h2 id="progress-headline" className={styles.earlyHeading}>{summary.practised.length} of {concepts.length} topics tried</h2>;
+    const headline = <h2 id="progress-headline" className={styles.earlyHeading}>{sampleCourse ? `${summary.practised.length} of ${concepts.length} example topics tried` : `${summary.practised.length} of ${concepts.length} topics tried`}</h2>;
     const fallback = (
       <section className={styles.group} aria-labelledby="progress-headline">
         {headline}
@@ -106,6 +114,7 @@ export function ProgressView({ concepts, events, nowIso, daysToExam, targetPerce
           concepts={concepts}
           activities={activities}
           nowIso={nowIso}
+          sampleCourse={sampleCourse}
           heading={headline}
           noteFor={noteFor}
           fallback={fallback}
@@ -118,7 +127,7 @@ export function ProgressView({ concepts, events, nowIso, daysToExam, targetPerce
           <Link href="/sheet" className={styles.sheetLink}>Open your revision sheet</Link>
         </div>
         {/* On a phone there is no sidebar: today's progress is shared from here. */}
-        <div className={styles.share}><ShareProgress variant="inline" /></div>
+        {sampleCourse ? null : <div className={styles.share}><ShareProgress variant="inline" /></div>}
       </div>
     );
   }
@@ -127,10 +136,10 @@ export function ProgressView({ concepts, events, nowIso, daysToExam, targetPerce
     <div className={styles.page}>
       <motion.section className={styles.lead} initial={reduce ? false : { opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: reduce ? 0 : 0.3, ease: [0.22, 1, 0.36, 1] }} aria-labelledby="progress-headline">
         {/* Before there are enough answers there is no trend to talk about: the counts below say where you are. */}
-        <h2 id="progress-headline">{fresh ? "Your progress starts with a first answer." : progressHeadline(summary)}</h2>
-        {summary.enough ? <p className={styles.caveat}>Estimated from your own answers, not a prediction of your grade.</p> : null}
+        <h2 id="progress-headline">{fresh ? sampleCourse ? "Example progress starts with a first answer." : "Your progress starts with a first answer." : sampleCourse ? sampleHeadline(summary) : progressHeadline(summary)}</h2>
+        {summary.enough ? <p className={styles.caveat}>{sampleCourse ? "Illustrative sample activity, not your study history or a grade prediction." : "Estimated from your own answers, not a prediction of your grade."}</p> : null}
         {fresh ? null : summary.enough ? (
-          <Trend series={summary.series} target={examDatePending ? null : target} />
+          <Trend series={summary.series} target={examDatePending ? null : target} sampleCourse={sampleCourse} />
         ) : (
           null
         )}
@@ -145,23 +154,25 @@ export function ProgressView({ concepts, events, nowIso, daysToExam, targetPerce
           <Link href="/today?section=map" className={styles.sheetLink}>Topics and exam check</Link>
           <Link href="/sheet" className={styles.sheetLink}>Open your revision sheet</Link>
         </div>
-        <div className={styles.share}><ShareProgress variant="inline" /></div>
+        {sampleCourse ? null : <div className={styles.share}><ShareProgress variant="inline" /></div>}
       </motion.section>
 
-      <RecallMap concepts={concepts} activities={activities} nowIso={nowIso} />
+      <RecallMap concepts={concepts} activities={activities} nowIso={nowIso} sampleCourse={sampleCourse} />
 
-      {fresh || !summary.stronger.length ? null : <Topics title="Got stronger" note="" items={summary.stronger} empty="" />}
-      {fresh ? null : <Topics title="Needs another pass" note="" items={summary.needsPass} empty="No weak spots from your answers so far." />}
+      {fresh || !summary.stronger.length ? null : <Topics title={sampleCourse ? "Stronger in the example" : "Got stronger"} note="" items={summary.stronger} empty="" />}
+      {fresh ? null : <Topics title={sampleCourse ? "Another pass in the example" : "Needs another pass"} note="" items={summary.needsPass} empty={sampleCourse ? "No weak spots in this example so far." : "No weak spots from your answers so far."} />}
       {summary.notStarted.length ? <Topics title="Not started" note="" items={summary.notStarted} empty="" /> : null}
 
       {fresh || examDatePending ? null : <section className={styles.pace} aria-label="Pace to your target">
-        <h3>To reach your target</h3>
+        <h3>{sampleCourse ? "Example study pace" : "To reach your target"}</h3>
         {summary.topicsLeft > 0 ? (
-          <p>
+          sampleCourse ? (
+            <p>In this example, {summary.topicsLeft} {summary.topicsLeft === 1 ? "topic could" : "topics could"} use another pass: about {summary.perDay} topic{summary.perDay === 1 ? "" : "s"} a day before the sample exam.</p>
+          ) : <p>
             {summary.topicsLeft} topic{summary.topicsLeft === 1 ? " is" : "s are"} not strong yet, with {daysToExam} day{daysToExam === 1 ? "" : "s"} left. That is about <strong>{summary.perDay} topic{summary.perDay === 1 ? "" : "s"} a day</strong>.
             {gap > 0 ? ` You are ${gap} point${gap === 1 ? "" : "s"} below your ${target}% target.` : ` You are at or above your ${target}% target.`}
           </p>
-        ) : <p>Every topic looks strong from your answers. Keep a quick review going so it stays that way.</p>}
+        ) : <p>{sampleCourse ? "The example answers currently suggest every topic is strong. A short review can help keep the ideas familiar." : "Every topic looks strong from your answers. Keep a quick review going so it stays that way."}</p>}
       </section>}
     </div>
   );

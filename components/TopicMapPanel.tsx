@@ -54,7 +54,7 @@ function MasteryRing({ value }: { value: number | null }) {
  * Topics as a path in the order of your notes: each topic a step with how it stands, a checkpoint after every three,
  * and an exam check at the end. A direct action opens the same next study session as the Study plan.
  */
-export function TopicMapPanel({ onStart, startLabel }: { onStart?: () => void; startLabel?: string } = {}) {
+export function TopicMapPanel({ onStart, startLabel, sampleCourse = false }: { onStart?: () => void; startLabel?: string; sampleCourse?: boolean } = {}) {
   const { state, removeTopic } = useLearner();
   const reduce = useReducedMotion() === true;
   const known = useSyncExternalStore(subscribeKnownLines, getKnownLines, getServerKnownLines);
@@ -117,7 +117,7 @@ export function TopicMapPanel({ onStart, startLabel }: { onStart?: () => void; s
   const solid = path.filter((row) => row.label === "Solid").length;
   const recalled = knownCount(known, new Set(path.map((row) => row.concept.id)));
   const start = rows.find((row) => row.concept.id === startConceptId);
-  const startReason = start && startAllocation && start.concept.retrievalAttempts > 0 ? describeRouteChoice(startAllocation, start.concept, { events: state.snapshot.events, nowIso: state.nowIso, examDateKnown: !state.snapshot.exams.some((item) => item.isActive && item.datePlaceholder) })[0] : null;
+  const startReason = start && startAllocation && start.concept.retrievalAttempts > 0 ? describeRouteChoice(startAllocation, start.concept, { events: state.snapshot.events, nowIso: state.nowIso, sampleCourse, examDateKnown: !state.snapshot.exams.some((item) => item.isActive && item.datePlaceholder) })[0] : null;
   // A checkpoint after every three topics: two lines from each, mixed. It opens once those three are practised.
   const GROUP = 3;
   const passedCount = results.filter((result) => passed(result) && result.key.split(",").every((id) => path.some((row) => row.concept.id === id))).length;
@@ -152,7 +152,7 @@ export function TopicMapPanel({ onStart, startLabel }: { onStart?: () => void; s
 
   return (
     <div className="surface-map is-toc source-topic-map">
-      <div className={styles.pathHead} role="group" aria-label="Where you are">
+      <div className={styles.pathHead} role="group" aria-label={sampleCourse ? "Sample course progress" : "Where you are"}>
         <p className="sr-only">{practised} of {path.length} topics practiced{solid ? `, ${solid} solid` : ""}{recalled ? `, ${recalled} ${recalled === 1 ? "line" : "lines"} answered correctly` : ""}{passedCount ? `, ${passedCount} ${passedCount === 1 ? "checkpoint" : "checkpoints"} passed` : ""}.</p>
         <ul className={styles.stats} aria-hidden="true">
           <li><Octicon name="list-unordered" className={styles.ico} /><strong>{practised}/{path.length}</strong><span>practiced</span></li>
@@ -187,7 +187,7 @@ export function TopicMapPanel({ onStart, startLabel }: { onStart?: () => void; s
       ) : null}
 
       {/* The path follows the notes; each row shows its current state and source. */}
-      <ol className={`index-toc ${styles.path}`} aria-label="Topics, in the order of your notes">
+      <ol className={`index-toc ${styles.path}`} aria-label={sampleCourse ? "Topics in the order of the built-in example" : "Topics, in the order of your notes"}>
         <AnimatePresence initial={false} mode="popLayout">
         {path.flatMap(({ concept, mastery, label, source, due }, index) => {
           const isStart = startConceptId === concept.id;

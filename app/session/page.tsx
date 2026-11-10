@@ -45,6 +45,7 @@ import { addKnownLines, forgetKnownLines, getKnownLines, getServerKnownLines, kn
 import { trackEvent } from "@/lib/analytics";
 import { SAMPLE_COURSE_IDS } from "@/lib/pilot";
 import { studyDraftKey } from "@/domain/study-draft";
+import { SampleCourseNotice } from "@/components/SampleCourseNotice";
 
 type Phase = "learn" | "retrieve" | "apply" | "evaluate" | "result" | "reroute";
 type HelpMode = "hint" | "explain" | null;
@@ -551,6 +552,7 @@ function SessionBody() {
           </button>
         </div>
       </div>
+      {session && SAMPLE_COURSE_IDS.has(session.courseId) ? <SampleCourseNotice compact /> : null}
       {(() => {
         const outline = quickMode ? (
           <BlockOutline

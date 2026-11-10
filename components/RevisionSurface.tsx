@@ -11,6 +11,7 @@ import { MaterialLibrary } from "@/components/MaterialLibrary";
 import { CourseSourceReader } from "@/components/CourseSourceReader";
 import { TodayRoute } from "@/components/TodayRoute";
 import { SampleReplaceConfirm } from "@/components/SampleReplaceConfirm";
+import { SampleCourseNotice } from "@/components/SampleCourseNotice";
 import { setPendingSetupFile } from "@/lib/pending-setup-file";
 import { SOURCE_FILE_ACCEPT } from "@/domain/materials";
 import { estimatedReadiness } from "@/domain/readiness";
@@ -32,7 +33,7 @@ import { ConceptDetail } from "@/app/concepts/[id]/ConceptDetail";
 import { useDocumentTitle } from "@/lib/use-title";
 import { KelusLogoMark } from "@/components/KelusLogoMark";
 import { useLearner } from "@/components/LearnerProvider";
-import { sessionContext } from "@/lib/pilot";
+import { SAMPLE_COURSE_IDS, sessionContext } from "@/lib/pilot";
 import { daysUntilExam } from "@/domain/scheduler";
 import { freshOpenSession, restAware, resumeConceptId } from "@/lib/today-focus";
 import { generateRoute } from "@/domain/routing-engine";
@@ -178,7 +179,7 @@ export function RevisionSurface({ topicId }: { /** A topic's own page, opened in
   const route = { ...plannedRoute, allocations: restAware(plannedRoute.allocations, snapshot.events, nowIso, concepts) };
   const days = daysUntilExam(exam, nowIso);
   const examDatePending = Boolean(exam.datePlaceholder);
-  const isSampleCourse = course.id === "course-microeconomics" && exam.id === "exam-microeconomics-final";
+  const isSampleCourse = SAMPLE_COURSE_IDS.has(course.id) && exam.id === "exam-microeconomics-final";
   const courseId = course.id;
   const examId = exam.id;
   const anyOpenSession = snapshot.sessions.find((session) => session.courseId === courseId && session.status === "in_progress");
@@ -362,6 +363,7 @@ export function RevisionSurface({ topicId }: { /** A topic's own page, opened in
           <span className="studio-topbar-theme"><ThemeToggle /></span>
         </header>
         <main id="main" className="studio-page kelus-space-stage">
+        {isSampleCourse ? <SampleCourseNotice showAction /> : null}
         {topicId ? <ConceptDetail conceptId={topicId} embedded /> : null}
         {!topicId && mode !== "today" ? (
           <header className="studio-section-head kelus-paper-head kelus-space-top is-section" data-section={mode}>
@@ -383,7 +385,7 @@ export function RevisionSurface({ topicId }: { /** A topic's own page, opened in
               // Today starts as one focused column. The original notes open beside it only when requested.
               <div className={`core-workspace-grid is-today-single${sourceBesidePlan && hasReadableSource ? " is-notes-open" : ""}`} aria-label="Study plan">
                 <div className="core-workspace-action workbench-focus is-ready is-one-next is-booklet-page" aria-labelledby="today-title">
-                  {!hasReadableSource ? <p className="core-source-inline">This plan has no original PDF beside it. <Link href="/today?section=materials">Add your course PDF</Link> to study from your own pages.</p> : null}
+                  {!hasReadableSource && !isSampleCourse ? <p className="core-source-inline">This plan has no original PDF beside it. <Link href="/today?section=materials">Add your course PDF</Link> to study from your own pages.</p> : null}
                   {hasReadableSource && selectedMaterial ? <div className="today-source-access">
                     {/* The file is named only when its name says something the course title does not. */}
                     {selectedMaterial.title.trim().toLocaleLowerCase() !== (courseName ?? "").trim().toLocaleLowerCase() ? <span><Page /> <span title={selectedMaterial.title}>{selectedMaterial.title}</span></span> : <span />}
@@ -417,9 +419,9 @@ export function RevisionSurface({ topicId }: { /** A topic's own page, opened in
                 {sourceBesidePlan && hasReadableSource && selectedMaterial ? <CourseSourceReader id="today-source-reader" key={`${selectedMaterial.id}-${selectedMaterial.id === firstReference?.materialId ? firstSourcePage : 1}`} material={selectedMaterial} initialPage={selectedMaterial.id === firstReference?.materialId ? firstSourcePage : 1} /> : null}
               </div>
             ) : null}
-            {mode === "materials" ? <div className={`core-workspace-grid is-materials${hasReadableSource ? "" : " is-source-missing"}`}>{hasReadableSource ? <CourseSourceReader key={selectedMaterial.id} material={selectedMaterial} /> : null}<div className="core-workspace-action"><MaterialLibrary embedded incomingFile={incomingSource} onIncomingFileHandled={() => setIncomingSource(null)} interceptFile={isSampleCourse ? (file) => { setSampleFile(file); return true; } : undefined} /></div></div> : null}
-            {mode === "map" ? <TopicMapPanel /> : null}
-            {mode === "progress" ? <ProgressView concepts={concepts} activities={snapshot.learningActivities} events={snapshot.events} nowIso={nowIso} daysToExam={days} targetPercent={exam.targetPercent} examDatePending={examDatePending} /> : null}
+            {mode === "materials" ? <div className={`core-workspace-grid is-materials${hasReadableSource ? "" : " is-source-missing"}`}>{hasReadableSource ? <CourseSourceReader key={selectedMaterial.id} material={selectedMaterial} /> : null}<div className="core-workspace-action"><MaterialLibrary embedded incomingFile={incomingSource} onIncomingFileHandled={() => setIncomingSource(null)} interceptFile={isSampleCourse ? (file) => { setSampleFile(file); return true; } : undefined} sampleCourse={isSampleCourse} /></div></div> : null}
+            {mode === "map" ? <TopicMapPanel sampleCourse={isSampleCourse} /> : null}
+            {mode === "progress" ? <ProgressView concepts={concepts} activities={snapshot.learningActivities} events={snapshot.events} nowIso={nowIso} daysToExam={days} targetPercent={exam.targetPercent} examDatePending={examDatePending} sampleCourse={isSampleCourse} /> : null}
           </motion.div>}
         </main>
         <AppTabBar tabs={MODES} active={navMode(mode)} onSelect={setMode} />

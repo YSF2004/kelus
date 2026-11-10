@@ -7,6 +7,8 @@ export type RouteEvidence = {
   /** Topics that list this one as a prerequisite, by name. */
   dependents?: string[];
   nowIso?: string;
+  /** Evidence belongs to the built-in example course, not to the learner's own course. */
+  sampleCourse?: boolean;
 };
 
 const LAST_RESULT: Record<RetrievalOutcome, string> = {
@@ -33,14 +35,21 @@ export function lastEvidenceLine(concept: Concept, evidence: RouteEvidence): str
   const last = answers[0];
   if (!last?.outcome || !evidence.nowIso) return null;
   const when = daysAgo(last.createdAt, evidence.nowIso);
-  const head = when === "today" ? "Earlier today" : `Last time, ${when}`;
-  const tail = last.outcome === "success" ? ", so this checks it stays" : "";
+  const head = when === "today" ? (evidence.sampleCourse ? "earlier today" : "Earlier today") : `Last time, ${when}`;
+  const lead = evidence.sampleCourse ? "Example history: " : "";
+  const sampleResult: Record<RetrievalOutcome, string> = {
+    failure: "it needed another attempt",
+    partial: "it came out partly right",
+    success: "the answer came back",
+  };
+  const result = evidence.sampleCourse ? sampleResult[last.outcome] : LAST_RESULT[last.outcome];
+  const tail = last.outcome === "success" && !evidence.sampleCourse ? ", so this checks it stays" : "";
   // A checkpoint is named as one: "you knew it" reads oddly for a mixed review you just passed.
   if (last.promptId?.startsWith("checkpoint-")) {
-    return `${head}, ${last.outcome === "success" ? "every line came back in a checkpoint" : last.outcome === "partial" ? "some lines came back in a checkpoint" : "its lines didn’t come back in a checkpoint"}${tail}.`;
+    return `${lead}${head}, ${last.outcome === "success" ? "every line came back in a checkpoint" : last.outcome === "partial" ? "some lines came back in a checkpoint" : "its lines didn’t come back in a checkpoint"}${tail}.`;
   }
   const record = answers.length > 1 ? ` (${answers.filter((event) => event.outcome === "success").length} of ${answers.length} tries went well)` : "";
-  return `${head}, ${LAST_RESULT[last.outcome]}${record}${tail}.`;
+  return `${lead}${head}, ${result}${record}${tail}.`;
 }
 
 export function describeRouteChoice(allocation: RouteAllocation, concept?: Concept, options: { examDateKnown?: boolean } & RouteEvidence = {}): string[] {
@@ -53,15 +62,17 @@ export function describeRouteChoice(allocation: RouteAllocation, concept?: Conce
 
   const own = concept.retrievalAttempts > 0 ? lastEvidenceLine(concept, options) : null;
   if (concept.retrievalAttempts === 0) {
-    lines.push("Next in your notes, and new to you.");
+    lines.push(options.sampleCourse
+      ? "This topic has not been practised in the example yet."
+      : "Next in your notes, and new to you.");
   } else if (own) {
     lines.push(own);
   } else if (reasons.has("LOW_MASTERY")) {
-    lines.push("Your last answers here were shaky.");
+    lines.push(options.sampleCourse ? "Example history: earlier answers were shaky." : "Your last answers here were shaky.");
   } else if (reasons.has("REVIEW_DUE") || reasons.has("RETENTION_FADING")) {
-    lines.push("Time to check you still remember it.");
+    lines.push(options.sampleCourse ? "This example is ready for another recall check." : "Time to check you still remember it.");
   } else if (reasons.has("LOW_CONFIDENCE_ESTIMATE")) {
-    lines.push("A few more answers will show where you stand.");
+    lines.push(options.sampleCourse ? "A few more example answers will show a pattern." : "A few more answers will show where you stand.");
   }
 
   const dependents = options.dependents?.filter(Boolean) ?? [];
@@ -70,7 +81,7 @@ export function describeRouteChoice(allocation: RouteAllocation, concept?: Conce
   } else if (reasons.has("PREREQUISITE_GAP")) {
     lines.push("It helps with the topics that build on it.");
   } else if (reasons.has("EXAM_APPROACHING")) {
-    lines.push("Your exam is close.");
+    lines.push(options.sampleCourse ? "The sample exam is close." : "Your exam is close.");
   }
 
   return lines.length ? lines.slice(0, 2) : ["Next in your plan."];

@@ -1,0 +1,77 @@
+.notice {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px 14px;
+  width: 100%;
+  margin: 0 auto 16px;
+  padding: 10px 14px;
+  border-inline-start: 3px solid var(--color-kelus, var(--k-green));
+  background: color-mix(in srgb, var(--k-green-wash, #e6f1ea) 76%, var(--k-surface, #fff));
+  color: var(--k-ink, #202b25);
+  font-size: 0.875rem;
+  line-height: 1.45;
+}
+
+.compact {
+  margin-bottom: 16px;
+}
+
+.label {
+  flex: none;
+  color: var(--color-kelus, var(--k-green));
+  font-weight: 700;
+}
+
+.copy {
+  flex: 1 1 18rem;
+  min-width: 0;
+  margin: 0;
+  color: var(--k-text-2, var(--color-slate));
+}
+
+.action {
+  display: inline-flex;
+  flex: none;
+  align-items: center;
+  gap: 6px;
+  min-height: 40px;
+  padding: 0 8px;
+  border-radius: 6px;
+  color: var(--color-kelus, var(--k-green));
+  font-weight: 650;
+  text-decoration: none;
+}
+
+.action:hover {
+  background: color-mix(in srgb, var(--color-kelus, var(--k-green)) 8%, transparent);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.action:focus-visible {
+  outline: 2px solid var(--color-kelus, var(--k-green));
+  outline-offset: 2px;
+}
+
+.action svg {
+  width: 14px;
+  height: 14px;
+}
+
+@media (max-width: 600px) {
+  .notice:not(.compact) {
+    align-items: flex-start;
+    gap: 5px 10px;
+    padding: 10px 12px;
+  }
+
+  .notice:not(.compact) .copy {
+    flex-basis: 100%;
+    order: 3;
+  }
+
+  .notice:not(.compact) .action {
+    margin-left: auto;
+  }
+}

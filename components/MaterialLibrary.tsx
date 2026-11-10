@@ -275,7 +275,7 @@ function readableFileName(name: string) {
   return name.replace(/\.(pdf|md|markdown|txt|zip)$/i, "").replace(/[-_]+/g, " ").replace(/\s+/g, " ").trim() || name;
 }
 
-export function MaterialLibrary({ embedded = false, incomingFile = null, onIncomingFileHandled, interceptFile, quiet = false, onStartOver }: { embedded?: boolean; incomingFile?: File | null; onIncomingFileHandled?: () => void; interceptFile?: (file: File) => boolean; quiet?: boolean; onStartOver?: () => void } = {}) {
+export function MaterialLibrary({ embedded = false, incomingFile = null, onIncomingFileHandled, interceptFile, quiet = false, onStartOver, sampleCourse = false }: { embedded?: boolean; incomingFile?: File | null; onIncomingFileHandled?: () => void; interceptFile?: (file: File) => boolean; quiet?: boolean; onStartOver?: () => void; sampleCourse?: boolean } = {}) {
   const reduceMotion = useReducedMotion();
   const auth = useAuth();
   const router = useRouter();
@@ -988,7 +988,7 @@ export function MaterialLibrary({ embedded = false, incomingFile = null, onIncom
           <div>
             <h2 id="source-shelf-title">
               {courseMaterials.length
-                ? embedded ? <>Your notes <span className="material-shelf-count">{courseMaterials.length} {courseMaterials.length === 1 ? "source" : "sources"}</span></> : `${courseMaterials.length} saved`
+                ? embedded ? <>{sampleCourse ? "Example source" : "Your notes"} <span className="material-shelf-count">{courseMaterials.length} {courseMaterials.length === 1 ? "source" : "sources"}</span></> : `${courseMaterials.length} saved`
                 : concepts.length
                   ? "Sample model ready"
                   : embedded
