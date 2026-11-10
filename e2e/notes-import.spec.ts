@@ -161,7 +161,7 @@ test("the daily reminder waits for a real exam date, then repeats until it", asy
 
 test("your own file never mixes into the sample: it starts your own course, and the sample is replaced", async ({ page }) => {
   await page.goto("/today?sample=1");
-  await expect(page.getByText("Sample course")).toBeVisible();
+  await expect(page.getByRole("note", { name: "Sample course notice" }).getByText("Sample course")).toBeVisible();
   await page.locator('input[aria-label="Choose a course PDF"]').setInputFiles({ name: "my-notes.md", mimeType: "text/markdown", buffer: Buffer.from(notion) });
   const dialog = page.getByRole("dialog", { name: "Start your own course?" });
   await expect(dialog).toBeVisible();

@@ -64,11 +64,11 @@ test("the sample course has history, so it shows a real trend with a chart and a
   await page.goto("/today?sample=1");
   await page.getByRole("navigation", { name: "Revision sections" }).getByRole("button", { name: "Progress" }).click();
   await expect(page.locator("#progress-headline")).not.toContainText("Too early");
-  await expect(page.getByRole("img", { name: /Estimated readiness over 14 days/ })).toBeVisible();
+  await expect(page.getByRole("img", { name: /Example readiness over 14 days/ })).toBeVisible();
   await expect(page.getByRole("region", { name: "Pace to your target" })).toContainText("a day");
   // A topic is in one list only.
-  const stronger = await page.getByRole("region", { name: "Got stronger" }).locator("li strong").allInnerTexts();
-  const needs = await page.getByRole("region", { name: "Needs another pass" }).locator("li strong").allInnerTexts();
+  const stronger = await page.getByRole("region", { name: "Stronger in the example" }).locator("li strong").allInnerTexts();
+  const needs = await page.getByRole("region", { name: "Another pass in the example" }).locator("li strong").allInnerTexts();
   for (const name of stronger) expect(needs).not.toContain(name);
 });
 

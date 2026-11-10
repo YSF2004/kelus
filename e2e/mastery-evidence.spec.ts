@@ -17,7 +17,7 @@ test("topic index and topic detail show the same derived practice mastery", asyn
   await page.getByRole("navigation", { name: "Revision sections" }).getByRole("button", { name: "Progress" }).click();
   await page.getByRole("link", { name: "Topics and exam check" }).first().click();
   // The step on the path, not the "Start here" card above it.
-  const topic = page.getByRole("list", { name: "Topics, in the order of your notes" }).locator(".index-toc-row").filter({ hasText: "Elasticity" });
+  const topic = page.getByRole("list", { name: "Topics in the order of the built-in example" }).locator(".index-toc-row").filter({ hasText: "Elasticity" });
   // A percentage once there are three answers, the number of tries before that: the same on both screens.
   const indexMastery = (await topic.locator(".index-toc-meta").innerText()).match(/\d+%|\d+ tr(?:y|ies)/)?.[0];
   expect(indexMastery).toBeTruthy();
