@@ -1,10 +1,7 @@
 "use client";
 
 import Link, { type LinkProps } from "next/link";
-import { motion, useReducedMotion } from "motion/react";
-import { useState, type PointerEvent, type ReactNode } from "react";
-
-const MotionLink = motion.create(Link);
+import { useState, type MouseEvent, type PointerEvent, type ReactNode } from "react";
 
 type HeroActionLinkProps = Pick<LinkProps, "replace" | "scroll" | "shallow"> & {
   href: string;
@@ -13,29 +10,25 @@ type HeroActionLinkProps = Pick<LinkProps, "replace" | "scroll" | "shallow"> & {
 };
 
 export function HeroActionLink({ children, href, className, replace, scroll, shallow }: HeroActionLinkProps) {
-  const reduceMotion = useReducedMotion();
   const [navigating, setNavigating] = useState(false);
 
-  function showPress(event: PointerEvent<HTMLAnchorElement>) {
-    if (event.pointerType === "mouse" && event.button !== 0) return;
-    if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+  function showPress(event: MouseEvent<HTMLAnchorElement> | PointerEvent<HTMLAnchorElement>) {
+    if (event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
     setNavigating(true);
   }
 
   return (
-    <MotionLink
+    <Link
       href={href}
-      className={`${className ?? ""}${navigating && !reduceMotion ? " is-navigating" : ""}`}
+      className={`${className ?? ""}${navigating ? " is-navigating" : ""}`}
       replace={replace}
       scroll={scroll}
       shallow={shallow}
       onPointerDown={showPress}
-      onPointerUp={() => setNavigating(false)}
       onPointerCancel={() => setNavigating(false)}
-      whileTap={reduceMotion ? undefined : { scale: 0.97, opacity: 0.9 }}
-      transition={{ type: "spring", bounce: 0, duration: 0.22 }}
+      onClick={showPress}
     >
       {children}
-    </MotionLink>
+    </Link>
   );
 }

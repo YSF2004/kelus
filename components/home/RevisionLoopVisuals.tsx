@@ -1,11 +1,14 @@
 "use client";
 
-import { useRef } from "react";
+import { useRef, useSyncExternalStore } from "react";
 import { motion, useInView, useReducedMotion } from "motion/react";
 import { Tick } from "@/components/Marks";
 import styles from "./FollowThrough.module.css";
 
 const ease = [0.22, 1, 0.36, 1] as const;
+const subscribeToHydration = () => () => {};
+const getHydratedSnapshot = () => true;
+const getServerHydrationSnapshot = () => false;
 
 /**
  * The homepage middle: one real line from a student's notes, followed through the four things Kelus does with it,
@@ -16,15 +19,17 @@ const ease = [0.22, 1, 0.36, 1] as const;
 export function RevisionLoopVisuals() {
   const root = useRef<HTMLDivElement>(null);
   const inView = useInView(root, { once: true, amount: 0.35 });
-  const reduce = useReducedMotion() === true;
-  const on = reduce || inView;
+  const prefersReducedMotion = useReducedMotion() === true;
+  const hydrated = useSyncExternalStore(subscribeToHydration, getHydratedSnapshot, getServerHydrationSnapshot);
+  const reduce = hydrated && prefersReducedMotion;
+  const on = hydrated && (prefersReducedMotion || inView);
   // Step n starts when the one before has had its moment: about a third of a second apart.
   const at = (step: number, extra = 0) => (reduce ? 0 : 0.15 + step * 0.32 + extra);
   const appear = () => ({
-    initial: reduce ? false : { opacity: 0, y: 10 },
+    initial: { opacity: 0, y: 10 },
     animate: on ? { opacity: 1, y: 0 } : undefined,
     // The grid arrives as one; the order belongs to each tile's own motion (at(step, …) below), not to the tiles.
-    transition: { duration: 0.5, delay: at(0), ease },
+    transition: { duration: reduce ? 0 : 0.5, delay: at(0), ease },
   });
 
   return (
@@ -45,9 +50,9 @@ export function RevisionLoopVisuals() {
               {/* A marker stroke drawn along the words, wrapping with them like a real highlighter. */}
               <motion.mark
                 className={styles.mark}
-                initial={reduce ? false : { backgroundSize: "0% 100%" }}
+                initial={{ backgroundSize: "0% 100%" }}
                 animate={on ? { backgroundSize: "100% 100%" } : undefined}
-                transition={{ duration: 0.7, delay: at(0, 0.35), ease }}
+                transition={{ duration: reduce ? 0 : 0.7, delay: at(0, 0.35), ease }}
               >
                 partially permeable membrane
               </motion.mark>{" "}
@@ -67,9 +72,9 @@ export function RevisionLoopVisuals() {
               Water moves from a dilute solution to a more{"\u00a0"}
               <span className={styles.blank}>
                 <motion.span
-                  initial={reduce ? false : { clipPath: "inset(0 100% 0 0)" }}
+                  initial={{ clipPath: "inset(0 100% 0 0)" }}
                   animate={on ? { clipPath: "inset(0 0% 0 0)" } : undefined}
-                  transition={{ duration: 0.55, delay: at(1, 0.35), ease: "linear" }}
+                  transition={{ duration: reduce ? 0 : 0.55, delay: at(1, 0.35), ease: "linear" }}
                 >
                   concentrated
                 </motion.span>
@@ -78,9 +83,9 @@ export function RevisionLoopVisuals() {
             </p>
             <motion.p
               className={styles.right}
-              initial={reduce ? false : { opacity: 0, y: 4 }}
+              initial={{ opacity: 0, y: 4 }}
               animate={on ? { opacity: 1, y: 0 } : undefined}
-              transition={{ duration: 0.3, delay: at(1, 0.95), ease }}
+              transition={{ duration: reduce ? 0 : 0.3, delay: at(1, 0.95), ease }}
             >
               <Tick size={14} /> Right: that’s the line on page 2.
             </motion.p>
@@ -99,9 +104,9 @@ export function RevisionLoopVisuals() {
                 <svg aria-hidden="true" viewBox="0 0 60 6" preserveAspectRatio="none" className={styles.wave}>
                   <motion.path
                     d="M0 3 Q 5 0 10 3 T 20 3 T 30 3 T 40 3 T 50 3 T 60 3"
-                    initial={reduce ? false : { pathLength: 0 }}
+                    initial={{ pathLength: 0 }}
                     animate={on ? { pathLength: 1 } : undefined}
-                    transition={{ duration: 0.5, delay: at(2, 0.35), ease }}
+                    transition={{ duration: reduce ? 0 : 0.5, delay: at(2, 0.35), ease }}
                   />
                 </svg>
               </span>{" "}
@@ -119,17 +124,17 @@ export function RevisionLoopVisuals() {
             <ol className={styles.plan} aria-label="Your plan after this answer">
               <motion.li
                 className={styles.moved}
-                initial={reduce ? false : { y: 34 }}
+                initial={{ y: 34 }}
                 animate={on ? { y: 0 } : undefined}
-                transition={{ type: "spring", bounce: 0, duration: 0.6, delay: at(3, 0.35) }}
+                transition={{ type: "spring", bounce: 0, duration: reduce ? 0 : 0.6, delay: at(3, 0.35) }}
               >
                 <strong>Osmosis</strong>
                 <span>Back to Box 1, tomorrow</span>
               </motion.li>
               <motion.li
-                initial={reduce ? false : { y: -34 }}
+                initial={{ y: -34 }}
                 animate={on ? { y: 0 } : undefined}
-                transition={{ type: "spring", bounce: 0, duration: 0.6, delay: at(3, 0.35) }}
+                transition={{ type: "spring", bounce: 0, duration: reduce ? 0 : 0.6, delay: at(3, 0.35) }}
               >
                 <strong>Diffusion</strong>
                 <span>Box 3, in 4 days</span>

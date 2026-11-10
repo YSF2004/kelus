@@ -13,9 +13,20 @@ test("the hero says what Kelus does and shows lines of a page becoming questions
   }
 });
 
-test("the hero's one action opens the product", async ({ page }) => {
+test("the hero's one action animates as it opens the product", async ({ page }) => {
+  await page.emulateMedia({ reducedMotion: "no-preference" });
   await page.goto("/");
-  await page.locator('[data-hero="leitner"]').getByRole("link", { name: "Add your notes" }).click();
+  const action = page.locator('[data-hero="leitner"]').getByRole("link", { name: "Add your notes" });
+  const opacityOnNavigate = action.evaluate((element) => new Promise<number>((resolve) => {
+    const observer = new MutationObserver(() => {
+      if (!element.classList.contains("is-navigating")) return;
+      observer.disconnect();
+      requestAnimationFrame(() => resolve(Number(getComputedStyle(element).opacity)));
+    });
+    observer.observe(element, { attributes: true, attributeFilter: ["class"] });
+  }));
+  await action.click();
+  expect(await opacityOnNavigate).toBeLessThan(1);
   await expect(page).toHaveURL(/\/today\/?$/);
 });
 
@@ -25,6 +36,17 @@ test("reduced motion shows every question and the checked answer at once", async
   const cards = page.locator('[data-hero="leitner"] figure ol > li');
   await expect(cards).toHaveCount(3);
   for (const card of await cards.all()) await expect(card).toHaveCSS("opacity", "1");
+});
+
+test("the homepage scroll reveal hydrates without a motion mismatch", async ({ page }) => {
+  const hydrationErrors: string[] = [];
+  page.on("console", (message) => {
+    if (message.type() === "error" && /hydration|didn.t match/i.test(message.text())) hydrationErrors.push(message.text());
+  });
+  await page.emulateMedia({ reducedMotion: "reduce" });
+  await page.goto("/");
+  await expect(page.locator('[data-revision-step="01"]')).toHaveCSS("opacity", "1");
+  expect(hydrationErrors).toEqual([]);
 });
 
 test("the revision story still follows the hero without a duplicate sample", async ({ page }) => {
