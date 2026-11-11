@@ -12,7 +12,7 @@ test("the PDF practice entry page has unique crawlable metadata and a real study
   assert.match(page, /<h1 id="page-title">/);
   assert.match(page, /href="\/today"/);
   assert.match(page, /Your own questions come from your material/);
-  assert.match(page, /title: "Turn Lecture PDFs into Practice Questions \| Kelus"/);
+  assert.match(page, /const title = "Turn Lecture PDFs into Practice Questions \| Kelus"/);
   // Question-writing is on the device on kelus.me; the page says so plainly and links to how questions are written.
   assert.match(page, /Your notes stay on this device unless you choose to sync them/);
   assert.match(page, /href="\/privacy#ai-questions"/);
