@@ -1,5 +1,16 @@
 import { expect, test } from "@playwright/test";
 
+test("the public homepage stays in its original light palette on a dark device", async ({ page }) => {
+  await page.emulateMedia({ colorScheme: "dark", reducedMotion: "reduce" });
+  await page.goto("/");
+
+  await expect(page.locator("html")).toHaveAttribute("data-theme", "dark");
+  await expect(page.locator("html")).toHaveCSS("color-scheme", "light");
+  await expect(page.locator("body")).toHaveCSS("color-scheme", "light");
+  await expect(page.locator(".home")).toHaveCSS("filter", "none");
+  await expect(page.locator("body")).not.toHaveCSS("background-color", "rgb(18, 21, 20)");
+});
+
 test("the product keeps a light option: Auto follows the device, Light and Dark stick across a reload", async ({ page }) => {
   await page.emulateMedia({ colorScheme: "dark", reducedMotion: "reduce" });
   await page.goto("/today?sample=1");
