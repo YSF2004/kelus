@@ -1,13 +1,15 @@
-/* Appearance: one pill, three options, the chosen one lifted on a card that slides between them. */
-.switch { display: inline-flex; gap: 2px; padding: 3px; border: 1px solid var(--q-line, var(--k-line)); border-radius: 10px; background: color-mix(in srgb, var(--k-ink) 4%, transparent); }
-.switch .option { position: relative; display: inline-grid; place-items: center; min-width: 0; height: 30px; padding: 0 10px; border: 0; border-radius: 7px; background: transparent; color: var(--k-text-2); font: inherit; font-size: 0.8125rem; font-weight: 500; cursor: pointer; }
-.switch .option[aria-checked="true"] { color: var(--k-ink); }
+/* Appearance is a physical two-way switch: one resting track, one bright selected face.
+   It intentionally shows only the two choices a student can make here. */
+.switch { display: inline-grid; grid-template-columns: repeat(2, 1fr); gap: 4px; width: 112px; padding: 4px; border: 1px solid color-mix(in srgb, var(--k-ink) 24%, var(--k-line)); border-radius: 999px; background: color-mix(in srgb, var(--k-ink) 4%, transparent); }
+.switch .option { position: relative; display: grid; place-items: center; width: 52px; height: 44px; padding: 0; border: 0; border-radius: 999px; background: transparent; color: var(--k-text-2); cursor: pointer; }
+.switch .option[aria-checked="true"] { color: #191714; }
 .switch .option:hover { color: var(--k-ink); }
-.option:focus-visible { outline: 2px solid var(--color-kelus, var(--k-green)); outline-offset: 1px; }
-.on { position: absolute; inset: 0; border-radius: 7px; background: var(--k-card, var(--k-surface)); box-shadow: 0 1px 2px rgba(18, 22, 15, 0.12), 0 0 0 1px color-mix(in srgb, var(--k-ink) 8%, transparent); }
-.mark { position: relative; display: inline-flex; align-items: center; gap: 6px; }
-.compact .option { width: 36px; padding: 0; }
-@media (pointer: coarse) { .option { height: 40px; } .compact .option { width: 44px; } }
+.option:focus-visible { outline: 2px solid var(--color-kelus, var(--k-green)); outline-offset: 3px; }
+.on { position: absolute; inset: 0; border-radius: inherit; background: #f7f1e6; box-shadow: 0 1px 1px rgba(18, 22, 15, 0.08); }
+.mark { position: relative; display: grid; place-items: center; }
+.compact { width: 96px; padding: 3px; }
+.compact .option { width: 44px; height: 38px; }
+@media (pointer: coarse) { .switch .option { height: 48px; } .compact .option { height: 44px; } }
 .toggle { display: inline-grid; place-items: center; width: 40px; height: 40px; border: 0; border-radius: 10px; background: transparent; color: var(--k-text-2); cursor: pointer; }
 .toggle:hover { background: color-mix(in srgb, var(--k-ink) 6%, transparent); color: var(--k-ink); }
 .toggle:focus-visible { outline: 2px solid var(--color-kelus, var(--k-green)); outline-offset: 1px; }

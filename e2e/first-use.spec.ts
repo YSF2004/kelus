@@ -282,9 +282,8 @@ test("a real PDF becomes a first question, then Today, topics and a full session
     await page.setViewportSize({ width, height: 900 });
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
   }
-  // Topics opens from Progress now: three sections, not four.
-  await sectionsNav(page).getByRole("button", { name: "Progress", exact: true }).click();
-  await page.getByRole("link", { name: "Topics and exam check" }).first().click();
+  // Topics is its own course index; Progress stays focused on evidence from study.
+  await sectionsNav(page).getByRole("button", { name: "Topics", exact: true }).click();
   await expect(page).toHaveURL(/\/today\/?\?section=map/);
   await expect(page.getByRole("list", { name: "Topics, in the order of your notes" })).toBeVisible();
   await expect(page.locator(".index-toc > li").first()).toBeVisible();

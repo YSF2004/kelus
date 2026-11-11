@@ -50,11 +50,11 @@ const ALL_MODES: Array<{ id: SurfaceMode; label: string; art: PackArtName; tone:
   { id: "progress", label: "Progress", art: "award", tone: "iris" },
 ];
 /**
- * Three sections, not four: Topics and Progress listed the same topics twice, so the topic list (exam check, topic
- * edits, revision sheet, Anki) opens from Progress and counts as part of it. ?section=map still opens it directly.
+ * Each section has one job. Topics is the course index and editor; Progress is the evidence collected while studying.
+ * Keeping both visible prevents an otherwise quiet workspace from hiding a core part of the course.
  */
-const MODES = ALL_MODES.filter((item) => item.id !== "map");
-const navMode = (mode: SurfaceMode): SurfaceMode => (mode === "map" ? "progress" : mode);
+const MODES = ALL_MODES;
+const navMode = (mode: SurfaceMode): SurfaceMode => mode;
 
 
 const pressSpring = { type: "spring", bounce: 0, duration: 0.24 } as const;

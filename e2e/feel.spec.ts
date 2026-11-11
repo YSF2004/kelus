@@ -128,11 +128,11 @@ test("⌘Z also takes back a rename, and a topic's page keeps the course sidebar
   await page.locator(".index-toc-row").first().click();
   await expect(page).toHaveURL(/\/concept/);
   const nav = page.locator('nav[aria-label="Revision sections"]');
-  // A topic's page belongs to Progress, where the topic list now opens.
-  await expect(nav.getByRole("button", { name: "Progress", exact: true })).toHaveAttribute("aria-pressed", "true");
+  // A topic's page belongs to Topics, where the course index and editor live.
+  await expect(nav.getByRole("button", { name: "Topics", exact: true })).toHaveAttribute("aria-pressed", "true");
   await expect(page.getByRole("button", { name: /Study this topic|Study it again/ })).toBeVisible();
-  await nav.getByRole("button", { name: "Progress", exact: true }).click();
-  await expect(page).toHaveURL(/section=progress/);
+  await nav.getByRole("button", { name: "Topics", exact: true }).click();
+  await expect(page).toHaveURL(/section=map/);
 });
 
 test("⌘Z takes back a newly set exam date", async ({ page }) => {

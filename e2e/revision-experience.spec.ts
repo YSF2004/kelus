@@ -88,11 +88,10 @@ test("the course workspace stays legible across its sections and returns home", 
   await expect(sections.getByRole("button", { name: "Materials" })).toHaveAttribute("aria-pressed", "true");
   await expect(sections.getByRole("button", { name: "Materials" })).toHaveCSS("box-shadow", /0px 0px 0px 1px/);
   await expect(page.locator(".material-shelf h2")).toHaveCSS("color", "rgb(14, 21, 18)");
-  await sections.getByRole("button", { name: "Progress" }).click();
-  await page.getByRole("link", { name: "Topics and exam check" }).first().click();
+  await sections.getByRole("button", { name: "Topics" }).click();
   await expect(page.getByRole("heading", { name: "Topics" })).toBeVisible();
-  await expect(sections.getByRole("button", { name: "Progress" })).toHaveAttribute("aria-pressed", "true");
-  await expect(sections.getByRole("button", { name: "Progress" })).toHaveCSS("box-shadow", /0px 0px 0px 1px/);
+  await expect(sections.getByRole("button", { name: "Topics" })).toHaveAttribute("aria-pressed", "true");
+  await expect(sections.getByRole("button", { name: "Topics" })).toHaveCSS("box-shadow", /0px 0px 0px 1px/);
   await expect(page.locator(".index-toc-row", { hasText: "Start here" })).toContainText("Elasticity");
 
   for (const width of [320, 375, 414, 768]) {

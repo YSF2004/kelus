@@ -614,8 +614,8 @@ html body.is-course-studio .core-source-remove { display: inline-grid; place-ite
 
 /* Appearance in the product: at the foot of the sidebar; in the top bar only where the sidebar's foot is hidden. */
 html body.is-course-studio .studio-theme { padding: 4px 4px 8px; }
-html body.is-course-studio .studio-theme > div { display: flex; width: 100%; }
-html body.is-course-studio .studio-theme button { flex: 1; }
+html body.is-course-studio .studio-theme > div { display: inline-grid; width: auto; }
+html body.is-course-studio .studio-theme button { flex: 0 0 auto; }
 html body.is-course-studio .studio-topbar-theme { display: none; }
 @media (max-width: 650px) { html body.is-course-studio .studio-topbar-theme { display: inline-flex; margin-left: auto; } }
 
@@ -925,8 +925,9 @@ html body .pricing-page .pricing-hero-art.k-rise { --rise-delay: 0.2s; }
       animation-timeline: view();
       animation-range: entry 0% cover 25%;
     }
-    /* Study app: the next topics and the topic list rise a little as they scroll into view. */
-    :is(body.is-course-studio) :is([data-block="today-next"] li, .index-toc > li) {
+    /* The course index may settle as it arrives. The study plan itself stays fully present: a route must never
+       look empty while a browser is calculating a scroll timeline. */
+    :is(body.is-course-studio) .index-toc > li {
       animation: kelusRowIn linear both;
       animation-timeline: view();
       animation-range: entry 0% entry 90%;

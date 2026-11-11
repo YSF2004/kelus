@@ -298,7 +298,10 @@ export function TodayRoute({
         {noteLine ? (
           <motion.figure className={q.quote}>
             <blockquote>{noteLine}</blockquote>
-            <figcaption>From your notes{firstSource?.locator && !/^Section\b/.test(firstSource.locator) ? `, ${firstSource.locator.toLocaleLowerCase()}` : ""}</figcaption>
+            <figcaption>
+              From {firstSource?.label && firstSource.label !== "Document outline" ? firstSource.label : "your notes"}
+              {firstSource?.locator && !/^Section\b/.test(firstSource.locator) ? `, ${firstSource.locator.toLocaleLowerCase()}` : ""}
+            </figcaption>
           </motion.figure>
         ) : null}
         <motion.p className={q.why} data-block="today-decision" aria-label="Why this topic is first">{decision[0]}</motion.p>

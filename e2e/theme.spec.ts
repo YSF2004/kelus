@@ -11,7 +11,7 @@ test("the public homepage stays in its original light palette on a dark device",
   await expect(page.locator("body")).not.toHaveCSS("background-color", "rgb(18, 21, 20)");
 });
 
-test("the product keeps a light option: Auto follows the device, Light and Dark stick across a reload", async ({ page }) => {
+test("the product keeps direct light and dark choices across a reload", async ({ page }) => {
   await page.emulateMedia({ colorScheme: "dark", reducedMotion: "reduce" });
   await page.goto("/today?sample=1");
   const html = page.locator("html");
@@ -22,7 +22,7 @@ test("the product keeps a light option: Auto follows the device, Light and Dark 
   await expect(appearance.getByRole("radio", { name: "Light" })).toHaveAttribute("aria-checked", "true");
   await page.reload();
   await expect(html).toHaveAttribute("data-theme", "light");
-  await page.getByRole("radiogroup", { name: "Appearance" }).first().getByRole("radio", { name: "Auto" }).click();
+  await page.getByRole("radiogroup", { name: "Appearance" }).first().getByRole("radio", { name: "Dark" }).click();
   await expect(html).toHaveAttribute("data-theme", "dark");
 });
 
