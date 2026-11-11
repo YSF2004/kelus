@@ -33,7 +33,10 @@ export function SiteHeader() {
   // it has hydrated, it shows exactly what the static HTML shows ("checking account"), so React never sees two
   // different headers (the old "Minified React error #418" on Today and Materials).
   const hydrated = useSyncExternalStore(noop, () => true, () => false);
-  const checkingAccount = !hydrated || auth.loading;
+  // Do not reserve a blank control when this deployment has no auth provider. In that
+  // case there is nothing to resolve, and a quiet, empty rectangle in the header reads
+  // as a broken button rather than useful chrome.
+  const checkingAccount = auth.configured && (!hydrated || auth.loading);
   // The revision sheet is a page of its own, like a session: its bar is the only header.
   const inSession = pathname.startsWith("/session") || pathname.startsWith("/sheet");
   const inProduct = ["/today", "/materials", "/map", "/concept"].some((path) => pathname.startsWith(path));

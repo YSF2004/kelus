@@ -19,6 +19,11 @@ test("Today no longer hides its main action or reading content behind staggered 
   assert.match(today, /data-action="start-topic"/);
 });
 
+test("shared page entrances never hide useful content on the first frame", () => {
+  const quiet = source("app/quiet.css");
+  assert.doesNotMatch(quiet, /@keyframes kelusRise\s*\{\s*from\s*\{\s*opacity:\s*0/);
+});
+
 test("inline QuickResult completion sizes both actions, not just the separate completion route", () => {
   assert.match(
     source("components/QuickResult.module.css"),

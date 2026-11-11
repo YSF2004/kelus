@@ -72,7 +72,7 @@ export const metadata: Metadata = {
   manifest: "/manifest.webmanifest",
   // Added to an iPhone home screen, Kelus opens full screen like an app, under its own name.
   appleWebApp: { capable: true, title: "Kelus", statusBarStyle: "default" },
-  title: "Kelus",
+  title: "Revise from Your Course Notes for Exams | Kelus",
   description: "Turn your course notes or PDFs into exam revision. Practice recall, check your answers, and see which topic to review next with Kelus.",
   openGraph: {
     type: "website",

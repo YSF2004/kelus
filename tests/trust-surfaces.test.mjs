@@ -60,6 +60,11 @@ test("analytics only loads when a measurement id is configured", async () => {
   assert.match(complete, /session_completed/);
 });
 
+test("an unconfigured account provider does not leave an empty header control", async () => {
+  const header = await source("components/SiteHeader.tsx");
+  assert.match(header, /auth\.configured && \(!hydrated \|\| auth\.loading\)/);
+});
+
 test("public metadata indexes only public pages and app state cannot inherit the home canonical", async () => {
   const [layout, home, sitemap, todayLayout, mapLayout, sessionLayout, conceptLayout] = await Promise.all([
     source("app/layout.tsx"),

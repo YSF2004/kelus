@@ -683,7 +683,9 @@ html body .first-source-review-list small { display: -webkit-box; -webkit-line-c
    so it costs nothing on a slow phone, runs once per opening, and is off with reduced motion. */
 /* The pricing art has no style prop: its start is set here, after the heading and lede (0.06s, 0.14s). */
 html body .pricing-page .pricing-hero-art.k-rise { --rise-delay: 0.2s; }
-@keyframes kelusRise { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+/* Content is already useful at frame zero.  Let it settle into place, but never hide
+   a study decision or a pricing plan while the browser catches up. */
+@keyframes kelusRise { from { transform: translateY(8px); } to { transform: none; } }
 @media (prefers-reduced-motion: no-preference) {
   html body.is-course-studio :is(.surface-map.is-toc, [class*="ProgressView"][class*="page"], [class*="TodayQuiet"][class*="page"]) > * { animation: kelusRise 420ms cubic-bezier(0.22, 1, 0.36, 1) both; }
   html body.is-course-studio :is(.surface-map.is-toc, [class*="ProgressView"][class*="page"], [class*="TodayQuiet"][class*="page"]) > *:nth-child(2) { animation-delay: 50ms; }
@@ -740,7 +742,7 @@ html body.is-course-studio .material-shelf h2 { font-family: var(--font-marketin
 
 /* Not notes: one honest question before a plan is built from a CV or a letter. A marigold rule, the reason in words,
    the way back as the main action, and the student's own choice kept. */
-html body .first-source-kind { margin: 8px 0 24px; padding: 4px 0 4px 18px; border-left: 3px solid var(--k-marigold, #f3b23e); }
+html body .first-source-kind { margin: 8px 0 24px; padding: 14px 0 4px; border-top: 1px solid color-mix(in srgb, var(--k-marigold, #f3b23e) 65%, var(--k-line)); }
 html body .first-source-kind p { margin: 0; color: var(--k-text-2); font-size: 1rem; line-height: 1.55; }
 html body .first-source-kind strong { display: block; margin-bottom: 4px; color: var(--k-ink); font-family: var(--font-marketing-heading), Georgia, serif; font-size: 1.25rem; font-weight: 500; }
 html body .first-source-kind-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 20px; margin-top: 16px; }
@@ -827,7 +829,7 @@ html body .pricing-page .founding-cta-jump:hover { text-decoration-color: curren
 }
 /* The pricing art has no style prop, so its start is set here; the title and lede beside it stay still. */
 html body .pricing-page .pricing-hero-art.k-rise { --rise-delay: 0.2s; }
-@keyframes kelusRise { from { opacity: 0; translate: 0 var(--rise-y, 12px); scale: var(--rise-scale, 1); } }
+@keyframes kelusRise { from { translate: 0 var(--rise-y, 12px); scale: var(--rise-scale, 1); } }
 
 /* Start screen: photos of notes, a page at a time. A quiet text action until there are pages, then a small tray. */
 .start-page .photo-notes { margin-top: 12px; }

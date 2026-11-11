@@ -13,7 +13,7 @@ import { PricingPlanMotion } from "@/components/PricingPlanMotion";
 import { Rise } from "@/components/PricingReveal";
 
 export const metadata: Metadata = {
-  title: "Kelus",
+  title: "Kelus Pricing | Free Exam Revision & Planned Plus",
   description: "Start revising your own course for free, with no account required. Kelus Plus is planned at $4.99 per month; availability is shown on this page.",
   alternates: { canonical: "/pricing" },
   openGraph: {
