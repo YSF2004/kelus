@@ -10,11 +10,14 @@ type AuthContextValue = {
   loading: boolean;
   configured: boolean;
   dialogOpen: boolean;
+  passwordRecovery: boolean;
   openDialog: () => void;
   closeDialog: () => void;
   signIn: (email: string, password: string) => Promise<void>;
   signUp: (name: string, email: string, password: string) => Promise<boolean>;
   signInWithGoogle: () => Promise<void>;
+  resetPassword: (email: string) => Promise<void>;
+  updatePassword: (password: string) => Promise<void>;
   signOut: () => Promise<void>;
 };
 
@@ -31,6 +34,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(Boolean(client));
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [passwordRecovery, setPasswordRecovery] = useState(false);
 
   useEffect(() => {
     if (!client) return;
@@ -42,10 +46,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setLoading(false);
     });
 
-    const { data } = client.auth.onAuthStateChange((_event, session) => {
+    const { data } = client.auth.onAuthStateChange((event, session) => {
       setUser(session?.user ?? null);
       setLoading(false);
-      if (session?.user) setDialogOpen(false);
+      if (event === "PASSWORD_RECOVERY") {
+        setPasswordRecovery(true);
+        setDialogOpen(true);
+      } else if (session?.user) {
+        setDialogOpen(false);
+      }
     });
 
     return () => {
@@ -64,6 +73,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     loading,
     configured: Boolean(client),
     dialogOpen,
+    passwordRecovery,
     openDialog: () => setDialogOpen(true),
     closeDialog: () => setDialogOpen(false),
     signIn: async (email, password) => {
@@ -89,11 +99,23 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       });
       if (error) throw error;
     },
+    resetPassword: async (email) => {
+      const { error } = await requireClient().auth.resetPasswordForEmail(email, {
+        redirectTo: `${window.location.origin}/`,
+      });
+      if (error) throw error;
+    },
+    updatePassword: async (password) => {
+      const { error } = await requireClient().auth.updateUser({ password });
+      if (error) throw error;
+      setPasswordRecovery(false);
+      setDialogOpen(false);
+    },
     signOut: async () => {
       const { error } = await requireClient().auth.signOut();
       if (error) throw error;
     },
-  }), [client, dialogOpen, loading, requireClient, user]);
+  }), [client, dialogOpen, loading, passwordRecovery, requireClient, user]);
 
   return (
     <AuthContext.Provider value={value}>

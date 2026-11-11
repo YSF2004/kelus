@@ -5,6 +5,7 @@ import test from "node:test";
 test("homepage presents the V1 product loop after the student hero", () => {
   const page = readFileSync("app/page.tsx", "utf8");
   const hero = readFileSync("components/hero/KelusHero.tsx", "utf8");
+  const student = readFileSync("components/hero/StudentIllustration.tsx", "utf8");
   const story = readFileSync("components/home/HomeAfterHero.tsx", "utf8");
   assert.match(page, /KelusHero/);
   assert.doesNotMatch(page, /StartHereJourney/);
@@ -13,7 +14,9 @@ test("homepage presents the V1 product loop after the student hero", () => {
   assert.match(hero, /LEARNING_EXAMPLES/);
   assert.match(hero, /Today’s route/);
   assert.match(hero, /No invented progress/);
-  assert.match(hero, /hero-window-controls/);
+  assert.doesNotMatch(hero, /hero-window-controls/);
+  assert.doesNotMatch(student, /repeat: Infinity/);
+  assert.match(student, /duration: 0\.24/);
   assert.doesNotMatch(page, /KnowledgeRouteStory/);
   assert.doesNotMatch(page, /<RouteStory/);
   assert.match(story, /TodayPlanIllustration/);

@@ -3,11 +3,13 @@ import type { RouteStop } from "@/components/hero/route-data";
 
 export function routeReason(row: RankedConcept) {
   const { concept, status } = row;
-  if (concept.examImportance >= 0.85 && concept.mastery < 0.55) return "High exam value · Low mastery";
+  const importanceIsEvidence = concept.examImportanceSource !== "estimated";
+  if (importanceIsEvidence && concept.examImportance >= 0.85 && concept.mastery < 0.55) return "High exam value · Low mastery";
   if (status === "fading") return "Fading · Review now";
   if (status === "not_learned") return "Not learned yet";
   if (status === "weak") return "Needs retrieval";
-  if (concept.examImportance >= 0.7) return "High exam relevance";
+  if (importanceIsEvidence && concept.examImportance >= 0.7) return "High exam relevance";
+  if (concept.examImportanceSource === "estimated") return "Priority will sharpen with your answers";
   return "Best remaining return";
 }
 

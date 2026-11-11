@@ -71,6 +71,7 @@ test("today exposes confidence while reroutes explain the evidence that changed"
   assert.match(today, /Start learning/);
   assert.match(today, /Start here/);
   assert.match(today, /Inside these \{allocation\.minutes\} minutes/);
+  assert.match(today, /explainRouteLead/);
   assert.match(today, /Learn/);
   assert.match(today, /Retrieve/);
   assert.match(today, /Apply/);
@@ -79,4 +80,6 @@ test("today exposes confidence while reroutes explain the evidence that changed"
   assert.doesNotMatch(page, /RouteKnowledgeMap/);
   assert.match(store, /answer on \$\{concept\.name\} changed its mastery estimate/);
   assert.match(store, /higher learning value for the remaining time/);
+  assert.match(await source("app/session/page.tsx"), /Route checked/);
+  assert.match(await source("app/session/page.tsx"), /did not justify a reorder/);
 });

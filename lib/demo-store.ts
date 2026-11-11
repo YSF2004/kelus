@@ -7,7 +7,7 @@ import { estimatedReadiness } from "../domain/readiness";
 import { recalculateSessionRoute } from "../domain/session-engine";
 import { buildConfirmedMaterialModel } from "../domain/material-intelligence";
 import { createRetrievalEvent, sessionSummary } from "../domain/session";
-import type { Concept, LearnerSnapshot, LearningEvent, ProposedConcept, RetrievalOutcome, SelfRating, StudySession } from "../domain/types";
+import type { AnswerEvaluation, Concept, LearnerSnapshot, LearningEvent, ProposedConcept, RetrievalOutcome, SelfRating, StudySession } from "../domain/types";
 import { createLearnerSnapshot, type SetupInput } from "./setup";
 
 const STORAGE_KEY = "kelus-learning-state-v2";
@@ -135,7 +135,7 @@ export function completeOnboarding(input: SetupInput, nowMs = Date.now()) {
 
 export function completeDiagnosis(state: DemoState, input: {
   ratings: Record<string, SelfRating>;
-  retrievals: Array<{ conceptId: string; promptId: string; responseText: string; outcome: RetrievalOutcome; responseTimeMs: number }>;
+  retrievals: Array<{ conceptId: string; promptId: string; responseText: string; outcome: RetrievalOutcome; responseTimeMs: number; evaluation?: AnswerEvaluation | null }>;
 }) {
   const userId = state.snapshot.profile.id;
   const ratingEvents: LearningEvent[] = Object.entries(input.ratings).flatMap(([conceptId, rating]) => {
@@ -171,6 +171,7 @@ export function completeDiagnosis(state: DemoState, input: {
       sessionId: "diagnosis",
       promptId: retrieval.promptId,
       responseText: retrieval.responseText,
+      evaluation: retrieval.evaluation,
       outcome: retrieval.outcome,
       responseTimeMs: retrieval.responseTimeMs,
       createdAt: state.nowIso,
@@ -193,17 +194,71 @@ export function confirmMaterialConcepts(state: DemoState, proposals: ProposedCon
     userId: state.snapshot.profile.id,
     nowIso: state.nowIso,
   });
-  const previousIds = new Set(state.snapshot.concepts.filter((concept) => concept.courseId === course.id).map((concept) => concept.id));
+  const materialIds = new Set(proposals.map((proposal) => proposal.materialId));
+  const activitiesWithoutReplacedSources = state.snapshot.learningActivities.map((activity) => ({
+    ...activity,
+    sourceReferences: activity.sourceReferences.filter((reference) => !materialIds.has(reference.materialId)),
+  }));
+  const replacedIds = new Set(state.snapshot.learningActivities
+    .filter((activity, index) => activity.sourceReferences.some((reference) => materialIds.has(reference.materialId))
+      && activitiesWithoutReplacedSources[index].sourceReferences.length === 0)
+    .map((activity) => activity.conceptId));
+  const retainedConcepts = state.snapshot.concepts.filter((concept) => !replacedIds.has(concept.id));
+  const retainedIds = new Set(retainedConcepts.map((concept) => concept.id));
+  const newConcepts = model.concepts.filter((concept) => !retainedIds.has(concept.id));
+  const retainedActivities = activitiesWithoutReplacedSources.filter((activity) => !replacedIds.has(activity.conceptId));
+  const mergedActivities = retainedActivities.map((activity) => {
+    const incoming = model.learningActivities.find((candidate) => candidate.conceptId === activity.conceptId);
+    if (!incoming) return activity;
+    const references = [...activity.sourceReferences];
+    for (const reference of incoming.sourceReferences) {
+      if (!references.some((item) => item.materialId === reference.materialId && item.locator === reference.locator)) references.push(reference);
+    }
+    return { ...activity, sourceReferences: references };
+  });
+  const retainedRelationships = state.snapshot.relationships.filter((relationship) => !replacedIds.has(relationship.fromId) && !replacedIds.has(relationship.toId));
+  const relationships = [...retainedRelationships, ...model.relationships].filter((relationship, index, items) => items.findIndex((item) => item.id === relationship.id) === index);
   const snapshot: LearnerSnapshot = {
     ...state.snapshot,
-    concepts: [...state.snapshot.concepts.filter((concept) => concept.courseId !== course.id), ...model.concepts],
-    relationships: [...state.snapshot.relationships.filter((relationship) => !previousIds.has(relationship.fromId) && !previousIds.has(relationship.toId)), ...model.relationships],
-    prompts: [...state.snapshot.prompts.filter((prompt) => !previousIds.has(prompt.conceptId)), ...model.prompts],
-    learningActivities: [...state.snapshot.learningActivities.filter((activity) => !previousIds.has(activity.conceptId)), ...model.learningActivities],
-    events: state.snapshot.events.filter((event) => !previousIds.has(event.conceptId)),
-    sessions: state.snapshot.sessions.filter((session) => session.courseId !== course.id),
+    concepts: [...retainedConcepts, ...newConcepts],
+    relationships,
+    prompts: [...state.snapshot.prompts.filter((prompt) => !replacedIds.has(prompt.conceptId)), ...model.prompts.filter((prompt) => !retainedIds.has(prompt.conceptId))],
+    learningActivities: [...mergedActivities, ...model.learningActivities.filter((activity) => !retainedIds.has(activity.conceptId))],
+    events: state.snapshot.events.filter((event) => !replacedIds.has(event.conceptId)),
+    sessions: state.snapshot.sessions.filter((session) => !session.plannedConceptIds.some((conceptId) => replacedIds.has(conceptId))),
   };
   const next = { ...state, snapshot, diagnosisCompleted: false };
+  persistDemoState(next);
+  return next;
+}
+
+export function removeMaterialLearning(state: DemoState, materialId: string) {
+  const activities = state.snapshot.learningActivities.map((activity) => ({
+    ...activity,
+    sourceReferences: activity.sourceReferences.filter((reference) => reference.materialId !== materialId),
+  }));
+  const removedIds = new Set(activities
+    .filter((activity) => {
+      const previous = state.snapshot.learningActivities.find((item) => item.id === activity.id);
+      return previous?.sourceReferences.some((reference) => reference.materialId === materialId) && activity.sourceReferences.length === 0;
+    })
+    .map((activity) => activity.conceptId));
+  if (!removedIds.size && activities.every((activity, index) => activity.sourceReferences.length === state.snapshot.learningActivities[index]?.sourceReferences.length)) return state;
+  const concepts = state.snapshot.concepts.filter((concept) => !removedIds.has(concept.id));
+  const snapshot: LearnerSnapshot = {
+    ...state.snapshot,
+    concepts,
+    relationships: state.snapshot.relationships.filter((relationship) => !removedIds.has(relationship.fromId) && !removedIds.has(relationship.toId)),
+    prompts: state.snapshot.prompts.filter((prompt) => !removedIds.has(prompt.conceptId)),
+    learningActivities: activities.filter((activity) => !removedIds.has(activity.conceptId)),
+    events: state.snapshot.events.filter((event) => !removedIds.has(event.conceptId)),
+    sessions: state.snapshot.sessions.filter((session) => !session.plannedConceptIds.some((conceptId) => removedIds.has(conceptId))),
+  };
+  const next = {
+    ...state,
+    snapshot,
+    diagnosisCompleted: state.diagnosisCompleted && concepts.length > 0,
+  };
   persistDemoState(next);
   return next;
 }
@@ -214,6 +269,7 @@ export function recordRetrieval(state: DemoState, input: {
   promptId: string;
   responseText: string;
   outcome: RetrievalOutcome;
+  evaluation?: AnswerEvaluation | null;
   responseTimeMs?: number | null;
   answerRevealed?: boolean;
 }) {
@@ -228,6 +284,7 @@ export function recordRetrieval(state: DemoState, input: {
     promptId: input.promptId,
     responseText: input.responseText,
     outcome: input.outcome,
+    evaluation: input.evaluation,
     responseTimeMs: input.responseTimeMs,
     answerRevealed: input.answerRevealed,
     createdAt: state.nowIso,

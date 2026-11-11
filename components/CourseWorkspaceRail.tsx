@@ -28,15 +28,15 @@ export function CourseWorkspaceRail() {
   const sourceCount = materials.filter((item) => item.courseId === course.id).length;
   const readiness = estimatedReadiness(concepts);
   const days = daysUntilExam(exam, state.nowIso);
-  const currentStep = state.diagnosisCompleted ? 5 : !sourceCount ? 2 : !concepts.length ? 3 : 4;
-
   const stages = [
-    { label: "Destination", detail: `${days} days · target ${exam.targetPercent}%`, href: "/today" },
-    { label: "Materials", detail: sourceCount ? `${sourceCount} source${sourceCount === 1 ? "" : "s"}` : "Add your first source", href: "/materials" },
-    { label: "Knowledge Map", detail: concepts.length ? `${concepts.length} concepts` : "Waiting for concepts", href: "/map" },
-    { label: "Diagnosis", detail: state.diagnosisCompleted ? "Initial evidence captured" : "Next step", href: "/today" },
-    { label: "Today’s route", detail: state.diagnosisCompleted ? `${percent(readiness)} ready` : "Builds after diagnosis", href: "/today" },
+    { label: "Destination", detail: `${days} days · target ${exam.targetPercent}%`, href: "/today", complete: true },
+    { label: "Materials", detail: sourceCount ? `${sourceCount} source${sourceCount === 1 ? "" : "s"}` : "Add your first source", href: "/materials", complete: sourceCount > 0 },
+    { label: "Knowledge Map", detail: concepts.length ? `${concepts.length} concepts` : "Waiting for concepts", href: "/map", complete: concepts.length > 0 },
+    { label: "Diagnosis", detail: state.diagnosisCompleted ? "Initial evidence captured" : "Next step", href: "/today", complete: state.diagnosisCompleted },
+    { label: "Today’s route", detail: state.diagnosisCompleted ? `${percent(readiness)} ready` : "Builds after diagnosis", href: "/today", complete: state.diagnosisCompleted },
   ];
+  const completedCount = stages.filter((stage) => stage.complete).length;
+  const currentIndex = stages.findIndex((stage) => !stage.complete);
 
   return (
     <aside className="course-workspace-rail" aria-label="Current course workspace">
@@ -54,11 +54,11 @@ export function CourseWorkspaceRail() {
       </nav>
 
       <div className="course-workspace-progress">
-        <div><span>Course path</span><b>{currentStep} / 5</b></div>
+        <div><span>Course path</span><b>{completedCount} / {stages.length}</b></div>
         <ol>
           {stages.map((stage, index) => {
-            const complete = index + 1 < currentStep;
-            const current = index + 1 === currentStep;
+            const complete = stage.complete;
+            const current = currentIndex === index;
             return (
               <li key={stage.label} className={complete ? "is-complete" : current ? "is-current" : undefined}>
                 <Link href={stage.href} aria-current={current ? "step" : undefined}>

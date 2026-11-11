@@ -17,7 +17,7 @@ export function FirstRunSetup({ onComplete, onUseDemo }: { onComplete: (input: S
     if (step === 1 && !draft.courseName.trim()) return setError("Tell Kelus which course you are studying.");
     if (step === 1 && !draft.examName.trim()) return setError("Tell Kelus what you are working toward.");
     if (step === 2 && !draft.examDate) return setError("Choose the date of your exam.");
-    if (step < 3) return setStep((current) => current + 1);
+    if (step < 2) return setStep((current) => current + 1);
     try {
       onComplete(draft);
     } catch (caught) {
@@ -28,7 +28,7 @@ export function FirstRunSetup({ onComplete, onUseDemo }: { onComplete: (input: S
   return (
     <main id="main" className="destination-page">
       <form className="destination-form" onSubmit={next}>
-        <div className="flow-context"><span>Set your destination</span><b>{step} / 3</b></div>
+        <div className="flow-context"><span>Set your destination</span><b>{step} / 2</b></div>
         {step === 1 ? (
           <fieldset>
             <legend>What are you studying?</legend>
@@ -41,16 +41,12 @@ export function FirstRunSetup({ onComplete, onUseDemo }: { onComplete: (input: S
         ) : null}
         {step === 2 ? (
           <fieldset>
-            <legend>Define the destination.</legend>
+            <legend>When is the exam?</legend>
             <div className="destination-pair">
               <label>When is it?<input autoFocus type="date" min={minimumDate} value={draft.examDate} onChange={(event) => setDraft({ ...draft, examDate: event.target.value })} /></label>
               <label>What are you aiming for?<span className="target-input"><input type="number" min="50" max="100" value={draft.targetPercent} onChange={(event) => setDraft({ ...draft, targetPercent: Number(event.target.value) })} /><b>%</b></span></label>
             </div>
-          </fieldset>
-        ) : null}
-        {step === 3 ? (
-          <fieldset>
-            <legend>How much time can you usually study?</legend>
+            <p className="destination-time-label">How much time can you usually study?</p>
             <div className="time-choices">
               {TIMES.map((minutes) => (
                 <label key={minutes} className={draft.availableMinutes === minutes ? "is-selected" : undefined}>
@@ -64,7 +60,7 @@ export function FirstRunSetup({ onComplete, onUseDemo }: { onComplete: (input: S
         <p className="setup-error" role="alert">{error}</p>
         <div className="destination-actions">
           {step > 1 ? <button type="button" className="text-btn" onClick={() => setStep((current) => current - 1)}>Back</button> : <button type="button" className="text-btn" onClick={onUseDemo}>Open Amina demo</button>}
-          <button className="cta" type="submit">{step === 3 ? "Add course material" : "Continue"}<span aria-hidden="true">→</span></button>
+          <button className="cta" type="submit">{step === 2 ? "Add course material" : "Continue"}<span aria-hidden="true">→</span></button>
         </div>
       </form>
       <div className="destination-route" aria-hidden="true"><i /><i /><i /><b>◎</b></div>

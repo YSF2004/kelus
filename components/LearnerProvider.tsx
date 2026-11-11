@@ -10,6 +10,7 @@ import {
   getDemoSnapshot,
   getServerDemoSnapshot,
   recordRetrieval,
+  removeMaterialLearning,
   loadAminaDemo,
   resetDemoState,
   replaceDemoState,
@@ -19,9 +20,11 @@ import {
   subscribeDemoState,
   type DemoState,
 } from "@/lib/demo-store";
-import type { Concept, ProposedConcept, RetrievalOutcome, SelfRating } from "@/domain/types";
+import type { AnswerEvaluation, Concept, ProposedConcept, RetrievalOutcome, SelfRating } from "@/domain/types";
 import type { SetupInput } from "@/lib/setup";
 import { readLearnerState, writeLearnerState } from "@/lib/learner-sync";
+import { synchronizeCourseMaterials } from "@/lib/material-sync";
+import { trackProductEvent } from "@/lib/product-analytics";
 
 type Store = {
   state: DemoState;
@@ -32,6 +35,7 @@ type Store = {
     promptId: string;
     responseText: string;
     outcome: RetrievalOutcome;
+    evaluation?: AnswerEvaluation | null;
     responseTimeMs?: number | null;
     answerRevealed?: boolean;
     finish?: { before: Concept[] };
@@ -41,10 +45,11 @@ type Store = {
   completeSetup: (input: SetupInput) => void;
   completeDiagnosis: (input: {
     ratings: Record<string, SelfRating>;
-    retrievals: Array<{ conceptId: string; promptId: string; responseText: string; outcome: RetrievalOutcome; responseTimeMs: number }>;
+    retrievals: Array<{ conceptId: string; promptId: string; responseText: string; outcome: RetrievalOutcome; responseTimeMs: number; evaluation?: AnswerEvaluation | null }>;
   }) => void;
   useDemo: () => void;
   confirmConcepts: (proposals: ProposedConcept[]) => void;
+  removeMaterialSource: (materialId: string) => void;
 };
 
 const StoreContext = createContext<Store | null>(null);
@@ -72,11 +77,13 @@ export function LearnerProvider({ children }: { children: ReactNode }) {
         const claimed = stateForAuthenticatedUser(remote, userId);
         replaceDemoState(claimed);
         lastWritten.current = JSON.stringify(claimed);
+        void Promise.allSettled(claimed.snapshot.courses.map((course) => synchronizeCourseMaterials(userId, course.id)));
       } else {
         const claimed = stateForAuthenticatedUser(state, userId);
         replaceDemoState(claimed);
         lastWritten.current = JSON.stringify(claimed);
         void writeLearnerState(userId, claimed).catch(() => setSyncMessage("Saved on this device. Cloud sync will retry."));
+        void Promise.allSettled(claimed.snapshot.courses.map((course) => synchronizeCourseMaterials(userId, course.id)));
       }
       syncedUser.current = userId;
       setSyncMessage(null);
@@ -108,11 +115,49 @@ export function LearnerProvider({ children }: { children: ReactNode }) {
   const store = useMemo<Store>(() => ({
     state,
     start(courseId, examId) {
-      return startSession(state, courseId, examId).session.id;
+      const { session } = startSession(state, courseId, examId);
+      const completed = state.snapshot.sessions.filter((item) => item.status === "complete");
+      const lastCompleted = completed.map((item) => item.endedAt).filter((value): value is string => Boolean(value)).sort().at(-1);
+      const daysSincePrevious = lastCompleted
+        ? Math.max(0, Math.floor((Date.parse(state.nowIso) - Date.parse(lastCompleted)) / 86_400_000))
+        : null;
+      trackProductEvent("session_started", {
+        course_id: courseId,
+        planned_minutes: session.plannedMinutes,
+        concept_count: session.plannedConceptIds.length,
+        completed_session_count: completed.length,
+        days_since_previous_session: daysSincePrevious,
+      }, auth.user?.id);
+      return session.id;
     },
     submit(input) {
       const next = recordRetrieval(state, input);
-      if (input.finish) finishSession(next, input.sessionId, input.finish.before);
+      const previousSession = state.snapshot.sessions.find((item) => item.id === input.sessionId);
+      const updatedSession = next.snapshot.sessions.find((item) => item.id === input.sessionId);
+      const routeChanged = (updatedSession?.routeChanges.length ?? 0) > (previousSession?.routeChanges.length ?? 0);
+      trackProductEvent("answer_evaluated", {
+        session_id: input.sessionId,
+        concept_id: input.conceptId,
+        outcome: input.evaluation?.outcome ?? input.outcome,
+        score: input.evaluation?.score ?? null,
+        assistance_used: Boolean(input.answerRevealed),
+      }, auth.user?.id);
+      trackProductEvent("route_recalculated", {
+        session_id: input.sessionId,
+        concept_id: input.conceptId,
+        materially_reordered: routeChanged,
+      }, auth.user?.id);
+      if (input.finish) {
+        const completed = finishSession(next, input.sessionId, input.finish.before);
+        const summary = completed.snapshot.sessions.find((item) => item.id === input.sessionId)?.summary;
+        trackProductEvent("session_completed", {
+          session_id: input.sessionId,
+          planned_minutes: previousSession?.plannedMinutes ?? null,
+          route_change_count: updatedSession?.routeChanges.length ?? 0,
+          readiness_before: summary?.readinessBefore ?? null,
+          readiness_after: summary?.readinessAfter ?? null,
+        }, auth.user?.id);
+      }
     },
     reset() {
       resetDemoState();
@@ -123,17 +168,34 @@ export function LearnerProvider({ children }: { children: ReactNode }) {
     },
     completeSetup(input) {
       completeOnboarding(input);
+      trackProductEvent("setup_completed", {
+        days_until_exam: Math.max(0, Math.ceil((Date.parse(input.examDate) - Date.now()) / 86_400_000)),
+        target_percent: input.targetPercent,
+        available_minutes: input.availableMinutes,
+      }, auth.user?.id);
     },
     completeDiagnosis(input) {
       persistDiagnosis(state, input);
+      trackProductEvent("diagnosis_completed", {
+        rated_concept_count: Object.keys(input.ratings).length,
+        retrieval_check_count: input.retrievals.length,
+      }, auth.user?.id);
     },
     useDemo() {
       loadAminaDemo();
     },
     confirmConcepts(proposals) {
       confirmMaterialConcepts(state, proposals);
+      trackProductEvent("material_map_confirmed", {
+        concept_count: proposals.length,
+        material_count: new Set(proposals.map((item) => item.materialId)).size,
+        relationship_ready: proposals.length > 1,
+      }, auth.user?.id);
     },
-  }), [state]);
+    removeMaterialSource(materialId) {
+      removeMaterialLearning(state, materialId);
+    },
+  }), [auth.user?.id, state]);
   return <StoreContext.Provider value={store}>{auth.user && syncMessage ? <p className="learner-sync-status" role="status">{syncMessage}</p> : null}{children}</StoreContext.Provider>;
 }
 

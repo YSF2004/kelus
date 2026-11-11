@@ -2,12 +2,13 @@
 
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { useState } from "react";
-import type { Concept, LearningActivity, RoutePlan } from "@/domain/types";
-import { conciseReason, REASON_COPY } from "@/lib/learning-copy";
+import type { Concept, ConceptRelationship, LearningActivity, RoutePlan } from "@/domain/types";
+import { conciseReason, explainRouteLead, REASON_COPY } from "@/lib/learning-copy";
 import { confidenceLabel, percent } from "@/lib/format";
 
-export function TodayRoute({ route, concepts, activities, onStart }: { route: RoutePlan; concepts: Concept[]; activities: LearningActivity[]; onStart: () => void }) {
+export function TodayRoute({ route, concepts, relationships, activities, onStart }: { route: RoutePlan; concepts: Concept[]; relationships: ConceptRelationship[]; activities: LearningActivity[]; onStart: () => void }) {
   const [openId, setOpenId] = useState<string | null>(null);
+  const [whyOpen, setWhyOpen] = useState(false);
   const reduceMotion = useReducedMotion();
   const [first, ...remaining] = route.allocations;
 
@@ -18,6 +19,7 @@ export function TodayRoute({ route, concepts, activities, onStart }: { route: Ro
   const firstConcept = concepts.find((item) => item.id === first.conceptId);
   const firstActivity = activities.find((item) => item.conceptId === first.conceptId);
   const firstName = firstConcept?.name ?? "Mixed Retrieval";
+  const leadExplanation = explainRouteLead(route, concepts, relationships);
 
   return (
     <div className="today-route-execution">
@@ -36,11 +38,23 @@ export function TodayRoute({ route, concepts, activities, onStart }: { route: Ro
           </div>
           <div className="today-lead-time"><strong>{first.minutes}</strong><span>minutes</span></div>
         </div>
-        <div className="today-lead-sequence">
-          <ol aria-label={`Learning sequence for ${firstName}`}><li>Learn</li><li>Retrieve</li><li>Apply</li><li>Evaluate</li></ol>
-          <small>{firstActivity?.sourceReferences.length ? `Grounded in ${firstActivity.sourceReferences.length} confirmed course source${firstActivity.sourceReferences.length === 1 ? "" : "s"}.` : "Uses the current course model; no uploaded source is cited yet."}</small>
+        <div className="today-lead-actions">
+          <button type="button" className="cta today-start" onClick={onStart}>Start learning <span aria-hidden="true">→</span></button>
+          <button type="button" className="today-why-toggle" aria-expanded={whyOpen} onClick={() => setWhyOpen((open) => !open)}>
+            Why this first? <span aria-hidden="true">{whyOpen ? "−" : "+"}</span>
+          </button>
         </div>
-        <button type="button" className="cta today-start" onClick={onStart}>Start learning <span aria-hidden="true">→</span></button>
+        <AnimatePresence initial={false}>
+          {whyOpen ? (
+            <motion.div className="today-lead-evidence" initial={{ opacity: 0, y: reduceMotion ? 0 : -4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: reduceMotion ? 0 : -4 }} transition={{ duration: reduceMotion ? 0.01 : 0.2 }}>
+              {leadExplanation ? <div className="today-lead-why"><strong>{leadExplanation.title}</strong>{leadExplanation.evidence.map((item) => <p key={item}>{item}</p>)}</div> : null}
+              <div className="today-lead-sequence">
+                <ol aria-label={`Learning sequence for ${firstName}`}><li>Learn</li><li>Retrieve</li><li>Apply</li><li>Evaluate</li></ol>
+                <small>{firstActivity?.sourceReferences.length ? `Grounded in ${firstActivity.sourceReferences.length} confirmed course source${firstActivity.sourceReferences.length === 1 ? "" : "s"}.` : "Uses the current course model; no uploaded source is cited yet."}</small>
+              </div>
+            </motion.div>
+          ) : null}
+        </AnimatePresence>
       </motion.article>
 
       {remaining.length ? <div className="today-queue-label"><span>Then</span><small>{remaining.length} more action{remaining.length === 1 ? "" : "s"}</small></div> : null}

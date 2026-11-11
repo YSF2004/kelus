@@ -7,6 +7,7 @@ import { compareRoutes, generateRoute, rankLearningActions } from "../domain/rou
 import { createRetrievalEvent } from "../domain/session.ts";
 import { createDemoSnapshot } from "../data/demo-seed.ts";
 import { finishSession, loadAminaDemo, recordRetrieval, startSession } from "../lib/demo-store.ts";
+import { explainRouteLead } from "../lib/learning-copy.ts";
 
 const now = "2026-09-05T12:00:00.000Z";
 
@@ -67,6 +68,15 @@ test("time allocation spends the exact budget without equal splitting", () => {
   assert.equal(route.allocations.at(-1).conceptId, "mixed-retrieval");
   assert.notEqual(route.allocations[0].minutes, route.allocations[1].minutes);
   assert.ok(route.allocations[0].minutes <= 18);
+});
+
+test("the first recommendation explains its advantage with real learner evidence", () => {
+  const snapshot = createDemoSnapshot(Date.parse(now));
+  const route = generateRoute({ concepts: snapshot.concepts, relationships: snapshot.relationships, events: snapshot.events, exam: snapshot.exams[0], nowIso: now });
+  const explanation = explainRouteLead(route, snapshot.concepts, snapshot.relationships);
+  assert.match(explanation.title, /Why before/);
+  assert.ok(explanation.evidence.length > 0);
+  assert.ok(explanation.evidence.every((item) => !/AI|prediction/i.test(item)));
 });
 
 test("real retrieval evidence updates the learner model and can materially reroute", () => {

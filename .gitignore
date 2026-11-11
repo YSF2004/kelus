@@ -11,6 +11,8 @@ dist
 !.cursor/rules/
 !.cursor/rules/**
 tsconfig.tsbuildinfo
+test-results/
+playwright-report/
 *.log
 .env
 .env.local

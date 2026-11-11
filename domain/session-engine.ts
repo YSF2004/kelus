@@ -1,6 +1,6 @@
 import { applyRetrievalMastery } from "./learner-model";
 import { compareRoutes, generateRoute } from "./routing-engine";
-import type { Concept, LearnerSnapshot, LearningEvent, RetrievalOutcome, RouteChange, StudySession } from "./types";
+import type { AnswerEvaluation, Concept, LearnerSnapshot, LearningEvent, RetrievalOutcome, RouteChange, StudySession } from "./types";
 
 export function masteryAfterEvidence(concept: Concept, outcome: RetrievalOutcome) {
   return applyRetrievalMastery(concept.mastery, outcome, concept.difficulty, concept.successfulRetrievals);
@@ -32,6 +32,7 @@ export function evidenceEvent(input: {
   sessionId: string | null;
   promptId: string | null;
   responseText: string | null;
+  evaluation?: AnswerEvaluation | null;
   outcome: RetrievalOutcome;
   responseTimeMs: number | null;
   answerRevealed: boolean;
@@ -49,6 +50,7 @@ export function evidenceEvent(input: {
     responseTimeMs: input.responseTimeMs,
     promptId: input.promptId,
     responseText: input.responseText,
+    evaluation: input.evaluation ?? null,
     masteryBefore: input.concept.mastery,
     masteryAfter: masteryAfterEvidence(input.concept, input.outcome),
     createdAt: input.createdAt,

@@ -6,6 +6,8 @@ export type MaterialKind = "pdf" | "video" | "link";
 export type MaterialStorage = "local" | "url";
 export type MaterialRole = "syllabus" | "lecture_slides" | "notes" | "past_exam" | "course_outline" | "other";
 export type MaterialProcessingStatus = "saved" | "processing" | "ready" | "failed";
+export type PlanningEvidenceSource = "confirmed" | "estimated" | "demo";
+export type SubjectDomain = "biology" | "computer_science" | "history" | "law" | "mathematics" | "general";
 export type SessionStatus = "in_progress" | "complete";
 export type EventKind = "seed_rating" | "self_rating" | "retrieval" | "hint_used" | "answer_revealed";
 export type AssistanceLevel = "none" | "hint" | "answer_revealed";
@@ -45,6 +47,8 @@ export type CourseMaterial = {
   sizeBytes: number | null;
   role: MaterialRole;
   processingStatus: MaterialProcessingStatus;
+  remotePath?: string | null;
+  syncStatus?: "local" | "syncing" | "synced" | "failed";
   addedAt: string;
 };
 
@@ -64,9 +68,12 @@ export type Concept = {
   courseId: string;
   userId: string;
   name: string;
+  subjectDomain?: SubjectDomain;
   examImportance: number;
+  examImportanceSource?: PlanningEvidenceSource;
   difficulty: number;
   estimatedMinutes: number;
+  estimatedMinutesSource?: PlanningEvidenceSource;
   mastery: number;
   confidence: number;
   predictedRetention: number;
@@ -84,6 +91,14 @@ export type ConceptRelationship = {
   fromId: string;
   toId: string;
   kind: RelationshipKind;
+  evidence?: {
+    materialId: string;
+    label: string;
+    locator: string;
+    excerpt: string;
+    basis?: "explicit_dependency" | "source_cross_reference";
+    confidence?: "high" | "medium";
+  };
 };
 
 export type Prompt = {
@@ -102,6 +117,17 @@ export type LearningSourceReference = {
 export type ExtractedMaterialPage = {
   pageNumber: number;
   text: string;
+  lines?: ExtractedMaterialLine[];
+  needsOcr?: boolean;
+};
+
+export type ExtractedMaterialLine = {
+  text: string;
+  x: number;
+  y: number;
+  width: number;
+  fontSize: number;
+  paragraphBreakBefore: boolean;
 };
 
 export type ProposedConcept = {
@@ -111,6 +137,17 @@ export type ProposedConcept = {
   sourceLabel: string;
   locator: string;
   sourceExcerpt: string;
+  subjectDomain: SubjectDomain;
+  headingConfidence: "high" | "medium";
+};
+
+export type AnswerEvaluation = {
+  outcome: RetrievalOutcome;
+  score: number;
+  matchedTerms: string[];
+  missingTerms: string[];
+  explanation: string;
+  method: "source_rubric";
 };
 
 export type LearningActivity = {
@@ -148,6 +185,7 @@ export type LearningEvent = {
   responseTimeMs: number | null;
   promptId: string | null;
   responseText: string | null;
+  evaluation?: AnswerEvaluation | null;
   masteryBefore: number;
   masteryAfter: number;
   createdAt: string;

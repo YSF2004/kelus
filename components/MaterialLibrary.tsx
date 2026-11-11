@@ -3,8 +3,9 @@
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useRef, useState, useSyncExternalStore, type DragEvent, type FormEvent } from "react";
+import { useEffect, useRef, useState, useSyncExternalStore, type DragEvent, type FormEvent } from "react";
 import { AppShell } from "@/components/AppShell";
+import { useAuth } from "@/components/AuthProvider";
 import { useLearner } from "@/components/LearnerProvider";
 import type { CourseMaterial, MaterialRole, ProposedConcept } from "@/domain/types";
 import { MATERIAL_ROLES, materialRoleLabel } from "@/domain/materials";
@@ -14,11 +15,11 @@ import {
   addPdfMaterial,
   getMaterialsSnapshot,
   getServerMaterialsSnapshot,
-  readLocalPdf,
   removeMaterial,
   subscribeMaterials,
   updateMaterialProcessingStatus,
 } from "@/lib/material-store";
+import { readMaterialPdf, removeRemoteMaterial, saveRemoteMaterial, synchronizeCourseMaterials } from "@/lib/material-sync";
 import { extractPdfPages } from "@/lib/pdf-extraction";
 
 function formatBytes(bytes: number | null) {
@@ -34,12 +35,12 @@ function sourceHost(value: string | null) {
   }
 }
 
-function MaterialRow({ item, onAnalyze }: { item: CourseMaterial; onAnalyze: (item: CourseMaterial) => void }) {
+function MaterialRow({ item, onAnalyze, onRemove }: { item: CourseMaterial; onAnalyze: (item: CourseMaterial) => void; onRemove: (item: CourseMaterial) => Promise<void> }) {
   const [busy, setBusy] = useState(false);
 
   async function downloadPdf() {
     setBusy(true);
-    const blob = await readLocalPdf(item.id);
+    const blob = await readMaterialPdf(item);
     setBusy(false);
     if (!blob) return;
     const url = URL.createObjectURL(blob);
@@ -52,7 +53,8 @@ function MaterialRow({ item, onAnalyze }: { item: CourseMaterial; onAnalyze: (it
 
   async function remove() {
     setBusy(true);
-    await removeMaterial(item.id);
+    await onRemove(item);
+    setBusy(false);
   }
 
   return (
@@ -60,7 +62,7 @@ function MaterialRow({ item, onAnalyze }: { item: CourseMaterial; onAnalyze: (it
       <span className="material-kind">{materialRoleLabel(item.role)}</span>
       <span className="material-name">
         <strong>{item.title}</strong>
-        <small>{item.storage === "local" ? [item.fileName, formatBytes(item.sizeBytes)].filter(Boolean).join(" · ") : sourceHost(item.sourceUrl)}</small>
+        <small>{item.storage === "local" ? [item.fileName, formatBytes(item.sizeBytes), item.syncStatus === "synced" ? "Synced" : item.syncStatus === "failed" ? "Saved on this device" : null].filter(Boolean).join(" · ") : sourceHost(item.sourceUrl)}</small>
       </span>
       <span className="material-actions">
         {item.storage === "local" ? <button type="button" onClick={() => onAnalyze(item)} disabled={busy || item.processingStatus === "processing"}>{item.processingStatus === "processing" ? "Reading…" : item.processingStatus === "ready" ? "Review concepts" : "Build concepts"}</button> : null}
@@ -73,8 +75,9 @@ function MaterialRow({ item, onAnalyze }: { item: CourseMaterial; onAnalyze: (it
 
 export function MaterialLibrary() {
   const router = useRouter();
+  const auth = useAuth();
   const reduceMotion = useReducedMotion();
-  const { state, confirmConcepts } = useLearner();
+  const { state, confirmConcepts, removeMaterialSource } = useLearner();
   const materials = useSyncExternalStore(subscribeMaterials, getMaterialsSnapshot, getServerMaterialsSnapshot);
   const [title, setTitle] = useState("");
   const [url, setUrl] = useState("");
@@ -82,11 +85,23 @@ export function MaterialLibrary() {
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [dragging, setDragging] = useState(false);
+  const [linkOpen, setLinkOpen] = useState(false);
   const [analysis, setAnalysis] = useState<{ material: CourseMaterial; proposals: ProposedConcept[] } | null>(null);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [draftNames, setDraftNames] = useState<Record<string, string>>({});
   const fileRef = useRef<HTMLInputElement>(null);
   const course = state.snapshot.courses[0];
+
+  useEffect(() => {
+    const userId = auth.user?.id;
+    const courseId = course?.id;
+    if (!userId || !courseId) return;
+    let active = true;
+    synchronizeCourseMaterials(userId, courseId).catch((caught) => {
+      if (active) setError(caught instanceof Error ? caught.message : "Cloud material sync is unavailable.");
+    });
+    return () => { active = false; };
+  }, [auth.user?.id, course?.id]);
 
   if (!state.onboardingCompleted || !course) {
     return <AppShell><section className="materials-empty"><p className="kicker">Course material</p><h1>Set a destination first.</h1><p>Kelus needs a course before it can keep sources with it.</p><Link className="cta" href="/today">Set destination <span aria-hidden="true">→</span></Link></section></AppShell>;
@@ -99,11 +114,16 @@ export function MaterialLibrary() {
     setBusy(true);
     updateMaterialProcessingStatus(material.id, "processing");
     try {
-      const stored = file ?? await readLocalPdf(material.id);
+      const stored = file ?? await readMaterialPdf(material);
       if (!stored) throw new Error("This PDF is no longer available on this device. Add it again to continue.");
       const pages = await extractPdfPages(stored instanceof File ? stored : new File([stored], material.fileName ?? `${material.title}.pdf`, { type: material.mimeType ?? "application/pdf" }));
       const proposals = proposeConceptsFromPages({ materialId: material.id, sourceLabel: material.title, pages });
-      if (!proposals.length) throw new Error("Kelus could not find clear concept headings in this PDF. Try a syllabus or lecture deck with selectable text.");
+      if (!proposals.length) {
+        const scanned = pages.some((page) => page.needsOcr);
+        throw new Error(scanned
+          ? "Kelus tried OCR, but this scan did not contain enough readable text. Try a clearer scan or a PDF with selectable text."
+          : "Kelus could not find supported concept headings in this PDF. Try a syllabus, structured notes, or a lecture deck.");
+      }
       updateMaterialProcessingStatus(material.id, "ready");
       setAnalysis({ material: { ...material, processingStatus: "ready" }, proposals });
       setSelectedIds(new Set(proposals.map((proposal) => proposal.id)));
@@ -123,11 +143,27 @@ export function MaterialLibrary() {
     try {
       const material = await addPdfMaterial({ courseId: course.id, file, role });
       await analyzePdf(material, file);
+      if (auth.user) {
+        const current = getMaterialsSnapshot().find((item) => item.id === material.id) ?? material;
+        await saveRemoteMaterial(auth.user.id, current, file);
+      }
     } catch (caught) {
       setError(caught instanceof Error ? caught.message : "The PDF could not be saved.");
     } finally {
       setBusy(false);
       if (fileRef.current) fileRef.current.value = "";
+    }
+  }
+
+  async function removeSource(material: CourseMaterial) {
+    setError(null);
+    try {
+      if (auth.user) await removeRemoteMaterial(auth.user.id, material);
+      await removeMaterial(material.id);
+      removeMaterialSource(material.id);
+      if (analysis?.material.id === material.id) setAnalysis(null);
+    } catch (caught) {
+      setError(caught instanceof Error ? caught.message : "The source could not be removed.");
     }
   }
 
@@ -141,7 +177,10 @@ export function MaterialLibrary() {
     event.preventDefault();
     setError(null);
     try {
-      addLinkMaterial({ courseId: course.id, title, value: url, role });
+      const material = addLinkMaterial({ courseId: course.id, title, value: url, role });
+      if (auth.user) void saveRemoteMaterial(auth.user.id, material).catch(() => {
+        setError("The link is saved on this device, but cloud sync will retry later.");
+      });
       setTitle("");
       setUrl("");
     } catch (caught) {
@@ -203,11 +242,18 @@ export function MaterialLibrary() {
           <span>or choose a file · up to 20 MB</span>
         </label>
 
-        <form className="material-link-form" onSubmit={addLink}>
-          <div><label htmlFor="material-title">Title <span>optional</span></label><input id="material-title" value={title} onChange={(event) => setTitle(event.target.value)} placeholder="Week 3 lecture notes" /></div>
-          <div className="material-url-field"><label htmlFor="material-url">Video or web link</label><input id="material-url" value={url} onChange={(event) => setUrl(event.target.value)} placeholder="https://…" inputMode="url" /></div>
-          <button className="cta" type="submit" disabled={!url.trim()}>Add link</button>
-        </form>
+        <button type="button" className="material-link-toggle" aria-expanded={linkOpen} onClick={() => setLinkOpen((open) => !open)}>
+          Add a video or web link instead <span aria-hidden="true">{linkOpen ? "−" : "+"}</span>
+        </button>
+        <AnimatePresence initial={false}>
+          {linkOpen ? (
+            <motion.form className="material-link-form" onSubmit={addLink} initial={{ opacity: 0, y: reduceMotion ? 0 : -4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: reduceMotion ? 0 : -4 }} transition={{ duration: reduceMotion ? 0.01 : 0.2 }}>
+              <div><label htmlFor="material-title">Title <span>optional</span></label><input id="material-title" value={title} onChange={(event) => setTitle(event.target.value)} placeholder="Week 3 lecture notes" /></div>
+              <div className="material-url-field"><label htmlFor="material-url">Video or web link</label><input id="material-url" value={url} onChange={(event) => setUrl(event.target.value)} placeholder="https://…" inputMode="url" /></div>
+              <button className="cta" type="submit" disabled={!url.trim()}>Add link</button>
+            </motion.form>
+          ) : null}
+        </AnimatePresence>
         <p className="material-error" role="alert">{error ?? ""}</p>
       </section>
 
@@ -238,7 +284,7 @@ export function MaterialLibrary() {
                         onChange={(event) => setDraftNames((current) => ({ ...current, [proposal.id]: event.target.value }))}
                         aria-label={`Concept name from ${proposal.locator}`}
                       />
-                      <small>{analysis.material.title} · {proposal.locator}</small>
+                      <small>{analysis.material.title} · {proposal.locator} · {proposal.headingConfidence === "high" ? "clear heading" : "check heading"}</small>
                     </span>
                   </label>
                 </li>
@@ -254,12 +300,12 @@ export function MaterialLibrary() {
 
       <section className="material-shelf" aria-labelledby="source-shelf-title">
         <header><div><p className="kicker">Source shelf</p><h2 id="source-shelf-title">{courseMaterials.length ? `${courseMaterials.length} saved` : "Nothing saved yet"}</h2></div><span>This device</span></header>
-        {courseMaterials.length ? <ul>{courseMaterials.map((item) => <MaterialRow key={item.id} item={item} onAnalyze={(material) => void analyzePdf(material)} />)}</ul> : <p className="material-shelf-empty">Start with the syllabus or the lecture you are studying now.</p>}
+        {courseMaterials.length ? <ul>{courseMaterials.map((item) => <MaterialRow key={item.id} item={item} onAnalyze={(material) => void analyzePdf(material)} onRemove={removeSource} />)}</ul> : <p className="material-shelf-empty">Start with the syllabus or the lecture you are studying now.</p>}
       </section>
 
       <aside className="material-honesty">
         <p className="kicker">Local and reviewable</p>
-        <p>PDF text and files stay on this device. Kelus uses only the concepts you confirm, and every learning activity keeps its source page visible.</p>
+        <p>{auth.user ? "Signed-in materials sync privately across your devices. Kelus uses only the concepts you confirm, and every learning activity keeps its source page visible." : "PDF text and files stay on this device until you sign in. Kelus uses only the concepts you confirm, and every learning activity keeps its source page visible."}</p>
       </aside>
     </AppShell>
   );

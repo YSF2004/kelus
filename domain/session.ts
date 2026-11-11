@@ -2,7 +2,7 @@ import { deriveStatus, recomputeConceptCache, withCachedState } from "./learner-
 import { evidenceEvent } from "./session-engine";
 import { estimatedReadiness } from "./readiness";
 import { planTodaySession } from "./scheduler";
-import type { Concept, LearningEvent, RetrievalOutcome, SessionSummary, StudySession } from "./types";
+import type { AnswerEvaluation, Concept, LearningEvent, RetrievalOutcome, SessionSummary, StudySession } from "./types";
 
 export function createRetrievalEvent(input: {
   id: string;
@@ -12,6 +12,7 @@ export function createRetrievalEvent(input: {
   promptId: string;
   responseText: string;
   outcome: RetrievalOutcome;
+  evaluation?: AnswerEvaluation | null;
   responseTimeMs?: number | null;
   answerRevealed?: boolean;
   createdAt: string;

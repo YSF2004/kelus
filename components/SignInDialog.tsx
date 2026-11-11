@@ -4,7 +4,7 @@ import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { useEffect, useRef, useState, type FormEvent, type MouseEvent } from "react";
 import { useAuth } from "@/components/AuthProvider";
 
-type Mode = "signin" | "signup";
+type Mode = "signin" | "signup" | "reset" | "recovery";
 
 function GoogleMark() {
   return (
@@ -21,6 +21,9 @@ export function SignInDialog() {
   const auth = useAuth();
   const reduceMotion = useReducedMotion() === true;
   const emailRef = useRef<HTMLInputElement>(null);
+  const passwordRef = useRef<HTMLInputElement>(null);
+  const dialogRef = useRef<HTMLElement>(null);
+  const returnFocusRef = useRef<HTMLElement | null>(null);
   const [mode, setMode] = useState<Mode>("signin");
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
@@ -28,16 +31,36 @@ export function SignInDialog() {
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState("");
   const [isError, setIsError] = useState(false);
+  const { closeDialog, dialogOpen, passwordRecovery } = auth;
+  const activeMode: Mode = passwordRecovery ? "recovery" : mode;
 
   useEffect(() => {
-    if (!auth.dialogOpen) return;
-    emailRef.current?.focus();
+    if (!dialogOpen) return;
+    returnFocusRef.current = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+    window.requestAnimationFrame(() => (passwordRecovery ? passwordRef.current : emailRef.current)?.focus());
     const onKeyDown = (event: KeyboardEvent) => {
-      if (event.key === "Escape") auth.closeDialog();
+      if (event.key === "Escape") closeDialog();
+      if (event.key !== "Tab") return;
+      const focusable = Array.from(dialogRef.current?.querySelectorAll<HTMLElement>(
+        'button:not([disabled]), input:not([disabled]), [href], [tabindex]:not([tabindex="-1"])',
+      ) ?? []);
+      if (!focusable.length) return;
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      if (event.shiftKey && document.activeElement === first) {
+        event.preventDefault();
+        last.focus();
+      } else if (!event.shiftKey && document.activeElement === last) {
+        event.preventDefault();
+        first.focus();
+      }
     };
     document.addEventListener("keydown", onKeyDown);
-    return () => document.removeEventListener("keydown", onKeyDown);
-  }, [auth]);
+    return () => {
+      document.removeEventListener("keydown", onKeyDown);
+      returnFocusRef.current?.focus();
+    };
+  }, [closeDialog, dialogOpen, passwordRecovery]);
 
   function switchMode(nextMode: Mode) {
     setMode(nextMode);
@@ -51,11 +74,16 @@ export function SignInDialog() {
     setMessage("");
     setIsError(false);
     try {
-      if (mode === "signin") {
+      if (activeMode === "signin") {
         await auth.signIn(email, password);
-      } else {
+      } else if (activeMode === "signup") {
         const verificationRequired = await auth.signUp(name, email, password);
         if (verificationRequired) setMessage("Check your email to verify your Kelus account.");
+      } else if (activeMode === "reset") {
+        await auth.resetPassword(email);
+        setMessage("Check your email for a secure password reset link.");
+      } else {
+        await auth.updatePassword(password);
       }
     } catch (caught) {
       setIsError(true);
@@ -71,7 +99,7 @@ export function SignInDialog() {
 
   return (
     <AnimatePresence>
-      {auth.dialogOpen ? (
+      {dialogOpen ? (
         <motion.div
           className="auth-backdrop"
           role="presentation"
@@ -82,6 +110,7 @@ export function SignInDialog() {
           transition={{ duration: reduceMotion ? 0.1 : 0.2 }}
         >
           <motion.section
+            ref={dialogRef}
             className="auth-dialog"
             role="dialog"
             aria-modal="true"
@@ -95,49 +124,44 @@ export function SignInDialog() {
               <span aria-hidden="true">×</span>
             </button>
             <p className="auth-kicker">Your Kelus account</p>
-            <h2 id="auth-title">{mode === "signin" ? "Welcome back." : "Create your account."}</h2>
+            <h2 id="auth-title">{activeMode === "signin" ? "Welcome back." : activeMode === "signup" ? "Create your account." : activeMode === "reset" ? "Reset your password." : "Choose a new password."}</h2>
             <p className="auth-intro">
-              {mode === "signin" ? "Return to your study route on this device." : "Keep your identity ready for future cross-device sync."}
+              {activeMode === "signin" ? "Return to your study route on this device." : activeMode === "signup" ? "Keep your course and learning evidence with you." : activeMode === "reset" ? "We’ll email you a secure link to continue." : "Use at least eight characters."}
             </p>
 
             {!auth.configured ? <p className="auth-message is-error" role="alert">Authentication is not configured in this build.</p> : null}
 
             <form onSubmit={submit}>
-              {mode === "signup" ? (
+              {activeMode === "signup" ? (
                 <label>
                   Name
                   <input value={name} onChange={(event) => setName(event.target.value)} autoComplete="name" required />
                 </label>
               ) : null}
-              <label>
-                Email
-                <input ref={emailRef} type="email" value={email} onChange={(event) => setEmail(event.target.value)} autoComplete="email" required />
-              </label>
-              <label>
-                Password
-                <input type="password" value={password} onChange={(event) => setPassword(event.target.value)} autoComplete={mode === "signin" ? "current-password" : "new-password"} minLength={8} required />
-              </label>
+              {activeMode !== "recovery" ? <label>Email<input ref={emailRef} type="email" value={email} onChange={(event) => setEmail(event.target.value)} autoComplete="email" required /></label> : null}
+              {activeMode !== "reset" ? <label>Password<input ref={passwordRef} type="password" value={password} onChange={(event) => setPassword(event.target.value)} autoComplete={activeMode === "signin" ? "current-password" : "new-password"} minLength={8} required /></label> : null}
+              {activeMode === "signin" ? <button type="button" className="auth-forgot" onClick={() => switchMode("reset")}>Forgot password?</button> : null}
               <button type="submit" className="auth-submit" disabled={busy || !auth.configured}>
-                {busy ? "Working…" : mode === "signin" ? "Sign in" : "Create account"}
+                {busy ? "Working…" : activeMode === "signin" ? "Sign in" : activeMode === "signup" ? "Create account" : activeMode === "reset" ? "Send reset link" : "Update password"}
                 {!busy ? <span aria-hidden="true">→</span> : null}
               </button>
             </form>
 
             {message ? <p className={`auth-message${isError ? " is-error" : ""}`} role={isError ? "alert" : "status"}>{message}</p> : null}
 
-            <div className="auth-divider"><span>or</span></div>
+            {activeMode === "signin" || activeMode === "signup" ? <><div className="auth-divider"><span>or</span></div>
             <button type="button" className="auth-google" disabled={busy || !auth.configured} onClick={() => auth.signInWithGoogle().catch((caught) => {
               setIsError(true);
               setMessage(caught instanceof Error ? caught.message : "Google sign in is unavailable.");
             })}>
               <GoogleMark /> Continue with Google
-            </button>
+            </button></> : null}
 
             <p className="auth-switch">
-              {mode === "signin" ? "New to Kelus?" : "Already have an account?"}
-              <button type="button" onClick={() => switchMode(mode === "signin" ? "signup" : "signin")}>
-                {mode === "signin" ? "Create account" : "Sign in"}
-              </button>
+              {activeMode === "signin" ? "New to Kelus?" : activeMode === "signup" ? "Already have an account?" : activeMode === "reset" ? "Remembered it?" : ""}
+              {activeMode !== "recovery" ? <button type="button" onClick={() => switchMode(activeMode === "signin" ? "signup" : "signin")}>
+                {activeMode === "signin" ? "Create account" : "Sign in"}
+              </button> : null}
             </p>
           </motion.section>
         </motion.div>

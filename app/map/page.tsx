@@ -23,13 +23,16 @@ export default function MapPage() {
     .slice()
     .sort((a, b) => b.examImportance - a.examImportance || a.mastery - b.mastery);
   const selected = concepts.find((concept) => concept.id === selectedId) ?? null;
+  const hasConfirmedImportance = concepts.some((concept) => concept.examImportanceSource !== "estimated");
   return (
     <AppShell action={!state.diagnosisCompleted ? <Link className="text-btn" href="/today">Continue to diagnosis <span aria-hidden="true">→</span></Link> : undefined}>
       <p className="kicker">Course</p>
       <h1 className="today-title">{state.diagnosisCompleted ? "What matters versus what you know" : "Your course is now a Knowledge Map"}</h1>
-      <p className="lede-line">{state.diagnosisCompleted ? "Sorted by exam importance, not by weakness." : "These are the concepts you confirmed. Diagnosis will add the first evidence about what you know."}</p>
+      <p className="lede-line">{state.diagnosisCompleted
+        ? hasConfirmedImportance ? "Confirmed importance and your learning evidence shape the order." : "Your answers now shape the order; source-derived importance is not available yet."
+        : "These are the concepts you confirmed. Planning time and importance remain estimates until Kelus has better evidence."}</p>
       <div className={`map-workspace${selected ? " is-inspecting" : ""}`}>
-        <KnowledgeMap heading={null} courseName={course.name} mastery={courseMastery(concepts)} concepts={concepts} selectedId={selectedId} onSelect={(concept) => setSelectedId(concept.id)} />
+        <KnowledgeMap heading={null} courseName={course.name} mastery={courseMastery(concepts)} concepts={concepts} relationships={state.snapshot.relationships} selectedId={selectedId} onSelect={(concept) => setSelectedId(concept.id)} />
         <AnimatePresence initial={false} mode="wait">
           {selected ? (
             <motion.div key={selected.id} className="concept-inspector-wrap" initial={reduceMotion ? { opacity: 0 } : { opacity: 0, x: 12 }} animate={{ opacity: 1, x: 0 }} exit={reduceMotion ? { opacity: 0 } : { opacity: 0, x: 12 }} transition={{ type: "spring", bounce: 0, duration: reduceMotion ? 0.1 : 0.28 }}>

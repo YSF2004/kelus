@@ -19,17 +19,22 @@ test("route transition is keyed by pathname and respects reduced motion", async 
   const transition = await source("components/RouteTransition.tsx");
   assert.match(transition, /key=\{pathname\}/);
   assert.match(transition, /useReducedMotion/);
-  assert.match(transition, /initial=\{false\}/);
+  assert.doesNotMatch(transition, /AnimatePresence|popLayout/);
+  assert.match(transition, /initial=\{reduceMotion \? false/);
   assert.doesNotMatch(transition, /height:|width:|top:|left:/);
 });
 
-test("one persistent header owns navigation for every page", async () => {
+test("one persistent header reveals product navigation only after course setup", async () => {
   const header = await source("components/SiteHeader.tsx");
   const shell = await source("components/AppShell.tsx");
   assert.match(header, /aria-current=/);
+  assert.match(header, /useLearner/);
+  assert.match(header, /state\.onboardingCompleted \? \[\.\.\.workspaceLinks, \.\.\.publicLinks\] : publicLinks/);
   assert.match(header, /href: "\/materials"/);
   assert.match(header, /href: "\/map"/);
   assert.match(header, /href: "\/route"/);
+  assert.match(header, /Build my route/);
+  assert.match(header, /href="\/today" className="site-header-action"/);
   assert.match(header, /className="site-auth-button"/);
   assert.match(header, /auth\.openDialog/);
   assert.doesNotMatch(shell, /<header|<nav/);
@@ -46,6 +51,9 @@ test("the course workspace keeps destination and setup progress across product p
   assert.match(rail, /Course path/);
   assert.match(rail, /Knowledge Map/);
   assert.match(rail, /Today’s route/);
+  assert.match(rail, /completedCount/);
+  assert.match(rail, /stage\.complete/);
+  assert.doesNotMatch(rail, /state\.diagnosisCompleted \? 5/);
   assert.match(rail, /aria-current=\{current \? "step"/);
   assert.match(diagnosis, /<AppShell>/);
 });
@@ -62,6 +70,7 @@ test("the knowledge map owns concept inspection while canonical pages remain sha
   assert.match(map, /AnimatePresence/);
   assert.match(knowledgeMap, /onSelect/);
   assert.match(knowledgeMap, /aria-pressed/);
+  assert.match(knowledgeMap, /Prerequisite paths/);
   assert.match(inspector, /Open full learning history/);
   assert.match(inspector, /\/concepts\/\$\{encodeURIComponent\(concept\.id\)\}/);
   assert.match(legacy, /router\.replace\(id \? `\/concepts\//);

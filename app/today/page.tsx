@@ -57,7 +57,7 @@ export default function TodayPage() {
           <p className="kicker">Today’s route</p>
           <h2 id="route-title">Do this now.</h2>
         </div>
-        <TodayRoute route={route} concepts={concepts} activities={snapshot.learningActivities} onStart={begin} />
+        <TodayRoute route={route} concepts={concepts} relationships={snapshot.relationships} activities={snapshot.learningActivities} onStart={begin} />
       </section>
     </AppShell>
   );

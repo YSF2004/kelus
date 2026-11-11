@@ -5,6 +5,7 @@ import { LearnerProvider } from "@/components/LearnerProvider";
 import { RouteTransition } from "@/components/RouteTransition";
 import { SiteHeader } from "@/components/SiteHeader";
 import { AuthProvider } from "@/components/AuthProvider";
+import { GoogleAnalytics } from "@/components/GoogleAnalytics";
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 const ledger = Inter_Tight({
@@ -39,6 +40,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
               <SiteHeader />
               <RouteTransition>{children}</RouteTransition>
               <Toaster />
+              <GoogleAnalytics />
             </TooltipProvider>
           </LearnerProvider>
         </AuthProvider>

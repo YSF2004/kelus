@@ -2,8 +2,9 @@
 
 import { useMemo, useRef, useState, type SyntheticEvent } from "react";
 import { AppShell } from "@/components/AppShell";
-import type { LearnerSnapshot, RetrievalOutcome, SelfRating } from "@/domain/types";
+import type { AnswerEvaluation, LearnerSnapshot, RetrievalOutcome, SelfRating } from "@/domain/types";
 import { selectDiagnosisConcept } from "@/domain/diagnosis";
+import { evaluateAnswer } from "@/domain/answer-evaluation";
 
 const RATINGS: Array<{ value: SelfRating; label: string }> = [
   { value: "dont_know", label: "Don’t know" },
@@ -12,7 +13,7 @@ const RATINGS: Array<{ value: SelfRating; label: string }> = [
   { value: "strong", label: "Strong" },
 ];
 
-type Retrieval = { conceptId: string; promptId: string; responseText: string; outcome: RetrievalOutcome; responseTimeMs: number };
+type Retrieval = { conceptId: string; promptId: string; responseText: string; outcome: RetrievalOutcome; responseTimeMs: number; evaluation: AnswerEvaluation };
 
 export function InitialDiagnosis({ snapshot, onComplete }: {
   snapshot: LearnerSnapshot;
@@ -30,6 +31,7 @@ export function InitialDiagnosis({ snapshot, onComplete }: {
   const startedAt = useRef(0);
   const concept = concepts.find((item) => item.id === activeConceptId);
   const prompt = snapshot.prompts.find((item) => item.conceptId === concept?.id);
+  const evaluation = prompt && revealed ? evaluateAnswer({ response: answer, expected: prompt.modelAnswer }) : null;
   const allRated = ratedConcepts.every((item) => ratings[item.id]);
 
   function beginChecks(event: SyntheticEvent) {
@@ -43,13 +45,14 @@ export function InitialDiagnosis({ snapshot, onComplete }: {
   }
 
   function grade(outcome: RetrievalOutcome, event: SyntheticEvent) {
-    if (!concept || !prompt) return;
+    if (!concept || !prompt || !evaluation) return;
     const completed = [...retrievals, {
       conceptId: concept.id,
       promptId: prompt.id,
       responseText: answer,
       outcome,
       responseTimeMs: Math.max(0, Math.round(event.timeStamp - startedAt.current)),
+      evaluation,
     }];
     const selected = selectDiagnosisConcept({
       concepts,
@@ -107,12 +110,13 @@ export function InitialDiagnosis({ snapshot, onComplete }: {
             <div className="diagnosis-feedback">
               <p className="kicker">A useful answer includes</p>
               <p>{prompt.modelAnswer}</p>
-              <h2>How well did you know this?</h2>
-              <div className="diagnosis-grades">
-                <button type="button" onClick={(event) => grade("failure", event)}>Didn’t know</button>
-                <button type="button" onClick={(event) => grade("partial", event)}>Almost</button>
-                <button type="button" onClick={(event) => grade("success", event)}>Knew it</button>
-              </div>
+              {evaluation ? <div className={`source-evaluation is-${evaluation.outcome}`} role="status">
+                <span>Source-grounded evaluation</span>
+                <strong>{evaluation.outcome === "success" ? "Demonstrated" : evaluation.outcome === "partial" ? "Developing" : "Not demonstrated yet"}</strong>
+                <p>{evaluation.explanation}</p>
+                {evaluation.missingTerms.length ? <small>Review next: {evaluation.missingTerms.slice(0, 3).join(", ")}</small> : null}
+                <button type="button" className="cta" onClick={(event) => grade(evaluation.outcome, event)}>Use this evidence <span aria-hidden="true">→</span></button>
+              </div> : null}
             </div>
           )}
         </section>

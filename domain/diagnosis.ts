@@ -48,6 +48,8 @@ export function selectDiagnosisConcept(input: {
     concept: remaining[0],
     reason: input.evidence.length
       ? "This is the highest-value concept where Kelus still needs evidence."
-      : "This concept combines high exam value with the greatest current uncertainty.",
+      : remaining[0].examImportanceSource === "estimated"
+        ? "Kelus is starting here because it has no learning evidence for this concept yet."
+        : "This concept combines high exam value with the greatest current uncertainty.",
   };
 }

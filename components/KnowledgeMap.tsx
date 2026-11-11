@@ -2,13 +2,14 @@
 
 import Link from "next/link";
 import { deriveStatus } from "@/domain/learner-model";
-import type { Concept } from "@/domain/types";
+import type { Concept, ConceptRelationship } from "@/domain/types";
 import { percent, statusLabel } from "@/lib/format";
 
-export function KnowledgeMap({ courseName, mastery, concepts, heading = "Knowledge map", selectedId, onSelect }: {
+export function KnowledgeMap({ courseName, mastery, concepts, relationships = [], heading = "Knowledge map", selectedId, onSelect }: {
   courseName: string;
   mastery: number;
   concepts: Concept[];
+  relationships?: ConceptRelationship[];
   heading?: string | null;
   selectedId?: string | null;
   onSelect?: (concept: Concept) => void;
@@ -21,6 +22,21 @@ export function KnowledgeMap({ courseName, mastery, concepts, heading = "Knowled
           <span>{courseName}</span>
           <strong>{percent(mastery)}</strong>
         </div>
+        {relationships.length ? <div className="map-relationships" aria-label="Source-supported concept paths">
+          <span>Prerequisite paths</span>
+          <ul>{relationships.map((relationship) => {
+            const from = concepts.find((concept) => concept.id === relationship.fromId);
+            const to = concepts.find((concept) => concept.id === relationship.toId);
+            if (!from || !to) return null;
+            const isPrerequisite = relationship.kind === "prerequisite";
+            return <li key={relationship.id}>
+              {onSelect ? <button type="button" onClick={() => onSelect(from)}>{from.name}</button> : <strong>{from.name}</strong>}
+              <i aria-hidden="true">{isPrerequisite ? "→" : "↔"}</i>
+              {onSelect ? <button type="button" onClick={() => onSelect(to)}>{to.name}</button> : <strong>{to.name}</strong>}
+              {relationship.evidence ? <small>{isPrerequisite ? "Prerequisite" : "Cross-reference"} · {relationship.evidence.label} · {relationship.evidence.locator}</small> : null}
+            </li>;
+          })}</ul>
+        </div> : null}
         <ul className="map-list">
           {concepts.map((concept) => {
             const status = deriveStatus(concept.mastery, concept.predictedRetention, concept.retrievalAttempts);

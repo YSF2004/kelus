@@ -30,6 +30,8 @@ function normalizeMaterial(value: unknown): CourseMaterial | null {
     ...item,
     role: MATERIAL_ROLES.includes(item.role) ? item.role : "notes",
     processingStatus: PROCESSING_STATUSES.includes(item.processingStatus) ? item.processingStatus : "saved",
+    remotePath: typeof item.remotePath === "string" ? item.remotePath : null,
+    syncStatus: ["local", "syncing", "synced", "failed"].includes(item.syncStatus ?? "") ? item.syncStatus : "local",
   };
 }
 
@@ -97,6 +99,24 @@ export function getServerMaterialsSnapshot() {
   return SERVER_SNAPSHOT;
 }
 
+export function mergeMaterialRecords(local: CourseMaterial[], remote: CourseMaterial[]) {
+  const records = new Map(remote.map((item) => [item.id, item]));
+  for (const item of local) {
+    const remoteItem = records.get(item.id);
+    records.set(item.id, remoteItem ? { ...remoteItem, ...item, remotePath: item.remotePath ?? remoteItem.remotePath, syncStatus: item.remotePath || remoteItem.remotePath ? "synced" : item.syncStatus } : item);
+  }
+  return [...records.values()].sort((a, b) => b.addedAt.localeCompare(a.addedAt));
+}
+
+export function mergeRemoteMaterials(items: CourseMaterial[]) {
+  persist(mergeMaterialRecords(readMetadata(), items));
+}
+
+export function updateMaterialSync(id: string, update: Pick<CourseMaterial, "remotePath" | "syncStatus">) {
+  const items = readMetadata();
+  persist(items.map((material) => material.id === id ? { ...material, ...update } : material));
+}
+
 export function addLinkMaterial(input: { courseId: string; title: string; value: string; role: MaterialRole; nowIso?: string }) {
   const parsed = parseMaterialUrl(input.value);
   const record: CourseMaterial = {
@@ -111,6 +131,8 @@ export function addLinkMaterial(input: { courseId: string; title: string; value:
     sizeBytes: null,
     role: input.role,
     processingStatus: "saved",
+    remotePath: null,
+    syncStatus: "local",
     addedAt: input.nowIso ?? new Date().toISOString(),
   };
   persist([...readMetadata(), record]);
@@ -132,6 +154,8 @@ export async function addPdfMaterial(input: { courseId: string; file: File; role
     sizeBytes: input.file.size,
     role: input.role,
     processingStatus: "saved",
+    remotePath: null,
+    syncStatus: "local",
     addedAt: input.nowIso ?? new Date().toISOString(),
   };
   await writePdf(record.id, input.file);

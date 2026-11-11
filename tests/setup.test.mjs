@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { readFile } from "node:fs/promises";
 import test from "node:test";
 import { createLearnerSnapshot } from "../lib/setup.ts";
 
@@ -24,4 +25,11 @@ test("every onboarding field affects or validates routing state", () => {
   assert.throws(() => createLearnerSnapshot({ ...base, examDate: "2026-09-01" }, now), /future/);
   assert.throws(() => createLearnerSnapshot({ ...base, targetPercent: 120 }, now), /target/);
   assert.throws(() => createLearnerSnapshot({ ...base, availableMinutes: 20 }, now), /study time/);
+});
+
+test("first-run setup reaches materials in two concise decisions", async () => {
+  const source = await readFile(new URL("../components/FirstRunSetup.tsx", import.meta.url), "utf8");
+  assert.match(source, /\{step\} \/ 2/);
+  assert.match(source, /step === 2 \? "Add course material"/);
+  assert.doesNotMatch(source, /step === 3/);
 });

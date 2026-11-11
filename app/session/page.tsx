@@ -4,9 +4,11 @@ import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useMemo, useRef, useState, useSyncExternalStore, type SyntheticEvent } from "react";
 import { useLearner } from "@/components/LearnerProvider";
+import { evaluateSessionAnswers } from "@/domain/answer-evaluation";
 import type { Concept, LearningActivity, RetrievalOutcome } from "@/domain/types";
 import { percent } from "@/lib/format";
-import { getMaterialsSnapshot, getServerMaterialsSnapshot, readLocalPdf, subscribeMaterials } from "@/lib/material-store";
+import { getMaterialsSnapshot, getServerMaterialsSnapshot, subscribeMaterials } from "@/lib/material-store";
+import { readMaterialPdf } from "@/lib/material-sync";
 
 type Phase = "learn" | "retrieve" | "apply" | "evaluate" | "result" | "reroute";
 type HelpMode = "hint" | "explain" | "example" | null;
@@ -87,6 +89,12 @@ function SessionBody() {
   const plannedLength = session.plannedConceptIds.length;
   const activeConcept = concept;
   const activePrompt = prompt;
+  const evaluation = evaluateSessionAnswers({
+    retrievalResponse: retrieveAnswer,
+    retrievalExpected: activity.retrieve.modelAnswer,
+    applicationResponse: applicationAnswer,
+    applicationExpected: activity.apply.modelAnswer,
+  });
   const routeMinutes = session.latestRoute.allocations.find((item) => item.conceptId === concept.id)?.minutes ?? concept.estimatedMinutes;
   const visibleStep = phase === "result" || phase === "reroute" ? 4 : STEP_INDEX[phase];
   const totalSteps = Math.max(total * 4, 1);
@@ -100,6 +108,7 @@ function SessionBody() {
       promptId: activePrompt.id,
       responseText: `${retrieveAnswer}\n\nApplication: ${applicationAnswer}`,
       outcome,
+      evaluation,
       responseTimeMs: Math.max(0, Math.round(event.timeStamp - startedAt.current)),
       answerRevealed: true,
       finish: index + 1 >= plannedLength ? { before } : undefined,
@@ -139,6 +148,8 @@ function SessionBody() {
   }
 
   const routeChange = session.routeChanges.at(-1);
+  const hasPendingRouteChange = session.routeChanges.length > seenRouteChanges;
+  const nextConceptName = state.snapshot.concepts.find((item) => item.id === session.plannedConceptIds[index + 1])?.name;
   const previousNames = session.initialRoute.allocations.map((allocation) => state.snapshot.concepts.find((item) => item.id === allocation.conceptId)?.name).filter(Boolean);
   const nextNames = session.latestRoute.allocations.map((allocation) => state.snapshot.concepts.find((item) => item.id === allocation.conceptId)?.name).filter(Boolean);
   const helpCopy = helpMode === "hint" ? activity.retrieve.hint : helpMode === "explain" ? activity.retrieve.explanation : helpMode === "example" ? activity.retrieve.example : null;
@@ -157,7 +168,7 @@ function SessionBody() {
       setSourcePanel({ title: material.title, locator, kind: "link", href: material.sourceUrl });
       return;
     }
-    const blob = await readLocalPdf(materialId);
+    const blob = await readMaterialPdf(material);
     if (!blob) {
       setSourcePanel({ title: material.title, locator, kind: "unavailable", href: null });
       return;
@@ -203,7 +214,15 @@ function SessionBody() {
             <p className="kicker">Learner model updated</p>
             <div className="mastery-reward">
               <div><span>{percent(masteryBefore)}</span><i aria-hidden="true">→</i><motion.strong initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}>{percent(concept.mastery)}</motion.strong></div>
-              <p>One new piece of evidence changed the estimate. Kelus will now reconsider what belongs next.</p>
+              <p>One new piece of evidence changed the estimate.</p>
+              <div className="route-check-result" role="status">
+                <strong>{hasPendingRouteChange ? "Route reordered" : "Route checked"}</strong>
+                <p>{hasPendingRouteChange
+                  ? "The new evidence changed the order. You’ll see exactly what moved next."
+                  : nextConceptName
+                    ? `${nextConceptName} remains the strongest next use of your time; the evidence did not justify a reorder.`
+                    : "Kelus recalculated the remaining route; no further concept is scheduled in this session."}</p>
+              </div>
               <button type="button" className="cta" onClick={advance}>Continue <span aria-hidden="true">→</span></button>
             </div>
           </motion.section>
@@ -271,8 +290,14 @@ function SessionBody() {
                   <section><span>Your application</span><p>{applicationAnswer}</p></section>
                   <section><span>A sound application</span><p>{activity.apply.modelAnswer}</p></section>
                 </div>
-                <h2>How independently could you explain and apply it?</h2>
-                <div className="study-ratings"><button type="button" onClick={(event) => grade("failure", event)}>Not yet</button><button type="button" onClick={(event) => grade("partial", event)}>Almost</button><button type="button" onClick={(event) => grade("success", event)}>I can use it</button></div>
+                <div className={`source-evaluation is-${evaluation.outcome}`} role="status">
+                  <span>Source-grounded evaluation</span>
+                  <strong>{evaluation.outcome === "success" ? "Demonstrated" : evaluation.outcome === "partial" ? "Developing" : "Not demonstrated yet"}</strong>
+                  <p>{evaluation.explanation}</p>
+                  {evaluation.matchedTerms.length ? <small>Evidence found: {evaluation.matchedTerms.join(", ")}</small> : null}
+                  {evaluation.missingTerms.length ? <small>Review next: {evaluation.missingTerms.slice(0, 3).join(", ")}</small> : null}
+                </div>
+                <button type="button" className="cta" onClick={(event) => grade(evaluation.outcome, event)}>Update my route <span aria-hidden="true">→</span></button>
               </div>
             ) : null}
           </motion.section>

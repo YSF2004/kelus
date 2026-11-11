@@ -3,17 +3,23 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useAuth } from "@/components/AuthProvider";
+import { useLearner } from "@/components/LearnerProvider";
 
-const links = [
+const workspaceLinks = [
   { href: "/today", label: "Today", matches: ["/today", "/session"] },
   { href: "/materials", label: "Materials", matches: ["/materials"] },
   { href: "/map", label: "Map", matches: ["/map", "/concept", "/concepts"] },
+] as const;
+
+const publicLinks = [
   { href: "/route", label: "How it works", matches: ["/route"] },
 ] as const;
 
 export function SiteHeader() {
   const pathname = usePathname();
   const auth = useAuth();
+  const { state } = useLearner();
+  const links = state.onboardingCompleted ? [...workspaceLinks, ...publicLinks] : publicLinks;
   const displayName = auth.user?.user_metadata.full_name?.split(" ")[0] || auth.user?.email?.split("@")[0];
 
   return (
@@ -33,6 +39,12 @@ export function SiteHeader() {
             );
           })}
         </nav>
+
+        {!state.onboardingCompleted && pathname !== "/today" ? (
+          <Link href="/today" className="site-header-action">
+            Build my route <span aria-hidden="true">→</span>
+          </Link>
+        ) : null}
 
         {auth.loading ? <span className="site-auth-loading" aria-label="Checking account" /> : auth.user ? (
           <button type="button" className="site-auth-button is-signed-in" onClick={() => auth.signOut()} aria-label={`Sign out ${auth.user.email ?? "of Kelus"}`}>
