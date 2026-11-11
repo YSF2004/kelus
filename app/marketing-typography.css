@@ -32,17 +32,17 @@ body:has([data-marketing="editorial"]) .site-header :where(*) {
   font-optical-sizing: auto;
 }
 
-/* Dark mode for the homepage and a shared result. These pages paint their paper and ink with fixed colours, so
-   on a dark device the whole page is inverted once, and pictures (illustrations, product screenshots, video, the
-   app's own demo and the shared card) are inverted back: they keep their true colours, like screenshots on any
-   product site. The green keeps its hue: invert flips it, hue-rotate turns it back. */
+/* The public homepage keeps its original light editorial palette. Dark mode belongs to the study workspace,
+   not the marketing page. */
+:root:has(body .home),
+body:has(.home) {
+  color-scheme: light;
+}
+
+/* Shared results still use the product's dark palette when the learner selected dark mode. */
 @media screen {
-  :root[data-theme="dark"]:has(body .home, body [data-shared-result]) { background: #121514; }
-  :root[data-theme="dark"] body:has(.home, [data-shared-result]) { background: #121514; }
-  /* A shared result is drawn with the product's own colours, so it takes the product's own dark palette. */
+  :root[data-theme="dark"]:has(body [data-shared-result]) { background: #121514; }
+  :root[data-theme="dark"] body:has([data-shared-result]) { background: #121514; }
   :root[data-theme="dark"] body:has([data-shared-result]) [data-shared-result] { color: var(--k-ink); }
   :root[data-theme="dark"] body:has([data-shared-result]) .site-header :is(a, button) { color: var(--k-text-2) !important; }
-  :root[data-theme="dark"] body:has(.home) :is(.home, .site-header, .site-footer):not(.home *) { filter: invert(0.92) hue-rotate(180deg); }
-  :root[data-theme="dark"] body:has(.home) :is(.home, .site-header, .site-footer)
-    :is(img, video, picture, svg image, canvas, iframe, [class*="hero-product"], [class*="ProductVideo"], [class*="BookletRevisionBoard"], [class*="HomeBand"][class*="band"], .k-btn, .cta, .home-cta, [class*="primaryAction"], [class*="LeitnerHero"][class*="primary"]):not([class*="HomeBand"][class*="band"] *) { filter: invert(1) hue-rotate(180deg); }
 }
