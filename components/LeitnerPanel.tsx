@@ -19,6 +19,7 @@ const ease = [0.22, 1, 0.36, 1] as const;
 export function LeitnerPanel({ state }: { state: LeitnerState }) {
   const reduce = useReducedMotion() === true;
   const [open, setOpen] = useState<number | null>(null);
+  const [timelineOpen, setTimelineOpen] = useState(false);
   const drawerId = useId();
   // Escape closes the expanded interval and returns focus to the study plan.
   useEffect(() => {
@@ -30,86 +31,114 @@ export function LeitnerPanel({ state }: { state: LeitnerState }) {
   if (!state.total) return null;
   const moved = state.lines.filter((line) => line.movedToday).length;
   const shown = open === null ? [] : state.byBox[open];
+  const due = state.byBox[0].length;
   return (
-    <section className={styles.panel} aria-labelledby="leitner-title">
+    <section className={styles.panel} data-open={timelineOpen || undefined} aria-labelledby="leitner-title">
       <header className={styles.head}>
         <div>
-          <h2 id="leitner-title">Recall, over time</h2>
-          <p>{state.total} source {state.total === 1 ? "line" : "lines"} · each one has its own review rhythm</p>
+          <h2 id="leitner-title">Recall rhythm</h2>
+          <p>{due ? `${due} ${due === 1 ? "line is" : "lines are"} due today` : "Nothing is due today"} · {state.recalled} known</p>
         </div>
-        <p className={styles.explainer}>Recall moves a line to a longer gap. A missed line returns to today.</p>
+        <button
+          type="button"
+          className={styles.disclosure}
+          aria-expanded={timelineOpen}
+          aria-controls={drawerId}
+          onClick={() => {
+            if (timelineOpen) setOpen(null);
+            setTimelineOpen((wasOpen) => !wasOpen);
+          }}
+        >
+          {timelineOpen ? "Hide timing" : "View timing"}
+          <span aria-hidden="true">{timelineOpen ? "−" : "+"}</span>
+        </button>
       </header>
-      <ol className={styles.boxes}>
-        {BOXES.map(({ box, every }, index) => {
-          const lines = state.byBox[index];
-          const current = index === 0 && lines.length > 0;
-          const label = index === 0 ? "Due today" : AFTER[index];
-          return (
-            <li
-              key={box}
-              className={styles.box}
-              data-current={current ? "" : undefined}
-              data-filled={lines.length ? "" : undefined}
-              data-missed={lines.some((line) => line.state === "missed") ? "" : undefined}
-            >
-              <button
-                type="button"
-                className={styles.stage}
-                aria-expanded={open === index}
-                aria-controls={drawerId}
-                aria-disabled={!lines.length || undefined}
-                aria-label={`Review stage ${box}, ${label}, ${every.toLowerCase()}: ${lines.length} ${lines.length === 1 ? "source line" : "source lines"}${lines.length ? ". Show them" : ""}`}
-                onClick={() => { if (lines.length) setOpen(open === index ? null : index); }}
-              >
-                <span className={styles.marker} aria-hidden="true">
-                  {lines.length ? lines.length : <span>—</span>}
-                </span>
-                <span className={styles.name}><b>{index === 0 ? "Today" : AFTER[index]}</b></span>
-                {lines.length ? <span className={styles.stageHint}>Open lines</span> : null}
-              </button>
-            </li>
-          );
-        })}
-      </ol>
-
-      {/* The selected interval, expanded as source lines rather than hidden behind a count. */}
-      <div id={drawerId} className={styles.drawerWrap}>
-        <AnimatePresence initial={false} mode="wait">
-          {open !== null && shown.length ? (
+      <div id={drawerId}>
+        <AnimatePresence initial={false}>
+          {timelineOpen ? (
             <motion.div
-              key={open}
-              className={styles.drawer}
-              initial={reduce ? { opacity: 0 } : { opacity: 0, y: -6 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={reduce ? { opacity: 0 } : { opacity: 0, y: -4, transition: { duration: 0.14 } }}
-              transition={{ duration: 0.24, ease }}
-            >
-              <p className={styles.drawerHead}><b>{open === 0 ? "Due today" : AFTER[open]}</b> · {shown.length} {shown.length === 1 ? "source line" : "source lines"}</p>
-              <ul className={styles.spread}>
-                {shown.slice(0, 8).map((line, at) => (
-                  <motion.li
-                    key={line.quote}
-                    className={styles.spreadCard}
-                    data-state={line.state}
-                    initial={reduce ? false : { opacity: 0, y: -8, rotate: at % 2 ? 1 : -1 }}
-                    animate={{ opacity: 1, y: 0, rotate: 0 }}
-                    transition={{ duration: 0.26, ease, delay: reduce ? 0 : at * 0.035 }}
+            className={styles.timeline}
+            initial={reduce ? false : { opacity: 0, y: -4 }}
+            animate={reduce ? undefined : { opacity: 1, y: 0 }}
+            exit={reduce ? undefined : { opacity: 0, y: -4 }}
+            transition={{ duration: 0.2, ease }}
+          >
+            <p className={styles.explainer}>A recalled line moves to a longer gap. A missed line returns to today.</p>
+            <ol className={styles.boxes}>
+              {BOXES.map(({ box, every }, index) => {
+                const lines = state.byBox[index];
+                const current = index === 0 && lines.length > 0;
+                const label = index === 0 ? "Due today" : AFTER[index];
+                return (
+                  <li
+                    key={box}
+                    className={styles.box}
+                    data-current={current ? "" : undefined}
+                    data-filled={lines.length ? "" : undefined}
+                    data-missed={lines.some((line) => line.state === "missed") ? "" : undefined}
                   >
-                    <span className={styles.spreadLine}>{short(line.quote)}</span>
-                    <small>{line.topic}{line.state === "missed" ? " · missed" : line.state === "recalled" ? " · recalled" : " · not asked yet"}</small>
-                  </motion.li>
-                ))}
-              </ul>
-              {shown.length > 8 ? <p className={styles.more}>and {shown.length - 8} more</p> : null}
+                    <button
+                      type="button"
+                      className={styles.stage}
+                      aria-expanded={open === index}
+                      aria-controls={`${drawerId}-lines`}
+                      disabled={!lines.length}
+                      aria-label={`Review stage ${box}, ${label}, ${every.toLowerCase()}: ${lines.length} ${lines.length === 1 ? "source line" : "source lines"}${lines.length ? ". Show them" : ""}`}
+                      onClick={() => setOpen(open === index ? null : index)}
+                    >
+                      <span className={styles.marker} aria-hidden="true">
+                        {lines.length ? lines.length : <span>—</span>}
+                      </span>
+                      <span className={styles.name}><b>{index === 0 ? "Today" : AFTER[index]}</b></span>
+                      {lines.length ? <span className={styles.stageHint}>Open lines</span> : null}
+                    </button>
+                  </li>
+                );
+              })}
+            </ol>
+
+            {/* The selected interval, expanded as source lines rather than hidden behind a count. */}
+            <div id={`${drawerId}-lines`} className={styles.drawerWrap}>
+              <AnimatePresence initial={false} mode="wait">
+                {open !== null && shown.length ? (
+                  <motion.div
+                    key={open}
+                    className={styles.drawer}
+                    initial={reduce ? { opacity: 0 } : { opacity: 0, y: -6 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={reduce ? { opacity: 0 } : { opacity: 0, y: -4, transition: { duration: 0.14 } }}
+                    transition={{ duration: 0.24, ease }}
+                  >
+                    <p className={styles.drawerHead}><b>{open === 0 ? "Due today" : AFTER[open]}</b> · {shown.length} {shown.length === 1 ? "source line" : "source lines"}</p>
+                    <ul className={styles.spread}>
+                      {shown.slice(0, 8).map((line, at) => (
+                        <motion.li
+                          key={line.quote}
+                          className={styles.spreadCard}
+                          data-state={line.state}
+                          initial={reduce ? false : { opacity: 0, y: -8, rotate: at % 2 ? 1 : -1 }}
+                          animate={{ opacity: 1, y: 0, rotate: 0 }}
+                          transition={{ duration: 0.26, ease, delay: reduce ? 0 : at * 0.035 }}
+                        >
+                          <span className={styles.spreadLine}>{short(line.quote)}</span>
+                          <small>{line.topic}{line.state === "missed" ? " · missed" : line.state === "recalled" ? " · recalled" : " · not asked yet"}</small>
+                        </motion.li>
+                      ))}
+                    </ul>
+                    {shown.length > 8 ? <p className={styles.more}>and {shown.length - 8} more</p> : null}
+                  </motion.div>
+                ) : null}
+              </AnimatePresence>
+            </div>
+
+            <footer className={styles.foot}>
+              <span>{moved ? `${moved} ${moved === 1 ? "line" : "lines"} moved to a longer gap today` : due ? `${due} ${due === 1 ? "line is" : "lines are"} due today` : "Nothing is due today"}</span>
+              <span><b>{state.recalled}</b> of {state.total} source {state.total === 1 ? "line recalled" : "lines recalled"}</span>
+            </footer>
             </motion.div>
           ) : null}
         </AnimatePresence>
       </div>
-
-      <footer className={styles.foot}>
-        <span>{moved ? `${moved} ${moved === 1 ? "line" : "lines"} moved to a longer gap today` : state.byBox[0].length ? `${state.byBox[0].length} ${state.byBox[0].length === 1 ? "line is" : "lines are"} due today` : "Nothing is due today"}</span>
-        <span><b>{state.recalled}</b> of {state.total} source {state.total === 1 ? "line recalled" : "lines recalled"}</span>
-      </footer>
     </section>
   );
 }

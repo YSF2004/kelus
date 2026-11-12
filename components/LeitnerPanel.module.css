@@ -135,17 +135,17 @@
   cursor: pointer;
   transition: background-color 160ms ease, border-color 160ms ease, transform 120ms ease;
 }
-.stage:hover:not([aria-disabled="true"]) {
+.stage:hover:not(:disabled) {
   border-color: var(--lb-line);
   background: var(--lb-surface);
 }
-.stage:active:not([aria-disabled="true"]) { transform: translateY(1px); }
+.stage:active:not(:disabled) { transform: translateY(1px); }
 .stage:focus-visible { outline: 2px solid var(--lb-green); outline-offset: 2px; }
 .stage[aria-expanded="true"] {
   border-color: color-mix(in srgb, var(--lb-green) 35%, var(--lb-line));
   background: color-mix(in srgb, var(--lb-green) 5%, var(--lb-surface));
 }
-.stage[aria-disabled="true"] { color: var(--lb-text-3); cursor: default; }
+.stage:disabled { color: var(--lb-text-3); cursor: default; }
 .marker {
   display: grid;
   width: 40px;
@@ -201,7 +201,7 @@
 
 @media (prefers-reduced-motion: reduce) {
   .stage, .marker { transition: none; }
-  .stage:active:not([aria-disabled="true"]) { transform: none; }
+  .stage:active:not(:disabled) { transform: none; }
 }
 
 
@@ -214,4 +214,42 @@
   .marker { width: 36px; height: 36px; font-size: 13px; }
   .name { font-size: 10.5px; }
   .foot { flex-direction: column; gap: 2px; }
+}
+
+/* On Today this is evidence, not a second dashboard. The rhythm stays present as a concise fact and opens only
+   when a student wants to inspect the individual review stages. */
+.panel {
+  padding: 16px 0 0;
+  border-top: 1px solid var(--lb-line);
+  border-radius: 0;
+  background: transparent;
+}
+.head { align-items: center; }
+.head h2 { font-family: var(--font-inter), system-ui, sans-serif !important; font-size: 15px !important; font-weight: 650 !important; letter-spacing: -0.01em !important; }
+.head p { margin-top: 3px; }
+.disclosure {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  min-height: 36px;
+  padding: 0 2px;
+  border: 0;
+  background: transparent;
+  color: var(--lb-green-ink);
+  font: 600 13px/1 var(--font-inter), system-ui, sans-serif;
+  cursor: pointer;
+}
+.disclosure span { font-size: 18px; font-weight: 400; line-height: 1; }
+.disclosure:focus-visible { outline: 2px solid var(--lb-green); outline-offset: 3px; border-radius: 4px; }
+.disclosure:active { transform: scale(0.97); }
+.timeline { overflow: clip; }
+.timeline .explainer { display: block; max-width: none; margin: 16px 0 0; text-align: left; }
+.timeline .boxes { margin-top: 14px; }
+.timeline .foot { padding-bottom: 2px; }
+@media (max-width: 560px) {
+  .panel { padding-top: 14px; }
+  .disclosure { min-height: 44px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .disclosure:active { transform: none; }
 }

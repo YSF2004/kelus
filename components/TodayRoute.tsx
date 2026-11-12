@@ -229,6 +229,9 @@ export function TodayRoute({
   const settle = (index: number) => (reduceMotion || index < 2 ? {} : { initial: { y: 6 }, animate: { y: 0 }, transition: { duration: 0.24, delay: (index - 2) * 0.04, ease } });
   // The warm-up leads on a return, so the topic's button steps back; otherwise it is the one green key on the page.
   const quietStart = false;
+  // A return begins with a warm-up. Name that first action honestly instead of promising to open the topic directly.
+  const defaultStartActionLabel = startLabel ?? "Start this topic";
+  const startActionLabel = warmupFirst && !startLabel ? "Start warm-up" : defaultStartActionLabel;
   // One line of the student's own notes on the card, as the homepage shows it: the page, then the words.
   const noteLine = firstActivity?.teach?.facts?.find((fact) => fact.length >= 30 && fact.length <= 220) ?? null;
 
@@ -315,7 +318,7 @@ export function TodayRoute({
             onClick={begin}
             transition={pressSpring}
           >
-            {startLabel ?? "Start this topic"} <ArrowRight />
+            {startActionLabel} <ArrowRight />
           </motion.button>
         </motion.div>
       </motion.section>
@@ -325,7 +328,6 @@ export function TodayRoute({
       {/* Beside what is due now, what comes after it: tomorrow, the next stops, then one extra. On a narrow screen
           this column follows the card, in the same order. */}
       <div className={q.side} data-block="today-side">
-      <LeitnerPanel state={boxes} />
       {/* Day two, shown on day one: what you missed today is what tomorrow opens with, so the plan says so now. */}
       {tomorrowLine ? (
         <motion.p className={q.tomorrow} data-block="today-tomorrow" {...settle(2)}>
@@ -362,6 +364,10 @@ export function TodayRoute({
           </ol>
         </motion.section>
       ) : null}
+
+      {/* Recall timing remains one tap away. It is useful evidence, but it should not compete with the source-led
+          decision above it before a student has even started today's topic. */}
+      <LeitnerPanel state={boxes} />
 
       {/* One extra at a time, most useful first: the exam date gives the path its finish line, then the nudge that
           brings you back, then the home-screen app, then the calendar reminder. */}
