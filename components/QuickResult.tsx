@@ -151,7 +151,8 @@ export function QuickResult({
       </motion.blockquote>
 
       {/* Correction only earns trust when the consequence is as visible as the source. */}
-      {nextName && routeLine.trim() === `Next: ${nextName}.` ? null : (
+      {/* Even when the next topic does not move, explain what this answer earned. */}
+      {nextName && routeLine.trim() === `Next: ${nextName}.` && !routeReason ? null : (
         <motion.aside {...rise(0.54)} className={styles.route} role="status" aria-label={routeChanged ? "Your plan changed" : "Next in your plan"}>
           <span>{routeChanged ? "Your plan changed" : "Next in your plan"}</span>
           <p>{routeLine}</p>

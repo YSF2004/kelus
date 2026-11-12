@@ -58,6 +58,7 @@ test("the session executes learn, retrieve, apply and evaluate before updating t
   assert.doesNotMatch(page, /percent\(masteryBefore\)/);
   assert.match(result, /Check this line in your notes/);
   assert.match(result, /routeReason/);
+  assert.match(result, /&& !routeReason/);
   assert.match(page, /Because this line from/);
   assert.doesNotMatch(page, /answer-comparison|reroute-lines|mastery-reward/);
 });
