@@ -676,7 +676,7 @@ export function MaterialLibrary({ embedded = false, incomingFile = null, onIncom
           <h2 id="first-source-review-title" tabIndex={-1} ref={focusPhaseHeading}>{asking ? "Is this a file to revise?" : "Check the topics in your notes."}</h2>
           {asking ? null : <>
             {analysis.coverage ? <ReadCoverage coverage={analysis.coverage} found={analysis.proposals.length} /> : null}
-            <p>These come from <b>{readableFileName(analysis.material.fileName ?? analysis.material.title)}</b>. Remove anything that is not part of your exam.</p>
+            <p>These come from <b>{readableFileName(analysis.material.fileName ?? analysis.material.title)}</b>. Keep only what is part of your exam — Kelus will build questions from the topics and quoted lines you confirm.</p>
             <AiNote />
           </>}
         </header>

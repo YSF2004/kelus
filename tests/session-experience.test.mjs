@@ -32,6 +32,7 @@ test("every demo concept has a deterministic learn, retrieve and apply activity"
 
 test("the session executes learn, retrieve, apply and evaluate before updating the route", async () => {
   const page = await source("app/session/page.tsx");
+  const result = await source("components/QuickResult.tsx");
   const order = [
     'phase === "learn"',
     'phase === "retrieve"',
@@ -55,7 +56,7 @@ test("the session executes learn, retrieve, apply and evaluate before updating t
   assert.match(page, /time plan changed/);
   assert.doesNotMatch(page, /Revisit \$\{concept\.name\} before moving on/);
   assert.doesNotMatch(page, /percent\(masteryBefore\)/);
-  assert.match(page, /Review the source behind this topic/);
+  assert.match(result, /Check this line in your notes/);
   assert.doesNotMatch(page, /answer-comparison|reroute-lines|mastery-reward/);
 });
 
@@ -68,6 +69,7 @@ test("materials support learning-purpose labels without claiming analysis", asyn
   assert.match(library, /Confirm topics|Build my topic map|Build my Knowledge Map/);
   assert.match(library, /proposeConceptsFromPages/);
   assert.match(library, /PDFs with selectable text are read fastest/);
+  assert.match(library, /topics and quoted lines you confirm/);
 });
 
 test("sessions expose a confirmed course source and its page", async () => {

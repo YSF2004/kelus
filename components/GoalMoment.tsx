@@ -81,7 +81,7 @@ export function GoalMoment({ today, streak, goal, week, backTomorrow, nextName, 
                 aria-hidden="true"
                 initial={reduce || !day.studied ? false : { scale: 0 }}
                 animate={{ scale: 1 }}
-                transition={{ type: "spring", bounce: 0.3, duration: 0.45, delay: 0.6 + index * 0.06 }}
+                transition={{ type: "spring", bounce: 0, duration: 0.45, delay: 0.6 + index * 0.06 }}
               >{day.studied ? <Octicon name="check" size={12} /> : null}</motion.i>
               <span>{day.label}</span>
             </li>
