@@ -181,6 +181,22 @@
 }
 .quote { position: relative; padding: 14px 18px 14px 20px; border-left: 3px solid var(--color-hero-orange); border-radius: 0 8px 8px 0; background: color-mix(in srgb, var(--color-hero-orange-wash) 55%, var(--lb-surface)); }
 .quote figcaption { display: inline-flex; align-items: center; gap: 6px; color: var(--color-hero-orange); }
+.sourceLink {
+  margin-left: 6px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--lb-green-ink);
+  font: inherit;
+  font-weight: 650;
+  cursor: pointer;
+  text-decoration: underline;
+  text-decoration-color: color-mix(in srgb, currentColor 42%, transparent);
+  text-underline-offset: 3px;
+}
+.sourceLink:hover { text-decoration-color: currentColor; }
+.sourceLink:focus-visible { outline: 2px solid var(--lb-green); outline-offset: 3px; border-radius: 2px; }
+.sourceLink:active { transform: scale(0.97); }
 .why { position: relative; padding-left: 14px; color: var(--lb-text-2); font-size: 14px; }
 .why::before { content: ""; position: absolute; left: 0; top: 0.2em; bottom: 0.2em; width: 2px; border-radius: 2px; background: var(--lb-green); }
 .go:focus-visible { outline: 2px solid var(--lb-ink) !important; outline-offset: 3px; }
@@ -189,7 +205,7 @@
 .then li { border-radius: 6px; }
 @media (hover: none) { .then li:hover { translate: none; } }
 @media (prefers-reduced-motion: reduce) {
-  .then li, .go svg { transition: none; }
+  .then li, .go svg, .sourceLink { transition: none; }
   .then li:hover { translate: none; }
   .go:hover svg { transform: none; }
 }

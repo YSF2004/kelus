@@ -67,6 +67,7 @@ export function TodayRoute({
   focus,
   relationships = [],
   onRenameCourse,
+  onOpenSource,
 }: {
   route: RoutePlan;
   concepts: Concept[];
@@ -87,6 +88,8 @@ export function TodayRoute({
   relationships?: ConceptRelationship[];
   /** The course is renamed from its title here: the top bar carries no name of its own. */
   onRenameCourse?: (name: string) => void;
+  /** Opens the exact source page beside the current recommendation without leaving Today. */
+  onOpenSource?: () => void;
 }) {
   const reduceMotion = useReducedMotion();
   // The topic this card is about: the open block's current topic when there is one, else the route's first.
@@ -304,6 +307,7 @@ export function TodayRoute({
             <figcaption>
               From {firstSource?.label && firstSource.label !== "Document outline" ? firstSource.label : "your notes"}
               {firstSource?.locator && !/^Section\b/.test(firstSource.locator) ? `, ${firstSource.locator.toLocaleLowerCase()}` : ""}
+              {onOpenSource ? <button type="button" className={q.sourceLink} onClick={onOpenSource}>Open in notes</button> : null}
             </figcaption>
           </motion.figure>
         ) : null}
