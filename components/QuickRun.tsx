@@ -432,6 +432,19 @@ export function QuickRun({ run: providedRun, persistenceKey, onPersistenceChange
             {...motionProps}
             aria-label={`Check ${step + 1} of ${total}`}
           >
+            {checkSource.kind === "source" ? (
+              <div className={styles.sourceCue}>
+                <span>From your notes · {checkSource.reference.label}{checkSource.reference.locator ? ` · ${checkSource.reference.locator}` : ""}</span>
+                {onShowLine ? (
+                  <button
+                    type="button"
+                    onClick={() => onShowLine(item.sourceQuote, checkSource.reference)}
+                  >
+                    Open source
+                  </button>
+                ) : null}
+              </div>
+            ) : null}
             {/* "Which idea does this describe? “…”": the ask as a small line, the quoted line as the title. */}
             {(() => {
               const at = item.prompt.indexOf("“");

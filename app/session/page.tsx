@@ -821,7 +821,9 @@ function SessionBody() {
                   }
                 }}
                 onFinish={finishQuick}
-                readFirst={round === 0}
+                // A new topic opens on one low-stakes check. Its evidence stays one tap away,
+                // while the route still treats this first pass as early evidence, not mastery.
+                readFirst={false}
                 firstStudySession={firstStudySession && index === 0}
                 known={knownAtOpen.set}
                 recalled={knownAtOpen.count}

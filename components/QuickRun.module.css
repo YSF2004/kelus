@@ -108,6 +108,55 @@
   color: var(--color-slate);
 }
 
+/* The question begins immediately, but never loses its provenance. This stays a quiet
+   reading cue rather than a second panel competing with the task. */
+.sourceCue {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 8px 16px;
+  margin: 0 0 14px;
+  color: var(--color-slate);
+  font-size: var(--text-caption, 0.8125rem);
+  line-height: 1.4;
+}
+
+.sourceCue span {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.sourceCue button {
+  flex: none;
+  min-height: 32px;
+  padding: 4px 0;
+  border: 0;
+  border-bottom: 1px solid color-mix(in srgb, var(--color-kelus) 44%, transparent);
+  border-radius: 0;
+  background: transparent;
+  color: var(--color-kelus);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.sourceCue button:active {
+  transform: scale(0.97);
+}
+
+.sourceCue button:focus-visible {
+  outline: 2px solid var(--color-kelus);
+  outline-offset: 3px;
+}
+
+@media (max-width: 420px) {
+  .sourceCue {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 4px;
+  }
+}
+
 .readLines { display: grid; gap: 0; margin: 0; padding: 0; border-top: 1px solid var(--q-line, var(--color-frost)); list-style: none; }
 .readLines li {
   padding: 18px 0;
