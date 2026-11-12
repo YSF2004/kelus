@@ -42,6 +42,13 @@ export function recallMap(input: { concepts: Concept[]; activities: LearningActi
       if (Date.parse(line.at) >= weekAgo) thisWeek += 1;
       lines.push({ quote: line.quote.trim(), state: "recalled" });
     }
+    // And missed lines it no longer quotes (an own-words answer is compared with whole sentences): still to come back.
+    for (const line of input.missed) {
+      const id = key(line.quote);
+      if (line.conceptId !== concept.id || seen.has(id)) continue;
+      seen.add(id);
+      lines.push({ quote: line.quote.trim(), state: "back" });
+    }
     return { id: concept.id, name: concept.name, lines, recalled: lines.filter((line) => line.state === "recalled").length };
   }).filter((topic) => topic.lines.length);
   const all = topics.flatMap((topic) => topic.lines);

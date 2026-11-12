@@ -4,17 +4,41 @@ import { ArrowOut, ArrowRight } from "@/components/Marks";
 import { animate, motion, useReducedMotion } from "motion/react";
 import { useEffect, useState, type ReactNode } from "react";
 import { MarkStamp } from "@/components/MarkStamp";
-import { TopicBoxes } from "@/components/TopicBoxes";
 import { PackArt } from "@/components/PackArt";
 import { GoalMoment, goalMomentDue } from "@/components/GoalMoment";
 import { useRouter } from "next/navigation";
 import type { RetrievalOutcome } from "@/domain/types";
 import type { SelfGrade } from "@/domain/quick-run";
 import { verdictReason } from "@/lib/verdict";
-import { Octicon } from "@/components/Octicon";
 import { uiWords } from "@/lib/ui-words";
 import type { NoteLanguage } from "@/domain/note-language";
+import type { RouteChange } from "@/lib/route-change";
 import styles from "./QuickResult.module.css";
+
+/**
+ * The topics still to come, shown in the order they were in, then moving to the order they are in now: the change an
+ * answer made, seen rather than announced. Reduced motion shows the new order at once.
+ */
+function Reorder({ change, reduce }: { change: RouteChange; reduce: boolean }) {
+  const [order, setOrder] = useState(reduce ? change.after : change.before);
+  useEffect(() => {
+    if (reduce) return;
+    const timer = window.setTimeout(() => setOrder(change.after), 450);
+    return () => window.clearTimeout(timer);
+  }, [change, reduce]);
+  return (
+    <section className={styles.reorder} aria-label="How your answer changed the rest of this session">
+      <p role="status">{change.text}</p>
+      <ol aria-label={`Up next, in order: ${change.after.join(", ")}`}>
+        {order.map((name, index) => (
+          <motion.li key={name} layout={!reduce} transition={{ duration: 0.26, ease: [0.22, 1, 0.36, 1] }} data-moved={name === change.moved ? "true" : undefined}>
+            <span aria-hidden="true">{index + 1}</span>{name}
+          </motion.li>
+        ))}
+      </ol>
+    </section>
+  );
+}
 
 export type { QuickStats } from "@/lib/verdict";
 import type { QuickStats } from "@/lib/verdict";
@@ -27,25 +51,6 @@ const VERDICT: Record<RetrievalOutcome, { title: string }> = {
 
 
 const ease = [0.22, 1, 0.36, 1] as const;
-
-/** "Comes back in 2 days" → "2 days"; "Comes back tomorrow" → "Tomorrow". */
-function backShort(line?: string) {
-  if (!line) return "Soon";
-  const rest = line.replace(/^Comes back\s*/i, "").replace(/^in\s+/i, "").replace(/^your next session$/i, "Next time");
-  return rest.charAt(0).toUpperCase() + rest.slice(1);
-}
-
-/** A number that counts up to itself once, quickly: the score lands rather than appears. */
-function CountUp({ value, reduce }: { value: number; reduce: boolean }) {
-  const [shown, setShown] = useState(0);
-  const still = reduce || value <= 0;
-  useEffect(() => {
-    if (still) return;
-    const controls = animate(0, value, { duration: Math.min(0.9, 0.25 + value * 0.08), ease: [0.22, 1, 0.36, 1], delay: 0.25, onUpdate: (latest) => setShown(Math.round(latest)) });
-    return () => controls.stop();
-  }, [value, still]);
-  return <>{still ? value : shown}</>;
-}
 
 /** A solid pass, celebrated the Kelus way: a few paper marks in the brand colours spring out from the seal and settle. */
 function Burst() {
@@ -74,7 +79,7 @@ function Burst() {
  * remember (quoted from your notes), today's goal filling up, and a single next step. Detail is one tap away.
  */
 export function QuickResult({
-  outcome, topic, attempts, stats, comesBack, remember, rememberLabel = "Worth remembering", locator, goalDone, goal, routeLine, nextName, details, onRetry, onContinue, onSource, path, habit, language = "en", conceptId }: {
+  outcome, topic, attempts, stats, comesBack, remember, rememberLabel = "Worth remembering", locator, goalDone, goal, routeLine, nextName, reorder, details, onRetry, onContinue, onSource, path, habit, language = "en", conceptId }: {
   outcome: RetrievalOutcome;
   topic: string;
   /** How many times this topic has been answered, counting this one. */
@@ -90,6 +95,8 @@ export function QuickResult({
   goal: number;
   routeLine: string;
   nextName?: string;
+  /** The rest of the session reordered by this answer, before and after. Absent when nothing moved. */
+  reorder?: RouteChange | null;
   details: ReactNode;
   onRetry: () => void;
   onContinue: () => void;
@@ -132,13 +139,8 @@ export function QuickResult({
         <span className={styles.stamp}><MarkStamp outcome={outcome} />{outcome === "success" && !reduce ? <Burst /> : null}</span>
         <motion.h1 {...rise(0.1)} className={styles.title}>{verdict.title}</motion.h1>
       </div>
-      {/* The sentence for screen readers; the eye gets the same facts as three tiles. */}
-      <p className="sr-only">{topic} · {attempts === 1 ? "first try" : `try ${attempts}`}. {verdictReason(outcome, stats, comesBack)}</p>
-      <motion.ul {...rise(0.16)} className={styles.tiles} aria-hidden="true">
-        {stats && stats.total > 0 ? <li><Octicon name="check-circle" className={styles.tileIcon} /><b><CountUp value={stats.right} reduce={reduce} />/{stats.total}</b><span>{stats.total === 1 ? w.checkRight : w.checksRight}</span></li> : null}
-        {stats?.coverage && stats.coverage.keys >= 3 ? <li><Octicon name="pencil" className={styles.tileIcon} /><b><CountUp value={stats.coverage.hits} reduce={reduce} />/{stats.coverage.keys}</b><span>{w.keyIdeas}</span></li> : null}
-        <li><Octicon name="calendar" className={styles.tileIcon} /><b className={/^\d/.test(backShort(comesBack)) ? undefined : styles.tileWord}>{backShort(comesBack)}</b><span>{w.comesBack}</span></li>
-      </motion.ul>
+      {/* The result in one plain sentence, from what was answered: no tiles, no score to decode. */}
+      <motion.p {...rise(0.16)} className={styles.reason}>{verdictReason(outcome, stats, comesBack)}</motion.p>
 
 
       <motion.blockquote {...rise(0.42)} className={styles.remember}>
@@ -149,20 +151,10 @@ export function QuickResult({
       {/* Today's count lives on the study plan; here it only shows the moment the goal is reached. */}
       {goalMet ? <motion.p {...rise(0.54)} className={styles.goal}><PackArt name="award" className={styles.icon} /> Today’s goal reached: {goal} topics.</motion.p> : null}
 
-      {conceptId ? <motion.div {...rise(0.3)}><TopicBoxes conceptId={conceptId} /></motion.div> : null}
-      {/* The course path in one line: a step for every topic, filled as each is practised. */}
-      {path && path.total > 1 ? (
-        <motion.div {...rise(0.6)} className={styles.path} aria-label={`${path.practised} of ${path.total} topics practised`}>
-          <span className={styles.pathSteps} aria-hidden="true">
-            {/* One step per topic, in the order of the notes; this topic's step is marked. Practised steps fill. */}
-            {path.total <= 24 ? Array.from({ length: path.total }, (_, index) => <i key={index} data-here={index === path.here ? "true" : undefined} data-done={(path.done?.[index] ?? index < path.practised) ? "true" : undefined} />) : <i className={styles.pathFill} style={{ ["--share" as string]: path.practised / path.total }} />}
-          </span>
-          <span>{w.practised(path.practised, path.total)}{language !== "en" ? "" : path.recalled ? `, ${path.recalled} ${path.recalled === 1 ? "line" : "lines"} answered correctly` : ""}</span>
-        </motion.div>
-      ) : null}
+      {/* Where this leaves the course (boxes, the path, the schedule) is on Progress; this screen is about this topic. */}
 
       {/* "Next: X." would only repeat the button below it. */}
-      {nextName && routeLine.trim() === `Next: ${nextName}.` ? null : <p className={styles.route} role="status">{routeLine}</p>}
+      {reorder ? <Reorder change={reorder} reduce={reduce} /> : nextName && routeLine.trim() === `Next: ${nextName}.` ? null : <p className={styles.route} role="status">{routeLine}</p>}
 
       <div className={styles.actions}>
         {outcome !== "success" ? <button type="button" className={`k-btn k-btn--paper ${styles.secondary}`} onClick={onRetry}>{w.tryAgain}</button> : null}

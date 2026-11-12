@@ -18,7 +18,10 @@ test("a run is two to three checks from the page, then one explanation", () => {
   assert.ok(run.checks.length >= 2 && run.checks.length <= 3);
   assert.ok(run.checks.every((item) => item.kind === "choice" || item.kind === "cloze"));
   assert.ok(run.checks.every((item) => quoteIsOnPage(item.sourceQuote, page)));
-  assert.equal(run.explainPrompt, activity.retrieve.prompt);
+  // The own-words question opens the run when the notes hold a fair one; its answer is on the page, never in the checks.
+  if (run.explainFirst) {
+    assert.ok(quoteIsOnPage(run.explainQuote.split(/(?<=\.)\s/)[0], page));
+  } else assert.equal(run.explainPrompt, activity.retrieve.prompt);
   assert.equal(new Set(run.checks.map((item) => item.kind)).size, run.checks.length === 2 ? 2 : new Set(run.checks.map((item) => item.kind)).size);
 });
 
@@ -119,7 +122,10 @@ const osmosis = {
 test("a run never shows the sentence it later asks you to explain, never names the topic as an answer, and tests each fact once", () => {
   const run = buildQuickRun({ activity: osmosis, name: "Osmosis", siblingNames: ["Active Transport", "Enzymes"] });
   assert.ok(run && run.checks.length >= 2);
-  assert.ok(run.checks.every((item) => !item.sourceQuote.startsWith("Osmosis is the movement")), "the definition is saved for the explanation");
+  // The run opens on a why from the notes; no check shows the line that answers it.
+  assert.equal(run.explainFirst, true);
+  assert.match(run.explainPrompt, /^Your notes say: “In a hypotonic solution a plant cell gains water and becomes turgid\.” Why\?/);
+  assert.equal(run.explainAnswer, "the cell wall pushes back");
   assert.ok(run.checks.every((item) => !/^Which idea/.test(item.prompt)), "the topic name is already on screen");
   assert.equal(new Set(run.checks.map((item) => item.sourceQuote)).size, run.checks.length, "one check per sentence");
   const frames = run.checks.filter((item) => item.kind === "cloze").map((item) => item.prompt.split("_____")[0].trim().split(" ").slice(-2).join(" "));

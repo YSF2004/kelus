@@ -1,7 +1,7 @@
 /* ── The Leitner Box ───────────────────────────────────────────────────────────────────────────────────
    The product's visual world (direction contract: .impeccable/surfaces/components-todayroute-tsx.md). A precise
    instrument for spaced repetition: white ground, a cool neutral rail, one ink, Kelus green for recall and the one
-   action, coral only for a miss. Geist for text and titles, Geist Mono for counts. No paper, no serif, no ruled lines.
+   action, coral only for a miss. Literata for titles and Inter for text and counts. No paper texture, no ruled lines.
    Loaded after every older sheet, it sets the tokens those sheets read, so they follow without being rewritten. */
 
 :root:not([data-theme="dark"]) :is(body.is-course-studio, body.is-session-booklet, body.is-session-complete, body:has(.start-page)) {
@@ -63,22 +63,9 @@
 }
 :root:not([data-theme="dark"]):has(body.is-course-studio, body.is-session-booklet, body.is-session-complete, .start-page) { background: #ffffff; }
 
-/* One face family, the instrument's: Geist everywhere in the product, Geist Mono for figures. */
-:is(body.is-course-studio, body.is-session-booklet, body.is-session-complete, body.is-sheet, body:has(.start-page)) {
-  --font-display: var(--font-geist), system-ui, sans-serif;
-  --font-marketing-heading: var(--font-geist), system-ui, sans-serif;
-  --font-source-serif: var(--font-geist), system-ui, sans-serif;
-  --font-heading: var(--font-geist), system-ui, sans-serif;
-  --font-inter: var(--font-geist);
-  font-family: var(--font-geist), system-ui, sans-serif !important;
-  font-feature-settings: normal;
-}
-:is(body.is-course-studio, body.is-session-booklet, body.is-session-complete, body.is-sheet, body:has(.start-page)) :is(h1, h2, h3) {
-  font-family: var(--font-geist), system-ui, sans-serif !important;
-  font-style: normal !important;
-  font-variant-caps: normal !important;
-}
-:is(body.is-course-studio, body.is-session-booklet, body.is-session-complete, body.is-sheet) :is(em, i, blockquote, [class*="quote"], [class*="why"]) { font-family: var(--font-geist), system-ui, sans-serif !important; font-style: normal !important; }
+/* The previous faces everywhere: Literata for titles (the older sheets' heading variables), Inter for text and
+   figures. Components written for the instrument name --font-geist and --font-geist-mono; both resolve to Inter. */
+:root, html[class], body[class] { --font-geist: var(--font-inter); --font-geist-mono: var(--font-inter); }
 
 /* Topics are told apart by their names: no colour per topic. State is fill and outline (green recalled, coral missed). */
 html body :is([data-tone="1"], [data-tone="2"], [data-tone="3"], [data-tone="4"], [data-tone="5"], [data-tone="6"]) {
@@ -119,7 +106,7 @@ html body.is-course-studio .core-workspace-grid.is-notes-open [class*="TodayQuie
 
 /* ── The session ───────────────────────────────────────────────────────────────────────────────────────
    Feedback is a callout of its verdict (a wash and a hairline of green or coral), not a rule down the margin. Labels are
-   sentence case, quotes upright, figures in Geist Mono. The result opens on a plain mark, its facts as figures, and
+   sentence case, figures in tabular Inter. The result opens on a plain mark, its facts as figures, and
    ends on this topic's lines in their boxes. */
 html body.is-session-booklet [class*="QuickRun"][class*="feedback"] { padding: 18px 20px !important; border: 1px solid var(--lb-line) !important; border-left-width: 1px !important; border-radius: 12px !important; background: var(--lb-surface) !important; gap: 10px !important; }
 html body.is-session-booklet [class*="QuickRun"][class*="feedback"][class*="ok"] { border-color: color-mix(in oklch, var(--lb-green) 30%, var(--lb-line)) !important; background: color-mix(in oklch, var(--lb-green) 5%, var(--lb-surface)) !important; }
@@ -223,7 +210,7 @@ html body.is-course-studio .core-source-page { box-shadow: 0 0 0 1px var(--lb-li
 }
 
 /* ── The homepage below the hero: the same instrument ─────────────────────────────────────────────────
-   Every heading in Geist (the book serif stays on no product or home surface), the story's four steps as wells on the
+   The story's four steps as wells on the
    page, the pack's drawings kept but quieter, and one green action at the close. */
 html body .is-leitner-home { --lb-ink: #0e1512; --lb-text-2: #4a5550; --lb-text-3: #5c6661; --lb-line: #e3e8e5; --lb-well: #f5f7f6; --lb-green: #1f6b45; background: #fff; }
 html body .is-leitner-home h2:not(#home-hero-title) { font-size: clamp(32px, 3.6vw, 48px) !important; text-wrap: balance; }
@@ -256,3 +243,22 @@ html body .pricing-page[data-marketing] :is(.cta, .k-btn, button) > span[aria-hi
 /* Pricing cards: hairline panels; the planned plan sits in a well. */
 html body .pricing-page[data-marketing] .pricing-plan-shell > * { border-radius: 16px !important; border-color: #e3e8e5 !important; }
 html body .pricing-page[data-marketing] .pricing-plan-shell:nth-child(2) > * { background: #f5f7f6 !important; }
+
+/* ── The session, simplified ───────────────────────────────────────────────────────────────────────────
+   Only the question, the answer, the correction from the source and the next action. The block's topic outline and
+   the separate sound button leave the screen; sound stays in the session's More menu. */
+html body.is-session-booklet :is(.block-outline-float, .session-workspace-rail) { display: none !important; }
+html body.is-session-booklet main#main.study-shell.is-focus { grid-template-columns: minmax(0, 1fr) !important; }
+html body.is-session-booklet [class*="QuickRun"][class*="mute"] { display: none !important; }
+
+/* ── Progress and Materials, simplified ────────────────────────────────────────────────────────────────
+   Progress: what improved and what needs work, then what comes next, then the details on request. */
+html body.is-course-studio .progress-simple { display: grid; gap: 40px; max-width: 1000px; margin: 28px 44px 56px; }
+html body.is-course-studio .progress-simple [class*="TodayQuiet"][class*="page"] { margin: 0 !important; padding: 0 !important; max-width: none !important; }
+html body.is-course-studio .progress-details { border-top: 1px solid var(--k-line); padding-top: 16px; }
+html body.is-course-studio .progress-details > summary { cursor: pointer; width: fit-content; min-height: 44px; display: inline-flex; align-items: center; color: var(--k-text-2); font-size: 0.9375rem; font-weight: 500; }
+html body.is-course-studio .progress-details > summary:hover { color: var(--k-ink); }
+html body.is-course-studio .progress-details[open] > summary { margin-bottom: 16px; }
+html body.is-course-studio .progress-details [class*="ProgressView"][class*="page"] { margin: 0 !important; width: auto !important; max-width: none !important; }
+html body.is-course-studio .studio-section-head .studio-section-link { margin-left: auto; min-height: 44px; color: var(--k-text-2); font-size: 0.9375rem; font-weight: 500; }
+@media (max-width: 650px) { html body.is-course-studio .progress-simple { margin: 16px 16px 40px; gap: 32px; } }

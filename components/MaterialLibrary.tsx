@@ -692,7 +692,8 @@ export function MaterialLibrary({ embedded = false, incomingFile = null, onIncom
           ))}
         </ol>}
         <div className="first-source-review-actions" hidden={asking}>
-          <button type="button" className="cta" disabled={!selectedIds.size} onClick={buildMap}>Use {selectedIds.size} {selectedIds.size === 1 ? "topic" : "topics"} <ArrowRight /></button>
+          <button type="button" className="cta" disabled={!selectedIds.size} onClick={buildMap} aria-describedby="first-source-review-count">Start revising</button>
+          <span id="first-source-review-count" className="first-source-review-count">{selectedIds.size} {selectedIds.size === 1 ? "topic" : "topics"} selected</span>
           {previewUrl ? <a href={previewUrl} target="_blank" rel="noreferrer">Open original PDF ↗</a> : null}
           {onStartOver ? <button type="button" className="text-btn" onClick={onStartOver}>Choose another file</button> : null}
         </div>

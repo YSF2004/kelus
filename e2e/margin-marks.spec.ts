@@ -1,5 +1,5 @@
 import { expect, test } from "@playwright/test";
-import { gotoStart, skipReading, startBuiltPlan } from "./helpers";
+import { passOwnWords, gotoStart, skipReading, startBuiltPlan } from "./helpers";
 
 test("a missed line can be seen circled on the student's own PDF page", async ({ page }) => {
   await page.setViewportSize({ width: 1440, height: 900 });
@@ -7,6 +7,7 @@ test("a missed line can be seen circled on the student's own PDF page", async ({
   await page.locator('input[type="file"]').first().setInputFiles("tests/fixtures/course-pdfs/biology-ch7-cell-transport.pdf");
   await startBuiltPlan(page);
   await skipReading(page);
+  await passOwnWords(page);
   // Answer until one is missed, then open it on the page.
   for (let guard = 0; guard < 4; guard += 1) {
     const gap = page.locator('input[id^="run-gap"]:not([disabled])');

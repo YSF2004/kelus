@@ -1,5 +1,5 @@
 import { expect, test } from "@playwright/test";
-import { startFromPaste } from "./helpers";
+import { passOwnWords, startFromPaste } from "./helpers";
 
 const notes = "Cell biology\n\nOsmosis\nOsmosis is the movement of water across a partially permeable membrane from a dilute solution to a more concentrated solution. In a hypotonic solution a plant cell gains water and becomes turgid because the cell wall pushes back. In a hypertonic solution the cell loses water and becomes plasmolysed.\n\nDiffusion\nDiffusion is the net movement of particles from an area of higher concentration to an area of lower concentration. It is a passive process, so it needs no energy from the cell.";
 
@@ -8,6 +8,7 @@ test("a question can be flagged in one tap, is remembered, and its words go to K
   let sent: Record<string, string> | null = null;
   await page.route(/formsubmit\.co/, async (route) => { sent = route.request().postDataJSON(); await route.fulfill({ status: 200, contentType: "application/json", body: '{"success":"true"}' }); });
   await startFromPaste(page, notes);
+  await passOwnWords(page);
   const check = page.getByLabel(/^Check 1 of \d$/);
   // The ask and the quoted line sit on two lines of the heading; the question sent is the one line.
   const prompt = (await check.locator("h1").textContent() ?? "").replace(/\s+/g, " ").trim();
@@ -26,5 +27,5 @@ test("a question can be flagged in one tap, is remembered, and its words go to K
   const flat = (text: string) => text.replace(/\s+/g, " ").replace(/\s*“/g, "“");
   expect(flat(sent!.message)).toContain(flat(`Question: ${prompt}`));
   // Next still works, and Enter still goes to it.
-  await expect(page.getByRole("button", { name: /^(Next|Now say it yourself)/ })).toBeVisible();
+  await expect(page.getByRole("button", { name: /^(Next|Now say it yourself|See how it went)/ })).toBeVisible();
 });

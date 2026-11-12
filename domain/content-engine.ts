@@ -1,6 +1,7 @@
 import { hintInNotesLanguage, inNotesLanguage, noteLanguage } from "./note-language";
 import type { PracticeItem } from "./types";
 import { lintQuestion, standsAlone } from "./question-lint";
+import { explainMatch } from "./answer-evaluation";
 import { contrastChoices, effectQuestions, framePairs, notMatching, termFromMeaning, whyChoices } from "./question-types";
 
 /**
@@ -539,4 +540,97 @@ export function quoteIsOnPage(quote: string, pageText: string) {
   const normalise = (value: string) => value.toLocaleLowerCase().replace(/[“”"'’‘]/g, "").replace(/\s+/g, " ").trim();
   const q = normalise(quote);
   return q.length >= 12 && normalise(pageText).includes(q);
+}
+
+/**
+ * The first question of a topic, asked in the student's own words: one worth thinking about, built only from what
+ * the notes say. Three forms, tried in this order and varied by round:
+ * - apply: the notes give a condition and what follows ("When demand is inelastic, a price rise increases revenue"):
+ *   "Suppose demand is inelastic. What happens, and why?", compared with what follows.
+ * - why: the notes give a claim and its reason ("… because buyers can switch"): the claim is shown, the reason asked.
+ * - explain: two key terms from two lines of the notes: "Explain X, using what your notes say about A and B",
+ *   compared with those two lines.
+ * `given` is what the question already shows, so those words are never counted as the student's. Null when the notes
+ * are too thin for a fair own-words question: then the run says so and opens on a quick check instead.
+ */
+export type OwnWordsLead = { kind: "apply" | "why" | "explain"; prompt: string; answer: string; quote: string; lines: string[]; given: string };
+
+const LEAD_PRONOUN = /^(?:it|its|they|their|this|these|those|that|he|she|his|her|we|such|both)\b/i;
+
+export function ownWordsLead(input: { name: string; excerpt: string; round?: number }): OwnWordsLead | null {
+  const { name, excerpt } = input;
+  if (noteLanguage(excerpt) !== "en") return null;
+  const sentences = units(excerpt).filter((sentence) => readsAsSentence(sentence) && sentence.length <= 260);
+  const longEnough = (text: string, least: number) => words(text).length >= least;
+  const leads: OwnWordsLead[] = [];
+
+  for (const sentence of sentences) {
+    // Apply: "When/If <condition>, <consequence>."
+    const conditional = sentence.match(/^(?:when|if|whenever|once)\s+([^,]{6,}),\s*(.+)$/i);
+    if (conditional) {
+      const condition = conditional[1].trim();
+      // "…; if it is larger, …" is a second case: the answer is the first one only.
+      const consequence = stripEnd(conditional[2].split(/;\s*/)[0]);
+      if (!LEAD_PRONOUN.test(condition) && longEnough(condition, 3) && longEnough(consequence, 4)) {
+        leads.push({ kind: "apply", prompt: `Suppose ${condition}. What happens, according to your notes, and why?`, answer: consequence, quote: sentence, lines: [sentence], given: `${name} ${condition}` });
+        continue;
+      }
+    }
+    // Why: "<claim> because <reason>." Never "because of", which names a cause rather than giving a reason.
+    const reasoned = sentence.match(/^(.{18,}?)(?:,\s*)?\s+because\s+(?!of\b)(.+)$/i);
+    if (reasoned) {
+      const claim = stripEnd(reasoned[1]).replace(/[,;]\s*$/, "");
+      const reason = stripEnd(reasoned[2]);
+      if (!LEAD_PRONOUN.test(claim) && longEnough(claim, 4) && longEnough(reason, 4)) {
+        leads.push({ kind: "why", prompt: `Your notes say: “${claim}.” Why? Answer in your own words.`, answer: reason, quote: sentence, lines: [sentence], given: `${name} ${claim}` });
+      }
+    }
+  }
+
+  // Explain: two lines of the notes, each with its own key term, named in the question as a scaffold.
+  const stemOf = (word: string) => word.toLocaleLowerCase().replace(/(?:es|s|e)$/, "");
+  const nameStems = new Set(words(name).map(stemOf));
+  const termed = sentences
+    .filter((sentence) => longEnough(sentence, 7) && standsAlone(sentence) && !LEAD_PRONOUN.test(sentence))
+    .map((sentence) => ({ sentence, term: leadTerm(sentence, pickGapWord(sentence, name, excerpt, false)) }))
+    .filter((entry): entry is { sentence: string; term: string } => Boolean(entry.term) && !/^\d/.test(entry.term as string) && !GENERIC_TERMS.has((entry.term as string).toLocaleLowerCase()) && !(entry.term as string).split(" ").some((part) => nameStems.has(stemOf(part))));
+  // Two different ideas: neither term inside the other ("collision" and "inelastic collision" are one).
+  const distinct = termed.filter((entry, index) => termed.findIndex((other) => other.term.toLocaleLowerCase().includes(entry.term.toLocaleLowerCase()) || entry.term.toLocaleLowerCase().includes(other.term.toLocaleLowerCase())) === index);
+  if (distinct.length >= 2) {
+    const start = Math.max(0, Math.floor(input.round ?? 0)) % (distinct.length - 1);
+    const [a, b] = [distinct[start], distinct[start + 1]];
+    const inOrder = sentences.indexOf(a.sentence) <= sentences.indexOf(b.sentence) ? [a, b] : [b, a];
+    // Bullet lines carry no full stop; joined, they still read as two sentences.
+    const quote = inOrder.map((entry) => (/[.!?]$/.test(entry.sentence) ? entry.sentence : `${entry.sentence}.`)).join(" ");
+    leads.push({ kind: "explain", prompt: `In your own words, explain ${name}. Use what your notes say about “${inOrder[0].term}” and “${inOrder[1].term}”.`, answer: quote, quote, lines: inOrder.map((entry) => entry.sentence), given: `${name} ${inOrder[0].term} ${inOrder[1].term}` });
+  }
+
+  // Each needs enough of the notes' own words left to compare fairly, or it would be a grade from nothing.
+  // Counted exactly as the answer will be checked, so a question is never offered that the check cannot measure.
+  const fair = leads.filter((lead) => explainKeys(lead.answer, lead.given) >= (lead.kind === "explain" ? 5 : 3) && explainMatch("", lead.answer, `${name} ${lead.given}`).keys >= (lead.kind === "explain" ? 5 : 3));
+  if (!fair.length) return null;
+  const rank = { apply: 0, why: 1, explain: 2 } as const;
+  const ordered = [...fair].sort((x, y) => rank[x.kind] - rank[y.kind]);
+  return ordered[Math.max(0, Math.floor(input.round ?? 0)) % ordered.length];
+}
+
+/** Words that are on every page and name no idea of their own: never the scaffold of an explanation. */
+const GENERIC_TERMS = new Set(["change", "changes", "object", "objects", "constant", "clear", "elements", "element", "reactions", "reaction", "quantity", "product", "products", "division", "water", "growth", "process", "system", "systems", "number", "amount", "level", "levels", "value", "values", "result", "results", "effect", "effects", "example", "people", "group", "groups", "state", "states", "order", "rate", "rates", "time", "times", "period", "factor", "factors", "method", "methods", "type", "types", "form", "forms", "part", "parts", "point", "points", "case", "cases", "way", "ways"]);
+
+/** A key word with its other half: "Third" in "Third Estate", "hydrophilic" in "hydrophilic heads". */
+function leadTerm(sentence: string, term: string | null) {
+  if (!term) return null;
+  const escaped = term.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+  const capitalised = sentence.match(new RegExp(`(?<![\\p{L}])${escaped}\\s+([A-Z][\\p{L}-]+)`, "u"));
+  if (/^[A-Z]/.test(term) && capitalised) return `${term} ${capitalised[1]}`;
+  const adjective = /(?:ic|al|ive|ous|ar|ary|ible|able|ion)$/i.test(term) ? sentence.match(new RegExp(`(?<![\\p{L}])${escaped}\\s+([a-z][a-z-]{3,})`, "u")) : null;
+  // "collision equals" is a noun and its verb, not a term: after an -ion noun, only another noun joins it.
+  if (adjective && !STOP.has(adjective[1]) && !(/ion$/i.test(term) && /(?<!s)s$|ed$|ing$/.test(adjective[1]))) return `${term} ${adjective[1]}`;
+  return term;
+}
+
+/** The key words a reference holds beyond what the question already shows: what an answer is compared on. */
+function explainKeys(reference: string, given: string) {
+  const shown = new Set(words(given).map((word) => word.toLocaleLowerCase()));
+  return new Set(words(reference).map((word) => word.toLocaleLowerCase()).filter((word) => word.length >= 4 && !STOP.has(word) && !shown.has(word))).size;
 }

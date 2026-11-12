@@ -1,5 +1,5 @@
 import type { LearningActivity, RetrievalOutcome } from "./types";
-import { family, judgeWord, pageGroups, readAnswer } from "./explain-words";
+import { family, judgeWord, numberOf, pageGroups, readAnswer } from "./explain-words";
 
 const STOPWORDS = new Set([
   "a", "an", "and", "are", "as", "at", "be", "by", "for", "from", "has", "have", "in", "into", "is", "it", "its", "of", "on", "or", "that", "the", "their", "then", "this", "to", "was", "which", "while", "with",
@@ -129,7 +129,7 @@ export function looksLikeWords(text: string) {
 /** Words that carry no idea on their own, on top of the stopwords: they never count as a key word to remember. */
 const FILLER = new Set(["also", "because", "been", "being", "both", "each", "every", "more", "most", "only", "other", "some", "such", "than", "there", "these", "they", "those", "very", "what", "when", "where", "will", "would", "about", "after", "before", "between", "during", "over", "under", "your", "make", "makes", "made", "does", "done", "much", "many", "same", "into", "onto", "upon", "across", "through", "within", "without", "toward", "towards", "along",
   // Academic frame words: "X is the study of", "the way things are", "a kind of". They frame an idea, they are not one.
-  "study", "studies", "way", "ways", "thing", "things", "kind", "kinds", "type", "types", "form", "forms", "part", "parts", "called", "known", "refers", "used", "uses", "example", "examples", "world", "should", "could", "might", "must"]);
+  "study", "studies", "way", "ways", "thing", "things", "kind", "kinds", "type", "types", "form", "forms", "part", "parts", "called", "known", "refers", "used", "uses", "example", "examples", "world", "should", "could", "might", "must", "something", "anything"]);
 
 export type ExplainPart = { text: string; key: boolean; hit: boolean; /** The student's word that says the opposite of this one. */ flip?: string };
 export type ExplainMatch = { parts: ExplainPart[]; keys: number; hits: number; missed: string[]; /** Opposites: what the page says, and what the student wrote instead. */ flipped: Array<{ page: string; said: string }>; suggest: "nailed" | "partly" | "missed" };
@@ -145,14 +145,21 @@ export function explainMatch(answer: string, reference: string, topic = ""): Exp
   const ownGroups = pageGroups(reference);
   // The topic's own name is on the screen; leaving it out of an explanation is not a gap.
   // Except in "A vs. B": telling the two apart is the whole point, so their names are the key words.
-  const named = new Set(/\s(?:vs\.?|versus)\s/i.test(topic) ? [] : topic.toLocaleLowerCase().split(/[^\p{L}\p{N}-]+/u).filter(Boolean));
+  // Compared by word family, so "equation" is named by the topic "Quadratic equations".
+  const named = new Set((/\s(?:vs\.?|versus)\s/i.test(topic) ? [] : topic.toLocaleLowerCase().split(/[^\p{L}\p{N}-]+/u).filter(Boolean)).map(family));
   const parts: ExplainPart[] = [];
   // "(e.g. eBay auctions)" is the page's example, not the idea: leaving it out of an explanation is not a gap.
   let example = false;
+  // What the page says is NOT the case ("…, not outward along the radius") is no key idea: an answer that says it is wrong,
+  // and one that leaves it out has missed nothing.
+  let negated = false;
   for (const piece of reference.split(/(\s+)/)) {
     if (/^\((?:e\.g|i\.e|eg|for)\b/i.test(piece)) example = true;
     const word = piece.toLocaleLowerCase().replace(/[^\p{L}\p{N}-]+/gu, "");
-    const key = !example && word.length >= 4 && !STOPWORDS.has(word) && !FILLER.has(word) && !named.has(word) && !/^\d+$/.test(word);
+    if (/^(?:not|never|instead|rather)$/.test(word)) negated = true;
+    const number = numberOf(word) !== null && !/^\d{3,}$/.test(word);
+    const key = !example && !negated && (number || (word.length >= 4 && !STOPWORDS.has(word) && !FILLER.has(word) && !named.has(family(word)) && !/^\d+$/.test(word)));
+    if (negated && /[,.;:]$/.test(piece)) negated = false;
     if (example && piece.includes(")")) example = false;
     const verdict = key ? judgeWord(word, said, ownGroups) : { hit: false };
     parts.push({ text: piece, key, hit: verdict.hit, ...(verdict.flip ? { flip: verdict.flip } : {}) });
@@ -173,8 +180,8 @@ export function explainMatch(answer: string, reference: string, topic = ""): Exp
   flush();
   const share = keys ? hits / keys : 0;
   const flipped = [...new Map(parts.filter((part) => part.flip).map((part) => [part.flip!, { page: part.text.replace(/[^\p{L}\p{N}-]+/gu, "").toLocaleLowerCase(), said: part.flip! }])).values()];
-  // An opposite is a wrong idea, not a gap: it never suggests a full mark.
-  const suggest = !answer.trim() || share < 0.35 ? "missed" : share < 0.75 || flipped.length ? "partly" : "nailed";
+  // An opposite is a wrong idea, not a gap: it never suggests a full mark, and with much else missing it is a miss.
+  const suggest = !answer.trim() || share < 0.35 ? "missed" : flipped.length ? (share >= 0.75 ? "partly" : "missed") : share < 0.75 ? "partly" : "nailed";
   // "dilute solution" already says "solution": a phrase whose words were all named before is not listed again.
   const named2: string[] = [];
   for (const original of missed) {

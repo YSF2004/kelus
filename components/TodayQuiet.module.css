@@ -335,3 +335,17 @@
 .next { border-top: 0 !important; }
 .title, .title :global(*) { max-width: none !important; white-space: nowrap !important; text-wrap: nowrap !important; }
 .tomorrow b { margin-right: 6px; color: var(--lb-ink) !important; font-variant-caps: normal !important; letter-spacing: 0 !important; text-transform: none !important; font-weight: 600 !important; }
+
+/* ── Study, simplified ─────────────────────────────────────────────────────────────────────────────────
+   One column, one decision: the course, the topic due now, where its questions come from, why it is first, and the
+   one green action. What comes after lives on Progress. */
+.desk { grid-template-columns: minmax(0, 1fr) !important; max-width: 40rem; }
+.source { display: flex; flex-wrap: wrap; gap: 4px 20px; margin: 14px 0 6px; color: var(--k-ink); font-size: 1rem; font-weight: 500; }
+.source span { color: var(--k-text-2); font-weight: 400; }
+.go { margin-top: 28px !important; min-width: 12rem; height: 50px !important; font-size: 16px !important; }
+.laterTitle { margin: 0 0 8px; font-size: 1.25rem !important; }
+/* The sample, named quietly under its title. */
+.sample { margin: 6px 0 0; color: var(--k-text-2); font-size: 0.875rem; font-style: italic; }
+.laterTitle + .stats { margin: 4px 0 18px; }
+/* What already happened on this topic today: one quiet line above the reason. */
+.attempt { margin: 10px 0 0; max-width: 60ch; color: var(--k-ink); font-size: 0.9375rem; line-height: 1.5; }

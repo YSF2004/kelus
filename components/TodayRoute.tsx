@@ -23,10 +23,10 @@ import { CourseFolderIcon } from "@/components/CourseFolderIcon";
 import { Octicon } from "@/components/Octicon";
 import { InlineName } from "@/components/InlineName";
 import { toneOf } from "@/lib/topic-tone";
-import { leitner } from "@/domain/leitner";
-import { LeitnerPanel } from "@/components/LeitnerPanel";
 import { recallMap } from "@/domain/recall-map";
 import { getKnownLines, getServerKnownLines, subscribeKnownLines } from "@/lib/known-lines";
+import { getMissedLines, getServerMissedLines, subscribeMissedLines } from "@/lib/missed-lines";
+import { attemptedToday } from "@/lib/today-attempt";
 import q from "./TodayQuiet.module.css";
 
 const pressSpring = { type: "spring", bounce: 0, duration: 0.28 } as const;
@@ -44,6 +44,12 @@ function GoalRing({ done, goal, reduce }: { done: number; goal: number; reduce: 
       <motion.circle cx="10" cy="10" r="8" className={q.ringFill} pathLength={1} initial={reduce ? false : { pathLength: 0 }} animate={{ pathLength: Math.max(share, 0.0001) }} transition={{ type: "spring", bounce: 0, duration: 0.8 }} />
     </svg>
   );
+}
+
+/** A source named the way a student would: the course's own name when the label is just its file name. */
+function sourceName(label: string, course: string) {
+  const flat = (value: string) => value.toLocaleLowerCase().replace(/\.[a-z0-9]+$/, "").replace(/[^\p{L}\p{N}]+/gu, " ").trim();
+  return course && flat(label).includes(flat(course)) ? course : label;
 }
 
 export function TodayRoute({
@@ -65,6 +71,7 @@ export function TodayRoute({
   focus,
   relationships = [],
   onRenameCourse,
+  part = "study",
 }: {
   route: RoutePlan;
   concepts: Concept[];
@@ -85,6 +92,9 @@ export function TodayRoute({
   relationships?: ConceptRelationship[];
   /** The course is renamed from its title here: the top bar carries no name of its own. */
   onRenameCourse?: (name: string) => void;
+  /** "study": the one next topic and its action, nothing else. "later": what comes after it (tomorrow, the next
+   * topics, the exam date and reminders), shown on Progress so Study stays one decision. */
+  part?: "study" | "later";
 }) {
   const reduceMotion = useReducedMotion();
   // The topic this card is about: the open block's current topic when there is one, else the route's first.
@@ -99,8 +109,8 @@ export function TodayRoute({
   // With today's goal done, the next topic is offered as an extra, not pressed on.
   const habit = habitSummary({ events, concepts });
   const knownLines = useSyncExternalStore(subscribeKnownLines, getKnownLines, getServerKnownLines);
+  const missedLines = useSyncExternalStore(subscribeMissedLines, getMissedLines, getServerMissedLines);
   const recall = recallMap({ concepts, activities, known: knownLines, missed, nowIso });
-  const boxes = leitner({ concepts, activities, known: knownLines, missed, nowIso });
   const eve = !isSampleCourse && !examDatePending && daysToExam > 0 && daysToExam <= 3 && recall.total ? { days: daysToExam, recalled: recall.recalled, total: recall.total, back: recall.back } : null;
   const goalDone = !isSampleCourse && habit.goalMet;
   const goalDoneCount = habit.topicsToday;
@@ -108,7 +118,7 @@ export function TodayRoute({
   const hasPriorEvidence = !isSampleCourse && events.some((event) => event.kind === "retrieval");
 
   useEffect(() => {
-    if (isSampleCourse || openedRef.current) return;
+    if (isSampleCourse || openedRef.current || part !== "study") return;
     openedRef.current = true;
     trackEvent({
       name: "today_opened",
@@ -118,10 +128,11 @@ export function TodayRoute({
     // A pilot's 7-day return: coming back on a later day than a finished block, counted once a day.
     const back = returnVisit({ sessions, nowIso });
     if (back && firstTimeToday(nowIso)) trackEvent({ name: "learner_returned", ...back });
-  }, [hasPriorEvidence, isSampleCourse, route.allocations.length, sessions, nowIso]);
+  }, [hasPriorEvidence, isSampleCourse, route.allocations.length, sessions, nowIso, part]);
 
   // Enter on Today starts (or continues) the next topic.
   useEffect(() => {
+    if (part !== "study") return;
     const onKey = (event: KeyboardEvent) => {
       if (event.key !== "Enter" || event.metaKey || event.ctrlKey || event.altKey || event.shiftKey) return;
       const target = event.target as HTMLElement | null;
@@ -131,7 +142,7 @@ export function TodayRoute({
     };
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [onStart]);
+  }, [onStart, part]);
 
   if (!first) {
     return (
@@ -168,6 +179,7 @@ export function TodayRoute({
   // A saved session may have moved to this topic without the student ever opening it.
   const decision = startLabel && !(firstConcept?.retrievalAttempts) ? ["Your session is saved. Continue with this topic."] : reasons;
   const firstSource = firstActivity?.sourceReferences[0];
+  const attempt = isSampleCourse ? null : attemptedToday({ conceptId: first.conceptId, name: firstName, known: knownLines, missed: missedLines, nowIso, open: Boolean(startLabel) });
   // A mixed review is named by what it mixes: answered topics the plan does not already list on their own. With
   // none (day one, or every answered topic is already a row), it is not offered.
   const named = route.allocations.filter((allocation) => allocation.conceptId !== first.conceptId && allocation.conceptId !== "mixed-retrieval").slice(0, 3);
@@ -218,38 +230,20 @@ export function TodayRoute({
 
   return (
     <div className={q.page}>
+      {part === "study" ? <>
       {!isSampleCourse ? <WelcomeBack visit={visit} nowIso={nowIso} nextName={firstName} /> : null}
 
-      {/* The course, then three things a student checks at a glance: the streak, today's goal, how far through. */}
+      {/* The course, named once. Streaks, goals and pace are on Progress: Study is one decision. */}
       <motion.header className={q.head} {...settle(0)}>
         <h1 className={q.title} data-block="course-title">{hasCoursePdf ? <CourseFolderIcon /> : null}{onRenameCourse ? <InlineName value={courseName} label="Rename course" onSave={onRenameCourse} /> : <span>{courseName}</span>}</h1>
-        {warmupFirst ? null : (
-          <ul className={q.stats} role="group" aria-label="Your path through the course">
-            {/* A sample says so on the page itself, now the top bar carries no labels. */}
-            {isSampleCourse ? <li className={q.sample}>Sample course</li> : null}
-            <li className={habit.streak > 0 ? q.statOn : undefined} title={habit.restUsed ? "One missed day a week doesn’t break a streak." : undefined}>
-              <Octicon name="flame" className={q.ico} />
-              <strong>{habit.streak}</strong><span>day streak</span>
-            </li>
-            <li className={habit.goalMet ? q.statOn : undefined}>
-              <GoalRing done={Math.min(habit.topicsToday, habit.goal)} goal={habit.goal} reduce={reduceMotion === true} />
-              <strong>{Math.min(habit.topicsToday, habit.goal)}/{habit.goal}</strong><span>today</span>
-            </li>
-            <li title={`${path.started} of ${path.total} topics started`}>
-              <Octicon name="list-unordered" className={q.ico} />
-              <strong>{path.started}/{path.total}</strong><span>topics</span>
-            </li>
-            {/* The pace, short: the full sentence is its tooltip. */}
-            <li title={!examDatePending && daysToExam > 0 ? `${paceShort} · ${pathLine}` : pathLine.charAt(0).toUpperCase() + pathLine.slice(1)}>
-              <Octicon name="calendar" className={q.ico} />
-              <span>{!examDatePending && daysToExam > 0 ? `${daysToExam} ${daysToExam === 1 ? "day" : "days"} to exam` : paceShort}</span>
-            </li>
-          </ul>
-        )}
+      {/* A sample says so on the page itself: the student knows these are not their notes. */}
+        {isSampleCourse ? <p className={q.sample}>Sample course</p> : null}
       </motion.header>
+      </> : null}
 
       <div className={q.desk}>
       <div className={q.lead}>
+      {part === "study" ? <>
       {/* The last three days: one calm page before the plan, counted from the student's own answers. */}
       {eve ? (
         <motion.section className={q.eve} aria-labelledby="exam-eve-title" {...settle(1)}>
@@ -264,14 +258,15 @@ export function TodayRoute({
       <motion.section className={q.next} data-block="today-lead" data-tone={toneOf(first.conceptId, concepts)} aria-labelledby="today-title" {...settle(1)}>
         <p className={q.eyebrow}>{startLabel ? "In progress" : goalDone ? "Extra for today" : "Due now"}</p>
         <h2 id="today-title" className={q.topic}>{firstName}</h2>
-        {/* What the run holds, as marks a student reads in a glance: time, checks, the explanation, the page. */}
-        <ul className={q.chips} data-block="today-page-folio" aria-label="What this topic holds">
-          <li><Octicon name="clock" className={q.ico} />{first.minutes} min</li>
-          {firstChecks ? <li><Octicon name="check-circle" className={q.ico} />{firstChecks} {firstChecks === 1 ? "check" : "checks"}</li> : null}
-          <li><Octicon name="pencil" className={q.ico} />Explain it</li>
-          {firstSource?.locator && !/^Section\b/.test(firstSource.locator) ? <li><Octicon name="file" className={q.ico} />{firstSource.locator}</li> : null}
-        </ul>
-        <p className={q.why} data-block="today-decision" aria-label="Why this topic is first">{decision[0]}</p>
+        {/* Where the questions come from, so the source is part of the decision, not a separate screen. */}
+        <p className={q.source} data-block="today-page-folio">
+          {firstSource ? <>From {sourceName(firstSource.label, courseName)}{firstSource.locator && !/^Section\b/.test(firstSource.locator) ? `, ${firstSource.locator.charAt(0).toLowerCase()}${firstSource.locator.slice(1)}` : ""}</> : "From your notes"}
+          <span>About {first.minutes} min</span>
+        </p>
+        {/* What already happened on this topic today, saved answer by answer: a closed session is not a blank one. */}
+        {attempt ? <p className={q.attempt} data-block="today-attempt" role="status">{attempt}</p> : null}
+        {/* "Your session is saved" would only repeat the line above it. */}
+        {attempt && startLabel && !(firstConcept?.retrievalAttempts) ? null : <p className={q.why} data-block="today-decision" aria-label="Why this topic is first">{decision[0]}</p>}
         <motion.button
           type="button"
           data-action="start-topic"
@@ -282,10 +277,32 @@ export function TodayRoute({
           whileTap={reduceMotion ? undefined : { scale: 0.98 }}
           transition={pressSpring}
         >
-          {startLabel ?? "Start this topic"}
+          {startLabel ? "Continue revising" : "Start revising"}
         </motion.button>
       </motion.section>
 
+      </> : null}
+      {part === "later" ? <>
+      <h2 className={q.laterTitle}>Coming up</h2>
+      {/* Streak, today's goal, how far through and the pace: the habit at a glance, kept off Study's one decision. */}
+      <ul className={q.stats} role="group" aria-label="Your path through the course">
+        <li className={habit.streak > 0 ? q.statOn : undefined} title={habit.restUsed ? "One missed day a week doesn’t break a streak." : undefined}>
+          <Octicon name="flame" className={q.ico} />
+          <strong>{habit.streak}</strong><span>day streak</span>
+        </li>
+        <li className={habit.goalMet ? q.statOn : undefined}>
+          <GoalRing done={Math.min(habit.topicsToday, habit.goal)} goal={habit.goal} reduce={reduceMotion === true} />
+          <strong>{Math.min(habit.topicsToday, habit.goal)}/{habit.goal}</strong><span>today</span>
+        </li>
+        <li title={`${path.started} of ${path.total} topics started`}>
+          <Octicon name="list-unordered" className={q.ico} />
+          <strong>{path.started}/{path.total}</strong><span>topics</span>
+        </li>
+        <li title={!examDatePending && daysToExam > 0 ? `${paceShort}, ${pathLine}` : pathLine.charAt(0).toUpperCase() + pathLine.slice(1)}>
+          <Octicon name="calendar" className={q.ico} />
+          <span>{!examDatePending && daysToExam > 0 ? `${daysToExam} ${daysToExam === 1 ? "day" : "days"} to exam` : paceShort}</span>
+        </li>
+      </ul>
       {/* Day two, shown on day one: what you missed today is what tomorrow opens with, so the plan says so now. */}
       {tomorrowLine ? (
         <motion.p className={q.tomorrow} data-block="today-tomorrow" {...settle(2)}>
@@ -331,9 +348,8 @@ export function TodayRoute({
         : hasPriorEvidence && installable ? <InstallCard />
         : reminder ? <ReminderCard {...reminder} nextStopName={firstName} />
         : null}
+      </> : null}
       </div>
-      {/* The signature: every line of the notes in its Leitner box, beside what is due now. */}
-      <LeitnerPanel state={boxes} />
       </div>
     </div>
   );

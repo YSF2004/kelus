@@ -110,3 +110,14 @@
 .rememberHead .icon { display: none; }
 .remember p { font-family: var(--font-marketing-heading), Georgia, serif; font-style: italic; font-size: 1.25rem; }
 
+
+/* The result's reason: one sentence under the verdict, in the text colour. */
+.reason { margin: 6px 0 0; max-width: 52ch; color: var(--k-text-2, #4a5550); font-size: 1rem; line-height: 1.55; }
+
+/* The session's new order after this answer: a short numbered list, the moved topic marked, the reason above it. */
+.reorder { display: grid; gap: 8px; margin: 4px 0 0; }
+.reorder p { margin: 0; color: var(--k-ink); font-size: 0.9375rem; line-height: 1.5; }
+.reorder ol { display: grid; gap: 4px; margin: 0; padding: 0; list-style: none; }
+.reorder li { display: flex; align-items: center; gap: 10px; padding: 7px 10px; border-radius: 8px; color: var(--k-text-2); font-size: 0.9375rem; }
+.reorder li span { width: 1.25rem; color: var(--k-text-3, var(--k-text-2)); font-variant-numeric: tabular-nums; font-weight: 600; }
+.reorder li[data-moved] { color: var(--k-ink); font-weight: 600; background: color-mix(in srgb, var(--color-kelus, var(--k-green)) 10%, transparent); }

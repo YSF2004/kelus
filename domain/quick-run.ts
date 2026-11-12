@@ -1,4 +1,4 @@
-import { buildPractice, splitSentences } from "./content-engine";
+import { buildPractice, ownWordsLead, splitSentences } from "./content-engine";
 import { isDrillable } from "./practice-check";
 import { inNotesLanguage, noteLanguage } from "./note-language";
 import type { LearningActivity, PracticeItem, RetrievalOutcome } from "./types";
@@ -15,6 +15,18 @@ export type QuickRun = {
   /** A line from the page that no check and no explanation used: something new to end on. */
   extraFact?: string;
   topic: string;
+  /**
+   * The own-words question opens the run instead of closing it: one worth thinking about, from the notes. The quick
+   * checks follow. False when the notes hold no fair open question; then the checks come first and `explainNote`
+   * says why.
+   */
+  explainFirst?: boolean;
+  /** Words the own-words question already shows: never counted as the student's own. */
+  explainGiven?: string;
+  /** The lines of the notes the own-words answer is compared with, one by one, for the five boxes. */
+  explainLines?: string[];
+  /** Said above a run that has to open on a quick check, so the student knows why. */
+  explainNote?: string;
 };
 
 const norm = (text: string) => text.toLocaleLowerCase().replace(/[^\p{L}\p{N}]+/gu, " ").trim();
@@ -94,13 +106,21 @@ export function buildQuickRun(input: { activity: LearningActivity; name: string;
       });
   // One of each kind before a second of any: a run should feel varied, not repeated.
   // Each round starts further along the list, so a second session brings questions the first one did not.
-  const explainAnswer = activity.retrieve.modelAnswer;
+  // The first question asks for thinking, in the student's own words, when the notes support one. Otherwise the
+  // explanation stays last, as the notes' own retrieve prompt.
+  // A list topic ("What are the determinants of …?") already asks for its whole list: that is the question to open on.
+  const listLines = splitSentences(activity.retrieve.modelAnswer);
+  const listTopic = listLines.length >= 3;
+  const lead = listTopic ? null : ownWordsLead({ name, excerpt: [activity.learn.explanation, ...activity.learn.keyPoints].join("\n"), round });
+  const explainAnswer = lead?.answer ?? activity.retrieve.modelAnswer;
+  const explainQuote = lead?.quote ?? explainAnswer;
   // "Which idea does this describe?" is answered by the topic name at the top of the screen, so it is a last resort.
   // A fill-in gap on a line shown seconds ago tests recognition, not recall. Save it for a return visit.
   const anyDrillable = own.filter((item) => isDrillable(item) && (!input.readFirst || item.kind !== "cloze"));
   const drillable = anyDrillable.filter((item) => !asksForTheTopic(item));
   // The explanation at the end asks for this sentence, so a check that shows it first would spoil it.
-  const fresh = drillable.filter((item) => !overlaps(item.sourceQuote, explainAnswer));
+  // When the explanation opens the run, nothing after it can spoil it, so the checks may use its lines from another angle.
+  const fresh = lead || listTopic ? drillable : drillable.filter((item) => !overlaps(item.sourceQuote, explainAnswer));
   // A very short page may have nothing else to ask; then a check on the main sentence beats no quick run at all.
   const fromFresh = pickChecks(fresh, round);
   const fromAny = fromFresh.length >= 2 ? fromFresh : pickChecks(drillable, round);
@@ -113,13 +133,17 @@ export function buildQuickRun(input: { activity: LearningActivity; name: string;
   const usable = input.readFirst ? [...picked].sort((a, b) => readingLoad(a) - readingLoad(b)) : picked;
   if (!explainAnswer.trim()) return null;
   const sentences = splitSentences([activity.learn.explanation, ...activity.learn.keyPoints].join("\n"));
-  const used = [explainAnswer, ...usable.map((item) => item.sourceQuote)];
+  const used = [explainQuote, ...usable.map((item) => item.sourceQuote)];
   const extraFact = sentences.find((sentence) => sentence.length >= 40 && !used.some((quote) => overlaps(quote, sentence)));
   return {
     checks: usable,
-    explainPrompt: round % 2 === 1 ? inNotesLanguage(`Close the page. What would you tell a friend about ${name}?`, noteLanguage(sentences.join(" ")), name) : activity.retrieve.prompt,
+    explainPrompt: lead ? lead.prompt : round % 2 === 1 ? inNotesLanguage(`Close the page. What would you tell a friend about ${name}?`, noteLanguage(sentences.join(" ")), name) : activity.retrieve.prompt,
     explainAnswer,
-    explainQuote: explainAnswer,
+    explainQuote,
+    explainFirst: Boolean(lead) || listTopic,
+    explainGiven: lead?.given ?? (listTopic ? name : undefined),
+    explainLines: lead?.lines ?? (listTopic ? listLines : undefined),
+    explainNote: lead || listTopic || noteLanguage(sentences.join(" ")) !== "en" || !usable.length ? undefined : "These notes don’t hold a fair open question for this topic yet, so it starts with a quick check.",
     sentences,
     extraFact,
     topic: name,

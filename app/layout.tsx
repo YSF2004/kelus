@@ -2,7 +2,7 @@ import { THEME_BOOT } from "@/lib/theme";
 import { CommandPalette } from "@/components/CommandPalette";
 import type { Metadata, Viewport } from "next";
 import { Suspense } from "react";
-import { Geist, Geist_Mono, Inter, Literata } from "next/font/google";
+import { Inter, Literata } from "next/font/google";
 import "./globals.css";
 import "./revision-studio.css";
 import "./home-folio.css";
@@ -49,10 +49,6 @@ const literata = Literata({
   display: "swap",
 });
 
-/* The product's instrument faces (the Leitner Box world): Geist for text and titles, Geist Mono for counts. */
-const geist = Geist({ subsets: ["latin", "latin-ext"], variable: "--font-geist", display: "swap" });
-const geistMono = Geist_Mono({ subsets: ["latin"], variable: "--font-geist-mono", display: "swap" });
-
 const inter = Inter({ subsets: ["latin", "latin-ext"], variable: "--font-inter", display: "swap" });
 
 // The status bar takes the page's paper colour, so an installed Kelus has no browser-coloured strip on top; the
@@ -93,12 +89,12 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
-    <html lang="en" className={`${inter.variable} ${literata.variable} ${geist.variable} ${geistMono.variable}`} data-scroll-behavior="smooth" suppressHydrationWarning>
+    <html lang="en" className={`${inter.variable} ${literata.variable}`} data-scroll-behavior="smooth" suppressHydrationWarning>
       <head>
         {/* The chosen theme, set before the first paint so the page never flashes the other paper. */}
         <script dangerouslySetInnerHTML={{ __html: THEME_BOOT }} />
       </head>
-      <body className={`${inter.variable} ${literata.variable} ${geist.variable} ${geistMono.variable} is-booklet-system`}>
+      <body className={`${inter.variable} ${literata.variable} is-booklet-system`}>
         <GoogleAnalytics />
         <a className="skip" href="#main">Skip to content</a>
         <AuthProvider>

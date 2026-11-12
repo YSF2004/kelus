@@ -32,5 +32,5 @@ test("the second visit opens with what you missed, warms up on it, then goes on 
   await page.getByRole("button", { name: /^Continue to / }).click();
   await expect(page).toHaveURL(/\/session/, { timeout: 15_000 });
   await skipReading(page);
-  await expect(page.getByLabel(/^Check 1 of \d$/)).toBeVisible();
+  await expect(page.getByLabel(/^Check 1 of \d$/).or(page.locator("#run-explain")).first()).toBeVisible();
 });
