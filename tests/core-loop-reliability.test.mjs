@@ -53,6 +53,18 @@ test("feedback names the missing source-backed criterion instead of generic enco
   assert.match(evaluation.explanation, /concentration gradient/i);
 });
 
+test("subject-shaped feedback states the boundary of a deterministic check", () => {
+  const evaluation = evaluateLearningResponse({
+    retrieveAnswer: "The theorem needs its condition before the result follows.",
+    applicationAnswer: "Because the condition holds, the rule can be used to reach the result.",
+    retrieveModelAnswer: "The theorem applies when its stated condition holds.",
+    applicationModelAnswer: "Use the rule only after checking its condition, then justify the result.",
+    assessment: { mode: "mathematics", criteria: [] },
+  });
+  assert.equal(evaluation.mode, "mathematics");
+  assert.match(evaluation.reviewNote, /full proof or calculation/i);
+});
+
 const subjectCases = [
   ["Biology", "Cellular Respiration", "Cellular respiration converts glucose into ATP through linked metabolic reactions.", /predict what changes|mechanism/i],
   ["Computer science", "Binary Search", "The binary search algorithm halves a sorted array until the target is found.", /input grows|required condition/i],

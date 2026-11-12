@@ -580,6 +580,14 @@ button, input, textarea { font: inherit; }
   margin: var(--spacing-8) 0 var(--spacing-20);
   color: var(--color-smoke);
 }
+.assessment-boundary {
+  max-width: 62ch;
+  margin-top: var(--spacing-16) !important;
+  color: var(--color-slate) !important;
+  font-size: var(--text-body-sm);
+  line-height: 1.5;
+}
+.assessment-boundary strong { color: var(--color-midnight-ink); }
 .answer-evaluation.is-failure h2 { color: var(--color-product-danger, #9a3412); }
 
 

@@ -65,6 +65,7 @@ function contradictionDetected(answer: string, expected: string) {
 }
 
 export type AnswerCriterionResult = { id: string; label: string; met: boolean; evidence: string[] };
+export type AssessmentMode = NonNullable<LearningActivity["assessment"]>["mode"];
 
 export type AnswerEvaluation = {
   outcome: RetrievalOutcome;
@@ -75,7 +76,27 @@ export type AnswerEvaluation = {
   matchedApply: number;
   criteria: AnswerCriterionResult[];
   contradiction: boolean;
+  /** What this deterministic check can establish—and the boundary it cannot cross. */
+  mode: AssessmentMode;
+  reviewNote: string;
 };
+
+function reviewNoteFor(mode: AssessmentMode) {
+  switch (mode) {
+    case "mathematics":
+      return "Kelus checked the rule and conditions named in your explanation. Check a full proof or calculation against your working.";
+    case "computer_science":
+      return "Kelus checked the input, process, and result you described. Run or trace code separately before treating it as correct.";
+    case "law":
+      return "Kelus checked the rule, facts, and conclusion you named. It cannot decide a full legal analysis for you.";
+    case "biology":
+      return "Kelus checked the mechanism and consequence in your explanation. Revisit the diagram or process if the relationship still feels unclear.";
+    case "history":
+      return "Kelus checked the cause and consequence you named. Compare the source again for scope, dates, and competing explanations.";
+    default:
+      return "Kelus checked the source idea and the relationship you explained. Compare with the source before relying on a nuanced answer.";
+  }
+}
 
 export function evaluateLearningResponse(input: {
   retrieveAnswer: string;
@@ -100,6 +121,8 @@ export function evaluateLearningResponse(input: {
     return { id: criterion.id, label: criterion.label, met: evidence.length >= criterion.minimumMatches, evidence };
   });
   const criterionRatio = criteria.length ? criteria.filter((criterion) => criterion.met).length / criteria.length : 0;
+  const mode = input.assessment?.mode ?? "general";
+  const reviewNote = reviewNoteFor(mode);
   const lexicalScore = retrievalOnly ? matchedRetrieve * 0.8 : matchedRetrieve * 0.55 + matchedApply * 0.25;
   const score = Number(Math.max(0, lexicalScore + criterionRatio * 0.2 - (contradiction ? 0.45 : 0)).toFixed(3));
   const sourceMet = criteria.find((criterion) => criterion.id === "source-idea")?.met ?? matchedRetrieve >= 0.34;
@@ -109,12 +132,12 @@ export function evaluateLearningResponse(input: {
   if (!contradiction && retrieveWords >= 5 && applicationWords >= 5 && sourceMet && reasoningMet && score >= 0.34) {
     return { outcome: "success", score, label: "Strong evidence", explanation: retrievalOnly
         ? "The answer includes the source idea. Compare it with the passage above: matching terms cannot verify every nuance."
-        : "The answer includes the source idea and a reasoned application. Compare it with the passage above: matching terms cannot verify every nuance.", matchedRetrieve, matchedApply, criteria, contradiction };
+        : "The answer includes the source idea and a reasoned application. Compare it with the passage above: matching terms cannot verify every nuance.", matchedRetrieve, matchedApply, criteria, contradiction, mode, reviewNote };
   }
   if (!contradiction && retrieveWords >= 3 && applicationWords >= 3 && (sourceMet || reasoningMet || score >= 0.16)) {
-    return { outcome: "partial", score, label: "Partial evidence", explanation: missing ? `Some of the idea is here. Try again with: ${missing.label.toLocaleLowerCase()}.` : "Some of the idea is here. Compare your reasoning with the source before moving on.", matchedRetrieve, matchedApply, criteria, contradiction };
+    return { outcome: "partial", score, label: "Partial evidence", explanation: missing ? `Some of the idea is here. Try again with: ${missing.label.toLocaleLowerCase()}.` : "Some of the idea is here. Compare your reasoning with the source before moving on.", matchedRetrieve, matchedApply, criteria, contradiction, mode, reviewNote };
   }
-  return { outcome: "failure", score, label: "Not enough evidence yet", explanation: contradiction ? "This may reverse or negate the relationship in the source. Recheck the original passage before trying again." : missing ? `The answer does not yet show enough of the source idea. Start with: ${missing.label.toLocaleLowerCase()}.` : "The answer does not yet show enough of the source idea. Recheck the passage and try again.", matchedRetrieve, matchedApply, criteria, contradiction };
+  return { outcome: "failure", score, label: "Not enough evidence yet", explanation: contradiction ? "This may reverse or negate the relationship in the source. Recheck the original passage before trying again." : missing ? `The answer does not yet show enough of the source idea. Start with: ${missing.label.toLocaleLowerCase()}.` : "The answer does not yet show enough of the source idea. Recheck the passage and try again.", matchedRetrieve, matchedApply, criteria, contradiction, mode, reviewNote };
 }
 
 export function evaluateDiagnosisResponse(input: { answer: string; modelAnswer: string; assessment?: LearningActivity["assessment"] }): AnswerEvaluation {

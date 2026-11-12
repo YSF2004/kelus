@@ -985,6 +985,7 @@ function SessionBody() {
                         ))}
                       </ul>
                     ) : null}
+                    <p className="assessment-boundary"><strong>What Kelus checked</strong> {evaluation.reviewNote}</p>
                     <small>Compared with the source · not a grade</small>
                     <div className="study-ratings" role="group" aria-label="Record answer evidence">
                       <motion.button
