@@ -339,6 +339,8 @@ function SessionBody() {
       matchedApply: 0,
       criteria: [],
       contradiction: false,
+      mode: "general",
+      reviewNote: "Kelus checked the source-linked checks you completed. Compare with the source before relying on a nuanced answer.",
     });
     grade(outcome, { retrieve: result.explained, application: summary });
   }
