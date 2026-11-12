@@ -473,7 +473,7 @@ export function QuickRun({ run: providedRun, persistenceKey, onPersistenceChange
                       transition={reduce ? { duration: 0 } : answered && picked === index ? { duration: 0.34, ease: "easeOut" } : { duration: 0.22, ease: [0.22, 1, 0.36, 1], delay: 0.03 + index * 0.03 }}
                     >
                       {/* The number becomes the verdict in place, so the eye does not have to travel. */}
-                      <kbd aria-hidden="true">{isRight ? <motion.span className={styles.kbdMark} initial={reduce ? false : { scale: 0.6, rotate: -20, opacity: 0 }} animate={{ scale: 1, rotate: 0, opacity: 1 }} transition={{ type: "spring", bounce: 0.25, duration: 0.4 }}><Tick size={12} /></motion.span> : isWrong ? <motion.span className={styles.kbdMark} initial={reduce ? false : { scale: 0.8, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={{ duration: 0.16, ease: [0.22, 1, 0.36, 1] }}><Cross size={12} /></motion.span> : index + 1}</kbd>
+                      <kbd aria-hidden="true">{isRight ? <motion.span className={styles.kbdMark} initial={reduce ? false : { scale: 0.6, rotate: -20, opacity: 0 }} animate={{ scale: 1, rotate: 0, opacity: 1 }} transition={{ type: "spring", bounce: 0, duration: 0.4 }}><Tick size={12} /></motion.span> : isWrong ? <motion.span className={styles.kbdMark} initial={reduce ? false : { scale: 0.8, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} transition={{ duration: 0.16, ease: [0.22, 1, 0.36, 1] }}><Cross size={12} /></motion.span> : index + 1}</kbd>
                       <span>{choice}</span>
                     </motion.button>
                   );
