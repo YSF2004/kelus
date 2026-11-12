@@ -1,20 +1,23 @@
 import Link from "next/link";
 import { BrandIcon } from "@/components/BrandIcon";
+import { HeroReplay } from "./HeroReplay";
 import styles from "./LeitnerHero.module.css";
 import brands from "./HeroBrands.module.css";
 
-/** Lines from the Cell Transport chapter (tests/fixtures/course-pdfs), set in the boxes they sit in a few days in. */
-const BOXES: Array<{ box: number; every: string; lines: Array<{ text: string; state?: "ok" | "miss" }> }> = [
-  { box: 1, every: "Every day", lines: [{ text: "Water moves from the dilute side", state: "miss" }, { text: "Active transport needs energy" }, { text: "Root hair cells absorb ions" }] },
-  { box: 2, every: "Every 2 days", lines: [{ text: "Diffusion is a passive process", state: "ok" }] },
-  { box: 3, every: "Every 4 days", lines: [{ text: "A partially permeable membrane", state: "ok" }, { text: "Carrier proteins in the membrane", state: "ok" }] },
-  { box: 4, every: "Every 9 days", lines: [{ text: "Alveoli and villi have a large surface", state: "ok" }] },
-  { box: 5, every: "Monthly", lines: [{ text: "A plant cell becomes turgid", state: "ok" }] },
+/**
+ * Questions Kelus writes from page 1 of the Cell Transport chapter (tests/fixtures/course-pdfs), each one from a line
+ * that is marked on the page with the same number.
+ */
+const QUESTIONS = [
+  { n: 1, where: "Page 1 · 7.1 Diffusion", ask: ["Diffusion moves particles from a region of ", " concentration to a lower one."], answer: "higher" },
+  { n: 2, where: "Page 1 · 7.1 Diffusion", ask: ["Does diffusion need energy from respiration?"] },
+  { n: 3, where: "Page 1 · 7.2 Osmosis", ask: ["Osmosis moves water from a dilute solution to a more ", " one."] },
 ];
 
 /**
- * The first viewport says what Kelus does and shows it working: a question written from a line of the notes, the right
- * answer picked, and that line sliding from Box 1 to Box 2. The demonstration is labelled as an example course.
+ * The first viewport says what Kelus does and shows its key step working: a page of the student's notes, three of its
+ * lines marked in turn, a question written from each with its page, and the first one answered and checked against
+ * the line it came from. The demonstration is labelled as an example course.
  */
 export function KelusHero() {
   return (
@@ -24,49 +27,71 @@ export function KelusHero() {
           Questions from your notes. <span>Checked against the page.</span>
         </h1>
         <p className={styles.lede}>
-          Drop in a PDF or paste your notes. Kelus asks you about your own lines. Recall one and it moves to a later box;
-          miss it and it comes back first tomorrow.
+          Drop in a PDF or paste your notes. Kelus marks the lines that matter, asks you about each one, and checks your
+          answer against the page.
         </p>
         <div className={styles.actions}>
           <Link href="/today" className={styles.primary}>Add your notes</Link>
-          <span className={styles.free}>Free. No account needed.</span>
+          <Link href="/route" className={styles.secondary}>How it works</Link>
         </div>
-        {/* The tools students already keep notes in, by their own marks (simple-icons, in each brand's colour). */}
-        <div className={brands.works}>
-          <span className={brands.label}>Works with</span>
-          <ul className={brands.list} aria-label="Works with">
-            <li><span className={brands.pdf} aria-hidden="true">PDF</span>PDFs and slides</li>
-            <li><BrandIcon brand="notion" size={18} />Notion</li>
-            <li><BrandIcon brand="obsidian" size={18} />Obsidian</li>
-            <li><BrandIcon brand="markdown" size={18} />Markdown</li>
-            <li><BrandIcon brand="anki" size={18} />Anki export</li>
-          </ul>
-        </div>
+        <p className={styles.free}>Free. No account needed.</p>
       </div>
 
-      <figure className={styles.panel} aria-label="Example: a line answered correctly moves from Box 1 to Box 2">
-        <div className={styles.panelHead}><b>Cell Transport</b><span>Example course, 10 lines</span></div>
-        <div className={styles.question} aria-hidden="true">
-          <small>Which idea from your notes does this describe?</small>
-          <p>“The net movement of particles from high to low concentration, down a gradient.”</p>
-          <div className={styles.options}><span>Osmosis</span><span>Active transport</span><span className={styles.right}>Diffusion</span></div>
+      {/* The demonstration on one grey tile, a product moment rather than a card on the page. */}
+      <div className={styles.set}>
+      <HeroReplay className={styles.replay} waitClass={styles.waiting} leaveClass={styles.leaving}>
+      <figure className={styles.panel} aria-label="Example: three lines of a page become questions, and an answer is checked against its line">
+        <div className={styles.panelHead}><b>Cell Transport.pdf</b><span>Example course</span></div>
+        <div className={styles.stage} aria-hidden="true">
+          {/* The page as it was dropped in: real text, with the lines Kelus asks about marked in the order it reads them. */}
+          <div className={styles.sheet}>
+            <p className={styles.chapter}>7 Cell Transport</p>
+            <p className={styles.intro}>Every cell must exchange substances with its surroundings.</p>
+            <p className={styles.section}>7.1 Diffusion</p>
+            <p>
+              <mark className={styles.mark} data-n="1">Diffusion is the net movement of particles from a region of higher concentration to a region of lower concentration</mark>, down a concentration gradient.{" "}
+              <mark className={styles.mark} data-n="2">It is a passive process, so it needs no energy from respiration.</mark>
+            </p>
+            <p className={`${styles.section} ${styles.third}`}>7.2 Osmosis</p>
+            <p className={styles.third}>
+              <mark className={styles.mark} data-n="3">Osmosis is the net movement of water molecules from a dilute solution to a more concentrated solution</mark>
+              {" "}through a partially permeable membrane.
+            </p>
+          </div>
+          <div className={styles.side}>
+            <ol className={styles.cards}>
+              {QUESTIONS.map(({ n, where, ask, answer }) => (
+                <li key={n} className={styles.card} data-n={n}>
+                  <small><i>{n}</i>{where}</small>
+                  <p>
+                    {ask[0]}
+                    {ask.length > 1 ? <span className={styles.blank}>{answer ? <span className={styles.fill}>{answer}</span> : null}</span> : null}
+                    {ask[1]}
+                  </p>
+                  {answer ? <span className={styles.checked}><b>Right.</b> It matches the line on page 1.</span> : null}
+                </li>
+              ))}
+            </ol>
+            {/* What happens next, once the answer is checked: the plan the boxes keep, said in one line. */}
+            <p className={styles.next}>Right answers wait longer before they come back. A miss comes back tomorrow.</p>
+          </div>
         </div>
-        <ol className={styles.boxes} aria-hidden="true">
-          {BOXES.map(({ box, every, lines }) => (
-            <li key={box} className={styles.box}>
-              <b>Box {box}</b>
-              <small>{every}</small>
-              <span className={styles.marks}>
-                {box <= 2 ? <i className={styles.gap} /> : null}
-                {lines.map((line) => <i key={line.text} data-state={line.state}>{line.text}</i>)}
-              </span>
-              <span className={styles.count}>{lines.length + (box === 2 ? 1 : 0)}</span>
-            </li>
-          ))}
-          <i className={styles.mover}>The net movement of particles</i>
-        </ol>
-        <figcaption className={styles.panelFoot}><span>Right answer: Box 1 to Box 2</span><span><b>6</b> of 10 recalled</span></figcaption>
+        <figcaption className={styles.panelFoot}>Every question points back to the line it came from.</figcaption>
       </figure>
+      </HeroReplay>
+      </div>
+
+      {/* The tools students already keep notes in, by their own marks (simple-icons, in each brand's colour). */}
+      <div className={`${brands.works} ${styles.works}`}>
+        <span className={brands.label}>Works with</span>
+        <ul className={brands.list} aria-label="Works with">
+          <li><span className={brands.pdf} aria-hidden="true">PDF</span>PDFs and slides</li>
+          <li><BrandIcon brand="notion" size={18} />Notion</li>
+          <li><BrandIcon brand="obsidian" size={18} />Obsidian</li>
+          <li><BrandIcon brand="markdown" size={18} />Markdown</li>
+          <li><BrandIcon brand="anki" size={18} />Anki</li>
+        </ul>
+      </div>
     </section>
   );
 }

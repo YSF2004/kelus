@@ -2,10 +2,13 @@
 .studySection,
 .returnSection { overflow: clip; }
 
+/* Tiles, like everything above: inside the 64px page margin, 16px apart, an 8px corner and a hairline border. */
+.studySection,
+.returnSection { margin: 16px 64px 0; border: 1px solid #e5e5e5; border-radius: 8px; }
+
 .studySection {
   background: #fff;
   color: var(--ink);
-  border-block: 1px solid var(--color-frost);
 }
 
 .studyInner,
@@ -60,19 +63,20 @@
   color: var(--color-kelus);
   font: 600 0.95rem/1.2 var(--font-marketing-sans);
   text-decoration: underline;
+  text-decoration-color: color-mix(in srgb, currentColor 45%, transparent);
   text-underline-offset: 0.28em;
   padding: 0.7rem 0;
   min-height: 44px;
   white-space: nowrap;
-  transition: opacity var(--dur-fast) var(--ease-standard);
+  transition: text-decoration-color 160ms var(--ease-standard);
 }
-.textLink:hover { opacity: 0.75; }
+/* The underline starts as a soft pencil line and inks in on hover. */
+.textLink:hover { text-decoration-color: currentColor; }
 .textLink:active { transform: scale(0.97); }
 .textLink:focus-visible { outline: 2px solid var(--color-kelus); outline-offset: 4px; }
 
 .returnSection {
   background: #fff;
-  border-block: 1px solid var(--color-frost);
 }
 .returnInner { grid-template-columns: minmax(0, 0.78fr) minmax(0, 1.22fr); }
 .returnCopy { padding: clamp(4rem, 7vw, 7rem) 1rem clamp(4rem, 7vw, 7rem) clamp(1.5rem, 5vw, 5rem); }
@@ -96,6 +100,8 @@
 .greenDot { fill: var(--color-kelus); }
 
 @media (max-width: 760px) {
+  .studySection,
+  .returnSection { margin: 12px 16px 0; }
   .studyInner,
   .returnInner { grid-template-columns: minmax(0, 1fr); }
   .studyArt { min-height: 0; }

@@ -4,9 +4,10 @@ import { BrandIcon } from "@/components/BrandIcon";
 import { useEffect, useState, type DragEvent } from "react";
 import { PackArt } from "@/components/PackArt";
 import { PasteNotes } from "@/components/PasteNotes";
+import { PhotoNotes } from "@/components/PhotoNotes";
 import { MAX_NOTES_BYTES } from "@/domain/markdown-pages";
 import { SOURCE_FILE_ACCEPT, isNotesFile, isSourceFile, isZipFile } from "@/domain/materials";
-import { zipToNotesFile } from "@/lib/zip-notes";
+import { folderToNotesFile, zipToNotesFile } from "@/lib/zip-notes";
 import { takePendingSetupFile } from "@/lib/pending-setup-file";
 
 /**
@@ -21,7 +22,7 @@ export function DropNotes({ onFile, first = false, courseName }: { onFile: (file
   async function take(picked: File | undefined) {
     setDragging(false);
     if (!picked || busy) return;
-    if (!isSourceFile(picked)) return setError("Choose a PDF, notes as a .md or .txt file, or a Notion export (.zip).");
+    if (!isSourceFile(picked)) return setError("Choose a PDF, notes as a .md or .txt file, a Notion export or an Obsidian vault (.zip or a folder).");
     setBusy(true);
     setError("");
     try {
@@ -35,7 +36,7 @@ export function DropNotes({ onFile, first = false, courseName }: { onFile: (file
     }
   }
 
-  // A file chosen while the sample was open: start from it instead of asking again.
+  // A file chosen while the sample was open, or shared from another app: start from it instead of asking again.
   useEffect(() => {
     const waiting = takePendingSetupFile();
     if (waiting) queueMicrotask(() => void take(waiting));
@@ -45,6 +46,19 @@ export function DropNotes({ onFile, first = false, courseName }: { onFile: (file
 
   function drop(event: DragEvent<HTMLLabelElement>) {
     event.preventDefault();
+    // A whole folder (an Obsidian vault from Finder or Files) is read note by note into one notes file.
+    const entry = event.dataTransfer.items?.[0]?.webkitGetAsEntry?.();
+    if (entry?.isDirectory) {
+      setDragging(false);
+      if (busy) return;
+      setBusy(true);
+      setError("");
+      void folderToNotesFile(entry as FileSystemDirectoryEntry).then((file) => { setBusy(false); return take(file); }, (caught: unknown) => {
+        setError(caught instanceof Error && caught.message ? caught.message : "Kelus couldn’t read that folder. Try a zip of it instead.");
+        setBusy(false);
+      });
+      return;
+    }
     void take(event.dataTransfer.files[0]);
   }
 
@@ -57,8 +71,8 @@ export function DropNotes({ onFile, first = false, courseName }: { onFile: (file
           <h1 id="start-title" className="destination-page-title">{first ? "Start with your notes." : courseName ? `Add notes to ${courseName}.` : "Add your notes."}</h1>
           <p className="destination-support">
             {first
-              ? "A PDF, a Notion export or pasted text. Kelus finds the topics, and your first question is ready in about a minute."
-              : "A PDF, a Notion export or pasted text. Kelus finds the topics and adds them to today’s plan."}
+              ? "A PDF, photos of your pages, a Notion export or pasted text. Kelus finds the topics, and your first question is ready in about a minute."
+              : "A PDF, photos of your pages, a Notion export or pasted text. Kelus finds the topics and adds them to today’s plan."}
           </p>
           <label
             className={`setup-first-upload${dragging ? " is-dragging" : ""}`}
@@ -74,6 +88,7 @@ export function DropNotes({ onFile, first = false, courseName }: { onFile: (file
             {/* Dragging only exists with a mouse or trackpad; a phone gets the file types instead. */}
             <span>{busy ? "This takes a few seconds." : <><span className="drop-hint">or drop it here · </span>PDF, <span className="brand-inline"><BrandIcon brand="markdown" size={15} />Markdown</span>, .txt or a <span className="brand-inline"><BrandIcon brand="notion" size={14} />Notion</span> .zip</>}</span>
           </label>
+          <PhotoNotes onFile={(file) => void take(file)} disabled={busy} />
           <PasteNotes onFile={(file) => void take(file)} disabled={busy} />
           {error ? <p className="setup-error" role="alert">{error}</p> : null}
           <p className="setup-file-help">PDFs up to 20 MB, scans included. From Notion: Export, then Markdown &amp; CSV, and choose the .zip.</p>

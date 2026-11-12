@@ -24,7 +24,7 @@ export function assessPdfTextQuality(pages: ExtractedMaterialPage[]): PdfTextQua
   return { totalChars, pagesWithText, pageCount: pageCount || target.length, density };
 }
 
-type OcrLine = { text: string; confidence: number };
+type OcrLine = { text: string; confidence: number; bbox?: { x0: number; y0: number; x1: number; y1: number } };
 type OcrData = { text: string; confidence?: number; blocks?: Array<{ paragraphs: Array<{ lines: OcrLine[] }> }> | null };
 
 /** Below this, a recognised line is more likely a misreading ("Alrerat all acation") than what the page says. */
@@ -46,6 +46,31 @@ export function confidentOcrText(data: OcrData) {
     .map((paragraph) => paragraph.lines.filter((line) => line.confidence >= MIN_OCR_LINE_CONFIDENCE).map((line) => stripOcrBullet(line.text.trim())).filter(Boolean).join("\n"))
     .filter(Boolean)
     .join("\n\n");
+}
+
+/**
+ * The same confident lines as blocks with a size: the recogniser's box height stands in for the font size, so a
+ * heading set larger on a scan or a photo is found as a heading, the way a PDF's own text is. Null when the
+ * recogniser gave no boxes; the caller then falls back to guessing from line length.
+ */
+export function confidentOcrBlocks(data: OcrData): ExtractedTextBlock[] | null {
+  const lines = (data.blocks ?? []).flatMap((block) => block.paragraphs).flatMap((paragraph) => paragraph.lines);
+  if (!lines.length || lines.some((line) => !line.bbox)) return null;
+  const kept = lines
+    .filter((line) => line.confidence >= MIN_OCR_LINE_CONFIDENCE)
+    .map((line) => ({ text: stripOcrBullet(line.text.trim()), box: line.bbox! }))
+    .filter((line) => line.text);
+  const heights = kept.map((line) => line.box.y1 - line.box.y0).sort((a, b) => a - b);
+  const body = heights[Math.floor(heights.length / 2)] ?? 0;
+  return kept.map(({ text, box }, index) => {
+    const height = box.y1 - box.y0;
+    // On a photo the boxes are too noisy to tell a 14 pt heading from 11 pt text, so a line that reads as a heading
+    // counts as one: short, no closing full stop, opening on a capital or a section number, after a finished sentence.
+    const previous = kept[index - 1]?.text ?? "";
+    // A running header or footer is set smaller than the text: it is never promoted.
+    const reads = height >= body * 0.8 && text.split(/\s+/).length <= 7 && !/[.,;:!?]$/.test(text) && /^(?:\d+(?:\.\d+)*\s+)?\p{Lu}/u.test(text) && (!previous || /[.!?:]$/.test(previous));
+    return { text, x: box.x0, y: -box.y0, width: box.x1 - box.x0, height, fontSize: reads ? Math.max(height, Math.round(body * 1.3)) : height };
+  });
 }
 
 function flattenOutline(nodes: PdfOutlineNode[] | null | undefined, depth = 0): string[] {
@@ -458,7 +483,7 @@ export async function ocrPdfPages(
         byNumber.set(target.pageNumber, {
           pageNumber: target.pageNumber,
           text,
-          blocks: synthesizeBlocksFromText(text),
+          blocks: confidentOcrBlocks(result.data as OcrData) ?? synthesizeBlocksFromText(text),
         });
         ocrPages += 1;
       }

@@ -54,7 +54,11 @@ function layoutTitle(page: ExtractedMaterialPage | undefined) {
   const blocks = page?.blocks ?? [];
   if (blocks.length < 3) return null;
   const body = bodyFontSize(blocks);
-  const [top, ...rest] = blocks;
+  // A running header or page number set smaller than the text ("Chapter 7 - Cell Transport" above the title on a
+  // scan) is page furniture, not the first line.
+  const start = blocks.findIndex((block) => block.fontSize >= body * 0.85);
+  const [top, ...rest] = start > 0 ? blocks.slice(start) : blocks;
+  if (!top) return null;
   const text = cleanCandidate(top.text);
   if (text.length < 3 || text.length > 90 || top.fontSize < body * 1.35) return null;
   if (rest.some((block) => block.fontSize >= top.fontSize * 0.95)) return null;
@@ -63,7 +67,7 @@ function layoutTitle(page: ExtractedMaterialPage | undefined) {
 
 /** Course-logistics text near a heading means the "topic" is a title page, not something to study. */
 /** Licence notices, image credits and page furniture: a passage made of these teaches nothing. */
-const CREDIT_LINE = /(?:creative commons|all rights reserved|terms of use|ocw\.mit\.edu|image (?:is )?(?:courtesy|in the public domain)|public domain|excluded from our|© ?\d{4}|copyright|source:|licen[cs]ed under)/i;
+const CREDIT_LINE = /(?:creative commons|all rights reserved|terms of use|ocw\.mit\.edu|image (?:is )?(?:courtesy|in the public domain)|public domain|excluded from our|© ?\d{4}|copyright|source:|licen[cs]ed under|\bf?igures? (?:\d+(?:\.\d+)* )?(?:from|adapted from|courtesy of)\b|\bcourtesy of\b|used with permission|images? removed\b|\b[\p{Lu}][\p{L}'-]+, (?:\p{Lu}\. ?){1,3}[^.]*\bvol\.|\bvol\. [ivx\d]+\b.*\b(?:press|publishers?)\b)/iu;
 function creditOnly(excerpt: string) {
   const flat = excerpt.replace(/\s+/g, " ");
   if (!CREDIT_LINE.test(flat)) return false;
@@ -77,10 +81,12 @@ function creditOnly(excerpt: string) {
 const ADMINISTRATIVE_EXCERPT = /\b(?:office hours?|instructor\s*:|attendance|grading\s*:)|e-?mail\s*:|\S+@\S+\.\S+|\b(?:nous soussign[ée]s?|je soussign[ée]e?|certifions|certifie que|fait pour servir et valoir|pour valoir ce que de droit)\b/i;
 /** Headings that structure a document but are not something to study on their own. */
 const GENERIC_HEADING =
-  /^(?:examples?|summary|overview|introduction|intro|conclusions?|notes?|references?|resources?|further reading|homework|exercises?|practice|questions?|review|recap|key points|takeaways|table of contents|contents|agenda|to-?do|links?|bibliography|appendix|glossary|extra|misc(?:ellaneous)?|(?:learning )?objectives|learning outcomes|outcomes|aims|goals|key terms|objectifs|plan|sommaire|outline|class material|course material|for today(?: and next week)?|next week|this week|today|to know(?: [-–—] .*)?|announcements?|logistics|reminders?|readings?|thank you|any questions\??|r[ée]sum[ée]|conclusion|exercices?|exemples?|bibliographie|annexes?|mots[- ]cl[ée]s)$/i;
+  /^(?:(?:laboratory|lab|student|course) (?:manual|workbook|handbook)|workbook|study guide|materials?(?: and (?:methods|supplies))?(?: required| needed)?|methods|procedures?|licen[cs]ing|licen[cs]e|labs?|lab report|results|discussion|data(?: table)?|background|purpose|safety(?: notes?)?|equipment|pre-?lab(?: questions)?|post-?lab(?: questions)?|(?:questions for|review) (?:review|questions)|practical challenge(?: questions)?|(?:graph|interpret|record|analy[sz]e) (?:your )?(?:results|data)|performing the experiment|examples?|summary|overview|introduction|intro|conclusions?|notes?|references?|resources?|further reading|homework|exercises?|practice|questions?|review|recap|key points|takeaways|table of contents|contents|agenda|to-?do|links?|bibliography|appendix|glossary|extra|misc(?:ellaneous)?|(?:learning )?objectives|learning outcomes|outcomes|aims|goals|key terms|objectifs|plan|sommaire|outline|class material|course material|for today(?: and next week)?|next week|this week|today|to know(?: [-–—] .*)?|announcements?|logistics|reminders?|readings?|thank you|any questions\??|r[ée]sum[ée]|conclusion|exercices?|exemples?|bibliographie|annexes?|mots[- ]cl[ée]s)$/i;
 /** A course deck can hold dozens of topics; more than this is shown as a cap, not silently dropped. */
 export const MAX_PROPOSED_TOPICS = 40;
-const HEADING_PREFIX = /^(?:week|module|topic|chapter|unit|lecture|section)\s*\d*[.:\-–—]?\s*/i;
+// "Exercise 4: Testing for Proteins" and "Step 4: Designing a Controlled Experiment" name the test or the step; a lab
+// label only counts with its number, so "Steps of Cellular Respiration" keeps its first word.
+const HEADING_PREFIX = /^(?:(?:week|module|topic|chapter|unit|lecture|section)\s*\d*[.:\-–—]?|(?:exercise|activity|experiment|step|part)\s+\d+[a-z]?\s*[.:\-–—])\s*/i;
 const NUMBER_PREFIX = /^\s*(?:\d+(?:\.\d+)+\.?\s+|(?:\d+(?:\.\d+)*|[ivx]+)[.)\-:]\s*|\d{1,2}\s+(?=\p{Lu}))/iu;
 const EXAM_SIGNAL =
   /\b(?:exam|midterm|final|tests?|tested|assessment|learning objectives?|will be asked|must know|high-?yield|core concept|key concept|important|critical|essential|fundamental)\b/i;
@@ -144,12 +150,27 @@ function isStatement(value: string) {
 function notATopic(value: string) {
   const text = value.trim();
   return /\b(?:the|of|in|and|to|a|an|for|with|on|at|by|from|or|as)$/i.test(text)
+    || CAPTION_NAME.test(text) || CREDIT_LINE.test(text)
+    // An equation or a comparison ("t = ; D = 10−5", "solute << solvent"), or a table cell with a measurement.
+    || /=|<<|>>/.test(text) || MEASURE.test(text)
+    // A table's header row ("Microscope Part: Function"): a column name, then what the column holds.
+    || /:\s*(?:function|description|purpose|uses?|values?|results?|observations?|notes?|units?|examples?)$/i.test(text)
+    // A cover title cut off at the edge of the page: "BIOLOGY L".
+    || /^\p{Lu}{3,}(?:\s\p{Lu}{3,})*\s\p{Lu}$/u.test(text)
     || /^[“"‘']/.test(text) || (/[”"]\??$/.test(text) && !/[“"]/.test(text.slice(0, -2)))
     || /\((?:cont(?:’|')?d|cont\.|continued)\)|\bcontinued$/i.test(text)
     || /^examples?\b/i.test(text)
     || (text.match(/[<>=]/g) ?? []).length >= 2
     || /^(?:dr|prof|professor|mr|mrs|ms)\.?\s+\p{Lu}/iu.test(text);
 }
+
+/**
+ * A figure's own label is not a topic: "Figure from Weiss", "Images of an endothelial cell", or "igures from" when a
+ * drop capital F is drawn apart from the rest of the word.
+ */
+const CAPTION_NAME = /^(?:f?igures?|fig\.|images?|photos?|diagrams?|illustrations?)\b(?:\s+\d+(?:\.\d+)*)?(?:\s|$)(?:from|of|courtesy|removed|adapted|showing|shows|\d|$)/i;
+/** A number with a unit ("10 μm", "1 sec", "5 mL"): a table cell or a reading, not a topic. */
+const MEASURE = /\d\s*(?:nm|μm|µm|mm|cm|km|μs|µs|μsec|µsec|ms|msec|sec|min|hrs?|days?|mg|kg|g|ml|mL|l|mol|°C|K)\b/;
 
 /** A slide's bullet point is a point inside a topic, never the topic's heading. */
 const BULLETED = /^\s*[•◦▪‣]\s/;
@@ -260,8 +281,15 @@ export function versusSides(name: string) {
   return { left: !/\s/.test(left) && tail ? `${left} ${tail}` : left, right, leftKey: left.split(/\s+/)[0], rightKey: right.split(/\s+/)[0] };
 }
 
-function centralClaim(name: string, excerpt: string) {
-  const sentences = units(excerpt);
+/** Sentences the student highlighted come first, in their own order; the rest keep theirs. */
+export function highlightedFirst(sentences: string[], highlights: string[] = []) {
+  if (!highlights.length) return sentences;
+  const marked = (sentence: string) => highlights.some((phrase) => sentence.includes(phrase));
+  return [...sentences.filter(marked), ...sentences.filter((sentence) => !marked(sentence))];
+}
+
+function centralClaim(name: string, excerpt: string, highlights: string[] = []) {
+  const sentences = highlightedFirst(units(excerpt), highlights);
   if (!sentences.length) return excerpt.slice(0, 220);
   const sides = versusSides(name);
   if (sides) {
@@ -275,6 +303,9 @@ function centralClaim(name: string, excerpt: string) {
   const pool = whole.length ? whole : sentences;
   // "Determinants of elasticity", "Causes of …": the answer is the list, not its first item.
   if (isListTopic(name) && whole.length >= 2) return whole.slice(0, 3).join(" ").slice(0, 360);
+  // A line the student highlighted is the one they decided matters: it is the answer, whatever else the page says.
+  const highlighted = highlights.length ? pool.find((sentence) => highlights.some((phrase) => sentence.includes(phrase))) : undefined;
+  if (highlighted) return clipAtPoint(highlighted, 260);
   const named = pool.find((sentence) => sentence.toLocaleLowerCase().includes(coreName(name).toLocaleLowerCase()));
   // A definition counts only near the heading; a later "… is the market equilibrium" belongs to another idea.
   const defined = pool.slice(0, 2).find((sentence) => DEFINITION_SIGNAL.test(sentence));
@@ -503,8 +534,8 @@ function frenchApply(prompt: string, name: string, claim: string) {
 }
 
 function buildActivity(concept: Concept, proposal: ProposedConcept, siblingNames: string[] = [], siblingFacts: string[] = []): LearningActivity {
-  const claim = centralClaim(concept.name, proposal.sourceExcerpt);
-  const practice = buildPractice({ conceptId: concept.id, name: concept.name, excerpt: proposal.sourceExcerpt, locator: proposal.locator, siblingNames, siblingFacts });
+  const claim = centralClaim(concept.name, proposal.sourceExcerpt, proposal.highlights);
+  const practice = buildPractice({ conceptId: concept.id, name: concept.name, excerpt: proposal.sourceExcerpt, locator: proposal.locator, siblingNames, siblingFacts, highlights: proposal.highlights });
   // The "Use" step asks something the page actually supports: a stated condition or reason, in the learner's words.
   const facts = teachingFacts(concept.name, proposal.sourceExcerpt);
   const furtherFact = facts.find((fact) => fact !== claim && fact.length >= 30);
@@ -675,14 +706,17 @@ export function proposeConceptsFromPages(input: {
       const sourceExcerpt = excerptFor(lines, index, line, layout ? isHeading : undefined);
       const heading = cleanCandidate(line);
       const name = topicNameFrom(heading, sourceExcerpt, locator);
-      const key = name.toLocaleLowerCase();
+      // "DIFFUSION & OSMOSIS" under "Diffusion and Osmosis" is the same topic set twice.
+      const key = name.toLocaleLowerCase().replace(/\s*&\s*/g, " and ");
       if (key === titleKey) return;
-      if ((!matcher(heading) && !layoutHeading) || seen.has(key) || ADMINISTRATIVE.test(name) || GENERIC_HEADING.test(name.trim()) || isDocumentTitle(name) || isContinuation(heading) || notATopic(heading) || isStatement(heading)) return;
+      if ((!matcher(heading) && !layoutHeading) || seen.has(key) || ADMINISTRATIVE.test(name) || GENERIC_HEADING.test(name.trim()) || isDocumentTitle(name) || isContinuation(heading) || notATopic(heading) || notATopic(name) || isStatement(heading)) return;
       // A slide with several headings gives them all the same passage; only the first is a topic.
       const passageKey = `${page.pageNumber}:${sourceExcerpt.replace(/\s+/g, " ").trim().toLocaleLowerCase()}`;
       if (creditOnly(sourceExcerpt) || seenPassages.has(passageKey)) return;
       seenPassages.add(passageKey);
       seen.add(key);
+      const flatExcerpt = sourceExcerpt.replace(/\s+/g, " ");
+      const highlights = page.highlights?.filter((phrase) => flatExcerpt.includes(phrase));
       proposals.push({
         id: `proposal-${stablePart(`${input.materialId}:${key}`)}`,
         materialId: input.materialId,
@@ -690,6 +724,7 @@ export function proposeConceptsFromPages(input: {
         sourceLabel: input.sourceLabel,
         locator,
         sourceExcerpt,
+        ...(highlights?.length ? { highlights } : {}),
       });
     });
   }
@@ -842,8 +877,8 @@ export function buildConfirmedMaterialModel(input: {
     return {
       id: `p-${concept.id}`,
       conceptId: concept.id,
-      promptText: recallQuestion(concept.name, centralClaim(concept.name, proposal.sourceExcerpt), `From memory, explain the central claim about ${concept.name} from ${proposal.locator}.`),
-      modelAnswer: centralClaim(concept.name, proposal.sourceExcerpt),
+      promptText: recallQuestion(concept.name, centralClaim(concept.name, proposal.sourceExcerpt, proposal.highlights), `From memory, explain the central claim about ${concept.name} from ${proposal.locator}.`),
+      modelAnswer: centralClaim(concept.name, proposal.sourceExcerpt, proposal.highlights),
     };
   });
   const factsByTopic = new Map(input.proposals.map((proposal) => [proposal.name, teachingFacts(proposal.name, proposal.sourceExcerpt, 3)]));

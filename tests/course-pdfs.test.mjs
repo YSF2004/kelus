@@ -122,3 +122,45 @@ test("a table row keeps its cells apart: the factor, then what it does", async (
   assert.match(text, /Température: Au-delà de 40 °C/);
   assert.match(text, /Concentration en CO₂: Une concentration/);
 });
+
+// Found on real open course files (MIT OpenCourseWare HST.410J lectures, a LibreTexts biology lab manual), reproduced
+// with synthetic pages: the files themselves are licensed for non-commercial use and stay out of the repository.
+const sheet = (rows) => {
+  const line = (text, fontSize, y) => ({ text, fontSize, x: 72, y, width: text.length * fontSize * 0.5, height: fontSize });
+  const blocks = rows.map(([text, size], index) => line(text, size, 720 - index * 30));
+  return [{ pageNumber: 2, text: blocks.map((block) => block.text).join("\n\n"), blocks }];
+};
+const namesOf = (pages) => proposeConceptsFromPages({ materialId: "m", sourceLabel: "s", pages }).filter(isSourceBackedProposal).map((item) => item.name);
+const BODY = "Diffusion moves solute particles down a concentration gradient, and the time it takes grows with the square of the distance.";
+
+// A slide numbered "3" with no title is named from its first line; on these slides that line is a credit or a formula.
+const slide = (first) => sheet([["3", 18], [first, 11], [BODY, 11], ["Random Walk Model", 18], [BODY.replace("the time", "the mean time"), 11]]);
+
+test("lecture slides: a figure credit or permission line never names a topic", () => {
+  for (const first of [
+    "Figure from Weiss, T. F. Cellular Biophysics, Vol. I. Cambridge, MA: MIT Press, 1996.",
+    "igures from Weiss, T. F. Cellular Biophysics.",
+    "Courtesy of MIT Press. Used with permission.",
+    "Images removed due to copyright restrictions.",
+  ]) assert.deepEqual(namesOf(slide(first)), ["Random Walk Model"], first);
+});
+
+test("lecture slides: an equation or a comparison never names a topic", () => {
+  for (const first of ["t = ; D = 10−5 for small solutes", "Number of solute particles << number of solvent particles"]) {
+    assert.deepEqual(namesOf(slide(first)), ["Random Walk Model"], first);
+  }
+});
+
+test("a lab manual: its furniture is not a topic, a numbered step keeps only its name, and a heading set twice is one", () => {
+  assert.deepEqual(namesOf(sheet([
+    ["LABORATORY MANUAL", 18], [BODY, 11],
+    ["MATERIALS AND METHODS", 18], [BODY.replace("Diffusion", "Spreading"), 11],
+    ["Licensing", 18], [BODY.replace("solute", "dye"), 11],
+    ["Questions for Review", 18], [BODY.replace("particles", "molecules"), 11],
+    ["Microscope Part: Function", 18], [BODY.replace("grows", "rises"), 11],
+    ["Step 4: Designing a Controlled Experiment", 18], [BODY.replace("the time", "the mean time"), 11],
+    ["Diffusion and Osmosis", 18], [BODY.replace("down", "along"), 11],
+    ["DIFFUSION & OSMOSIS", 18], [BODY.replace("square", "second power"), 11],
+    ["Steps of Cellular Respiration", 18], [BODY.replace("distance", "path length"), 11],
+  ])), ["Designing a Controlled Experiment", "Diffusion and Osmosis", "Steps of Cellular Respiration"]);
+});

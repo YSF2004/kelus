@@ -305,13 +305,17 @@ export function buildPractice(input: {
   siblingNames: string[];
   /** Sentences from the course's other topics: wrong options that are real, plausible and clearly off-topic. */
   siblingFacts?: string[];
+  /** The student's own highlights (Obsidian ==highlight==): their lines are asked about first. */
+  highlights?: string[];
 }): PracticeItem[] {
   const { conceptId, name, excerpt, locator } = input;
   // Every question quotes a line from the notes, so each line must read as a sentence: never a heading row or a
   // fragment a scan cut loose ("crew rest minimum 10 hours duty time max"). Fall back to all lines only if none do.
   const allLines = units(excerpt);
   const readable = allLines.filter(readsAsSentence);
-  const sentences = readable.length ? readable : allLines;
+  const plain = readable.length ? readable : allLines;
+  const marked = (sentence: string) => (input.highlights ?? []).some((phrase) => sentence.includes(phrase));
+  const sentences = input.highlights?.length ? [...plain.filter(marked), ...plain.filter((sentence) => !marked(sentence))] : plain;
   const items: PracticeItem[] = [];
   const language = noteLanguage(excerpt);
   // A question with a visible defect is worse than none: the lint decides, not the generator's optimism.
@@ -321,7 +325,7 @@ export function buildPractice(input: {
     // Checked in English, asked in the notes' own language.
     items.push(language === "en" ? candidate : { ...candidate, prompt: inNotesLanguage(candidate.prompt, language, name), hint: hintInNotesLanguage(candidate.hint, language) });
   };
-  const definition = sentences.find((s) => s.toLocaleLowerCase().includes(name.toLocaleLowerCase())) ?? sentences[0];
+  const definition = (input.highlights?.length ? sentences.find(marked) : undefined) ?? sentences.find((s) => s.toLocaleLowerCase().includes(name.toLocaleLowerCase())) ?? sentences[0];
 
   // 1. Identify the idea from its description, among the course's other topics.
   const others = [...new Set(input.siblingNames.filter((other) => other.toLocaleLowerCase() !== name.toLocaleLowerCase()))];

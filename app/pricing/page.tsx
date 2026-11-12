@@ -9,6 +9,7 @@ import { authConfigured } from "@/lib/auth-config";
 import { foundingPaymentConfigured } from "@/lib/founding";
 import { LateralPage } from "@/components/PageTransition";
 import { PricingPlanMotion } from "@/components/PricingPlanMotion";
+import { Rise } from "@/components/PricingReveal";
 
 export const metadata: Metadata = {
   title: "Kelus Pricing | Free Exam Revision & Planned Plus",
@@ -34,7 +35,7 @@ export default function PricingPage() {
       <PricingViewTracker />
       <section className="legal-panel pricing-booklet">
         {/* From the Kelus illustration pack: monthly, cancel any time, no trial that runs out. */}
-        <PackArt name="time-flies" className="pricing-hero-art" size={190} />
+        <PackArt name="time-flies" className="pricing-hero-art k-rise" size={190} />
         <h1>Start revising. Stay in control.</h1>
         <p className="legal-lede">
           Revise your own course for free. Kelus Plus is planned at $4.99/month.
@@ -44,7 +45,7 @@ export default function PricingPage() {
         </p>
 
         <div className="pricing-booklet-stack pricing-grid" role="list">
-          <PricingPlanMotion>
+          <PricingPlanMotion delay={0.1}>
             <article className="pricing-offer is-free pricing-plan">
               <div className="pricing-offer-head">
                 <div className="pricing-plan-name"><h2 className="kicker">Free</h2><span className="pricing-availability">Available now</span></div>
@@ -57,7 +58,7 @@ export default function PricingPage() {
                 <li>A plan that moves with your answers</li>
                 <li>Export every question to Anki</li>
                 <li>No account required</li>
-                {syncReady ? <li>Optional free sign-in to sync revision progress</li> : <li>Saved on this device</li>}
+                <li>{syncReady ? "Optional free sign-in to sync revision progress" : "Saved on this device"}</li>
               </ul>
               <Link className="cta" href="/today">
                 Start revising <span aria-hidden="true">→</span>
@@ -65,7 +66,7 @@ export default function PricingPage() {
             </article>
           </PricingPlanMotion>
 
-          <PricingPlanMotion>
+          <PricingPlanMotion delay={0.18}>
             <article className={`pricing-offer is-pass pricing-plan is-founding${paymentReady ? "" : " is-upcoming"}`}>
               <div className="pricing-offer-head">
                 <div className="pricing-plan-name"><h2 className="kicker">Kelus Plus</h2><span className="pricing-availability">{paymentReady ? "Available now" : "Coming soon"}</span></div>
@@ -87,12 +88,15 @@ export default function PricingPage() {
         </div>
 
         {paymentReady ? null : (
-          <section className="pricing-notify" aria-labelledby="pricing-notify-title">
-            <h2 id="pricing-notify-title">Hear when Plus opens</h2>
-            <WaitlistForm source="pricing" compact />
-          </section>
+          <Rise>
+            <section className="pricing-notify" aria-labelledby="pricing-notify-title">
+              <h2 id="pricing-notify-title">Hear when Plus opens</h2>
+              <WaitlistForm source="pricing" compact />
+            </section>
+          </Rise>
         )}
 
+        <Rise>
         <section className="pricing-faq" aria-labelledby="pricing-faq-title">
           <h2 id="pricing-faq-title">Good to know</h2>
           <dl>
@@ -101,6 +105,7 @@ export default function PricingPage() {
             <div><dt>Where is my work kept?</dt><dd>Your work starts on this device. Free sign-in can sync revision progress; keep a copy of your source files while file sync is being tested.</dd></div>
           </dl>
         </section>
+        </Rise>
 
         <p className="legal-inline-links">
           Questions? Write to <a href="mailto:hello@kelus.me">hello@kelus.me</a>, <Link href="/questions">ask one here</Link>, or read the <Link href="/privacy">privacy note</Link>.

@@ -117,6 +117,8 @@ export type ExtractedMaterialPage = {
   pageNumber: number;
   text: string;
   blocks?: ExtractedTextBlock[];
+  /** Phrases the student highlighted themselves (Obsidian ==highlight==), as they read in `text`. */
+  highlights?: string[];
 };
 
 export type ProposedConcept = {
@@ -126,6 +128,8 @@ export type ProposedConcept = {
   sourceLabel: string;
   locator: string;
   sourceExcerpt: string;
+  /** The student's own highlights inside this excerpt: those lines are asked about first. */
+  highlights?: string[];
 };
 
 export type PracticeKind = "recall" | "why" | "cloze" | "choice" | "scenario";
