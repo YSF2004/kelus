@@ -5,7 +5,7 @@ import test from "node:test";
 test("the NotebookLM page is crawlable, fair and dated, and shows a real Kelus question", () => {
   const page = readFileSync("app/notebooklm-alternative/page.tsx", "utf8");
   assert.match(page, /canonical: "\/notebooklm-alternative\/"/);
-  assert.match(page, /title: "Kelus"/);
+  assert.match(page, /title: "Kelus vs NotebookLM for Exam Revision \| Kelus"/);
   // Claims about another product are dated, say where to check, and say when NotebookLM is the better choice.
   assert.match(page, /as listed in November 2026/);
   assert.match(page, /NotebookLM is the better choice when/);
