@@ -73,7 +73,7 @@ function Burst() {
  * remember (quoted from your notes), today's goal filling up, and a single next step. Detail is one tap away.
  */
 export function QuickResult({
-  outcome, topic, attempts, stats, comesBack, remember, rememberLabel = "Worth remembering", locator, goalDone, goal, routeLine, nextName, details, onRetry, onContinue, onSource, path, habit, conceptId }: {
+  outcome, topic, attempts, stats, comesBack, remember, rememberLabel = "Worth remembering", locator, goalDone, goal, routeLine, routeReason, nextName, details, onRetry, onContinue, onSource, path, habit, conceptId }: {
   outcome: RetrievalOutcome;
   topic: string;
   /** How many times this topic has been answered, counting this one. */
@@ -88,6 +88,8 @@ export function QuickResult({
   goalDone: number;
   goal: number;
   routeLine: string;
+  /** The evidence that earned the route decision, written for the student rather than as a score. */
+  routeReason?: string;
   nextName?: string;
   details: ReactNode;
   onRetry: () => void;
@@ -153,6 +155,7 @@ export function QuickResult({
         <motion.aside {...rise(0.54)} className={styles.route} role="status" aria-label={routeChanged ? "Your plan changed" : "Next in your plan"}>
           <span>{routeChanged ? "Your plan changed" : "Next in your plan"}</span>
           <p>{routeLine}</p>
+          {routeReason ? <p className={styles.routeReason}>{routeReason}</p> : null}
         </motion.aside>
       )}
 

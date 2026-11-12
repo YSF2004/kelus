@@ -38,6 +38,7 @@
   letter-spacing: 0.01em;
 }
 .route p { margin: 0; }
+.routeReason { color: var(--color-slate); font-size: var(--text-caption, 0.8125rem); }
 
 .actions { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px; margin-top: 4px; }
 .primary, .secondary { min-height: 52px; padding: 0 24px; border-radius: 8px; font: inherit; font-weight: 600; cursor: pointer; transition: transform 120ms, background-color 120ms; }

@@ -425,6 +425,12 @@ function SessionBody() {
   const currentSource = evidenceSourceOverride?.conceptId === concept.id
     ? evidenceSourceOverride.reference
     : phaseSource.reference;
+  // The plan should never look like a black box. Name the evidence that made this topic return sooner or later.
+  const routeReason = lastOutcome === "success"
+    ? `Your checks and explanation gave ${concept.name} room to come back later.`
+    : quickMissed[0]
+      ? `Because this line from ${currentSource?.locator ?? "your notes"} was not recalled yet.`
+      : `Because this topic still needs another pass from your notes.`;
   const currentMaterial = materials.find((item) => item.id === currentSource?.materialId)
     ?? (currentSource?.materialId === "demo-syllabus-microeconomics" ? materials.find((item) => item.id === "material-demo-microeconomics") : null)
     ?? null;
@@ -697,6 +703,7 @@ function SessionBody() {
                 habit={{ today: dayKey(new Date(Date.parse(state.nowIso))), streak: goalToday.streak, week: goalToday.week, backTomorrow: goalToday.backTomorrow }}
                 comesBack={comesBackLine(concept.nextReviewAt, state.nowIso)}
                 routeLine={planLine({ next: nextConceptName, movedUp: movedUpName, orderChanged: routeOrderChanged })}
+                routeReason={routeReason}
                 nextName={nextConceptName}
                 path={{
                   practised: state.snapshot.concepts.filter((item) => item.courseId === concept.courseId && item.retrievalAttempts > 0).length,
