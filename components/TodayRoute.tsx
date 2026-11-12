@@ -344,8 +344,8 @@ export function TodayRoute({
       ) : null}
 
       {nextStops.length ? (
-        <motion.section className={q.then} data-block="today-next" aria-label="Planned next topics" {...settle(3)}>
-          <h2 className={q.thenTitle}>After that</h2>
+        <motion.section className={q.then} data-block="today-next" aria-label="Up next" {...settle(3)}>
+          <h2 className={q.thenTitle}>Up next</h2>
           <ol>
             <AnimatePresence initial={false} mode="popLayout">
             {nextStops.map((stop, index) => (

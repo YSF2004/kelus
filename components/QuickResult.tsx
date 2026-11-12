@@ -106,6 +106,9 @@ export function QuickResult({
   // The verdict is readable at once; the rest follows in a short stagger, all settled within about half a second.
   const rise = (delay: number) => (reduce ? {} : { initial: { opacity: 0, y: 8 }, animate: { opacity: 1, y: 0 }, transition: { duration: 0.22, delay: delay * 0.3, ease } });
   const goalMet = goalDone >= goal;
+  // A reroute is the product's most important proof. Say it on the result itself,
+  // before the optional audit trail below, rather than leaving it as quiet metadata.
+  const routeChanged = !/^Next:\s/i.test(routeLine.trim());
   const router = useRouter();
   // Decided once, when the result opens: the moment marks the day as seen, and must not vanish under itself.
   const [moment, setMoment] = useState(() => Boolean(habit) && goalDone === goal && goalMomentDue(habit!.today));
@@ -160,7 +163,12 @@ export function QuickResult({
       ) : null}
 
       {/* "Next: X." would only repeat the button below it. */}
-      {nextName && routeLine.trim() === `Next: ${nextName}.` ? null : <p className={styles.route} role="status">{routeLine}</p>}
+      {nextName && routeLine.trim() === `Next: ${nextName}.` ? null : (
+        <motion.aside {...rise(0.66)} className={styles.route} role="status" aria-label={routeChanged ? "Your plan changed" : "Next in your plan"}>
+          <span>{routeChanged ? "Your plan changed" : "Next in your plan"}</span>
+          <p>{routeLine}</p>
+        </motion.aside>
+      )}
 
       <div className={styles.actions}>
         {outcome !== "success" ? <button type="button" className={`k-btn k-btn--paper ${styles.secondary}`} onClick={onRetry}>{w.tryAgain}</button> : null}

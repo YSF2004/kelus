@@ -36,7 +36,7 @@ export function LeitnerPanel({ state }: { state: LeitnerState }) {
     <section className={styles.panel} data-open={timelineOpen || undefined} aria-labelledby="leitner-title">
       <header className={styles.head}>
         <div>
-          <h2 id="leitner-title">Recall rhythm</h2>
+          <h2 id="leitner-title">Review timing</h2>
           <p>{due ? `${due} ${due === 1 ? "line is" : "lines are"} due today` : "Nothing is due today"} · {state.recalled} known</p>
         </div>
         <button

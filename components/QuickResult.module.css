@@ -21,7 +21,23 @@
 .icon { width: 20px; height: 20px; flex: none; vertical-align: -4px; }
 
 .goal { display: flex; align-items: center; gap: 12px; font-size: var(--text-body-sm); color: var(--color-slate); }
-.route { margin: 0; font-size: var(--text-body-sm); line-height: 1.5; color: var(--color-smoke); }
+.route {
+  display: grid;
+  gap: 3px;
+  margin: 2px 0 0;
+  padding: 2px 0 2px 14px;
+  border-left: 2px solid color-mix(in srgb, var(--color-kelus) 56%, var(--k-line));
+  color: var(--color-slate);
+  font-size: var(--text-body-sm);
+  line-height: 1.5;
+}
+.route span {
+  color: var(--color-kelus);
+  font-size: var(--text-caption, 0.8125rem);
+  font-weight: 700;
+  letter-spacing: 0.01em;
+}
+.route p { margin: 0; }
 
 .actions { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px; margin-top: 4px; }
 .primary, .secondary { min-height: 52px; padding: 0 24px; border-radius: 8px; font: inherit; font-weight: 600; cursor: pointer; transition: transform 120ms, background-color 120ms; }
