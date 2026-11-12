@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { SearchLanding, searchStyles as styles } from "@/components/seo/SearchLanding";
 
 export const metadata: Metadata = {
-  title: "Kelus",
+  title: "Turn Notes into Flashcards for Free | Kelus",
   description: "Turn your notes into flashcards for free. Paste typed notes or drop in a Notion export, Markdown file or PDF: Kelus writes each card from your own lines and brings back the ones you miss. No account.",
   alternates: { canonical: "/notes-to-flashcards/" },
   openGraph: {

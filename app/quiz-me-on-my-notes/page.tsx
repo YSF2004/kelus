@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { SearchLanding, searchStyles as styles } from "@/components/seo/SearchLanding";
 
 export const metadata: Metadata = {
-  title: "Kelus",
+  title: "Quiz Me on My Notes: Free Practice Questions | Kelus",
   description: "Paste your notes or drop in a lecture PDF and Kelus quizzes you on them: questions written from your own sentences, each answer checked against the line it came from, missed lines back tomorrow. Free, no account.",
   alternates: { canonical: "/quiz-me-on-my-notes/" },
   openGraph: {

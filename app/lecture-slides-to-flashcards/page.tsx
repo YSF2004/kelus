@@ -3,7 +3,7 @@ import { BrandIcon } from "@/components/BrandIcon";
 import { SearchLanding, searchStyles as styles } from "@/components/seo/SearchLanding";
 
 export const metadata: Metadata = {
-  title: "Kelus",
+  title: "Turn Lecture Slides into Flashcards | Kelus",
   description: "Turn lecture slides into flashcards for free. Save your PowerPoint, Keynote or Google Slides deck as a PDF; Kelus writes cards from what each slide says, each with its page (one slide per page). Export to Anki.",
   alternates: { canonical: "/lecture-slides-to-flashcards/" },
   openGraph: {

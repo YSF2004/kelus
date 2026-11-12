@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { SearchLanding, searchStyles as styles } from "@/components/seo/SearchLanding";
 
 export const metadata: Metadata = {
-  title: "Kelus",
+  title: "Kelus vs NotebookLM for Exam Revision | Kelus",
   description: "Kelus vs NotebookLM for exam revision: Kelus quizzes you on your own notes word for word, brings back what you missed on a plan to your exam, and grades your explanation against the page. Free, no account.",
   alternates: { canonical: "/notebooklm-alternative/" },
   openGraph: {
