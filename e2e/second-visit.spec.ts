@@ -20,6 +20,14 @@ test("the second visit opens with what you missed, warms up on it, then goes on 
   await page.locator('[data-action="start-topic"]').click();
   await expect(page).toHaveURL(/\/session\/warmup/);
   await expect(page.getByRole("heading", { name: "Warm up on what you missed" })).toBeVisible();
+  // A returned question remains accountable to the learner's original notes.
+  // This is a local pasted source, so opening the evidence must work without a server round-trip.
+  await page.getByRole("button", { name: "Open source" }).click();
+  const sourcePanel = page.getByRole("complementary", { name: "Exact source line" });
+  await expect(sourcePanel).toBeVisible();
+  await expect(sourcePanel.getByLabel("Course source")).toBeVisible();
+  await sourcePanel.getByRole("button", { name: "Close source" }).click();
+  await expect(sourcePanel).toHaveCount(0);
   for (let guard = 0; guard < 4; guard += 1) {
     await expect(page.getByRole("button", { name: "I’m not sure" }).or(page.getByRole("heading", { name: /came back|Not yet/ }))).toBeVisible();
     if (await page.getByRole("heading", { name: /came back|Not yet/ }).count()) break;
