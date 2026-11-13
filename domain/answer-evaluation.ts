@@ -66,6 +66,8 @@ function contradictionDetected(answer: string, expected: string) {
 
 export type AnswerCriterionResult = { id: string; label: string; met: boolean; evidence: string[] };
 export type AssessmentMode = NonNullable<LearningActivity["assessment"]>["mode"];
+/** The conclusion Kelus can responsibly draw from a deterministic, source-backed check. */
+export type EvidenceStatus = "source_supported" | "incomplete" | "contradicted";
 
 export type AnswerEvaluation = {
   outcome: RetrievalOutcome;
@@ -76,6 +78,11 @@ export type AnswerEvaluation = {
   matchedApply: number;
   criteria: AnswerCriterionResult[];
   contradiction: boolean;
+  /**
+   * Kept separate from the route outcome. A weak route outcome can mean “not enough
+   * evidence to confirm” rather than “Kelus proved this answer false”.
+   */
+  evidenceStatus: EvidenceStatus;
   /** What this deterministic check can establish—and the boundary it cannot cross. */
   mode: AssessmentMode;
   reviewNote: string;
@@ -132,12 +139,12 @@ export function evaluateLearningResponse(input: {
   if (!contradiction && retrieveWords >= 5 && applicationWords >= 5 && sourceMet && reasoningMet && score >= 0.34) {
     return { outcome: "success", score, label: "Strong evidence", explanation: retrievalOnly
         ? "The answer includes the source idea. Compare it with the passage above: matching terms cannot verify every nuance."
-        : "The answer includes the source idea and a reasoned application. Compare it with the passage above: matching terms cannot verify every nuance.", matchedRetrieve, matchedApply, criteria, contradiction, mode, reviewNote };
+        : "The answer includes the source idea and a reasoned application. Compare it with the passage above: matching terms cannot verify every nuance.", matchedRetrieve, matchedApply, criteria, contradiction, evidenceStatus: "source_supported", mode, reviewNote };
   }
   if (!contradiction && retrieveWords >= 3 && applicationWords >= 3 && (sourceMet || reasoningMet || score >= 0.16)) {
-    return { outcome: "partial", score, label: "Partial evidence", explanation: missing ? `Some of the idea is here. Try again with: ${missing.label.toLocaleLowerCase()}.` : "Some of the idea is here. Compare your reasoning with the source before moving on.", matchedRetrieve, matchedApply, criteria, contradiction, mode, reviewNote };
+    return { outcome: "partial", score, label: "Partial evidence", explanation: missing ? `Some of the idea is here, but Kelus cannot confirm it yet. Add: ${missing.label.toLocaleLowerCase()}.` : "Some of the idea is here, but Kelus cannot confirm the full relationship yet. Compare your reasoning with the source before moving on.", matchedRetrieve, matchedApply, criteria, contradiction, evidenceStatus: "incomplete", mode, reviewNote };
   }
-  return { outcome: "failure", score, label: "Not enough evidence yet", explanation: contradiction ? "This may reverse or negate the relationship in the source. Recheck the original passage before trying again." : missing ? `The answer does not yet show enough of the source idea. Start with: ${missing.label.toLocaleLowerCase()}.` : "The answer does not yet show enough of the source idea. Recheck the passage and try again.", matchedRetrieve, matchedApply, criteria, contradiction, mode, reviewNote };
+  return { outcome: "failure", score, label: "Not enough evidence yet", explanation: contradiction ? "This may reverse or negate the relationship in the source. Recheck the original passage before trying again." : missing ? `Kelus cannot confirm this answer from the source yet. Start with: ${missing.label.toLocaleLowerCase()}.` : "Kelus cannot confirm this answer from the source yet. Recheck the passage and try again.", matchedRetrieve, matchedApply, criteria, contradiction, evidenceStatus: contradiction ? "contradicted" : "incomplete", mode, reviewNote };
 }
 
 export function evaluateDiagnosisResponse(input: { answer: string; modelAnswer: string; assessment?: LearningActivity["assessment"] }): AnswerEvaluation {

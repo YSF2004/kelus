@@ -339,6 +339,7 @@ function SessionBody() {
       matchedApply: 0,
       criteria: [],
       contradiction: false,
+      evidenceStatus: outcome === "success" ? "source_supported" : "incomplete",
       mode: "general",
       reviewNote: "Kelus checked the source-linked checks you completed. Compare with the source before relying on a nuanced answer.",
     });
@@ -970,7 +971,7 @@ function SessionBody() {
                     animate={{ opacity: 1, y: 0 }}
                     transition={reduceMotion ? { duration: 0 } : { duration: 0.4, delay: 0.5, ease: kelusEase }}
                   >
-                    <h2>{evaluation.label}</h2>
+                    <h2>{evaluation.evidenceStatus === "contradicted" ? "Check the relationship" : evaluation.label}</h2>
                     <p>{evaluation.explanation}</p>
                     {evaluation.criteria.length ? (
                       <ul className="answer-criteria" aria-label="Assessment criteria">
@@ -987,7 +988,7 @@ function SessionBody() {
                         ))}
                       </ul>
                     ) : null}
-                    <p className="assessment-boundary"><strong>What Kelus checked</strong> {evaluation.reviewNote}</p>
+                    <p className="assessment-boundary"><strong>{evaluation.evidenceStatus === "incomplete" ? "What Kelus cannot confirm yet" : "What Kelus checked"}</strong> {evaluation.reviewNote}</p>
                     <small>Compared with the source · not a grade</small>
                     <div className="study-ratings" role="group" aria-label="Record answer evidence">
                       <motion.button

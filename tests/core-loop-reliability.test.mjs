@@ -28,14 +28,35 @@ test("answer evaluation is deterministic and cannot be promoted by self-rating",
   const failure = evaluateDiagnosisResponse({ answer: "I understand this perfectly", modelAnswer: expected });
 
   assert.equal(strong.outcome, "success");
+  assert.equal(strong.evidenceStatus, "source_supported");
   assert.equal(partial.outcome, "partial");
+  assert.equal(partial.evidenceStatus, "incomplete");
   assert.equal(failure.outcome, "failure");
+  assert.equal(failure.evidenceStatus, "incomplete");
   assert.deepEqual(strong, evaluateLearningResponse({
     retrieveAnswer: "Enzymes lower activation energy, increasing reaction rate without being consumed.",
     applicationAnswer: "Adding the enzyme lowers activation energy, so this reaction proceeds faster without consuming the enzyme.",
     retrieveModelAnswer: expected,
     applicationModelAnswer: `A sound answer uses this mechanism: ${expected}`,
   }));
+});
+
+test("a contradiction is named separately from an answer Kelus cannot confirm", () => {
+  const contradictory = evaluateDiagnosisResponse({
+    answer: "Enzymes do not lower activation energy.",
+    modelAnswer: "Enzymes lower activation energy and increase reaction rate.",
+  });
+  const uncertain = evaluateDiagnosisResponse({
+    answer: "Enzymes help reactions.",
+    modelAnswer: "Enzymes lower activation energy and increase reaction rate.",
+  });
+
+  assert.equal(contradictory.outcome, "failure");
+  assert.equal(contradictory.evidenceStatus, "contradicted");
+  assert.match(contradictory.explanation, /reverse or negate/i);
+  assert.equal(uncertain.outcome, "partial");
+  assert.equal(uncertain.evidenceStatus, "incomplete");
+  assert.match(uncertain.explanation, /cannot confirm/i);
 });
 
 test("feedback names the missing source-backed criterion instead of generic encouragement", () => {
