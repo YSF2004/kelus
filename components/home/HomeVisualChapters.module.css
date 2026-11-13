@@ -26,8 +26,9 @@
   display: grid;
   place-items: end center;
   min-height: clamp(32rem, 44vw, 44rem);
-  padding: clamp(2rem, 4vw, 4rem) clamp(1.5rem, 5vw, 5rem) 0;
+  padding: clamp(1rem, 3vw, 3rem) clamp(1rem, 3vw, 3rem) 0;
   background: #fff;
+  overflow: hidden;
 }
 .studyArt img {
   /* This is the one human counterweight to a long editorial paragraph. Let it occupy its half of the spread. */
@@ -127,8 +128,12 @@
 }
 
 /* Pack drawings: ink on paper, sized to sit beside the copy. */
+.studyArt .packArt { display: block; width: min(132%, 48rem); max-width: none; height: auto; margin: 0 auto; transform: translate(7%, 0.4rem); }
 .packArt { display: block; width: min(118%, 34rem); max-width: none; height: auto; margin: 0 auto; }
 .returnArt .packArt { width: min(60%, 15rem); }
-@media (max-width: 760px) { .packArt { width: min(100%, 31rem); max-width: 100%; } }
+@media (max-width: 760px) {
+  .studyArt .packArt { width: min(116%, 36rem); max-width: none; transform: translate(5%, 0.2rem); }
+  .packArt { width: min(100%, 31rem); max-width: 100%; }
+}
 
 .action { align-self: flex-start; margin-top: 8px; }
