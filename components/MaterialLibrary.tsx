@@ -15,7 +15,7 @@ import { useAuth } from "@/components/AuthProvider";
 import { FirstRunGate } from "@/components/FirstRunGate";
 import { useLearner } from "@/components/LearnerProvider";
 import { PAYWALL_DISMISS_KEY, SoftUpgradePrompt } from "@/components/SoftUpgradePrompt";
-import { trackEvent } from "@/lib/analytics";
+import { getAcquisitionSource, trackEvent } from "@/lib/analytics";
 import type { CourseMaterial, ExtractedMaterialPage, MaterialRole, ProposedConcept } from "@/domain/types";
 import { ReadingNotes } from "@/components/ReadingNotes";
 import { MATERIAL_ROLES, materialRoleLabel } from "@/domain/materials";
@@ -470,7 +470,7 @@ export function MaterialLibrary({ embedded = false, incomingFile = null, onIncom
       setSelectedIds(new Set(proposals.map((proposal) => proposal.id)));
       setDraftNames(Object.fromEntries(proposals.map((proposal) => [proposal.id, proposal.name])));
       dispatch({ type: "REVIEW_READY", analysis: nextAnalysis });
-      trackEvent({ name: "material_processing_completed", source_type: isNotes ? "notes" : "pdf", topic_count: proposals.length, used_ocr: usedOcr, course_type: "real" });
+      trackEvent({ name: "material_processing_completed", source_type: isNotes ? "notes" : "pdf", topic_count: proposals.length, used_ocr: usedOcr, course_type: "real", acquisition_source: getAcquisitionSource() });
       trackEvent({ name: "concept_review_started", concept_count: proposals.length });
       if (courseMaterials.filter((item) => item.storage === "local").length >= 3) {
         try {
@@ -485,7 +485,7 @@ export function MaterialLibrary({ embedded = false, incomingFile = null, onIncom
       updateMaterialProcessingStatus(material.id, "failed");
       const cancelled = caught instanceof Error && caught.name === "AbortError";
       const ocrFailure = attemptedOcr || (caught instanceof Error && (caught as Error & { kind?: string }).kind === "ocr");
-      trackEvent({ name: "material_processing_failed", source_type: material.kind === "text" ? "notes" : "pdf", reason: cancelled ? "cancelled" : ocrFailure ? "ocr" : "extraction", course_type: "real" });
+      trackEvent({ name: "material_processing_failed", source_type: material.kind === "text" ? "notes" : "pdf", reason: cancelled ? "cancelled" : ocrFailure ? "ocr" : "extraction", course_type: "real", acquisition_source: getAcquisitionSource() });
       if (cancelled) {
         dispatch({
           type: "FAIL",

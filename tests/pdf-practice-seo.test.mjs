@@ -10,7 +10,8 @@ test("the PDF practice entry page has unique crawlable metadata and a real study
   assert.match(page, /Turn Lecture PDFs into Practice Questions/);
   assert.match(page, /canonical: "\/pdf-to-practice-questions"/);
   assert.match(page, /<h1 id="page-title">/);
-  assert.match(page, /href="\/today"/);
+  assert.match(page, /SearchStartLink action="Add your PDF or notes →" landing="pdf-to-practice-questions"/);
+  assert.match(readFileSync("components/seo/SearchStartLink.tsx", "utf8"), /href=\{`\/today\?source=/);
   assert.match(page, /Your own questions come from your material/);
   assert.match(page, /const title = "Turn Lecture PDFs into Practice Questions \| Kelus"/);
   // Question-writing is on the device on kelus.me; the page says so plainly and links to how questions are written.

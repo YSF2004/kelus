@@ -6,7 +6,7 @@ import { DropNotes } from "@/components/DropNotes";
 import { MaterialLibrary } from "@/components/MaterialLibrary";
 import { RevisionSurface } from "@/components/RevisionSurface";
 import { useLearner } from "@/components/LearnerProvider";
-import { trackEvent } from "@/lib/analytics";
+import { getAcquisitionSource, trackEvent } from "@/lib/analytics";
 import styles from "./loading.module.css";
 import { addSourceMaterial, getMaterialsSnapshot, getServerMaterialsSnapshot, removeMaterial, subscribeMaterials } from "@/lib/material-store";
 import { removeRemoteMaterial, uploadMaterialPdf } from "@/lib/material-sync";
@@ -45,6 +45,7 @@ function TodayBody() {
   const notesSource = materials.find((item) => item.storage === "local")?.kind === "text";
   const sampleHandled = useRef(false);
   const wantsSample = searchParams.get("sample") === "1";
+  const acquisitionSource = searchParams.get("source");
   // The built-in sample is only ever shown in the browser session that asked for it (?sample=1). Saved or synced
   // from an older visit, it is not the learner's course, so Today starts them on their own notes instead.
   const [sampleOpened] = useState(() => {
@@ -60,6 +61,12 @@ function TodayBody() {
   // Until it is read, Today says it is opening the file.
   const [sharedIntoCourse, setSharedIntoCourse] = useState(false);
   const [openingShare, setOpeningShare] = useState(() => searchParams.get("shared") === "1");
+  // Keep the controlled source-page label for this browser session so an upload,
+  // topic review, and first route can be attributed to the landing page that led here.
+  useEffect(() => {
+    if (!acquisitionSource || !/^[a-z0-9-]{2,64}$/.test(acquisitionSource)) return;
+    try { window.sessionStorage.setItem("kelus-acquisition-source", acquisitionSource); } catch { /* Attribution is optional. */ }
+  }, [acquisitionSource]);
   useEffect(() => {
     if (!openingShare) return;
     let live = true;
@@ -105,7 +112,7 @@ function TodayBody() {
     } catch {
       elapsedMs = 0;
     }
-    trackEvent({ name: "first_route_ready", elapsed_ms: elapsedMs, concept_count: state.snapshot.concepts.length, course_type: state.snapshot.courses[0]?.id === SAMPLE_COURSE_ID ? "sample" : "real" });
+    trackEvent({ name: "first_route_ready", elapsed_ms: elapsedMs, concept_count: state.snapshot.concepts.length, course_type: state.snapshot.courses[0]?.id === SAMPLE_COURSE_ID ? "sample" : "real", acquisition_source: getAcquisitionSource() });
   }
 
   const roleFor = (file: File) => (/syllabus|outline/i.test(file.name) ? "syllabus" : /slides|lecture/i.test(file.name) ? "lecture_slides" : "notes");
@@ -113,7 +120,8 @@ function TodayBody() {
   /** The very first notes: make the course with sensible defaults and read the file. The exam date is asked after the first run. */
   async function startFromFile(file: File) {
     const role = roleFor(file);
-    trackEvent({ name: "material_upload_started", role, course_type: "real" });
+    const acquisitionSource = getAcquisitionSource();
+    trackEvent({ name: "material_upload_started", role, course_type: "real", acquisition_source: acquisitionSource });
     try { window.localStorage.setItem("kelus-first-route-started-at", String(Date.now())); } catch { /* Timing analytics are optional. */ }
     const examDate = new Date(Date.now() + 14 * 86_400_000).toISOString().slice(0, 10);
     const input: SetupInput = {
@@ -128,10 +136,10 @@ function TodayBody() {
     };
     try {
       const material = await addSourceMaterial({ courseId: CURRENT_COURSE_ID, file, role });
-      trackEvent({ name: "material_upload_completed", role, course_type: "real" });
+      trackEvent({ name: "material_upload_completed", role, course_type: "real", acquisition_source: acquisitionSource });
       if (auth.user) void uploadMaterialPdf(auth.user.id, material, file).catch(() => undefined);
     } catch (error) {
-      trackEvent({ name: "material_upload_failed", role, course_type: "real" });
+      trackEvent({ name: "material_upload_failed", role, course_type: "real", acquisition_source: acquisitionSource });
       throw error;
     }
     try { sessionStorage.setItem("kelus-start-first-run", "1"); } catch { /* Without it the learner lands on Today instead. */ }
@@ -141,13 +149,14 @@ function TodayBody() {
   // A course that exists but has no notes yet (after starting over) uploads here; it is counted like a first upload.
   async function addNotes(file: File, courseId: string) {
     const role = roleFor(file);
-    trackEvent({ name: "material_upload_started", role, course_type: "real" });
+    const acquisitionSource = getAcquisitionSource();
+    trackEvent({ name: "material_upload_started", role, course_type: "real", acquisition_source: acquisitionSource });
     let material;
     try {
       material = await addSourceMaterial({ courseId, file, role });
-      trackEvent({ name: "material_upload_completed", role, course_type: "real" });
+      trackEvent({ name: "material_upload_completed", role, course_type: "real", acquisition_source: acquisitionSource });
     } catch (error) {
-      trackEvent({ name: "material_upload_failed", role, course_type: "real" });
+      trackEvent({ name: "material_upload_failed", role, course_type: "real", acquisition_source: acquisitionSource });
       throw error;
     }
     if (auth.user) void uploadMaterialPdf(auth.user.id, material, file).catch(() => undefined);

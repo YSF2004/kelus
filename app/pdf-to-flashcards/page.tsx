@@ -46,6 +46,7 @@ export default function PdfToFlashcards() {
       title={["PDF to flashcards,", "from your own pages."]}
       lede="Drop in a lecture PDF, slides or a chapter. Kelus finds its topics and writes flashcards from your own sentences, and every card shows the page it came from."
       action="Turn a PDF into flashcards"
+      landing="pdf-to-flashcards"
       note={<>Free. No account. Export to <BrandIcon brand="anki" size={14} /> Anki.</>}
       exampleLabel="A real example: flashcards Kelus wrote from the LibreTexts BIOL 101 lab manual"
       example={

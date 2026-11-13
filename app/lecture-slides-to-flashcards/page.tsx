@@ -46,6 +46,7 @@ export default function LectureSlidesToFlashcards() {
       title={["Lecture slides to flashcards,", "from your own deck."]}
       lede="Save your lecture slides as a PDF and drop them in. Kelus writes flashcards from what each slide says, and every card shows the page it came from: one slide per page."
       action="Turn slides into flashcards"
+      landing="lecture-slides-to-flashcards"
       note={<>Free. No account. Export to <BrandIcon brand="anki" size={14} /> Anki.</>}
       exampleLabel="A real example: flashcards Kelus wrote from a seven-slide economics lecture"
       example={

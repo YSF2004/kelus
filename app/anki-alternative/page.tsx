@@ -55,6 +55,7 @@ export default function AnkiAlternative() {
       title={["An Anki alternative", "that writes the cards from your notes."]}
       lede="Spaced repetition without the hours of card-making. Drop in your lecture PDF or notes: Kelus writes the questions from your own lines, spaces them out to your exam, and exports them to Anki if you want both."
       action="Try it with your notes"
+      landing="anki-alternative"
       note={<>Free. No account. Exports to Anki.</>}
       exampleLabel="A real example: one question Kelus wrote from the LibreTexts BIOL 101 lab manual"
       example={

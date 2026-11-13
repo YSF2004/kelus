@@ -20,5 +20,5 @@ test("PDF to flashcards page shows real cards, starts the product, and is access
   });
   expect(violations).toEqual([]);
   await page.getByRole("link", { name: "Turn a PDF into flashcards" }).first().click();
-  await expect(page).toHaveURL(/\/today\/?$/);
+  await expect(page).toHaveURL(/\/today\/?\?source=pdf-to-flashcards$/);
 });

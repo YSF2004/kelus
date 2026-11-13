@@ -47,6 +47,7 @@ export default function NotesToFlashcards() {
       title={["Notes to flashcards,", "written from your own lines."]}
       lede="Paste your notes or drop in a Notion export, a Markdown file or a PDF. Kelus turns each line worth knowing into a question, shows the line with the answer, and brings back the cards you miss."
       action="Turn my notes into flashcards"
+      landing="notes-to-flashcards"
       note={<>Free. No account. Your notes stay on your device.</>}
       exampleLabel="A real example: one question Kelus wrote from sample Notion notes, answered"
       example={

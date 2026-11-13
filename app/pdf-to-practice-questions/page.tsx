@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { SiteFooter } from "@/components/SiteFooter";
+import { SearchStartLink } from "@/components/seo/SearchStartLink";
 import styles from "./page.module.css";
 
 const title = "Turn Lecture PDFs into Practice Questions | Kelus";
@@ -38,9 +39,7 @@ export default function PdfToPracticeQuestionsPage() {
               Add the notes you were actually taught. Kelus finds the topics, asks questions from those pages,
               and brings back what you missed when you revise again.
             </p>
-            <Link className={styles.primary} href="/today">
-              Add your PDF or notes <span aria-hidden="true">→</span>
-            </Link>
+            <SearchStartLink action="Add your PDF or notes →" landing="pdf-to-practice-questions" placement="hero" className={styles.primary} />
             <p className={styles.microcopy}>
               {/* Hosted question-writing is off on kelus.me (NEXT_PUBLIC_AI_ENDPOINT is empty), so the questions are
                   written on the device. If it is ever switched on, say here that a topic's text may be sent. */}
@@ -131,9 +130,7 @@ export default function PdfToPracticeQuestionsPage() {
             You do not need a finished study plan to begin. Add a source, check the proposed topics, and see
             what you can recall. If you want to understand every step first, read <Link href="/route">how Kelus works</Link>.
           </p>
-          <Link className={styles.primary} href="/today">
-            Add your PDF or notes <span aria-hidden="true">→</span>
-          </Link>
+          <SearchStartLink action="Add your PDF or notes →" landing="pdf-to-practice-questions" placement="close" className={styles.primary} />
         </section>
       </main>
       <SiteFooter />

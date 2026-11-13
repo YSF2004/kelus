@@ -48,6 +48,7 @@ export default function PdfToAnki() {
       title={["PDF to Anki,", "from your own lecture pages."]}
       lede="Drop in a lecture PDF, slides or a chapter. Kelus writes the cards from your own sentences, puts the line and its page on the back, and saves a deck Anki imports as it is."
       action="Turn a PDF into an Anki deck"
+      landing="pdf-to-anki"
       note={<>Free. No account. Imports with <BrandIcon brand="anki" size={14} /> File → Import.</>}
       exampleLabel="A real example: one card Kelus exported to Anki from the LibreTexts BIOL 101 lab manual"
       example={

@@ -58,6 +58,7 @@ export default function QuizletAlternative() {
       title={["A free Quizlet alternative", "that quizzes you on your own notes."]}
       lede="No sets to make or borrow. Drop in the notes you were taught: Kelus writes the questions from your own lines, shows the line behind every answer, and plans what to revise until the exam."
       action="Try it with your notes"
+      landing="quizlet-alternative"
       note={<>Free. No account. Your notes stay on your device.</>}
       exampleLabel="A real example: one question Kelus wrote from the LibreTexts BIOL 101 lab manual"
       example={

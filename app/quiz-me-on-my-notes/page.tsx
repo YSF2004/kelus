@@ -53,6 +53,7 @@ export default function QuizMeOnMyNotes() {
       title={["Quiz me on my notes,", "with questions from my own lines."]}
       lede="Paste your notes or drop in a lecture PDF. Kelus asks you about what you were taught, checks each answer against the line it came from, and brings back what you missed the next day."
       action="Quiz me on my notes"
+      landing="quiz-me-on-my-notes"
       note={<>Free. No account. Your notes stay on your device.</>}
       exampleLabel="A real example: one question Kelus wrote from the LibreTexts BIOL 101 lab manual, answered"
       example={

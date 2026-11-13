@@ -7,17 +7,18 @@ export type KelusAnalyticsEvent =
   | { name: "waitlist_joined"; source: string }
   | { name: "question_submitted"; source: string; delivery?: "remote" | "local" | "needs_activation" }
   | { name: "material_confirmed"; concept_count: number }
-  | { name: "material_upload_started"; role: string; course_type: "real" }
+  | { name: "search_landing_cta_clicked"; landing: string; placement: "hero" | "faq" | "close" }
+  | { name: "material_upload_started"; role: string; course_type: "real"; acquisition_source?: string }
   | { name: "material_shared_in"; kind: string }
   | { name: "match_round_done"; pairs: number; misses: number }
-  | { name: "material_upload_completed"; role: string; course_type: "real" }
-  | { name: "material_upload_failed"; role: string; course_type: "real" }
-  | { name: "material_processing_completed"; source_type: "pdf" | "notes"; topic_count: number; used_ocr: boolean; course_type: "real" }
-  | { name: "material_processing_failed"; source_type: "pdf" | "notes"; reason: "ocr" | "extraction" | "cancelled"; course_type: "real" }
+  | { name: "material_upload_completed"; role: string; course_type: "real"; acquisition_source?: string }
+  | { name: "material_upload_failed"; role: string; course_type: "real"; acquisition_source?: string }
+  | { name: "material_processing_completed"; source_type: "pdf" | "notes"; topic_count: number; used_ocr: boolean; course_type: "real"; acquisition_source?: string }
+  | { name: "material_processing_failed"; source_type: "pdf" | "notes"; reason: "ocr" | "extraction" | "cancelled"; course_type: "real"; acquisition_source?: string }
   | { name: "concept_review_started"; concept_count: number }
   | { name: "concept_review_updated"; action: "selected" | "removed" }
   | { name: "diagnosis_completed"; retrieval_count: number }
-  | { name: "first_route_ready"; elapsed_ms: number; concept_count: number; course_type: "real" | "sample" }
+  | { name: "first_route_ready"; elapsed_ms: number; concept_count: number; course_type: "real" | "sample"; acquisition_source?: string }
   | { name: "session_started"; session_number?: number; sample?: boolean; course_type: "real" | "sample" }
   | { name: "study_response_recorded"; format: "quick_check" | "own_words"; read_first: boolean; course_type: "real" | "sample" }
   | { name: "session_resumed" }
@@ -47,6 +48,20 @@ export type KelusAnalyticsEvent =
 
 export function analyticsEnabled() {
   return Boolean(GA_MEASUREMENT_ID) && typeof window !== "undefined";
+}
+
+/**
+ * A short, controlled label for the search page that started this visit. It is
+ * deliberately never a file name, note title, search query, or referrer.
+ */
+export function getAcquisitionSource() {
+  if (typeof window === "undefined") return undefined;
+  try {
+    const source = window.sessionStorage.getItem("kelus-acquisition-source");
+    return source && /^[a-z0-9-]{2,64}$/.test(source) ? source : undefined;
+  } catch {
+    return undefined;
+  }
 }
 
 const pendingEvents: KelusAnalyticsEvent[] = [];

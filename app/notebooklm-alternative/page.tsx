@@ -65,6 +65,7 @@ export default function NotebookLmAlternative() {
       title={["Kelus vs NotebookLM,", "for revising your own notes."]}
       lede="NotebookLM is a strong tool for asking questions about your sources. Kelus is built for the part before an exam: it quizzes you on your own lines word for word, brings back what you missed, and plans what to revise until exam day."
       action="Try it with your notes"
+      landing="notebooklm-alternative"
       note={<>Free. No account. Your notes stay on your device.</>}
       exampleLabel="A real example: a question Kelus wrote from a sample economics lecture"
       example={
