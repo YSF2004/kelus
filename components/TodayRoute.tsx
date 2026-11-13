@@ -68,6 +68,7 @@ export function TodayRoute({
   relationships = [],
   onRenameCourse,
   onOpenSource,
+  onOpenNotes,
 }: {
   route: RoutePlan;
   concepts: Concept[];
@@ -90,6 +91,8 @@ export function TodayRoute({
   onRenameCourse?: (name: string) => void;
   /** Opens the exact source page beside the current recommendation without leaving Today. */
   onOpenSource?: () => void;
+  /** On a phone, opens the source in Materials rather than squeezing a second pane beside the plan. */
+  onOpenNotes?: () => void;
 }) {
   const reduceMotion = useReducedMotion();
   // The topic this card is about: the open block's current topic when there is one, else the route's first.
@@ -246,6 +249,7 @@ export function TodayRoute({
         {/* The top of today's page: the day, then the course, as a notebook is dated before it is written in. */}
         <p className={q.date}>{new Date(nowIso).toLocaleDateString("en-US", { weekday: "long", month: "long", day: "numeric" })}</p>
         <h1 className={q.title} data-block="course-title">{hasCoursePdf ? <CourseFolderIcon /> : null}{onRenameCourse ? <InlineName value={courseName} label="Rename course" onSave={onRenameCourse} /> : <span>{courseName}</span>}</h1>
+        {onOpenNotes ? <button type="button" className={q.openNotes} onClick={onOpenNotes}>Open notes</button> : null}
         {(
           <ul className={q.stats} role="group" aria-label={isSampleCourse ? "Example course overview" : "Your path through the course"}>
             {/* A sample says so on the page itself, now the top bar carries no labels. */}

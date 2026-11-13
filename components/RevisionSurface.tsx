@@ -415,6 +415,7 @@ export function RevisionSurface({ topicId }: { /** A topic's own page, opened in
                     relationships={snapshot.relationships}
                     onRenameCourse={isSampleCourse ? undefined : (next) => renameCourse(course.id, next, "user")}
                     onOpenSource={hasReadableSource && selectedMaterial ? () => router.replace(hrefForMode("today", selectedMaterial.id, true), { scroll: false }) : undefined}
+                    onOpenNotes={hasReadableSource && selectedMaterial ? () => setMode("materials") : undefined}
                   />
                 </div>
                 {sourceBesidePlan && hasReadableSource && selectedMaterial ? <CourseSourceReader id="today-source-reader" key={`${selectedMaterial.id}-${selectedMaterial.id === firstReference?.materialId ? firstSourcePage : 1}`} material={selectedMaterial} initialPage={selectedMaterial.id === firstReference?.materialId ? firstSourcePage : 1} /> : null}

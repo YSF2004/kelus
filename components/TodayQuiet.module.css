@@ -234,6 +234,7 @@
 .page .stats { justify-self: end; gap: 4px 18px; }
 .page .stats li, .page .stats strong { font-family: var(--font-inter), system-ui, sans-serif !important; font-size: 13.5px; font-variant-numeric: tabular-nums; }
 .page .stats strong { font-weight: 600; }
+.openNotes { display: none; }
 
 /* .next is repeated on purpose: leitner.css styles this card with !important at a higher weight; the page wins here. */
 .page .next.next.next {
@@ -319,10 +320,38 @@
 .page .then li strong { font-size: 17px; }
 .page .then li em { font-family: var(--font-inter), system-ui, sans-serif; font-variant-numeric: tabular-nums; }
 
-@media (max-width: 650px) {
+@media (max-width: 1120px) {
   .page .head { grid-template-columns: minmax(0, 1fr); }
   .page .stats { justify-self: start; }
+  /* The source is another destination on a narrow plan, not floating chrome.
+     The order is deliberate: course → notes → progress. */
+  .openNotes {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    margin: -2px 0 2px;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: var(--lb-green-ink);
+    font: 600 15px/1.2 var(--font-inter), system-ui, sans-serif;
+    cursor: pointer;
+    text-decoration: underline;
+    text-decoration-color: color-mix(in srgb, currentColor 35%, transparent);
+    text-underline-offset: 4px;
+  }
+  .openNotes:active { transform: scale(0.97); }
+  .openNotes:focus-visible { outline: 2px solid var(--lb-green); outline-offset: 3px; border-radius: 3px; }
+}
+
+@media (max-width: 650px) {
   .page .title, .page .title :global(*) { font-size: 26px !important; }
+  .page .stats {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, max-content));
+    gap: 6px 18px;
+  }
+  .page .stats li:last-child { grid-column: 1 / -1; }
   .page .next.next.next { grid-template-columns: 40px minmax(0, 1fr); column-gap: 6px; padding: 26px 22px 26px 10px !important; }
   .page .next::after { left: 50px; }
   .chapter { font-size: 28px; }

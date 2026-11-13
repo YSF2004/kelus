@@ -5,7 +5,9 @@ import { LateralPage } from "@/components/PageTransition";
 import { SiteFooter } from "@/components/SiteFooter";
 
 export const metadata: Metadata = {
-  title: "Revise from Your Course Notes for Exams | Kelus",
+  // Keep the browser tab as quiet as the product mark. The descriptive copy remains
+  // available to search and sharing surfaces below.
+  title: "kelus",
   description: "Turn your course notes or PDFs into exam revision. Practice recall, check your answers, and see which topic to review next with Kelus.",
   alternates: { canonical: "/" },
   openGraph: {

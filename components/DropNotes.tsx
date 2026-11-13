@@ -101,7 +101,7 @@ export function DropNotes({ onFile, first = false, courseName }: { onFile: (file
           <h1 id="start-title" className="destination-page-title">{first ? "Start with your notes." : courseName ? `Add notes to ${courseName}.` : "Add your notes."}</h1>
           <p className="destination-support">
             {first
-              ? "A PDF, photos of your pages, a Notion export or pasted text. Check its topics, then start your first question."
+              ? "A PDF, photos of your pages, a Notion export or pasted text. Kelus finds the topics; you check them before your first question."
               : "A PDF, photos of your pages, a Notion export or pasted text. Its topics go straight into today’s plan."}
           </p>
           <label
@@ -119,7 +119,7 @@ export function DropNotes({ onFile, first = false, courseName }: { onFile: (file
             <span>{busy ? "Larger files and scanned pages can take longer." : <><span className="drop-hint">or drop it here · </span>PDF, slides, plain text or a <span className="brand-inline"><BrandIcon brand="notion" size={14} />Notion</span> .zip</>}</span>
           </label>
           <div role="status" aria-live="polite" aria-atomic="true" className={styles.status}>
-            {busy ? <><strong>{sourceName}</strong><span>{stage} Keep this page open while Kelus reads the source.</span></> : null}
+            {busy ? <><strong>{sourceName}</strong><span>{stage} Next, you’ll check the topics Kelus found before your first question.</span></> : null}
           </div>
           <PhotoNotes onFile={(file) => void take(file)} disabled={busy} />
           <PasteNotes onFile={(file) => void take(file)} disabled={busy} />
