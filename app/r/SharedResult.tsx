@@ -24,12 +24,12 @@ export function SharedResult() {
   return (
     <main id="main" className={styles.page} data-shared-result="">
       <motion.p className={styles.kicker} {...rise(0)}>{stats ? "A classmate sent you this" : "Kelus"}</motion.p>
-      <motion.h1 className={styles.title} {...rise(0.05)}>{stats ? "They revised from their own notes." : "Revise from your own notes."}</motion.h1>
+      <motion.h1 className={styles.title} {...rise(0.05)}>{stats ? "They turned a study pass into a plan for tomorrow." : "Revise from your own notes."}</motion.h1>
       {stats ? <motion.div {...rise(0.12)}><ResultCardFace stats={stats} kicker="Their revision" /></motion.div> : null}
       <motion.div className={styles.next} {...rise(0.2)}>
-        <p>Kelus reads your PDF, slides or pasted notes, asks you questions written from your own lines, and brings back what you miss the next day. No account, and your notes stay on your device.</p>
+        <p>Start with one lecture. Kelus reads your PDF, slides or pasted notes, asks from your own lines, and brings back what needs another attempt tomorrow.</p>
         <div className={styles.actions}>
-          <Link href="/today" className="k-btn" onClick={() => trackEvent({ name: "shared_result_cta", target: "own_notes" })}>Add your notes <ArrowRight /></Link>
+          <Link href="/today?source=shared-result" className="k-btn" onClick={() => trackEvent({ name: "shared_result_cta", target: "own_notes" })}>Start with your notes <ArrowRight /></Link>
           <Link href="/today?sample=1" className={styles.secondary} onClick={() => trackEvent({ name: "shared_result_cta", target: "sample" })}>Try the example course</Link>
         </div>
       </motion.div>

@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
 import test from "node:test";
 import { shareHeadline, shareText, shareUrl, statsFromQuery, whatsappUrl } from "../lib/share-result.ts";
 
@@ -49,4 +50,11 @@ test("a day with nothing recalled leads with the lines practiced, never with a z
   assert.equal(shareHeadline(day), "2 lines practiced");
   assert.match(shareText(day), /^I practiced 2 lines from my notes today, and the 2 I missed come back tomorrow\./);
   assert.deepEqual(leadStat({ ...day, recalled: 3, missed: 1 }), { value: 3, of: 4, what: "lines recalled from my notes" });
+});
+
+test("a classmate who opens a shared result lands in their own notes flow, with the share source retained", () => {
+  const page = readFileSync("app/r/SharedResult.tsx", "utf8");
+  assert.match(page, /href="\/today\?source=shared-result"/);
+  assert.match(page, /Start with your notes/);
+  assert.match(page, /Start with one lecture/);
 });
