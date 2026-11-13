@@ -88,6 +88,15 @@ test("sessions expose a confirmed course source and its page", async () => {
   assert.doesNotMatch(page, /window\.open\(`\$\{URL\.createObjectURL/);
 });
 
+test("a warm-up can reopen the exact local source line it asks about", async () => {
+  const warmup = await source("app/session/warmup/page.tsx");
+  assert.match(warmup, /primaryActivitySourceReference/);
+  assert.match(warmup, /readableMaterials\.has\(reference\.materialId\)/);
+  assert.match(warmup, /onShowLine=/);
+  assert.match(warmup, /CourseSourceReader material=\{materialForSource\}/);
+  assert.match(warmup, /Exact line from your notes/);
+});
+
 test("today leads with one topic and shows evidence and next stops as secondary", async () => {
   const today = await source("components/TodayRoute.tsx");
   const page = await source("app/today/page.tsx");

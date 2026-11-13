@@ -6,6 +6,7 @@
   color: var(--color-midnight-ink);
 }
 
+.runShell,
 .runWrap,
 .done,
 .empty {
@@ -13,6 +14,58 @@
   gap: 16px;
   max-width: 42rem;
   margin: 0 auto;
+}
+
+/* The source only appears when a student asks for it. On a wide screen it joins the question as a second, calm
+   reading surface; on a phone it follows the question rather than squeezing the answer area. */
+.runShell[data-source-open="true"] {
+  max-width: min(100%, 78rem);
+  grid-template-columns: minmax(0, 42rem) minmax(19rem, 28rem);
+  align-items: start;
+}
+
+.runShell .runWrap { width: 100%; margin: 0; }
+
+.sourcePanel {
+  position: sticky;
+  top: 16px;
+  min-width: 0;
+  overflow: hidden;
+  border-left: 1px solid var(--k-line);
+  background: var(--k-surface);
+}
+
+.sourceBar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  min-height: 44px;
+  padding: 0 10px 0 14px;
+  border-bottom: 1px solid var(--k-line);
+  color: var(--k-text-2);
+  font-size: 0.8125rem;
+  font-weight: 600;
+}
+
+.sourceBar button {
+  min-height: 36px;
+  padding: 0 4px;
+  border: 0;
+  border-radius: 5px;
+  background: transparent;
+  color: var(--color-kelus);
+  font: inherit;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.sourceBar button:active { transform: scale(0.97); }
+.sourceBar button:focus-visible { outline: 2px solid var(--color-kelus); outline-offset: 2px; }
+
+@media (max-width: 960px) {
+  .runShell[data-source-open="true"] { grid-template-columns: minmax(0, 1fr); }
+  .sourcePanel { position: static; border: 1px solid var(--k-line); border-radius: 8px; }
 }
 
 /* The ending: a drawing, a plain verdict, the lines themselves, one way on. */

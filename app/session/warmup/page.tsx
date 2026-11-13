@@ -3,7 +3,7 @@
 import { ArrowRight, Return, Tick } from "@/components/Marks";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { motion, useReducedMotion } from "motion/react";
+import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { Suspense, useMemo, useState, useSyncExternalStore } from "react";
 import { useLearner } from "@/components/LearnerProvider";
 import { PackArt } from "@/components/PackArt";
@@ -17,10 +17,19 @@ import { flagKey, flaggedKeys } from "@/lib/flags";
 import { SAMPLE_COURSE_IDS } from "@/lib/pilot";
 import { addKnownLines, forgetKnownLines, getKnownLines, getServerKnownLines, knownCount, subscribeKnownLines } from "@/lib/known-lines";
 import { KelusLogoMark } from "@/components/KelusLogoMark";
+import { CourseSourceReader } from "@/components/CourseSourceReader";
+import { primaryActivitySourceReference } from "@/domain/source-reference";
+import { getMaterialsSnapshot, getServerMaterialsSnapshot, subscribeMaterials } from "@/lib/material-store";
 import { useEffect } from "react";
 import styles from "./warmup.module.css";
 
 const ease = [0.22, 1, 0.36, 1] as const;
+
+/** A source locator is intentionally human text, so only use a page number when the saved reference names one. */
+function sourcePage(locator: string | null) {
+  const page = locator?.match(/\bpage\s+(\d+)/i)?.[1];
+  return page ? Number(page) : 1;
+}
 
 /**
  * The first minute of a return visit: the lines you missed last time, asked again from the same sentences.
@@ -37,6 +46,7 @@ function WarmUp() {
   const reduce = useReducedMotion() === true;
   const { state, recordCheckpoint: recordEvidence } = useLearner();
   const missed = useSyncExternalStore(subscribeMissedLines, getMissedLines, getServerMissedLines);
+  const materials = useSyncExternalStore(subscribeMaterials, getMaterialsSnapshot, getServerMaterialsSnapshot);
   const names = useMemo(() => new Map(state.snapshot.concepts.map((concept) => [concept.id, concept.name])), [state.snapshot.concepts]);
   // Fixed when the page opens: answering must not reshuffle the run underneath the student.
   const known = useSyncExternalStore(subscribeKnownLines, getKnownLines, getServerKnownLines);
@@ -55,15 +65,26 @@ function WarmUp() {
   const warmupCourseType = warmupCourseId && SAMPLE_COURSE_IDS.has(warmupCourseId) ? "sample" : "real";
   const need = Math.max(1, Math.ceil(plan.length * PASS_SHARE));
   const [result, setResult] = useState<{ right: number; total: number; back: string[]; still: string[] } | null>(null);
+  const [sourceLine, setSourceLine] = useState<{ materialId: string; quote: string; page: number } | null>(null);
+
+  // Warm-ups are only allowed to open a source that is still on this device. The question remains useful even when
+  // an older course no longer has its file, but never promises a page Kelus cannot actually show.
+  const readableMaterials = useMemo(() => new Map(materials.filter((material) => material.storage === "local").map((material) => [material.id, material])), [materials]);
+  const materialForSource = sourceLine ? readableMaterials.get(sourceLine.materialId) ?? null : null;
 
   const run: Run = useMemo(() => ({
-    checks: plan.map((entry) => entry.item),
+    checks: plan.map((entry) => {
+      const activity = state.snapshot.learningActivities.find((item) => item.conceptId === entry.line.conceptId);
+      const reference = primaryActivitySourceReference(activity);
+      // `QuickRun` carries this through to its evidence action, which marks this same sentence in the original file.
+      return { ...entry.item, sourceReference: reference && readableMaterials.has(reference.materialId) ? reference : undefined };
+    }),
     explainPrompt: "",
     explainAnswer: "",
     explainQuote: "",
     sentences: plan.map((entry) => entry.line.quote),
     topic: "",
-  }), [plan]);
+  }), [plan, readableMaterials, state.snapshot.learningActivities]);
 
   function done(outcome: { right: number; total: number; missed: string[] }) {
     const still = new Set(outcome.missed);
@@ -104,10 +125,40 @@ function WarmUp() {
   return (
     <>
       {!result ? (
-        <div className={styles.runWrap}>
-          <h1 className={styles.heading}>{checkpoint ? label : "Warm up on what you missed"}</h1>
-          <p className={styles.sub}>{checkpoint ? `${plan.length} lines from ${new Set(plan.map((entry) => entry.line.conceptId)).size} topics, mixed. Pass mark: ${need} of ${plan.length}. About ${plan.length <= 3 ? "a minute" : `${Math.round(plan.length / 3)} minutes`}.` : `${plan.length === 1 ? "One line" : `${plan.length} lines`} from last time, about a minute.`}</p>
-          <QuickRun run={run} courseType={warmupCourseType} onRevealSource={() => undefined} onFinish={() => undefined} onChecksDone={done} known={knownAtOpen.set} recalled={knownAtOpen.count} />
+        <div className={styles.runShell} data-source-open={materialForSource ? "true" : undefined}>
+          <div className={styles.runWrap}>
+            <h1 className={styles.heading}>{checkpoint ? label : "Warm up on what you missed"}</h1>
+            <p className={styles.sub}>{checkpoint ? `${plan.length} lines from ${new Set(plan.map((entry) => entry.line.conceptId)).size} topics, mixed. Pass mark: ${need} of ${plan.length}. About ${plan.length <= 3 ? "a minute" : `${Math.round(plan.length / 3)} minutes`}.` : `${plan.length === 1 ? "One line" : `${plan.length} lines`} from last time, about a minute.`}</p>
+            <QuickRun
+              run={run}
+              courseType={warmupCourseType}
+              onRevealSource={() => undefined}
+              onShowLine={(quote, reference) => setSourceLine({ materialId: reference.materialId, quote, page: sourcePage(reference.locator) })}
+              onFinish={() => undefined}
+              onChecksDone={done}
+              known={knownAtOpen.set}
+              recalled={knownAtOpen.count}
+            />
+          </div>
+          <AnimatePresence initial={false}>
+            {materialForSource && sourceLine ? (
+              <motion.aside
+                key={`${sourceLine.materialId}:${sourceLine.quote}`}
+                className={styles.sourcePanel}
+                aria-label="Exact source line"
+                initial={reduce ? { opacity: 0 } : { opacity: 0, x: 8 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={reduce ? { opacity: 0 } : { opacity: 0, x: 8 }}
+                transition={reduce ? { duration: 0.12 } : { type: "spring", bounce: 0, duration: 0.32 }}
+              >
+                <div className={styles.sourceBar}>
+                  <span>Exact line from your notes</span>
+                  <button type="button" onClick={() => setSourceLine(null)}>Close source</button>
+                </div>
+                <CourseSourceReader material={materialForSource} initialPage={sourceLine.page} highlight={sourceLine.quote} />
+              </motion.aside>
+            ) : null}
+          </AnimatePresence>
         </div>
       ) : (
         <motion.section
