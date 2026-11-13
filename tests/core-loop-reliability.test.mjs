@@ -87,14 +87,14 @@ test("subject-shaped feedback states the boundary of a deterministic check", () 
 });
 
 const subjectCases = [
-  ["Biology", "Cellular Respiration", "Cellular respiration converts glucose into ATP through linked metabolic reactions.", /predict what changes|mechanism/i],
-  ["Computer science", "Binary Search", "The binary search algorithm halves a sorted array until the target is found.", /input grows|required condition/i],
-  ["History", "Industrial Revolution", "Industrialization changed labor, production, and migration during the nineteenth century.", /historical outcome|causal/i],
-  ["Law", "Negligence", "Negligence liability requires duty, breach, causation, and damage under the legal doctrine.", /required element|qualified conclusion/i],
-  ["Mathematics", "Bayes Theorem", "Bayes theorem calculates conditional probability from prior probability and evidence.", /condition.*not satisfied|concluded/i],
+  ["Biology", "Cellular Respiration", "Cellular respiration converts glucose into ATP through linked metabolic reactions.", /predict what changes|mechanism/i, /mechanism or consequence/i],
+  ["Computer science", "Binary Search", "The binary search algorithm halves a sorted array until the target is found.", /input grows|required condition/i, /input, process, or output/i],
+  ["History", "Industrial Revolution", "Industrialization changed labor, production, and migration during the nineteenth century.", /historical outcome|causal/i, /cause or consequence/i],
+  ["Law", "Negligence", "Negligence liability requires duty, breach, causation, and damage under the legal doctrine.", /required element|qualified conclusion/i, /required legal element/i],
+  ["Mathematics", "Bayes Theorem", "Bayes theorem calculates conditional probability from prior probability and evidence.", /condition.*not satisfied|concluded/i, /rule, condition, or conclusion/i],
 ];
 
-for (const [subject, name, explanation, expectedPrompt] of subjectCases) {
+for (const [subject, name, explanation, expectedPrompt, expectedCriterion] of subjectCases) {
   test(`${subject} material produces a source-grounded subject-shaped activity`, () => {
     const pages = [{ pageNumber: 2, text: `1. ${name}\n${explanation}` }];
     const proposals = proposeConceptsFromPages({ materialId: `material-${subject}`, sourceLabel: `${subject} lecture`, pages });
@@ -104,6 +104,8 @@ for (const [subject, name, explanation, expectedPrompt] of subjectCases) {
     assert.match(model.learningActivities[0].apply.prompt, new RegExp(name.split(" ")[0], "i"));
     assert.match(model.learningActivities[0].apply.prompt, /Do not claim a specific outcome the page does not establish/);
     assert.match(model.learningActivities[0].learn.explanation, new RegExp(name.split(" ")[0], "i"));
+    assert.ok(model.learningActivities[0].assessment?.criteria.some((criterion) => expectedCriterion.test(criterion.label)));
+    assert.ok(model.learningActivities[0].assessment?.criteria.some((criterion) => criterion.id === "subject-evidence" && criterion.terms.length > 0));
     assert.deepEqual(model.learningActivities[0].sourceReferences[0], {
       materialId: `material-${subject}`,
       label: `${subject} lecture`,

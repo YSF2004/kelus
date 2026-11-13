@@ -492,21 +492,40 @@ function rubricTerms(value: string) {
     .filter((word) => word.length > 3 && !RUBRIC_STOPWORDS.has(word)))].slice(0, 10);
 }
 
+/**
+ * Require a subject-relevant word from the student's source, not only a
+ * generic connector such as “therefore”. The fallback stays source-derived:
+ * Kelus never invents a specialist term for an unfamiliar course.
+ */
+function subjectEvidenceTerms(mode: SubjectMode, sourceTerms: string[]) {
+  const signals = {
+    biology: /(?:cell|membrane|enzyme|protein|gene|dna|energy|metabol|reaction|organism|concentration|transport|rate)/,
+    computer_science: /(?:input|output|array|data|algorithm|search|sort|loop|function|memory|runtime|complexity|target|state)/,
+    history: /(?:cause|colon|empire|revolution|war|treaty|migration|labor|production|century|industry)/,
+    law: /(?:duty|breach|causation|damage|liability|claim|contract|court|doctrine|statute|defendant|jurisdiction)/,
+    mathematics: /(?:equation|theorem|probability|prior|evidence|condition|integral|derivative|matrix|vector|limit|calculate|formula)/,
+    general: /$^/,
+  }[mode];
+  const matched = sourceTerms.filter((term) => signals.test(term));
+  return (matched.length ? matched : sourceTerms).slice(0, 4);
+}
+
 function assessmentFor(mode: SubjectMode, name: string, claim: string): NonNullable<LearningActivity["assessment"]> {
   const sourceTerms = rubricTerms(`${name} ${claim}`);
   const modeCriterion = {
-    biology: { label: "Traces a mechanism and consequence", terms: ["because", "causes", "leads", "therefore", "result"] },
-    computer_science: { label: "Traces input, process, and output", terms: ["input", "step", "process", "output", "result"] },
-    history: { label: "Connects cause to historical consequence", terms: ["because", "caused", "led", "therefore", "consequence"] },
-    law: { label: "Applies the rule to facts and reaches a conclusion", terms: ["rule", "fact", "element", "because", "conclusion"] },
-    mathematics: { label: "Uses the rule and checks its conditions", terms: ["condition", "therefore", "because", "step", "result"] },
-    general: { label: "Explains the relationship, not only the label", terms: ["because", "means", "leads", "therefore", "example"] },
+    biology: { sourceLabel: "Names a mechanism or consequence from the source", reasoningLabel: "Traces a mechanism to its consequence", terms: ["because", "causes", "leads", "therefore", "result"] },
+    computer_science: { sourceLabel: "Names an input, process, or output from the source", reasoningLabel: "Traces input, process, and output", terms: ["input", "step", "process", "output", "result", "then"] },
+    history: { sourceLabel: "Names a cause or consequence from the source", reasoningLabel: "Connects cause to historical consequence", terms: ["because", "caused", "led", "therefore", "consequence"] },
+    law: { sourceLabel: "Names a required legal element from the source", reasoningLabel: "Applies the rule to facts and reaches a qualified conclusion", terms: ["rule", "fact", "element", "because", "conclusion", "unless"] },
+    mathematics: { sourceLabel: "Names the rule, condition, or conclusion from the source", reasoningLabel: "Uses the rule and checks its conditions", terms: ["condition", "therefore", "because", "step", "result", "then"] },
+    general: { sourceLabel: "Names a relationship from the source", reasoningLabel: "Explains the relationship, not only the label", terms: ["because", "means", "leads", "therefore", "example"] },
   }[mode];
   return {
     mode,
     criteria: [
       { id: "source-idea", label: "Uses the central source idea", terms: sourceTerms, minimumMatches: Math.min(3, Math.max(1, Math.ceil(sourceTerms.length * 0.3))), appliesTo: "both" },
-      { id: "reasoning", ...modeCriterion, minimumMatches: 1, appliesTo: "apply" },
+      { id: "subject-evidence", label: modeCriterion.sourceLabel, terms: subjectEvidenceTerms(mode, sourceTerms), minimumMatches: 1, appliesTo: "apply" },
+      { id: "reasoning", label: modeCriterion.reasoningLabel, terms: modeCriterion.terms, minimumMatches: 1, appliesTo: "apply" },
       { id: "transfer", label: "Transfers the idea beyond memorized wording", terms: ["if", "when", "because", "therefore", "would", "could"], minimumMatches: 1, appliesTo: "apply" },
     ],
   };
