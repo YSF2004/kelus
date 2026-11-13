@@ -676,7 +676,7 @@ export function MaterialLibrary({ embedded = false, incomingFile = null, onIncom
           <h2 id="first-source-review-title" tabIndex={-1} ref={focusPhaseHeading}>{asking ? "Is this a file to revise?" : "Check the topics in your notes."}</h2>
           {asking ? null : <>
             {analysis.coverage ? <ReadCoverage coverage={analysis.coverage} found={analysis.proposals.length} /> : null}
-            <p>These come from <b>{readableFileName(analysis.material.fileName ?? analysis.material.title)}</b>. Keep only what is part of your exam — Kelus will build questions from the topics and quoted lines you confirm.</p>
+            <p>These come from <b>{readableFileName(analysis.material.fileName ?? analysis.material.title)}</b>. Keep only what is part of your exam — Kelus will build questions from the topics and quoted lines you confirm. Each topic keeps its page and quoted evidence; topics inferred from limited text deserve a quick check before you continue.</p>
             <AiNote />
           </>}
         </header>
@@ -695,7 +695,13 @@ export function MaterialLibrary({ embedded = false, incomingFile = null, onIncom
             <li key={proposal.id}>
               <label>
                 <input type="checkbox" checked={selectedIds.has(proposal.id)} onChange={() => toggleProposal(proposal.id)} />
-                <span><strong>{proposal.name}</strong><small>{proposal.locator} · “{previewLine(proposal.sourceExcerpt)}”</small></span>
+                <span>
+                  <strong>{proposal.name}</strong>
+                  <small>{proposal.locator} · “{previewLine(proposal.sourceExcerpt)}”</small>
+                  <small className={`proposal-confidence is-${proposalConfidence(proposal)}`}>
+                    {proposalConfidence(proposal) === "high" ? "Clearly supported by the page" : "Check against the page before using"}
+                  </small>
+                </span>
               </label>
             </li>
           ))}
