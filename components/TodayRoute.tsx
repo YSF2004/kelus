@@ -236,6 +236,8 @@ export function TodayRoute({
   // The warm-up leads on a return, so the topic's button steps back; otherwise it is the one green key on the page.
   const quietStart = false;
   // A return begins with a warm-up. Name that first action honestly instead of promising to open the topic directly.
+  // The page already names the topic. The action adds the small, finite commitment instead of
+  // repeating it, so a student knows what happens after one click.
   const defaultStartActionLabel = startLabel ?? "Start this topic";
   const startActionLabel = warmupFirst && !startLabel ? "Start warm-up" : defaultStartActionLabel;
   // One line of the student's own notes on the card, as the homepage shows it: the page, then the words.
@@ -326,8 +328,9 @@ export function TodayRoute({
             onClick={begin}
             transition={pressSpring}
           >
-            {startActionLabel} <ArrowRight />
+            {startActionLabel}{!startLabel && !warmupFirst ? ` · ${first.minutes} min` : ""} <ArrowRight />
           </motion.button>
+          {!startLabel && !warmupFirst ? <p className={q.actionNote}>Answer from memory. Your plan changes after each answer.</p> : null}
         </motion.div>
       </motion.section>
 
@@ -349,7 +352,7 @@ export function TodayRoute({
 
       {nextStops.length ? (
         <motion.section className={q.then} data-block="today-next" aria-label="Up next" {...settle(3)}>
-          <h2 className={q.thenTitle}>Up next</h2>
+          <h2 className={q.thenTitle}>After this</h2>
           <ol>
             <AnimatePresence initial={false} mode="popLayout">
             {nextStops.map((stop, index) => (
