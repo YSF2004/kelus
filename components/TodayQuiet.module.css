@@ -303,8 +303,11 @@
 .page .quote figcaption { margin: 6px 0 0; color: var(--lb-text-3) !important; font-size: 13px; font-weight: 500; }
 .page .quote figcaption :global(svg) { display: none; }
 
-.page .why { margin-top: 18px; padding-left: 0; color: var(--lb-text-3); font-size: 13.5px; }
+.page .why { margin-top: 20px; padding-left: 0; color: var(--lb-text-2); font-size: 13.5px; line-height: 1.55; }
 .page .why::before { content: none; }
+.whyLead { display: block; margin-bottom: 5px; color: var(--lb-ink); font-size: 13px; font-weight: 650; }
+.why p { margin: 0; }
+.why p + p { margin-top: 3px; }
 .page .action { margin-top: 26px; }
 /* .go repeated: an older rule sets every product button to 36px with !important; the page's one key is full height. */
 .page .action .go.go { min-height: 48px !important; height: 48px !important; padding: 0 22px !important; }

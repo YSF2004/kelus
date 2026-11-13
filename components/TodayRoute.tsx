@@ -317,7 +317,12 @@ export function TodayRoute({
             </figcaption>
           </motion.figure>
         ) : null}
-        <motion.p className={q.why} data-block="today-decision" aria-label="Why this topic is first">{decision[0]}</motion.p>
+        {/* Both pieces of evidence matter: the student's own result explains the urgency, and the dependency
+            explains the payoff. Keep them together rather than hiding the second reason behind another screen. */}
+        <motion.div className={q.why} data-block="today-decision" aria-label="Why this topic is first">
+          <span className={q.whyLead}>Why this is first</span>
+          {decision.map((reason) => <p key={reason}>{reason}</p>)}
+        </motion.div>
         <motion.div className={q.action}>
           <motion.button
             type="button"
