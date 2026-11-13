@@ -147,7 +147,7 @@ export function QuickResult({
       <motion.blockquote {...rise(0.42)} className={styles.remember}>
         <span className={styles.rememberHead}><PackArt name="clipboard-check" className={styles.icon} />{rememberLabel}{/^Section\b/.test(locator) ? "" : `, ${locator.charAt(0).toLowerCase()}${locator.slice(1)}`}</span>
         <p>“{remember}”</p>
-        {onSource ? <button type="button" className={styles.sourceLink} onClick={onSource}>Check this line in your notes <ArrowOut /></button> : null}
+        {onSource ? <button type="button" className={styles.sourceLink} onClick={onSource}>Show this exact line in your notes <ArrowOut /></button> : null}
       </motion.blockquote>
 
       {/* Correction only earns trust when the consequence is as visible as the source. */}

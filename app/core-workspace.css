@@ -126,6 +126,7 @@ body.is-course-studio .core-workspace-action .today-start { width: 100%; margin-
 .core-source-title { display: grid; gap: 2px; min-width: 0; }
 .core-source-title span { color: var(--color-hero-orange); font-size: 0.66rem; font-weight: 700; letter-spacing: 0.09em; }
 .core-source-title strong { overflow: hidden; color: var(--ink); font-size: 0.875rem; font-weight: 600; text-overflow: ellipsis; white-space: nowrap; }
+.core-source-title .core-source-evidence { color: var(--color-kelus); font-size: 0.7rem; font-weight: 600; letter-spacing: 0; }
 .core-page-controls { display: inline-flex; align-items: center; flex: 0 0 auto; gap: 5px; color: var(--color-slate); font-size: 0.75rem; font-variant-numeric: tabular-nums; }
 .core-page-controls button { width: 30px; height: 30px; border: 1px solid var(--line); border-radius: 6px; background: var(--color-pure-white); color: var(--ink); cursor: pointer; }
 .core-page-controls button:disabled { opacity: .35; cursor: default; }

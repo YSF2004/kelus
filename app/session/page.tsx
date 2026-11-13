@@ -348,12 +348,16 @@ function SessionBody() {
 
   function retryCurrentConcept() {
     if (quickMode) {
+      // A retry launched from the marked source is a repair pass, not a fresh
+      // blind recall. Keep that page beside the next check so the student can
+      // repair the relationship without hunting for the evidence again.
+      const repairingFromSource = Boolean(notesOpen && markedLine);
       setRetrieveAnswer("");
       setApplicationAnswer("");
       setEvaluation(null);
       setHelpMode(null);
-      setSourceRevealed(false);
-    setNotesOpen(false);
+      setSourceRevealed(repairingFromSource);
+      setNotesOpen(repairingFromSource);
       setRunKey((value) => value + 1);
       setPhase("learn");
       startedAt.current = performance.now();

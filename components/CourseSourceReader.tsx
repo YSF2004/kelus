@@ -205,7 +205,10 @@ export function CourseSourceReader({ id, material, initialPage = 1, concealed = 
   return (
     <section id={id} className="core-source-reader" aria-label="Course source">
       <header className="core-source-toolbar">
-        <div className="core-source-title"><strong title={material?.title}>{material?.title ?? "Your material"}</strong></div>
+        <div className="core-source-title">
+          <strong title={material?.title}>{material?.title ?? "Your material"}</strong>
+          {highlight ? <span className="core-source-evidence" role="status">Evidence line marked below</span> : null}
+        </div>
         {material?.storage === "local" && pages > 0 && !concealed ? (
           <div className="core-page-controls" aria-label={isNotes ? "Note sections" : "PDF pages"}>
             <button type="button" onClick={() => setPage(Math.max(1, displayPage - 1))} disabled={displayPage <= 1} aria-label={isNotes ? "Previous section" : "Previous page"}>←</button>
