@@ -1,6 +1,6 @@
 "use client";
 
-import { ThemeSwitch } from "@/components/ThemeSwitch";
+import { ThemeToggle } from "@/components/ThemeSwitch";
 import { toneOf } from "@/lib/topic-tone";
 import { uiWords } from "@/lib/ui-words";
 import { ArrowOut, ArrowRight } from "@/components/Marks";
@@ -531,13 +531,13 @@ function SessionBody() {
       <div className="study-context is-folio">
         <span className="study-context-title">
           <Link href="/" className="study-brand" aria-label="Kelus home"><KelusLogoMark /><span>kelus</span></Link>
+          <span className="study-context-theme"><ThemeToggle /></span>
           {/* In a run the topic is named above the question, where the eye already is, not squeezed beside the mark. */}
           {quickMode ? null : <small><b>{concept.name}</b>{total > 1 ? ` · topic ${index + 1} of ${total}` : ""}</small>}
         </span>
         <div className="study-folio-actions">
           <SessionMenu
             label={uiw.more}
-            footer={<ThemeSwitch compact />}
             items={[
               {
                 label: soundsEnabled ? "Turn sounds off" : "Turn sounds on",

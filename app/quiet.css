@@ -613,11 +613,6 @@ html body.is-course-studio .core-source-remove { display: inline-grid; place-ite
 @media (prefers-reduced-motion: reduce) { ::view-transition-new(root) { animation: none; } }
 
 /* Appearance in the product: at the foot of the sidebar; in the top bar only where the sidebar's foot is hidden. */
-html body.is-course-studio .studio-theme { padding: 4px 4px 8px; }
-html body.is-course-studio .studio-theme > div { display: inline-grid; width: auto; }
-html body.is-course-studio .studio-theme button { flex: 0 0 auto; }
-html body.is-course-studio .studio-topbar-theme { display: none; }
-@media (max-width: 650px) { html body.is-course-studio .studio-topbar-theme { display: inline-flex; margin-left: auto; } }
 
 /* The top bar is controls only once a subject is in: the page's own title names the course. Sign in rides here only
    on a phone, where the sidebar's foot (which has it) is hidden. */

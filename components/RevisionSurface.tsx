@@ -1,7 +1,7 @@
 "use client";
 
 import { primaryActivitySourceReference } from "@/domain/source-reference";
-import { ThemeSwitch, ThemeToggle } from "@/components/ThemeSwitch";
+import { ThemeToggle } from "@/components/ThemeSwitch";
 import { ArrowLeft, ArrowOut, Cross, Page, Plus } from "@/components/Marks";
 import { motion, useReducedMotion } from "motion/react";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -257,6 +257,7 @@ export function RevisionSurface({ topicId }: { /** A topic's own page, opened in
           <Link href="/" className="studio-brand" aria-label="Kelus home">
             <span className="studio-brand-identity"><KelusLogoMark /><strong>kelus</strong></span>
           </Link>
+          <span className="studio-brand-theme"><ThemeToggle /></span>
           <button type="button" className="studio-rail-toggle" onClick={(event) => { setRailHidden(true); /* Keyboard users keep their place on the button that brings it back. */ if (event.detail === 0) requestAnimationFrame(() => document.querySelector<HTMLButtonElement>(".studio-rail-reopen")?.focus({ preventScroll: true })); }} aria-label="Hide workspace sidebar" title="Hide sidebar"><RailChevrons /></button>
         </div>
         <button type="button" className="studio-search" onClick={() => window.dispatchEvent(new Event(OPEN_SEARCH_EVENT))}>
@@ -328,7 +329,6 @@ export function RevisionSurface({ topicId }: { /** A topic's own page, opened in
         </div>
         <div className="studio-rail-bottom">
           <ShareProgress variant="rail" />
-          <div className="studio-theme"><ThemeSwitch /></div>
           <Link href="/" className="studio-home-link"><ArrowLeft /> Back</Link>
           {auth.user ? (
             <button type="button" className="studio-account-action" onClick={() => auth.signOut()}>Sign out</button>
@@ -359,8 +359,6 @@ export function RevisionSurface({ topicId }: { /** A topic's own page, opened in
         <header className="studio-topbar" data-title={topicId ? undefined : mode === "today" ? courseName ?? modeMeta.label : modeMeta.label}>
           <span className="studio-topbar-leading">{railHidden ? <button type="button" className="studio-rail-reopen" onClick={(event) => { setRailHidden(false); if (event.detail === 0) requestAnimationFrame(() => document.querySelector<HTMLButtonElement>(".studio-rail-toggle")?.focus({ preventScroll: true })); }} aria-label="Show workspace sidebar" title="Show sidebar"><RailChevrons open /></button> : null}</span>
           {!auth.user && auth.configured ? <button type="button" className="studio-topbar-signin" onClick={auth.openDialog}>Sign in</button> : null}
-          {/* On a phone the sidebar's foot is hidden, so the appearance switch rides in the top bar instead. */}
-          <span className="studio-topbar-theme"><ThemeToggle /></span>
         </header>
         <main id="main" className="studio-page kelus-space-stage">
         {isSampleCourse ? <SampleCourseNotice showAction /> : null}

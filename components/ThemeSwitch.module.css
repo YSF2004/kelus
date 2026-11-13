@@ -1,14 +1,4 @@
-/* Appearance is one quiet physical control. The selected mode is ink, not a second box inside a box. */
-.switch { display: inline-grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 4px; width: 112px; box-sizing: border-box; padding: 4px; border: 1px solid color-mix(in srgb, var(--k-ink) 24%, var(--k-line)); border-radius: 999px; background: transparent; }
-.switch .option { position: relative; display: grid; place-items: center; width: 100%; min-width: 0; height: 44px; padding: 0; border: 0; border-radius: 999px; background: transparent; color: var(--k-text-2); cursor: pointer; }
-.switch .option[aria-checked="true"] { color: var(--k-ink); }
-.switch .option:hover { color: var(--k-ink); }
-.option:focus-visible { outline: 2px solid var(--color-kelus, var(--k-green)); outline-offset: 3px; }
-.mark { position: relative; display: grid; place-items: center; }
-.switch .option[aria-checked="true"] .mark::after { content: ""; position: absolute; bottom: -8px; width: 4px; height: 4px; border-radius: 50%; background: currentColor; }
-.compact { width: 96px; padding: 3px; }
-.compact .option { height: 38px; }
-@media (pointer: coarse) { .switch .option { height: 48px; } .compact .option { height: 44px; } }
+/* Appearance is a single action: no pill, fill, or secondary container. */
 .toggle { display: inline-grid; place-items: center; width: 40px; height: 40px; border: 0; border-radius: 10px; background: transparent; color: var(--k-text-2); cursor: pointer; }
 .toggle:hover { background: color-mix(in srgb, var(--k-ink) 6%, transparent); color: var(--k-ink); }
 .toggle:focus-visible { outline: 2px solid var(--color-kelus, var(--k-green)); outline-offset: 1px; }

@@ -257,6 +257,8 @@ html body :is(.site-header .mark .site-wordmark, .study-brand > span, .is-course
   gap: 8px;
 }
 .is-course-studio .studio-brand-row .studio-brand { flex: 1 1 auto; min-width: 0; }
+html body.is-course-studio .studio-brand-theme { display: inline-grid; place-items: center; flex: none; }
+html body.is-course-studio .studio-brand-theme button { width: 32px; height: 32px; border-radius: 8px; }
 html body.is-course-studio .studio-brand-row .studio-rail-toggle {
   flex: none;
   justify-content: center;
