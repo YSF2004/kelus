@@ -502,6 +502,26 @@ function SessionBody() {
     setSourcePanel(null);
   }
 
+  /**
+   * A correction is only useful if it takes the learner to the evidence, not
+   * merely to the document. Keep the question and its quoted line together:
+   * on a local source, the reader opens at that page with the line marked;
+   * on a link or an unavailable file, retain the existing safe fallback.
+   */
+  function showCurrentEvidence() {
+    const quote = quickMissed[0] ?? run?.extraFact ?? activity?.retrieve.modelAnswer ?? null;
+    if (quote) setMarkedLine(quote);
+    setSourceRevealed(true);
+
+    if (currentMaterial?.storage === "local" && !currentMaterial.id.startsWith("material-demo-")) {
+      setSourceJump((current) => current + 1);
+      setNotesOpen(true);
+      return;
+    }
+
+    if (currentSource && currentMaterial) void openSource(currentSource.materialId, currentSource.locator);
+  }
+
   return (
     <main id="main" data-phase={phase} data-tone={toneOf(concept?.id, state.snapshot.concepts)} className={`study-shell${sourcePanel ? " is-source-open" : ""}${hasReadableSource ? "" : " is-source-missing"}${recallWithoutLooking && hasReadableSource ? " is-recalling" : ""}${quickMode ? " is-focus" : ""}${quickMode && notesOpen && hasReadableSource ? " is-notes-open" : ""}`}>
       <div className="study-context is-folio">
@@ -717,7 +737,7 @@ function SessionBody() {
                 }}
                 onRetry={retryCurrentConcept}
                 onContinue={advance}
-                onSource={currentSource && currentMaterial ? () => void openSource(currentSource.materialId, currentSource.locator) : undefined}
+                onSource={currentSource && currentMaterial ? showCurrentEvidence : undefined}
                 details={(
                   <div className="session-value-proof" aria-label="What changed in your plan">
                     <div>
