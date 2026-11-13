@@ -1,11 +1,11 @@
-/* Appearance is a physical two-way switch: one resting track, one bright selected face.
+/* Appearance is a quiet two-way switch: a hairline names the selected choice without a filled slab.
    It intentionally shows only the two choices a student can make here. */
-.switch { display: inline-grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 4px; width: 112px; box-sizing: border-box; padding: 4px; border: 1px solid color-mix(in srgb, var(--k-ink) 24%, var(--k-line)); border-radius: 999px; background: color-mix(in srgb, var(--k-ink) 4%, transparent); }
+.switch { display: inline-grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 4px; width: 112px; box-sizing: border-box; padding: 4px; border: 1px solid color-mix(in srgb, var(--k-ink) 24%, var(--k-line)); border-radius: 999px; background: transparent; }
 .switch .option { position: relative; display: grid; place-items: center; width: 100%; min-width: 0; height: 44px; padding: 0; border: 0; border-radius: 999px; background: transparent; color: var(--k-text-2); cursor: pointer; }
-.switch .option[aria-checked="true"] { color: #191714; }
+.switch .option[aria-checked="true"] { color: var(--k-ink); }
 .switch .option:hover { color: var(--k-ink); }
 .option:focus-visible { outline: 2px solid var(--color-kelus, var(--k-green)); outline-offset: 3px; }
-.on { position: absolute; inset: 0; border-radius: inherit; background: #f7f1e6; box-shadow: 0 1px 1px rgba(18, 22, 15, 0.08); }
+.on { position: absolute; inset: 0; border: 1px solid color-mix(in srgb, var(--k-ink) 32%, transparent); border-radius: inherit; background: transparent; box-shadow: none; }
 .mark { position: relative; display: grid; place-items: center; }
 .compact { width: 96px; padding: 3px; }
 .compact .option { height: 38px; }

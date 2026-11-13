@@ -30,10 +30,12 @@
   background: #fff;
 }
 .studyArt img {
-  width: min(100%, 43rem);
+  /* This is the one human counterweight to a long editorial paragraph. Let it occupy its half of the spread. */
+  width: min(118%, 44rem);
+  max-width: none;
   height: auto;
   object-fit: contain;
-  transform: translateY(0.2rem);
+  transform: translate(3%, 0.2rem);
 }
 
 .studyCopy { padding: clamp(3.5rem, 7vw, 7rem) clamp(2rem, 6vw, 7rem) clamp(3.5rem, 7vw, 7rem) clamp(2rem, 5vw, 5rem); }
@@ -112,7 +114,7 @@
   .studyInner,
   .returnInner { grid-template-columns: minmax(0, 1fr); }
   .studyArt { min-height: 0; padding: 2rem 1.25rem 0; }
-  .studyArt img { width: min(100%, 31rem); }
+  .studyArt img { width: min(100%, 34rem); max-width: 100%; transform: translateY(0.2rem); }
   .studyCopy { padding: 3rem 1rem 3.5rem; }
   .studyCopy h2,.returnCopy h2 { font-size: clamp(2.2rem, 8vw, 3.7rem); }
   .returnCopy { padding: 4rem 1rem 1rem; }
@@ -125,7 +127,8 @@
 }
 
 /* Pack drawings: ink on paper, sized to sit beside the copy. */
-.packArt { display: block; width: min(100%, 26rem); height: auto; margin: 0 auto; }
+.packArt { display: block; width: min(118%, 34rem); max-width: none; height: auto; margin: 0 auto; }
 .returnArt .packArt { width: min(60%, 15rem); }
+@media (max-width: 760px) { .packArt { width: min(100%, 31rem); max-width: 100%; } }
 
 .action { align-self: flex-start; margin-top: 8px; }
