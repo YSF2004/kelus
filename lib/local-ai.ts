@@ -1,3 +1,5 @@
+import posthog from "posthog-js";
+
 /**
  * The on-device model built into recent Chrome (the Prompt API). No key, no server, nothing leaves the device.
  * Everything here is optional: where it is missing the offline questions are used, exactly as before.
@@ -16,6 +18,9 @@ export type LocalAiState = "unknown" | "unavailable" | "downloadable" | "downloa
 
 const EVENT = "kelus-local-ai";
 const OPTIONS = { expectedInputs: [{ type: "text", languages: ["en"] }], expectedOutputs: [{ type: "text", languages: ["en"] }] };
+const posthogConfigured = Boolean(
+  process.env.NEXT_PUBLIC_POSTHOG_PROJECT_TOKEN && process.env.NEXT_PUBLIC_POSTHOG_HOST,
+);
 let state: LocalAiState = "unknown";
 let progress = 0;
 let checking = false;
@@ -55,16 +60,35 @@ export function subscribeLocalAi(onChange: () => void) {
   return () => window.removeEventListener(EVENT, onChange);
 }
 
+/** The browser's model probe is captured as metadata only, so its fixed prompt and reply remain on device. */
+function captureLocalAiProbe(latencyMs: number, failed: boolean) {
+  if (!posthogConfigured || typeof window === "undefined") return;
+  posthog.capture("$ai_generation", {
+    $ai_trace_id: crypto.randomUUID(),
+    $ai_session_id: null,
+    $ai_model: "chrome-prompt-api",
+    $ai_provider: "chrome",
+    $ai_latency: latencyMs / 1_000,
+    ...(failed ? { $ai_is_error: true } : {}),
+  });
+}
+
 /** Asks one tiny question. A stand-in that echoes its input, or a window too small to be useful, is not a model we can use. */
 async function verifyModel(model: ModelApi) {
+  const startedAt = Date.now();
+  let prompted = false;
   let session: (ModelSession & { contextWindow?: number }) | null = null;
   try {
     session = await model.create(OPTIONS) as ModelSession & { contextWindow?: number };
     if (typeof session.contextWindow === "number" && session.contextWindow < MIN_CONTEXT_TOKENS) return false;
     const question = "Reply with only the word: yes";
+    prompted = true;
     const answer = (await session.prompt(question)).trim().toLocaleLowerCase();
-    return answer.length > 0 && answer.length < 40 && !answer.includes("not available") && !answer.includes("echo") && !answer.includes(question.toLocaleLowerCase());
+    const usable = answer.length > 0 && answer.length < 40 && !answer.includes("not available") && !answer.includes("echo") && !answer.includes(question.toLocaleLowerCase());
+    captureLocalAiProbe(Date.now() - startedAt, !usable);
+    return usable;
   } catch {
+    if (prompted) captureLocalAiProbe(Date.now() - startedAt, true);
     return false;
   } finally {
     session?.destroy();

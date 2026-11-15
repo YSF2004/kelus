@@ -1,7 +1,8 @@
 "use client";
 
 import type { User } from "@supabase/supabase-js";
-import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
+import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
+import posthog from "posthog-js";
 import { getSupabaseBrowserClient } from "@/lib/supabase-client";
 import { SignInDialog } from "@/components/SignInDialog";
 
@@ -19,6 +20,9 @@ type AuthContextValue = {
 };
 
 const AuthContext = createContext<AuthContextValue | null>(null);
+const posthogConfigured = Boolean(
+  process.env.NEXT_PUBLIC_POSTHOG_PROJECT_TOKEN && process.env.NEXT_PUBLIC_POSTHOG_HOST,
+);
 
 export function useAuth() {
   const value = useContext(AuthContext);
@@ -31,6 +35,28 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(Boolean(client));
   const [dialogOpen, setDialogOpen] = useState(false);
+  const identifiedUserId = useRef<string | null>(null);
+
+  const syncAnalyticsIdentity = useCallback((nextUser: User | null) => {
+    if (!posthogConfigured) return;
+
+    if (!nextUser) {
+      if (identifiedUserId.current) posthog.reset();
+      identifiedUserId.current = null;
+      return;
+    }
+
+    if (identifiedUserId.current === nextUser.id) return;
+    if (identifiedUserId.current) posthog.reset();
+
+    const properties: { email?: string; name?: string } = {};
+    if (nextUser.email) properties.email = nextUser.email;
+    const fullName = nextUser.user_metadata.full_name;
+    if (typeof fullName === "string" && fullName.trim()) properties.name = fullName.trim();
+
+    posthog.identify(nextUser.id, properties);
+    identifiedUserId.current = nextUser.id;
+  }, []);
 
   useEffect(() => {
     if (!client) return;
@@ -38,21 +64,25 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
     client.auth.getSession().then(({ data }) => {
       if (!active) return;
-      setUser(data.session?.user ?? null);
+      const nextUser = data.session?.user ?? null;
+      syncAnalyticsIdentity(nextUser);
+      setUser(nextUser);
       setLoading(false);
     });
 
     const { data } = client.auth.onAuthStateChange((_event, session) => {
-      setUser(session?.user ?? null);
+      const nextUser = session?.user ?? null;
+      syncAnalyticsIdentity(nextUser);
+      setUser(nextUser);
       setLoading(false);
-      if (session?.user) setDialogOpen(false);
+      if (nextUser) setDialogOpen(false);
     });
 
     return () => {
       active = false;
       data.subscription.unsubscribe();
     };
-  }, [client]);
+  }, [client, syncAnalyticsIdentity]);
 
   const requireClient = useCallback(() => {
     if (!client) throw new Error("Sign in is temporarily unavailable. Kelus authentication is not configured.");
@@ -92,8 +122,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     signOut: async () => {
       const { error } = await requireClient().auth.signOut();
       if (error) throw error;
+      syncAnalyticsIdentity(null);
     },
-  }), [client, dialogOpen, loading, requireClient, user]);
+  }), [client, dialogOpen, loading, requireClient, syncAnalyticsIdentity, user]);
 
   return (
     <AuthContext.Provider value={value}>

@@ -1,5 +1,11 @@
+import posthog from "posthog-js";
+
 export const GA_MEASUREMENT_ID =
   process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID?.trim() || "";
+
+const posthogConfigured = Boolean(
+  process.env.NEXT_PUBLIC_POSTHOG_PROJECT_TOKEN && process.env.NEXT_PUBLIC_POSTHOG_HOST,
+);
 
 export type KelusAnalyticsEvent =
   | { name: "setup_started" }
@@ -64,6 +70,24 @@ export function getAcquisitionSource() {
   }
 }
 
+const POSTHOG_EVENT_NAMES = new Set<KelusAnalyticsEvent["name"]>([
+  "setup_started",
+  "setup_completed",
+  "material_upload_started",
+  "material_upload_completed",
+  "material_upload_failed",
+  "material_processing_completed",
+  "material_processing_failed",
+  "material_confirmed",
+  "session_started",
+  "study_response_recorded",
+  "session_completed",
+  "session_abandoned",
+  "session_usefulness_rated",
+  "result_shared",
+  "subscription_checkout_clicked",
+]);
+
 const pendingEvents: KelusAnalyticsEvent[] = [];
 let waitingForBootstrap = false;
 
@@ -76,6 +100,12 @@ function flushPendingEvents() {
 }
 
 export function trackEvent(event: KelusAnalyticsEvent) {
+  const { name, ...parameters } = event;
+
+  if (posthogConfigured && typeof window !== "undefined" && POSTHOG_EVENT_NAMES.has(name)) {
+    posthog.capture(name, parameters);
+  }
+
   if (!analyticsEnabled()) return;
   if (typeof window.gtag !== "function") {
     if (pendingEvents.length < 100) pendingEvents.push(event);
@@ -86,7 +116,6 @@ export function trackEvent(event: KelusAnalyticsEvent) {
     return;
   }
   flushPendingEvents();
-  const { name, ...parameters } = event;
   window.gtag("event", name, parameters);
 }
 
