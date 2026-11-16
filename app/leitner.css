@@ -226,8 +226,7 @@ html body .is-leitner-home [class*="HomeFinal"][class*="action"] { height: 50px;
 html body .is-leitner-home [class*="HomeFinal"][class*="facts"] li { color: var(--lb-text-3) !important; font-size: 13.5px !important; }
 html body .is-leitner-home :is(section, footer) + :is(section, footer) { border-top-color: var(--lb-line) !important; }
 /* The student beside "Your notes stay open" fills its half of the section, as the section was drawn. */
-html body .is-leitner-home [class*="HomeVisualChapters"][class*="studyArt"] img[src*="/art/notion-pack/"] { width: min(132%, 48rem) !important; max-width: none !important; opacity: 1; }
-@media (max-width: 760px) { html body .is-leitner-home [class*="HomeVisualChapters"][class*="studyArt"] img[src*="/art/notion-pack/"] { width: min(116%, 36rem) !important; max-width: none !important; } }
+html body .is-leitner-home [class*="HomeVisualChapters"][class*="studyArt"] img[src*="/art/notion-pack/"] { width: min(100%, 26rem) !important; max-width: 100% !important; opacity: 1; }
 
 /* ── How it works and pricing: the same instrument ────────────────────────────────────────────────────
    Type, colour and surfaces only; every animation on these pages is left exactly as it is. ":is(#k, *)" lends the
