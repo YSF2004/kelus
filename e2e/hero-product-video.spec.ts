@@ -64,7 +64,7 @@ test("the study illustration stays within its intended size on phone and desktop
     await expect(illustration).toBeVisible();
     const bounds = await illustration.boundingBox();
     expect(bounds).not.toBeNull();
-    expect(bounds!.width).toBeLessThanOrEqual(416);
-    expect(bounds!.height).toBeLessThanOrEqual(306);
+    expect(bounds!.width).toBeLessThanOrEqual(240);
+    expect(bounds!.height).toBeLessThanOrEqual(180);
   }
 });
