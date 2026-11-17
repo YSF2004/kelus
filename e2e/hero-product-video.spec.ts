@@ -55,10 +55,12 @@ test("the revision story still follows the hero without a duplicate sample", asy
   await expect(page.locator("main > section").nth(1).getByRole("heading", { name: "One line from your notes, followed all the way." })).toBeVisible();
 });
 
-test("the study illustration stays within its intended size on phone and desktop", async ({ page }) => {
-  for (const { viewport, maxWidth } of [
-    { viewport: { width: 390, height: 844 }, maxWidth: 288 },
-    { viewport: { width: 1440, height: 900 }, maxWidth: 352 },
+test("the study illustration is large and centered on phone and desktop", async ({ page }) => {
+  for (const { viewport, maxWidth, minWidth } of [
+    { viewport: { width: 390, height: 844 }, maxWidth: 352, minWidth: 320 },
+    { viewport: { width: 800, height: 900 }, maxWidth: 448, minWidth: 320 },
+    { viewport: { width: 1024, height: 900 }, maxWidth: 448, minWidth: 440 },
+    { viewport: { width: 1440, height: 900 }, maxWidth: 448, minWidth: 440 },
   ]) {
     await page.setViewportSize(viewport);
     await page.goto("/");
@@ -68,6 +70,14 @@ test("the study illustration stays within its intended size on phone and desktop
     const bounds = await illustration.boundingBox();
     expect(bounds).not.toBeNull();
     expect(bounds!.width).toBeLessThanOrEqual(maxWidth + 1);
-    expect(bounds!.height).toBeLessThanOrEqual(264);
+    expect(bounds!.width).toBeGreaterThanOrEqual(minWidth);
+    expect(bounds!.height).toBeLessThanOrEqual(340);
+
+    const art = illustration.locator("xpath=ancestor::div[contains(@class, 'studyArt')][1]");
+    const artBounds = await art.boundingBox();
+    expect(artBounds).not.toBeNull();
+    const imageCenter = bounds!.y + bounds!.height / 2;
+    const artCenter = artBounds!.y + artBounds!.height / 2;
+    expect(Math.abs(imageCenter - artCenter)).toBeLessThanOrEqual(3);
   }
 });
