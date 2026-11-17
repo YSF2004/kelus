@@ -14,6 +14,7 @@ test("root layout keeps the shell outside page ViewTransitions", async () => {
   assert.ok(layout.indexOf("<SiteHeader />") < layout.indexOf("<RouteTransition>"));
   assert.match(layout, /<RouteTransition>\{children\}<\/RouteTransition>/);
   assert.match(layout, /view-transitions\.css/);
+  assert.match(layout, /preload:\s*false/, "font subsets should not compete with interactive chunks during initial load");
   assert.doesNotMatch(layout, /<ViewTransition|DirectionalPage|LateralPage/);
 });
 

@@ -50,9 +50,12 @@ const literata = Literata({
   variable: "--font-source-serif",
   axes: ["opsz"],
   display: "swap",
+  // Let unicode-range request only the glyph subsets the current page needs.
+  // Preloading both subsets competes with the app's interactive chunks on mobile.
+  preload: false,
 });
 
-const inter = Inter({ subsets: ["latin", "latin-ext"], variable: "--font-inter", display: "swap" });
+const inter = Inter({ subsets: ["latin", "latin-ext"], variable: "--font-inter", display: "swap", preload: false });
 
 // The status bar takes the page's paper colour, so an installed Kelus has no browser-coloured strip on top; the
 // layout reaches into the notch area and pads itself with the safe-area insets instead.
