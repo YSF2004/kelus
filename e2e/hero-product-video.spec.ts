@@ -56,7 +56,10 @@ test("the revision story still follows the hero without a duplicate sample", asy
 });
 
 test("the study illustration stays within its intended size on phone and desktop", async ({ page }) => {
-  for (const viewport of [{ width: 390, height: 844 }, { width: 1440, height: 900 }]) {
+  for (const { viewport, maxWidth } of [
+    { viewport: { width: 390, height: 844 }, maxWidth: 288 },
+    { viewport: { width: 1440, height: 900 }, maxWidth: 352 },
+  ]) {
     await page.setViewportSize(viewport);
     await page.goto("/");
     const illustration = page.getByRole("img", { name: "A student working through a problem" });
@@ -64,7 +67,7 @@ test("the study illustration stays within its intended size on phone and desktop
     await expect(illustration).toBeVisible();
     const bounds = await illustration.boundingBox();
     expect(bounds).not.toBeNull();
-    expect(bounds!.width).toBeLessThanOrEqual(240);
-    expect(bounds!.height).toBeLessThanOrEqual(180);
+    expect(bounds!.width).toBeLessThanOrEqual(maxWidth + 1);
+    expect(bounds!.height).toBeLessThanOrEqual(264);
   }
 });
