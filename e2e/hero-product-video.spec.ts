@@ -54,3 +54,17 @@ test("the revision story still follows the hero without a duplicate sample", asy
   await expect(page.locator("#try, .booklet-board")).toHaveCount(0);
   await expect(page.locator("main > section").nth(1).getByRole("heading", { name: "One line from your notes, followed all the way." })).toBeVisible();
 });
+
+test("the study illustration stays within its intended size on phone and desktop", async ({ page }) => {
+  for (const viewport of [{ width: 390, height: 844 }, { width: 1440, height: 900 }]) {
+    await page.setViewportSize(viewport);
+    await page.goto("/");
+    const illustration = page.getByRole("img", { name: "A student working through a problem" });
+    await illustration.scrollIntoViewIfNeeded();
+    await expect(illustration).toBeVisible();
+    const bounds = await illustration.boundingBox();
+    expect(bounds).not.toBeNull();
+    expect(bounds!.width).toBeLessThanOrEqual(416);
+    expect(bounds!.height).toBeLessThanOrEqual(306);
+  }
+});
