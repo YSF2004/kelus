@@ -867,6 +867,8 @@ html body .pricing-page .pricing-hero-art.k-rise { --rise-delay: 0.2s; }
       animation-timeline: view();
       animation-range: entry 0% cover 45%;
     }
+    /* Keep the student's illustration centered in its paper while the section itself rises into view. */
+    .home [class*="HomeVisualChapters"][class*="studySection"] img { animation: none; }
     /* The band's files arrive in order: each row's own range starts a little later down the screen. The row's
        contents move, not the row, so the dark list stays solid behind them. */
     .home [class*="HomeBand"][class*="files"] > li > * {

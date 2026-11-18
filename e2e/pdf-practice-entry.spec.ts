@@ -9,7 +9,7 @@ test("PDF search entry is readable and opens the real upload flow", async ({ pag
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth)).toBe(true);
   }
   await page.getByRole("link", { name: "Add your PDF or notes" }).first().click();
-  await expect(page).toHaveURL(/\/today\/?$/);
+  await expect(page).toHaveURL(/\/today\/\?source=pdf-to-practice-questions$/);
   await expect(page.getByRole("heading", { name: "Start with your notes." })).toBeVisible();
   await expect(page.locator('input[type="file"]')).toHaveCount(1);
 });

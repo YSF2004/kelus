@@ -23,9 +23,9 @@ test("the end of a session offers its result as a card, and copying it says so f
 
 test("a shared link lands on the classmate's card with a way in; a broken one shows no made-up result", async ({ page }) => {
   await page.goto("/r/?l=6&m=3&t=2&c=11&of=24&s=4");
-  await expect(page.getByRole("heading", { name: "They revised from their own notes." })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "They turned a study pass into a plan for tomorrow." })).toBeVisible();
   await expect(page.getByTestId("result-share-card")).toContainText("6/9");
-  await expect(page.getByRole("link", { name: /Add your notes/ })).toHaveAttribute("href", /^\/today\/?$/);
+  await expect(page.getByRole("link", { name: /Start with your notes/ })).toHaveAttribute("href", /^\/today\/?\?source=shared-result$/);
   await page.goto("/r/?l=99&m=0&t=1&c=50&of=3&s=1");
   await expect(page.getByTestId("result-share-card")).toHaveCount(0);
   await expect(page.getByRole("heading", { name: "Revise from your own notes." })).toBeVisible();

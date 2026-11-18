@@ -8,9 +8,9 @@ for (const viewport of [{ width: 1440, height: 900 }, { width: 390, height: 844 
 
     // The study plan leads with one card, as the homepage does: the topic due now, raised, with the green key.
     const lead = page.locator('[data-block="today-lead"]');
-    // Today's page: its edge is a 1px ring inside the shadow, not a CSS border, so the shadow carries both.
+    // The due topic is intentionally raised without a border; the quiet shadow separates it from the page.
     await expect(lead).not.toHaveCSS("box-shadow", "none");
-    await expect(lead).toHaveCSS("box-shadow", /0px 0px 0px 1px/);
+    await expect(lead).toHaveCSS("border-top-width", "0px");
     await expect(page.locator('[data-action="start-topic"]')).toBeVisible();
     await page.screenshot({ path: `/tmp/kelus-quiet-today-${viewport.width}.png`, fullPage: true });
 
