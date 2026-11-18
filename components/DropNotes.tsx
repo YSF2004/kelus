@@ -97,14 +97,19 @@ export function DropNotes({ onFile, first = false, courseName }: { onFile: (file
     <main id="main" className="destination-page is-booklet-product is-marked-setup is-material-first start-page">
       <div className="destination-form">
         <section className="setup-stage-content empty-course" aria-labelledby="start-title">
-          {/* From the Kelus illustration pack (public/art/notion-pack): a student climbing with a pencil. */}
-          <PackArt name="growing" className="empty-course-art" size={170} />
-          <h1 id="start-title" className="destination-page-title">{first ? "Start with your notes." : courseName ? `Add notes to ${courseName}.` : "Add your notes."}</h1>
-          <p className="destination-support">
-            {first
-              ? "A PDF, photos of your pages, a Notion export or pasted text. Kelus finds the topics; you check them before your first question."
-              : "A PDF, photos of your pages, a Notion export or pasted text. Its topics go straight into today’s plan."}
-          </p>
+          <div className="source-onboarding-heading">
+            <div>
+              <p className="source-onboarding-kicker">Your course sources</p>
+              <h1 id="start-title" className="destination-page-title">{first ? "Start with your notes." : courseName ? `Add notes to ${courseName}.` : "Add your notes."}</h1>
+              <p className="destination-support">
+                {first
+                  ? "Bring the material you are actually studying. Kelus finds its topics, then asks your first question from the source."
+                  : "Add another source and Kelus will connect its topics to today’s plan."}
+              </p>
+            </div>
+            {/* From the founder's Notion-style illustration pack: a learner with their material. */}
+            <PackArt name="taking-note" className="empty-course-art" size={156} />
+          </div>
           <label
             className={`setup-first-upload${dragging ? " is-dragging" : ""}`}
             aria-busy={busy || undefined}
@@ -119,6 +124,9 @@ export function DropNotes({ onFile, first = false, courseName }: { onFile: (file
             {/* Dragging only exists with a mouse or trackpad; a phone gets the file types instead. */}
             <span>{busy ? "Larger files and scanned pages can take longer." : <><span className="drop-hint">or drop it here · </span>PDF, slides, plain text or a <span className="brand-inline"><BrandIcon brand="notion" size={14} />Notion</span> .zip</>}</span>
           </label>
+          {!busy ? <div className="source-first-next" aria-label="What happens after you add a source">
+            <span>Kelus reads the source</span><span aria-hidden="true">→</span><span>You check the topics</span><span aria-hidden="true">→</span><span>Your first recall question</span>
+          </div> : null}
           <div role="status" aria-live="polite" aria-atomic="true" className={styles.status}>
             {busy ? <><strong>{sourceName}</strong><span>{stage} Next, you’ll check the topics Kelus found before your first question.</span></> : null}
           </div>
@@ -130,8 +138,8 @@ export function DropNotes({ onFile, first = false, courseName }: { onFile: (file
             <button type="button" onClick={() => fileInput.current?.click()}>Choose another file</button>
             <p>You can also paste the relevant section above. Any text you entered stays here.</p>
           </div> : null}
-          <p className="setup-file-help">PDFs up to 20 MB, scans included. From Notion: export your notes and choose the .zip.</p>
-          <p className="setup-privacy-note">Your notes stay on this device. You can sign in later to sync.</p>
+          <p className="setup-file-help">PDFs up to 20 MB; scans included. For Notion, export your notes and choose the .zip.</p>
+          <p className="setup-privacy-note">Your notes stay on this device. Kelus uses them as reference for your questions—not as instructions. You can sign in later to sync.</p>
         </section>
       </div>
     </main>

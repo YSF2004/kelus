@@ -692,32 +692,31 @@ html body .pricing-page .pricing-hero-art.k-rise { --rise-delay: 0.2s; }
 /* Materials is a two-pane workspace (the page and its shelf): its title stays on the workspace's edge. */
 html body.is-course-studio .studio-section-head.kelus-space-top[data-section="materials"] { padding: 32px 24px 12px; }
 
-/* ── Alive: the drop zone ──────────────────────────────────────────────────────────────────────────────
-   The first thing a student touches. Its edge is a ring of the six topic colours, faint at rest; it wakes when you
-   come near (hover, focus, a file dragged over) and turns slowly while the file is held over it, as if ready to read. */
-@property --drop-turn { syntax: "<angle>"; inherits: false; initial-value: 0deg; }
-.start-page .setup-first-upload { position: relative; isolation: isolate; border-color: transparent !important; background: var(--k-card, var(--k-surface)) !important; border-radius: 14px !important; transition: transform 240ms cubic-bezier(0.22, 1, 0.36, 1), box-shadow 240ms; }
-.start-page .setup-first-upload::before {
-  content: "";
-  position: absolute;
-  inset: -1.5px;
-  z-index: -1;
-  border-radius: 15px;
-  padding: 1.5px;
-  background: conic-gradient(from var(--drop-turn), var(--tone-1), var(--tone-2), var(--tone-3), var(--tone-4), var(--tone-5), var(--tone-6), var(--tone-1));
-  -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
-  -webkit-mask-composite: xor;
-  mask: linear-gradient(#000 0 0) content-box exclude, linear-gradient(#000 0 0);
-  opacity: 0.35;
-  transition: opacity 240ms;
-  pointer-events: none;
+/* ── The first source ─────────────────────────────────────────────────────────────────────────────────
+   This is a genuine boundary: a student can drop something here. It should feel deliberate, not like a
+   generic card or a decorative animation. */
+.start-page .source-onboarding-heading { display: grid; grid-template-columns: minmax(0, 1fr) 156px; align-items: end; gap: 28px; margin-bottom: 32px; }
+.start-page .source-onboarding-heading .empty-course-art { position: static; justify-self: end; align-self: center; width: 156px; height: auto; }
+.start-page .source-onboarding-kicker { margin: 0 0 10px; color: var(--color-kelus); font-size: 0.8125rem; font-weight: 650; letter-spacing: 0.08em; text-transform: uppercase; }
+.start-page .source-onboarding-heading .destination-page-title { margin: 0; }
+.start-page .source-onboarding-heading .destination-support { margin: 14px 0 0; }
+.start-page .setup-first-upload { position: relative; isolation: isolate; grid-template-columns: auto minmax(0, 1fr); align-items: center; column-gap: 20px !important; row-gap: 3px !important; min-height: 152px !important; padding: 30px 32px !important; border: 1.5px dashed color-mix(in srgb, var(--color-kelus) 55%, var(--k-line)) !important; border-radius: 16px !important; background: color-mix(in srgb, var(--k-green-wash, #e6f1ea) 42%, var(--k-surface)) !important; transition: transform 200ms cubic-bezier(0.22, 1, 0.36, 1), border-color 200ms cubic-bezier(0.22, 1, 0.36, 1), background-color 200ms cubic-bezier(0.22, 1, 0.36, 1) !important; }
+.start-page .setup-first-upload::before { display: none; }
+.start-page .setup-first-upload:is(:hover, :focus-within, .is-dragging) { transform: translateY(-2px); border-color: var(--color-kelus) !important; background: color-mix(in srgb, var(--k-green-wash, #e6f1ea) 72%, var(--k-surface)) !important; box-shadow: none !important; }
+.start-page .setup-first-upload.is-dragging { border-style: solid !important; }
+.start-page .setup-first-upload .setup-upload-mark { grid-row: 1 / span 2; display: grid; place-items: center; width: 48px !important; height: 48px !important; margin: 0 !important; border-radius: 12px; background: var(--k-surface, #fff); }
+.start-page .setup-first-upload strong { color: var(--k-ink) !important; font-family: var(--font-marketing-heading), Georgia, serif !important; font-size: 1.5rem !important; font-weight: 500 !important; letter-spacing: -0.02em; }
+.start-page .setup-first-upload > span:last-child { color: var(--k-text-2, var(--color-slate)) !important; font-size: 0.9375rem !important; line-height: 1.45; }
+.start-page .source-first-next { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 15px 2px 0; color: var(--k-text-2, var(--color-slate)); font-size: 0.8125rem; line-height: 1.45; }
+.start-page .source-first-next span[aria-hidden="true"] { color: var(--color-kelus); }
+.start-page .setup-file-help { margin: 18px 0 0 !important; }
+.start-page .setup-privacy-note { margin-top: 8px !important; }
+@media (max-width: 760px) {
+  .start-page .source-onboarding-heading { grid-template-columns: minmax(0, 1fr); gap: 0; margin-bottom: 26px; }
+  .start-page .source-onboarding-heading .empty-course-art { display: none; }
+  .start-page .setup-first-upload { min-height: 136px !important; padding: 24px !important; }
 }
-.start-page .setup-first-upload:is(:hover, :focus-within, .is-dragging) { transform: translateY(-2px); box-shadow: 0 18px 40px -26px color-mix(in oklch, var(--tone-2) 60%, transparent); }
-.start-page .setup-first-upload:is(:hover, :focus-within, .is-dragging)::before { opacity: 1; }
-.start-page .setup-first-upload.is-dragging::before { animation: kelusTurn 2.4s linear infinite; }
-@keyframes kelusTurn { to { --drop-turn: 360deg; } }
-@media (prefers-reduced-motion: reduce) { .start-page .setup-first-upload { transition: none; } .start-page .setup-first-upload.is-dragging::before { animation: none; } }
-.start-page .setup-first-upload strong { color: var(--k-ink) !important; font-family: var(--font-marketing-heading), Georgia, serif !important; font-size: 1.375rem !important; font-weight: 500 !important; letter-spacing: -0.01em; }
+@media (prefers-reduced-motion: reduce) { .start-page .setup-first-upload { transition: none !important; } .start-page .setup-first-upload:is(:hover, :focus-within, .is-dragging) { transform: none; } }
 /* ── Margin notes on the student's own page ────────────────────────────────────────────────────────────
    The missed line, on the original PDF: a marigold highlighter under each printed row, multiplied into the ink so the
    print stays sharp, and a soft graphite loop drawn round it by hand. */
@@ -761,11 +760,6 @@ html body :is(.k-btn, .cta:not(.home-cta)):active:not(:disabled) { transform: sc
 html body .k-btn--paper { box-shadow: inset 0 0 0 1px var(--k-line-strong) !important; }
 html body .k-btn--paper:hover:not(:disabled) { background: var(--k-surface-2) !important; }
 html body .k-btn--paper:active:not(:disabled) { box-shadow: inset 0 0 0 1px var(--k-line-strong) !important; }
-
-/* The drop zone holds its message, not empty space: the folder beside the words, one compact row. */
-.start-page .setup-first-upload { grid-template-columns: auto minmax(0, 1fr); align-items: center; column-gap: 20px !important; row-gap: 2px !important; padding: 26px 28px !important; }
-.start-page .setup-first-upload .setup-upload-mark { grid-row: 1 / span 2; width: 44px !important; height: 44px !important; margin: 0 !important; }
-.start-page .setup-first-upload { min-height: 0 !important; }
 
 /* The homepage header on a phone: with no account button beside it, the nav fits on the mark's row, so the first
    screen is not two header rows before the headline. */
