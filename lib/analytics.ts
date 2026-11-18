@@ -1,5 +1,8 @@
 export const GA_MEASUREMENT_ID =
   process.env.NEXT_PUBLIC_GA_MEASUREMENT_ID?.trim() || "";
+export const POSTHOG_PROJECT_KEY =
+  process.env.NEXT_PUBLIC_POSTHOG_KEY?.trim() || "";
+export const POSTHOG_API_HOST = "https://us.i.posthog.com";
 
 export type KelusAnalyticsEvent =
   | { name: "setup_started" }
@@ -50,6 +53,21 @@ export function analyticsEnabled() {
   return Boolean(GA_MEASUREMENT_ID) && typeof window !== "undefined";
 }
 
+/** Mirrors the device-level analytics exclusion used by the existing GA bootstrap. */
+export function analyticsOptedOut() {
+  if (typeof window === "undefined") return true;
+
+  const requested = new URLSearchParams(window.location?.search ?? "").get("internal");
+  if (requested === "1") return true;
+  if (requested === "0") return false;
+
+  try {
+    return window.localStorage?.getItem("kelus-internal") === "1";
+  } catch {
+    return false;
+  }
+}
+
 /**
  * A short, controlled label for the search page that started this visit. It is
  * deliberately never a file name, note title, search query, or referrer.
@@ -65,7 +83,51 @@ export function getAcquisitionSource() {
 }
 
 const pendingEvents: KelusAnalyticsEvent[] = [];
+const pendingPostHogEvents: KelusAnalyticsEvent[] = [];
 let waitingForBootstrap = false;
+let postHogCapture: ((name: string, properties: Record<string, string | number | boolean>) => void) | null = null;
+let pilotCohort: string | null = null;
+
+function postHogProperties(event: KelusAnalyticsEvent) {
+  const { name: _name, ...values } = event;
+  const properties: Record<string, string | number | boolean> = {};
+
+  for (const [key, value] of Object.entries(values)) {
+    if (typeof value === "string" || typeof value === "number" || typeof value === "boolean") {
+      properties[key] = value;
+    }
+  }
+
+  if (pilotCohort) properties.pilot_cohort = pilotCohort;
+  return properties;
+}
+
+function sendToPostHog(event: KelusAnalyticsEvent) {
+  if (!postHogCapture) return;
+  try {
+    postHogCapture(event.name, postHogProperties(event));
+  } catch {
+    // Analytics failures must never interrupt a study action.
+  }
+}
+
+/** Called only after the browser SDK has initialized. */
+export function connectPostHog(
+  capture: (name: string, properties: Record<string, string | number | boolean>) => void,
+) {
+  if (!POSTHOG_PROJECT_KEY || analyticsOptedOut()) {
+    postHogCapture = null;
+    pendingPostHogEvents.length = 0;
+    return;
+  }
+
+  postHogCapture = capture;
+  for (const event of pendingPostHogEvents.splice(0)) sendToPostHog(event);
+}
+
+export function disconnectPostHog() {
+  postHogCapture = null;
+}
 
 function flushPendingEvents() {
   if (typeof window.gtag !== "function") return;
@@ -76,22 +138,33 @@ function flushPendingEvents() {
 }
 
 export function trackEvent(event: KelusAnalyticsEvent) {
-  if (!analyticsEnabled()) return;
-  if (typeof window.gtag !== "function") {
-    if (pendingEvents.length < 100) pendingEvents.push(event);
-    if (!waitingForBootstrap) {
-      waitingForBootstrap = true;
-      window.addEventListener("kelus-analytics-ready", flushPendingEvents, { once: true });
+  if (typeof window === "undefined") return;
+
+  if (analyticsEnabled()) {
+    if (typeof window.gtag !== "function") {
+      if (pendingEvents.length < 100) pendingEvents.push(event);
+      if (!waitingForBootstrap) {
+        waitingForBootstrap = true;
+        window.addEventListener("kelus-analytics-ready", flushPendingEvents, { once: true });
+      }
+    } else {
+      flushPendingEvents();
+      const { name, ...parameters } = event;
+      window.gtag("event", name, parameters);
     }
-    return;
   }
-  flushPendingEvents();
-  const { name, ...parameters } = event;
-  window.gtag("event", name, parameters);
+
+  if (!POSTHOG_PROJECT_KEY || analyticsOptedOut()) return;
+  if (postHogCapture) {
+    sendToPostHog(event);
+  } else if (pendingPostHogEvents.length < 100) {
+    pendingPostHogEvents.push(event);
+  }
 }
 
 /** Tags every later event from this browser with its pilot group, so a pilot's numbers can be filtered. */
 export function setPilotCohort(cohort: string | null) {
+  pilotCohort = cohort;
   if (!cohort || !analyticsEnabled() || typeof window.gtag !== "function") return;
   window.gtag("set", "user_properties", { pilot_cohort: cohort });
 }

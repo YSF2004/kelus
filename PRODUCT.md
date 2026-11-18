@@ -40,7 +40,8 @@ next, with the reason stated in the student's own results. Local-first and free,
 - Kelus Plus ($4.99/month) is planned, not built, with no launch date; Free is everything in Kelus today.
 - Results come from evidence (checks right, key ideas used); a self-rating can lower a result, never raise it.
 - Questions are worded in English even for French notes (a known limitation).
-- Analytics: GA4 with ads signals off; pilot links `?pilot=<group>`; class invites tag a random class code.
+- Analytics: GA4 with ads signals off; optional PostHog mirrors explicit product events when configured. Both
+  honor `?internal=1`; pilot links `?pilot=<group>` and class invites tag a random class code.
 
 ## Brand Commitments
 
