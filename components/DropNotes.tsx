@@ -11,6 +11,8 @@ import { SOURCE_FILE_ACCEPT, isNotesFile, isSlidesFile, isSourceFile, isZipFile 
 import { folderToNotesFile, zipToNotesFile, slidesToNotesFile } from "@/lib/zip-notes";
 import { takePendingSetupFile } from "@/lib/pending-setup-file";
 import { photosToPdfFile } from "@/lib/photo-notes";
+import { trackEvent } from "@/lib/analytics";
+import { getSourceIntakeVariant, type SourceIntakeVariant } from "@/lib/source-intake-experiment";
 import styles from "./DropNotes.module.css";
 
 const isPhoto = (file: File) => file.type.startsWith("image/") || /\.(?:jpe?g|png|heic|heif|webp)$/i.test(file.name);
@@ -37,6 +39,10 @@ export function DropNotes({ onFile, first = false, courseName }: { onFile: (file
   const [sourceName, setSourceName] = useState("");
   const [sourceDetail, setSourceDetail] = useState("");
   const [stage, setStage] = useState("");
+  // The source picker is server-rendered too; this only changes two pieces of
+  // explanatory copy, so the browser may take its persisted assignment once it
+  // hydrates without changing the action or the surrounding layout.
+  const [intakeVariant] = useState<SourceIntakeVariant>(() => first && typeof window !== "undefined" ? getSourceIntakeVariant() : "reference");
   const importing = useRef(false);
   const fileInput = useRef<HTMLInputElement>(null);
 
@@ -94,6 +100,13 @@ export function DropNotes({ onFile, first = false, courseName }: { onFile: (file
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  // This compares two explanations of the same action, not two different
+  // study experiences. It deliberately records neither file details nor text.
+  useEffect(() => {
+    if (!first) return;
+    trackEvent({ name: "source_intake_viewed", variant: intakeVariant });
+  }, [first, intakeVariant]);
+
   function drop(event: DragEvent<HTMLLabelElement>) {
     event.preventDefault();
     // A whole folder (an Obsidian vault from Finder or Files) is read note by note into one notes file.
@@ -147,9 +160,9 @@ export function DropNotes({ onFile, first = false, courseName }: { onFile: (file
                 <span>{sourceDetail}{sourceDetail ? " · " : ""}{stage}</span>
                 <span className="setup-upload-progress" aria-hidden="true" />
               </> : <>
-                <strong>{dragging ? "Drop it to add it" : "Choose a PDF or notes"}</strong>
+                <strong suppressHydrationWarning>{dragging ? "Drop it to add it" : intakeVariant === "course_story" ? "Add a source" : "Choose a file"}</strong>
                 {/* Dragging only exists with a mouse or trackpad; a phone gets the file types instead. */}
-                <span>{dragging ? "Release to begin reading it." : <><span className="drop-hint">or drop it here · </span>PDF, slides, plain text or a <span className="brand-inline"><BrandIcon brand="notion" size={14} />Notion</span> .zip</>}</span>
+                <span suppressHydrationWarning>{dragging ? "Release to begin reading it." : intakeVariant === "course_story" ? <>PDF, slides, notes or a course export. Kelus finds topics, then asks your first question.</> : <><span className="drop-hint">or drop it here · </span>PDF, slides, plain text or a <span className="brand-inline"><BrandIcon brand="notion" size={14} />Notion</span> .zip</>}</span>
               </>}
             </span>
           </label>

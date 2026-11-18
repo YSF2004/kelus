@@ -5,23 +5,24 @@ export const POSTHOG_PROJECT_KEY =
 export const POSTHOG_API_HOST = "https://us.i.posthog.com";
 
 export type KelusAnalyticsEvent =
+  | { name: "source_intake_viewed"; variant: "reference" | "course_story" }
   | { name: "setup_started" }
   | { name: "setup_completed"; available_minutes: number }
   | { name: "waitlist_joined"; source: string }
   | { name: "question_submitted"; source: string; delivery?: "remote" | "local" | "needs_activation" }
   | { name: "material_confirmed"; concept_count: number }
   | { name: "search_landing_cta_clicked"; landing: string; placement: "hero" | "faq" | "close" }
-  | { name: "material_upload_started"; role: string; course_type: "real"; acquisition_source?: string }
+  | { name: "material_upload_started"; role: string; course_type: "real"; acquisition_source?: string; intake_variant?: "reference" | "course_story" }
   | { name: "material_shared_in"; kind: string }
   | { name: "match_round_done"; pairs: number; misses: number }
-  | { name: "material_upload_completed"; role: string; course_type: "real"; acquisition_source?: string }
-  | { name: "material_upload_failed"; role: string; course_type: "real"; acquisition_source?: string }
+  | { name: "material_upload_completed"; role: string; course_type: "real"; acquisition_source?: string; intake_variant?: "reference" | "course_story" }
+  | { name: "material_upload_failed"; role: string; course_type: "real"; acquisition_source?: string; intake_variant?: "reference" | "course_story" }
   | { name: "material_processing_completed"; source_type: "pdf" | "notes"; topic_count: number; used_ocr: boolean; course_type: "real"; acquisition_source?: string }
   | { name: "material_processing_failed"; source_type: "pdf" | "notes"; reason: "ocr" | "extraction" | "cancelled"; course_type: "real"; acquisition_source?: string }
   | { name: "concept_review_started"; concept_count: number }
   | { name: "concept_review_updated"; action: "selected" | "removed" }
   | { name: "diagnosis_completed"; retrieval_count: number }
-  | { name: "first_route_ready"; elapsed_ms: number; concept_count: number; course_type: "real" | "sample"; acquisition_source?: string }
+  | { name: "first_route_ready"; elapsed_ms: number; concept_count: number; course_type: "real" | "sample"; acquisition_source?: string; intake_variant?: "reference" | "course_story" }
   | { name: "first_question_shown"; elapsed_bucket: "under_30s" | "under_60s" | "under_2m" | "over_2m"; course_type: "real" | "sample" }
   | { name: "session_started"; session_number?: number; sample?: boolean; course_type: "real" | "sample" }
   | { name: "study_response_recorded"; format: "quick_check" | "own_words"; read_first: boolean; course_type: "real" | "sample" }
