@@ -22,6 +22,7 @@ export type KelusAnalyticsEvent =
   | { name: "concept_review_updated"; action: "selected" | "removed" }
   | { name: "diagnosis_completed"; retrieval_count: number }
   | { name: "first_route_ready"; elapsed_ms: number; concept_count: number; course_type: "real" | "sample"; acquisition_source?: string }
+  | { name: "first_question_shown"; elapsed_bucket: "under_30s" | "under_60s" | "under_2m" | "over_2m"; course_type: "real" | "sample" }
   | { name: "session_started"; session_number?: number; sample?: boolean; course_type: "real" | "sample" }
   | { name: "study_response_recorded"; format: "quick_check" | "own_words"; read_first: boolean; course_type: "real" | "sample" }
   | { name: "session_resumed" }
@@ -160,6 +161,28 @@ export function trackEvent(event: KelusAnalyticsEvent) {
   } else if (pendingPostHogEvents.length < 100) {
     pendingPostHogEvents.push(event);
   }
+}
+
+const FIRST_QUESTION_STARTED_AT = "kelus-first-question-started-at";
+
+/** Starts an anonymous first-use timer. It contains no course name, file name, or note content. */
+export function startFirstQuestionTimer() {
+  if (typeof window === "undefined") return;
+  try { window.sessionStorage.setItem(FIRST_QUESTION_STARTED_AT, String(Date.now())); } catch { /* Optional measurement. */ }
+}
+
+/** Sends one deliberately coarse time-to-first-question bucket, then clears the timer. */
+export function trackFirstQuestionShown(courseType: "real" | "sample") {
+  if (typeof window === "undefined") return;
+  let startedAt = 0;
+  try {
+    startedAt = Number(window.sessionStorage.getItem(FIRST_QUESTION_STARTED_AT));
+    window.sessionStorage.removeItem(FIRST_QUESTION_STARTED_AT);
+  } catch { return; }
+  if (!Number.isFinite(startedAt) || startedAt <= 0) return;
+  const elapsed = Math.max(0, Date.now() - startedAt);
+  const elapsed_bucket = elapsed < 30_000 ? "under_30s" : elapsed < 60_000 ? "under_60s" : elapsed < 120_000 ? "under_2m" : "over_2m";
+  trackEvent({ name: "first_question_shown", elapsed_bucket, course_type: courseType });
 }
 
 /** Tags every later event from this browser with its pilot group, so a pilot's numbers can be filtered. */

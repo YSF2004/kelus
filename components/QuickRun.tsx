@@ -16,7 +16,7 @@ import { ListenButton } from "@/components/ListenButton";
 import { play, setSounds, soundsOn, subscribeSounds } from "@/lib/sound";
 import { hiddenLines, hideLine } from "@/lib/hidden-lines";
 import { asksForTheTopic, gapChoices, keyWordsIn, linesAround, readingLines, whereAnswerBelongs, type QuickRun as Run, type SelfGrade } from "@/domain/quick-run";
-import { trackEvent } from "@/lib/analytics";
+import { trackEvent, trackFirstQuestionShown } from "@/lib/analytics";
 import { FLAG_REASONS, flagQuestion, sendFlaggedQuestion, type FlagReason } from "@/lib/flags";
 import { Octicon } from "@/components/Octicon";
 import { uiWords } from "@/lib/ui-words";
@@ -151,6 +151,7 @@ export function QuickRun({ run: providedRun, persistenceKey, onPersistenceChange
   const [change, setChange] = useState<"+1" | "−1">("+1");
   const [bump, setBump] = useState(() => draft?.known.filter((quote) => !known?.has(quote)).length ?? 0);
   const started = useRef(0);
+  const firstQuestionTracked = useRef(false);
   const firstResponseTracked = useRef(draft?.responseTracked ?? false);
   // The first study session is a deliberately short two-idea introduction. Later
   // sessions keep the full run, and warm-ups keep their own check count.
@@ -174,6 +175,11 @@ export function QuickRun({ run: providedRun, persistenceKey, onPersistenceChange
   const nextRef = useRef<HTMLButtonElement>(null);
 
   useEffect(() => { started.current = performance.now() - (draft?.elapsedMs ?? 0); }, [draft]);
+  useEffect(() => {
+    if (firstQuestionTracked.current) return;
+    firstQuestionTracked.current = true;
+    trackFirstQuestionShown(courseType);
+  }, [courseType]);
   useEffect(() => {
     if (!persistenceKey || finished.current) return;
     const snapshot: StudyDraft = {

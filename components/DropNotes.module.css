@@ -27,6 +27,23 @@
 }
 .recovery button:focus-visible { outline: 2px solid var(--color-kelus); outline-offset: 3px; }
 
+.example {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  width: fit-content;
+  margin: 18px auto 0;
+  color: var(--color-kelus);
+  font-size: var(--text-body-sm);
+  font-weight: 600;
+  text-decoration: none;
+}
+.example span { transition: transform 200ms cubic-bezier(0.22, 1, 0.36, 1); }
+.example:hover span { transform: translateX(3px); }
+.example:focus-visible { outline: 2px solid var(--color-kelus); outline-offset: 4px; border-radius: 4px; }
+.example:active { transform: scale(0.97); }
+@media (prefers-reduced-motion: reduce) { .example span { transition: none; } .example:hover span { transform: none; } .example:active { transform: none; } }
+
 /* Refinement: reading progress in route green; recovery stays calm, with a clear next action. */
 .status { border-color: color-mix(in srgb, var(--color-kelus) 28%, var(--color-frost)); border-left: 3px solid var(--color-kelus); border-radius: 0 8px 8px 0; background: color-mix(in srgb, var(--k-green-wash, #e6f1ea) 55%, var(--k-surface)); }
 .status strong { color: var(--color-kelus); }
