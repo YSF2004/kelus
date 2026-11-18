@@ -697,14 +697,14 @@ html body.is-course-studio .studio-section-head.kelus-space-top[data-section="ma
    generic card or a decorative animation. */
 .start-page .source-onboarding-heading { display: grid; grid-template-columns: minmax(0, 1fr) 156px; align-items: end; gap: 28px; margin-bottom: 32px; }
 .start-page .source-onboarding-heading .empty-course-art { position: static; justify-self: end; align-self: center; width: 156px; height: auto; }
-.start-page .source-onboarding-kicker { margin: 0 0 10px; color: var(--color-kelus); font-size: 0.8125rem; font-weight: 650; letter-spacing: 0.08em; text-transform: uppercase; }
 .start-page .source-onboarding-heading .destination-page-title { margin: 0; }
 .start-page .source-onboarding-heading .destination-support { margin: 14px 0 0; }
 .start-page .setup-first-upload { position: relative; isolation: isolate; grid-template-columns: auto minmax(0, 1fr); align-items: center; column-gap: 20px !important; row-gap: 3px !important; min-height: 152px !important; padding: 30px 32px !important; border: 1.5px dashed color-mix(in srgb, var(--color-kelus) 55%, var(--k-line)) !important; border-radius: 16px !important; background: color-mix(in srgb, var(--k-green-wash, #e6f1ea) 42%, var(--k-surface)) !important; transition: transform 200ms cubic-bezier(0.22, 1, 0.36, 1), border-color 200ms cubic-bezier(0.22, 1, 0.36, 1), background-color 200ms cubic-bezier(0.22, 1, 0.36, 1) !important; }
 .start-page .setup-first-upload::before { display: none; }
 .start-page .setup-first-upload:is(:hover, :focus-within, .is-dragging) { transform: translateY(-2px); border-color: var(--color-kelus) !important; background: color-mix(in srgb, var(--k-green-wash, #e6f1ea) 72%, var(--k-surface)) !important; box-shadow: none !important; }
-.start-page .setup-first-upload.is-dragging { border-style: solid !important; }
-.start-page .setup-first-upload .setup-upload-mark { grid-row: 1 / span 2; display: grid; place-items: center; width: 48px !important; height: 48px !important; margin: 0 !important; border-radius: 12px; background: var(--k-surface, #fff); }
+.start-page .setup-first-upload.is-dragging { border-style: solid !important; background: color-mix(in srgb, var(--k-green-wash, #e6f1ea) 88%, var(--k-surface)) !important; }
+.start-page .setup-first-upload .setup-upload-mark { grid-row: 1 / span 2; display: grid; place-items: center; width: 48px !important; height: 48px !important; margin: 0 !important; border-radius: 12px; background: var(--k-surface, #fff); transition: transform 200ms cubic-bezier(0.22, 1, 0.36, 1), background-color 200ms cubic-bezier(0.22, 1, 0.36, 1); }
+.start-page .setup-first-upload.is-dragging .setup-upload-mark { transform: translateY(-4px) scale(1.04); background: #fff; }
 .start-page .setup-first-upload strong { color: var(--k-ink) !important; font-family: var(--font-marketing-heading), Georgia, serif !important; font-size: 1.5rem !important; font-weight: 500 !important; letter-spacing: -0.02em; }
 .start-page .setup-first-upload > span:last-child { color: var(--k-text-2, var(--color-slate)) !important; font-size: 0.9375rem !important; line-height: 1.45; }
 .start-page .source-first-next { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 15px 2px 0; color: var(--k-text-2, var(--color-slate)); font-size: 0.8125rem; line-height: 1.45; }
@@ -716,7 +716,7 @@ html body.is-course-studio .studio-section-head.kelus-space-top[data-section="ma
   .start-page .source-onboarding-heading .empty-course-art { display: none; }
   .start-page .setup-first-upload { min-height: 136px !important; padding: 24px !important; }
 }
-@media (prefers-reduced-motion: reduce) { .start-page .setup-first-upload { transition: none !important; } .start-page .setup-first-upload:is(:hover, :focus-within, .is-dragging) { transform: none; } }
+@media (prefers-reduced-motion: reduce) { .start-page .setup-first-upload, .start-page .setup-first-upload .setup-upload-mark { transition: none !important; } .start-page .setup-first-upload:is(:hover, :focus-within, .is-dragging), .start-page .setup-first-upload.is-dragging .setup-upload-mark { transform: none; } }
 /* ── Margin notes on the student's own page ────────────────────────────────────────────────────────────
    The missed line, on the original PDF: a marigold highlighter under each printed row, multiplied into the ink so the
    print stays sharp, and a soft graphite loop drawn round it by hand. */
