@@ -10,10 +10,15 @@ test("the done page offers a quick match on the topics just practised", async ({
   await startFromFile(page, { name: "biology-ch7-cell-transport.pdf", mimeType: "application/pdf", buffer: readFileSync("tests/fixtures/course-pdfs/biology-ch7-cell-transport.pdf") });
   // A first session is one topic; the match needs a block of three, so it comes after the second session.
   const play = async () => {
-    for (let topic = 0; topic < 5 && !/complete/.test(page.url()); topic += 1) {
+    for (let topic = 0; topic < 5; topic += 1) {
       await playQuickRun(page, "Particles move from high to low concentration across a membrane.", "Nailed it");
       await page.getByRole("button", { name: /^(Continue to|Finish session|See how it went)/ }).first().click();
-      await page.waitForTimeout(400);
+      const done = page.getByRole("heading", { name: "Done.", exact: true });
+      const nextPrompt = page.getByRole("region", { name: "Read it first" })
+        .or(page.locator('section[aria-label^="Check "]'))
+        .or(page.locator("#run-explain"));
+      await done.or(nextPrompt).first().waitFor({ timeout: 30_000 });
+      if (await done.isVisible()) break;
     }
     await expect(page).toHaveURL(/\/session\/complete/);
   };

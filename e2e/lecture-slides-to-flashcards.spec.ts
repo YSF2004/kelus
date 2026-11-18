@@ -20,5 +20,5 @@ test("Lecture slides page shows real cards beside their slides, starts the produ
   });
   expect(violations).toEqual([]);
   await page.getByRole("link", { name: "Turn slides into flashcards" }).first().click();
-  await expect(page).toHaveURL(/\/today\/?$/);
+  await expect(page).toHaveURL(/\/today\/\?source=lecture-slides-to-flashcards$/);
 });

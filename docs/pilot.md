@@ -1,7 +1,8 @@
 # Running a Kelus pilot
 
-Use one course group of 10–30 students and their real course materials. GA4 measures product use and self-reported
-usefulness, not learning gains. It is already installed on kelus.me with ads signals off and IP anonymisation enabled.
+Use one course group of 10–30 students and their real course materials. GA4 remains the source for the pilot reports;
+optional PostHog mirrors explicit product events when its project key is configured. These measure product use and
+self-reported usefulness, not learning gains. GA4 has ads signals off and IP anonymisation enabled.
 
 **Pilot status:** No cohort export or invitation count was present when this report was prepared. Results, source types
 tested, and a product-change recommendation must be filled in from a real cohort; do not treat missing data as zero or

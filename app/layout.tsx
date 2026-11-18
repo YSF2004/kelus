@@ -38,6 +38,7 @@ import { AuthProvider } from "@/components/AuthProvider";
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { GoogleAnalytics } from "@/components/GoogleAnalytics";
+import { PostHogAnalytics } from "@/components/PostHogAnalytics";
 import { NudgeKeeper } from "@/components/NudgeKeeper";
 import { AppRuntime } from "@/components/AppRuntime";
 import { UpdateWatcher } from "@/components/UpdateWatcher";
@@ -103,6 +104,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       </head>
       <body className={`${inter.variable} ${literata.variable} is-booklet-system`}>
         <GoogleAnalytics />
+        <PostHogAnalytics />
         <a className="skip" href="#main">Skip to content</a>
         <AuthProvider>
           <LearnerProvider>

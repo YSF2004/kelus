@@ -3,7 +3,7 @@ import { gotoStart, startBuiltPlan } from "./helpers";
 
 const fiche = "La photosynthèse\nLa photosynthèse est la réaction par laquelle les plantes vertes fabriquent du glucose à partir du dioxyde de carbone et de l'eau. Elle se déroule dans les chloroplastes des cellules des feuilles.\n\nLa respiration\nLa respiration cellulaire est la réaction qui libère l'énergie du glucose dans les mitochondries. Elle consomme du dioxygène.\n\nLes enzymes\nLes enzymes sont des protéines qui accélèrent les réactions chimiques sans être consommées.";
 
-test("French notes get French buttons and feedback, not only French questions", async ({ page }) => {
+test("French notes keep English controls while preserving French questions and feedback", async ({ page }) => {
   await gotoStart(page);
   await page.getByText("Or paste your notes").click();
   await page.locator("#paste-notes").fill(fiche);

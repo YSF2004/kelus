@@ -71,11 +71,17 @@ export default function PrivacyPage() {
 
         <h2>Analytics</h2>
         <p>
-          When analytics are configured for kelus.me, Kelus uses Google Analytics 4 with ads signals off and IP
-          anonymization on. It helps us understand which pages are used — not to build an advertising profile.
-          It also counts study blocks (which number this is, and how many days since your first) and whether you came back,
-          so we can tell whether Kelus helps. If you opened Kelus from a pilot or class invite link, the group name or class code in that link is sent too. An invite you send links to Kelus only, never to your notes.
-          Never your notes, your answers or your name.
+          When configured, Kelus uses Google Analytics 4 and PostHog to understand product use, not to build an advertising
+          profile. GA4 has ads signals off and IP anonymization on. PostHog receives only the product events Kelus explicitly
+          sends, with limited event properties such as study-block counts and course type. It uses a pseudonymous browser
+          identifier to group events from the same device; Kelus does not send account IDs. Automatic click capture, pageviews,
+          referrer and campaign capture, and session recording are disabled in PostHog. URL and path properties are removed
+          from its event payloads. If you opened Kelus from a pilot or class invite link, the validated group name or class
+          code is sent too. Neither analytics provider receives your notes, answers, name, or email.
+        </p>
+        <p>
+          Add <code>?internal=1</code> to kelus.me to exclude this device from both analytics providers; use{" "}
+          <code>?internal=0</code> to include it again. An invite you send links to Kelus only, never to your notes.
         </p>
 
         <h2 id="ai-questions">How questions are written</h2>

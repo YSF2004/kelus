@@ -855,9 +855,9 @@ function SessionBody() {
                   }
                 }}
                 onFinish={finishQuick}
-                // A new topic opens on one low-stakes check. Its evidence stays one tap away,
-                // while the route still treats this first pass as early evidence, not mastery.
-                readFirst={false}
+                // The first session teaches the source-to-question connection before recall.
+                // Later topics begin with a check and keep their source one tap away.
+                readFirst={firstStudySession && index === 0}
                 firstStudySession={firstStudySession && index === 0}
                 known={knownAtOpen.set}
                 recalled={knownAtOpen.count}

@@ -37,7 +37,7 @@ test("sample activity stays identified through progress, materials, the study se
   await expect(page.getByRole("heading", { name: /Example source/ })).toBeVisible();
 
   await sectionsNav(page).getByRole("button", { name: "Study plan", exact: true }).click();
-  await page.getByRole("button", { name: /^Start(?: this topic)?$/ }).click();
+  await page.locator('[data-action="start-topic"]').click();
   await expect(page).toHaveURL(/\/session/);
   await expect(page.getByRole("note", { name: "Sample course notice" })).toBeVisible();
 

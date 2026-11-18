@@ -20,5 +20,5 @@ test("PDF to Anki page shows a real exported card, starts the product, and is ac
   });
   expect(violations).toEqual([]);
   await page.getByRole("link", { name: "Turn a PDF into an Anki deck" }).first().click();
-  await expect(page).toHaveURL(/\/today\/?$/);
+  await expect(page).toHaveURL(/\/today\/\?source=pdf-to-anki$/);
 });

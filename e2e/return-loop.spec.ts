@@ -1,6 +1,8 @@
 import { expect, test, type Page } from "@playwright/test";
+import { skipReading } from "./helpers";
 
 async function playQuickRun(page: Page) {
+  await skipReading(page);
   for (let guard = 0; guard < 6; guard += 1) {
     await expect(page.locator('#run-explain, input[id^="run-gap"]:not([disabled]), [role="group"][aria-label="Choose one"] button:not([disabled])').first()).toBeVisible();
     if (await page.locator("#run-explain").count()) break;
