@@ -2,12 +2,12 @@ import type { Metadata } from "next";
 import { SearchLanding, searchStyles as styles } from "@/components/seo/SearchLanding";
 
 export const metadata: Metadata = {
-  title: "A Free Quizlet Alternative for Your Own Notes | Kelus",
-  description: "Looking for a free Quizlet alternative? Kelus reads your lecture PDF or notes, writes the questions from your own lines, and plans what to revise until the exam. Free, no account, nothing invented by a chatbot.",
+  title: "Apps Similar to Quizlet: Study Your Own Notes | Kelus",
+  description: "Looking for apps similar to Quizlet? Kelus turns your lecture PDF or notes into source-linked practice questions and a revision plan. Free to start, no account needed.",
   alternates: { canonical: "/quizlet-alternative/" },
   openGraph: {
-    title: "A free Quizlet alternative that quizzes you on your own notes",
-    description: "No sets to make or borrow: Kelus writes the questions from your lecture notes, shows the line each comes from, and plans your revision. Free, no account.",
+    title: "An app like Quizlet, built around your own notes",
+    description: "No sets to make or borrow: Kelus writes source-linked questions from your lecture notes and plans your revision. Free to start, no account needed.",
     url: "/quizlet-alternative/",
     siteName: "Kelus",
     images: [{ url: "/og/kelus-social.png", width: 1200, height: 630, alt: "Kelus writes questions from your own notes." }],
@@ -33,14 +33,14 @@ const STEPS = [
   { title: "Let the plan bring back what you missed", body: "A line you get right waits longer before it comes back; one you miss opens tomorrow’s one-minute warm-up, until the exam." },
 ] as const;
 
-// Quizlet details as listed in October 2026 (plan pages and reviews); worded so each stays true if a plan changes.
+// Quizlet details checked against its public product and plan pages in November 2026. Plan access can vary by region.
 const ROWS = [
-  ["Study material from your own notes", "Free: drop in a PDF, a photo or pasted notes", "Magic Notes, part of Quizlet Plus"],
-  ["Quiz rounds", "Unlimited, free", "A few Learn and Test rounds a day on the free plan"],
+  ["Study material from your own notes", "Free: drop in a PDF, a photo or pasted notes", "Create or import study sets; current AI access varies by plan"],
+  ["Quiz rounds", "Source-linked recall questions from your material", "Study modes built around a set"],
   ["Where each question comes from", "Shown on every answer: the line and its page", "The card set you made or found"],
   ["What to revise next", "A plan to your exam date; missed lines come back first", "Learn mode rounds within a set"],
-  ["Account", "None needed; notes stay on your device", "Needed to make and save sets"],
-  ["Price", "Free", "Free plan; Quizlet Plus is about $8 a month"],
+  ["Account", "None needed; notes stay on your device", "An account saves and manages your study sets"],
+  ["Price", "Free core study flow", "Free and paid plans; check Quizlet for current access"],
 ] as const;
 
 const FAQ = [
@@ -55,7 +55,7 @@ const FAQ = [
 export default function QuizletAlternative() {
   return (
     <SearchLanding
-      title={["A free Quizlet alternative", "that quizzes you on your own notes."]}
+      title={["Looking for apps similar to Quizlet?", "Start with the notes you were taught."]}
       lede="No sets to make or borrow. Drop in the notes you were taught: Kelus writes the questions from your own lines, shows the line behind every answer, and plans what to revise until the exam."
       action="Try it with your notes"
       landing="quizlet-alternative"
@@ -77,11 +77,11 @@ export default function QuizletAlternative() {
       compare={{
         title: "Kelus and Quizlet, side by side.",
         other: "Quizlet",
-        asOf: "Quizlet details as listed in October 2026. Check quizlet.com for its current plans.",
+        asOf: "Quizlet details checked in November 2026. Check quizlet.com for current plans and regional availability.",
         rows: ROWS,
         fair: "Quizlet is the better choice when someone has already made a good set for your course, when you want its games and native apps, or when you are learning vocabulary lists. Kelus is for revising the notes your own lecturer gave you.",
       }}
-      why={{ title: "Questions from what your lecturer said.", body: "A borrowed set is someone else’s course. Kelus asks about the sentences in your own notes and quotes them back, so what you practice is what your exam will test." }}
+      why={{ title: "An app like Quizlet, with the lesson still beside the question.", body: "A borrowed set can be useful, but it may describe someone else’s course. Kelus asks about sentences in your own notes and quotes them back, so you can check that what you practice belongs to your exam." }}
       faq={FAQ}
       credit="Example: LibreTexts BIOL 101: General Biology I Laboratory Manual by Brad Basehore, Michelle A. Bucks and Christine M. Mummert, CC BY 4.0. Quizlet is a trademark of Quizlet, Inc.; Kelus is not affiliated with Quizlet or LibreTexts."
     />
