@@ -5,6 +5,12 @@
   "type": "module",
   "description": "Holds the Anthropic API key for Kelus. Receives a topic's page text, returns study questions. Off until deployed.",
   "main": "index.mjs",
-  "scripts": { "test": "node --test test/*.test.mjs" },
-  "dependencies": { "@anthropic-ai/sdk": "^0.131.0" }
+  "scripts": {
+    "test": "node --test test/*.test.mjs"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.131.0",
+    "@posthog/ai": "^8.20.0",
+    "posthog-node": "^5.74.0"
+  }
 }
