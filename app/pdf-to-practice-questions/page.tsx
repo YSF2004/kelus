@@ -4,9 +4,9 @@ import { SiteFooter } from "@/components/SiteFooter";
 import { SearchStartLink } from "@/components/seo/SearchStartLink";
 import styles from "./page.module.css";
 
-const title = "Turn Lecture PDFs into Practice Questions | Kelus";
+const title = "Make Practice Tests From Your Notes & PDFs | Kelus";
 const description =
-  "Add a course PDF or your own notes. Kelus makes source-linked recall questions, checks what you remember, and shows what to revise next. Start free.";
+  "Make a practice test from your notes or lecture PDF. Kelus writes source-linked questions, checks what you remember, and shows what to revise next. Start free.";
 
 export const metadata: Metadata = {
   title,
@@ -34,9 +34,9 @@ export default function PdfToPracticeQuestionsPage() {
       <main id="main">
         <section className={styles.hero} aria-labelledby="page-title">
           <div className={styles.heroCopy}>
-            <h1 id="page-title">Your PDF is the lesson. Make it the practice too.</h1>
+            <h1 id="page-title">Make practice tests from the notes you were taught.</h1>
             <p>
-              Add the notes you were actually taught. Kelus finds the topics, asks questions from those pages,
+              Add your notes or lecture PDF. Kelus finds the topics, asks questions from those pages,
               and brings back what you missed when you revise again.
             </p>
             <SearchStartLink action="Add your PDF or notes →" landing="pdf-to-practice-questions" placement="hero" className={styles.primary} />
