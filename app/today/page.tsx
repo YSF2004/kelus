@@ -6,7 +6,7 @@ import { DropNotes } from "@/components/DropNotes";
 import { MaterialLibrary } from "@/components/MaterialLibrary";
 import { RevisionSurface } from "@/components/RevisionSurface";
 import { useLearner } from "@/components/LearnerProvider";
-import { getAcquisitionSource, trackEvent } from "@/lib/analytics";
+import { getAcquisitionSource, startFirstQuestionTimer, trackEvent } from "@/lib/analytics";
 import styles from "./loading.module.css";
 import { addSourceMaterial, getMaterialsSnapshot, getServerMaterialsSnapshot, removeMaterial, subscribeMaterials } from "@/lib/material-store";
 import { removeRemoteMaterial, uploadMaterialPdf } from "@/lib/material-sync";
@@ -123,6 +123,7 @@ function TodayBody() {
     const acquisitionSource = getAcquisitionSource();
     trackEvent({ name: "material_upload_started", role, course_type: "real", acquisition_source: acquisitionSource });
     try { window.localStorage.setItem("kelus-first-route-started-at", String(Date.now())); } catch { /* Timing analytics are optional. */ }
+    startFirstQuestionTimer();
     const examDate = new Date(Date.now() + 14 * 86_400_000).toISOString().slice(0, 10);
     const input: SetupInput = {
       // Named only once a file is shown to hold topics (see MaterialLibrary): an unreadable or unrelated file

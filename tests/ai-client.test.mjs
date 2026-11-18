@@ -45,7 +45,7 @@ test("what is sent is only the prompt built from the page", async () => {
   await fetchAiTopicContent(input, { endpoint: "https://proxy.example", fetchImpl: async (_url, init) => { sent = JSON.parse(init.body); return new Response(JSON.stringify({ text: reply })); } });
   assert.deepEqual(Object.keys(sent).sort(), ["system", "user"]);
   const user = JSON.parse(sent.user);
-  assert.equal(user.pageText, input.pageText);
+  assert.equal(user.sourceData.content, input.pageText);
   assert.ok(!JSON.stringify(sent).includes("kelus-ai"));
 });
 
