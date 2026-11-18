@@ -673,7 +673,11 @@ export function MaterialLibrary({ embedded = false, incomingFile = null, onIncom
     if (analysis) return (
       <section className="first-source-review" aria-labelledby="first-source-review-title">
         <header>
-          <h2 id="first-source-review-title" tabIndex={-1} ref={focusPhaseHeading}>{asking ? "Is this a file to revise?" : "Check the topics in your notes."}</h2>
+          <div className="first-source-review-source">
+            <SourceArt role={analysis.material.role} />
+            <span><small>Source ready</small><strong title={analysis.material.fileName ?? analysis.material.title}>{analysis.material.fileName ?? analysis.material.title}</strong><small>{fileTypeLabel(analysis.material.fileName, analysis.material.mimeType)} · {analysis.coverage ? `${analysis.coverage.pagesRead} ${analysis.coverage.unit}${analysis.coverage.pagesRead === 1 ? "" : "s"} read` : "Ready to review"}</small></span>
+          </div>
+          <h2 id="first-source-review-title" tabIndex={-1} ref={focusPhaseHeading}>{asking ? "Is this a file to revise?" : `Check the ${analysis.proposals.length} topics Kelus found.`}</h2>
           {asking ? null : <>
             {analysis.coverage ? <ReadCoverage coverage={analysis.coverage} found={analysis.proposals.length} /> : null}
             <p>These come from <b>{readableFileName(analysis.material.fileName ?? analysis.material.title)}</b>. Keep only what is part of your exam — Kelus will build questions from the topics and quoted lines you confirm. Each topic keeps its page and quoted evidence; topics inferred from limited text deserve a quick check before you continue.</p>
@@ -713,7 +717,8 @@ export function MaterialLibrary({ embedded = false, incomingFile = null, onIncom
         </div>
       </section>
     );
-    return <ReadingNotes message={statusMessage ?? "Finding the topics in your notes."} topics={[]} error={hardError} onStartOver={onStartOver} />;
+    const readingSource = courseMaterials.find((item) => item.storage === "local" && item.processingStatus !== "failed");
+    return <ReadingNotes message={statusMessage ?? "Finding the topics in your notes."} topics={[]} error={hardError} onStartOver={onStartOver} source={readingSource ? { name: readingSource.fileName ?? readingSource.title, detail: [fileTypeLabel(readingSource.fileName, readingSource.mimeType), formatBytes(readingSource.sizeBytes)].filter(Boolean).join(" · "), role: readingSource.role } : undefined} />;
   }
 
   // A source's topics in the order of the notes, each with its colour.

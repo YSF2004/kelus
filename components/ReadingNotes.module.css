@@ -30,6 +30,22 @@
   text-align: center;
 }
 
+/* The source remains present while it is read; it is evidence, not a loading decoration. */
+.source {
+  display: grid;
+  grid-template-columns: 34px minmax(0, 1fr);
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  padding: 12px 0;
+  border-bottom: 1px solid var(--q-line, var(--k-line));
+  text-align: left;
+}
+.source svg { width: 34px; height: 34px; }
+.source > span { display: grid; min-width: 0; gap: 2px; }
+.source strong { overflow: hidden; color: var(--q-ink, var(--k-ink)); font-size: 0.9375rem; font-weight: 600; text-overflow: ellipsis; white-space: nowrap; }
+.source small { color: var(--q-text-2, var(--k-text-2)); font-size: 0.75rem; }
+
 .mark {
   width: 64px;
   height: 64px;

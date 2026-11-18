@@ -15,6 +15,17 @@ import styles from "./DropNotes.module.css";
 
 const isPhoto = (file: File) => file.type.startsWith("image/") || /\.(?:jpe?g|png|heic|heif|webp)$/i.test(file.name);
 
+function sourceType(file: File) {
+  if (isSlidesFile(file)) return "Slides";
+  if (isZipFile(file)) return "Notes export";
+  if (isNotesFile(file)) return "Notes";
+  return "PDF";
+}
+
+function formatSize(bytes: number) {
+  return bytes < 1_000_000 ? `${Math.max(1, Math.round(bytes / 1_000))} KB` : `${(bytes / 1_000_000).toFixed(1)} MB`;
+}
+
 /**
  * The first screen, and the screen for a course with no notes: one job. Put your notes in; Kelus reads them and
  * opens your first question. No stepper, no exam form, no topic checklist.
@@ -24,11 +35,12 @@ export function DropNotes({ onFile, first = false, courseName }: { onFile: (file
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const [sourceName, setSourceName] = useState("");
+  const [sourceDetail, setSourceDetail] = useState("");
   const [stage, setStage] = useState("");
   const importing = useRef(false);
   const fileInput = useRef<HTMLInputElement>(null);
 
-  async function importSource(name: string, prepare: () => Promise<File>, preparation: string) {
+  async function importSource(name: string, prepare: () => Promise<File>, preparation: string, kind?: string) {
     if (importing.current) return;
     importing.current = true;
     setBusy(true);
@@ -39,6 +51,9 @@ export function DropNotes({ onFile, first = false, courseName }: { onFile: (file
       const file = await prepare();
       if (isNotesFile(file) && file.size > MAX_NOTES_BYTES) throw new Error("These notes are over 2 MB. Choose a smaller file or split them.");
       if (!isNotesFile(file) && file.size > 20 * 1024 * 1024) throw new Error("This PDF is over 20 MB. Choose a smaller export or split it first.");
+      // The upload target becomes the source itself as soon as we have a real file, rather than a generic loader.
+      setSourceName(file.name || name);
+      setSourceDetail(`${kind ?? sourceType(file)} · ${formatSize(file.size)}`);
       setStage("Finding topics in your notes…");
       await onFile(file);
     } catch (caught) {
@@ -60,14 +75,15 @@ export function DropNotes({ onFile, first = false, courseName }: { onFile: (file
       return setError("Choose a PDF, PowerPoint slides, a notes text file, a Notion export or an Obsidian vault (.zip or a folder).");
     }
     await importSource(picked.name, async () => isSlidesFile(picked) ? slidesToNotesFile(picked) : isZipFile(picked) ? zipToNotesFile(picked) : picked,
-      isSlidesFile(picked) ? "Reading your slides…" : isZipFile(picked) ? "Opening your notes archive…" : "Reading your file…");
+      isSlidesFile(picked) ? "Reading your slides…" : isZipFile(picked) ? "Opening your notes archive…" : "Reading your file…",
+      sourceType(picked));
   }
 
   async function takePhotos(photos: File[]) {
     setDragging(false);
     if (!photos.length) return;
     await importSource(photos.length === 1 ? photos[0].name : `${photos.length} photos`,
-      () => photosToPdfFile(photos), "Preparing your photos…");
+      () => photosToPdfFile(photos), "Preparing your photos…", "Photos");
   }
 
   // A file chosen while this screen is open, or shared from another app: start from it instead of asking again.
@@ -84,7 +100,7 @@ export function DropNotes({ onFile, first = false, courseName }: { onFile: (file
     const entry = event.dataTransfer.items?.[0]?.webkitGetAsEntry?.();
     if (entry?.isDirectory) {
       setDragging(false);
-      void importSource(entry.name, () => folderToNotesFile(entry as FileSystemDirectoryEntry), "Opening your notes folder…");
+      void importSource(entry.name, () => folderToNotesFile(entry as FileSystemDirectoryEntry), "Opening your notes folder…", "Notes folder");
       return;
     }
     // Several photos of pages dropped together become one set of notes, in the order they were dropped.
@@ -124,16 +140,22 @@ export function DropNotes({ onFile, first = false, courseName }: { onFile: (file
           >
             <input ref={fileInput} type="file" aria-label="Choose a PDF or notes" accept={SOURCE_FILE_ACCEPT} disabled={busy} onChange={(event) => { void take(event.target.files?.[0]); event.target.value = ""; }} />
             <span className="setup-upload-mark" aria-hidden="true"><PackArt name="folder" size={44} /></span>
-            <strong>{busy ? stage : dragging ? "Drop it to add it" : "Choose a PDF or notes"}</strong>
-            {/* Dragging only exists with a mouse or trackpad; a phone gets the file types instead. */}
-            <span>{busy ? "Larger files and scanned pages can take longer." : dragging ? "Release to begin reading it." : <><span className="drop-hint">or drop it here · </span>PDF, slides, plain text or a <span className="brand-inline"><BrandIcon brand="notion" size={14} />Notion</span> .zip</>}</span>
+            <span className="setup-upload-copy" role={busy ? "status" : undefined} aria-live={busy ? "polite" : undefined}>
+              {busy ? <>
+                <span className="setup-upload-state">Reading your source</span>
+                <strong title={sourceName}>{sourceName}</strong>
+                <span>{sourceDetail}{sourceDetail ? " · " : ""}{stage}</span>
+                <span className="setup-upload-progress" aria-hidden="true" />
+              </> : <>
+                <strong>{dragging ? "Drop it to add it" : "Choose a PDF or notes"}</strong>
+                {/* Dragging only exists with a mouse or trackpad; a phone gets the file types instead. */}
+                <span>{dragging ? "Release to begin reading it." : <><span className="drop-hint">or drop it here · </span>PDF, slides, plain text or a <span className="brand-inline"><BrandIcon brand="notion" size={14} />Notion</span> .zip</>}</span>
+              </>}
+            </span>
           </label>
           {!busy ? <div className="source-first-next" aria-label="What happens after you add a source">
             <span>Kelus reads the source</span><span aria-hidden="true">→</span><span>You check the topics</span><span aria-hidden="true">→</span><span>Your first recall question</span>
           </div> : null}
-          <div role="status" aria-live="polite" aria-atomic="true" className={styles.status}>
-            {busy ? <><strong>{sourceName}</strong><span>{stage} Next, you’ll check the topics Kelus found before your first question.</span></> : null}
-          </div>
           <PhotoNotes onFile={(file) => void take(file)} disabled={busy} />
           <PasteNotes onFile={(file) => void take(file)} disabled={busy} />
           {first && !busy ? <Link className={styles.example} href="/today?sample=1">Try a short example first <span aria-hidden="true">→</span></Link> : null}
