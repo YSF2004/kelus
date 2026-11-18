@@ -93,13 +93,17 @@ export function DropNotes({ onFile, first = false, courseName }: { onFile: (file
     void take(files[0]);
   }
 
+  function leaveDropTarget(event: DragEvent<HTMLLabelElement>) {
+    // Child elements fire dragleave too. Only end the visual state when the file really leaves the whole target.
+    if (!event.currentTarget.contains(event.relatedTarget as Node | null)) setDragging(false);
+  }
+
   return (
     <main id="main" className="destination-page is-booklet-product is-marked-setup is-material-first start-page">
       <div className="destination-form">
         <section className="setup-stage-content empty-course" aria-labelledby="start-title">
           <div className="source-onboarding-heading">
             <div>
-              <p className="source-onboarding-kicker">Your course sources</p>
               <h1 id="start-title" className="destination-page-title">{first ? "Start with your notes." : courseName ? `Add notes to ${courseName}.` : "Add your notes."}</h1>
               <p className="destination-support">
                 {first
@@ -114,15 +118,15 @@ export function DropNotes({ onFile, first = false, courseName }: { onFile: (file
             className={`setup-first-upload${dragging ? " is-dragging" : ""}`}
             aria-busy={busy || undefined}
             onDragEnter={() => setDragging(true)}
-            onDragLeave={() => setDragging(false)}
+            onDragLeave={leaveDropTarget}
             onDragOver={(event) => event.preventDefault()}
             onDrop={drop}
           >
             <input ref={fileInput} type="file" aria-label="Choose a PDF or notes" accept={SOURCE_FILE_ACCEPT} disabled={busy} onChange={(event) => { void take(event.target.files?.[0]); event.target.value = ""; }} />
             <span className="setup-upload-mark" aria-hidden="true"><PackArt name="folder" size={44} /></span>
-            <strong>{busy ? stage : "Choose a PDF or notes"}</strong>
+            <strong>{busy ? stage : dragging ? "Drop it to add it" : "Choose a PDF or notes"}</strong>
             {/* Dragging only exists with a mouse or trackpad; a phone gets the file types instead. */}
-            <span>{busy ? "Larger files and scanned pages can take longer." : <><span className="drop-hint">or drop it here · </span>PDF, slides, plain text or a <span className="brand-inline"><BrandIcon brand="notion" size={14} />Notion</span> .zip</>}</span>
+            <span>{busy ? "Larger files and scanned pages can take longer." : dragging ? "Release to begin reading it." : <><span className="drop-hint">or drop it here · </span>PDF, slides, plain text or a <span className="brand-inline"><BrandIcon brand="notion" size={14} />Notion</span> .zip</>}</span>
           </label>
           {!busy ? <div className="source-first-next" aria-label="What happens after you add a source">
             <span>Kelus reads the source</span><span aria-hidden="true">→</span><span>You check the topics</span><span aria-hidden="true">→</span><span>Your first recall question</span>
