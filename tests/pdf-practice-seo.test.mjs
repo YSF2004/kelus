@@ -7,13 +7,13 @@ test("the PDF practice entry page has unique crawlable metadata and a real study
   const sitemap = readFileSync("app/sitemap.ts", "utf8");
   const footer = readFileSync("components/SiteFooter.tsx", "utf8");
 
-  assert.match(page, /Turn Lecture PDFs into Practice Questions/);
+  assert.match(page, /Make Practice Tests From Your Notes & PDFs/);
   assert.match(page, /canonical: "\/pdf-to-practice-questions"/);
   assert.match(page, /<h1 id="page-title">/);
   assert.match(page, /SearchStartLink action="Add your PDF or notes →" landing="pdf-to-practice-questions"/);
   assert.match(readFileSync("components/seo/SearchStartLink.tsx", "utf8"), /href=\{`\/today\?source=/);
   assert.match(page, /Your own questions come from your material/);
-  assert.match(page, /const title = "Turn Lecture PDFs into Practice Questions \| Kelus"/);
+  assert.match(page, /const title = "Make Practice Tests From Your Notes & PDFs \| Kelus"/);
   // Question-writing is on the device on kelus.me; the page says so plainly and links to how questions are written.
   assert.match(page, /Your notes stay on this device unless you choose to sync them/);
   assert.match(page, /href="\/privacy#ai-questions"/);
