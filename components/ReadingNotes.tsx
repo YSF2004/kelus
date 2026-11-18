@@ -2,6 +2,8 @@
 
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { PackArt } from "@/components/PackArt";
+import { SourceArt } from "@/components/SourceArt";
+import type { MaterialRole } from "@/domain/types";
 import { Octicon } from "@/components/Octicon";
 import styles from "./ReadingNotes.module.css";
 
@@ -12,7 +14,7 @@ const STEPS = ["Reading your pages", "Finding the topics", "Writing your first q
  * The only thing on screen while Kelus reads a file: the K writing itself, like a pen going over the page, and the
  * real step underneath. When it could not read the file, why, and one way out.
  */
-export function ReadingNotes({ message, error, onStartOver, topics = [] }: { message: string; error?: string | null; onStartOver?: () => void; /** The topics found so far: shown one by one, proof that Kelus read these notes. */ topics?: string[] }) {
+export function ReadingNotes({ message, error, onStartOver, topics = [], source }: { message: string; error?: string | null; onStartOver?: () => void; /** The topics found so far: shown one by one, proof that Kelus read these notes. */ topics?: string[]; source?: { name: string; detail: string; role: MaterialRole } }) {
   const reduce = useReducedMotion() === true;
   if (error) {
     return (
@@ -38,6 +40,10 @@ export function ReadingNotes({ message, error, onStartOver, topics = [] }: { mes
       });
   return (
     <section className={styles.reading} role="status" aria-live="polite" aria-labelledby="reading-title">
+      {source ? <div className={styles.source}>
+        <SourceArt role={source.role} />
+        <span><strong title={source.name}>{source.name}</strong><small>{source.detail}</small></span>
+      </div> : null}
       <svg className={styles.mark} viewBox="0 0 100 100" fill="none" aria-hidden="true">
         <g stroke="currentColor" strokeLinecap="round" strokeLinejoin="round" strokeWidth="9">
           <motion.path d="M29 20v60" {...draw(0)} />
