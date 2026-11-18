@@ -726,6 +726,7 @@ html body.is-course-studio .studio-section-head.kelus-space-top[data-section="ma
   .start-page .source-onboarding-heading { grid-template-columns: minmax(0, 1fr); gap: 0; margin-bottom: 26px; }
   .start-page .source-onboarding-heading .empty-course-art { display: none; }
   .start-page .setup-first-upload { min-height: 136px !important; padding: 24px !important; }
+  .start-page .setup-upload-copy > strong { overflow: visible; font-size: 1.25rem !important; text-overflow: clip; white-space: normal; }
 }
 @media (prefers-reduced-motion: reduce) { .start-page .setup-first-upload, .start-page .setup-first-upload .setup-upload-mark { transition: none !important; } .start-page .setup-first-upload:is(:hover, :focus-within, .is-dragging), .start-page .setup-first-upload.is-dragging .setup-upload-mark { transform: none; } }
 /* ── Margin notes on the student's own page ────────────────────────────────────────────────────────────

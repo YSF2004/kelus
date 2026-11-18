@@ -7,6 +7,7 @@ import { MaterialLibrary } from "@/components/MaterialLibrary";
 import { RevisionSurface } from "@/components/RevisionSurface";
 import { useLearner } from "@/components/LearnerProvider";
 import { getAcquisitionSource, startFirstQuestionTimer, trackEvent } from "@/lib/analytics";
+import { getSourceIntakeVariant } from "@/lib/source-intake-experiment";
 import styles from "./loading.module.css";
 import { addSourceMaterial, getMaterialsSnapshot, getServerMaterialsSnapshot, removeMaterial, subscribeMaterials } from "@/lib/material-store";
 import { removeRemoteMaterial, uploadMaterialPdf } from "@/lib/material-sync";
@@ -112,7 +113,7 @@ function TodayBody() {
     } catch {
       elapsedMs = 0;
     }
-    trackEvent({ name: "first_route_ready", elapsed_ms: elapsedMs, concept_count: state.snapshot.concepts.length, course_type: state.snapshot.courses[0]?.id === SAMPLE_COURSE_ID ? "sample" : "real", acquisition_source: getAcquisitionSource() });
+    trackEvent({ name: "first_route_ready", elapsed_ms: elapsedMs, concept_count: state.snapshot.concepts.length, course_type: state.snapshot.courses[0]?.id === SAMPLE_COURSE_ID ? "sample" : "real", acquisition_source: getAcquisitionSource(), intake_variant: getSourceIntakeVariant() });
   }
 
   const roleFor = (file: File) => (/syllabus|outline/i.test(file.name) ? "syllabus" : /slides|lecture/i.test(file.name) ? "lecture_slides" : "notes");
@@ -121,7 +122,8 @@ function TodayBody() {
   async function startFromFile(file: File) {
     const role = roleFor(file);
     const acquisitionSource = getAcquisitionSource();
-    trackEvent({ name: "material_upload_started", role, course_type: "real", acquisition_source: acquisitionSource });
+    const intakeVariant = getSourceIntakeVariant();
+    trackEvent({ name: "material_upload_started", role, course_type: "real", acquisition_source: acquisitionSource, intake_variant: intakeVariant });
     try { window.localStorage.setItem("kelus-first-route-started-at", String(Date.now())); } catch { /* Timing analytics are optional. */ }
     startFirstQuestionTimer();
     const examDate = new Date(Date.now() + 14 * 86_400_000).toISOString().slice(0, 10);
@@ -137,10 +139,10 @@ function TodayBody() {
     };
     try {
       const material = await addSourceMaterial({ courseId: CURRENT_COURSE_ID, file, role });
-      trackEvent({ name: "material_upload_completed", role, course_type: "real", acquisition_source: acquisitionSource });
+      trackEvent({ name: "material_upload_completed", role, course_type: "real", acquisition_source: acquisitionSource, intake_variant: intakeVariant });
       if (auth.user) void uploadMaterialPdf(auth.user.id, material, file).catch(() => undefined);
     } catch (error) {
-      trackEvent({ name: "material_upload_failed", role, course_type: "real", acquisition_source: acquisitionSource });
+      trackEvent({ name: "material_upload_failed", role, course_type: "real", acquisition_source: acquisitionSource, intake_variant: intakeVariant });
       throw error;
     }
     try { sessionStorage.setItem("kelus-start-first-run", "1"); } catch { /* Without it the learner lands on Today instead. */ }
