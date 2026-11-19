@@ -13,7 +13,7 @@
     grid-template-columns: repeat(auto-fit, minmax(0, 1fr)); /* as many columns as there are sections */
     padding: 6px 8px calc(6px + env(safe-area-inset-bottom));
     border-top: 1px solid color-mix(in srgb, var(--k-ink) 8%, transparent);
-    background: var(--k-surface);
+    background: color-mix(in srgb, var(--k-surface) 92%, transparent);
     -webkit-backdrop-filter: saturate(160%) blur(16px);
     backdrop-filter: saturate(160%) blur(16px);
   }
@@ -66,6 +66,8 @@
 
 /* One tint for every section, as a native tab bar has: the Kelus green marks where you are. */
 .tab { --tone: var(--lb-green, var(--k-green)); --tone-text: var(--lb-green-ink, var(--k-green)); }
+.tab[data-tone="marigold"] { --tone: var(--k-marigold, #f3b23e); --tone-text: var(--k-marigold-text, #8d5410); }
+.tab[data-tone="iris"] { --tone: var(--k-iris, #6a4fa3); --tone-text: var(--k-iris-edge, #4a3578); }
 
 .on {
   color: var(--tone-text);
@@ -82,4 +84,8 @@
 .tab:focus-visible {
   outline: 2px solid var(--color-kelus);
   outline-offset: -2px;
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  .bar { background: var(--k-surface); -webkit-backdrop-filter: none; backdrop-filter: none; }
 }
