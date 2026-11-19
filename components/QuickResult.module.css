@@ -1,5 +1,44 @@
 .card { display: grid; gap: 16px; width: 100%; max-width: 36rem; }
 
+/* The first result is proof, not a dashboard: one source line and the exact consequence
+   of the student's answer. Returning students retain the richer course summary below. */
+.firstSession { gap: 22px; }
+.firstSession .head { margin-bottom: -6px; }
+
+.firstProof {
+  display: grid;
+  gap: 0;
+  margin: 0;
+  border-top: 1px solid var(--q-line, var(--k-line));
+  border-bottom: 1px solid var(--q-line, var(--k-line));
+}
+
+.firstProof > div {
+  display: grid;
+  grid-template-columns: minmax(7.5rem, 0.42fr) minmax(0, 1fr);
+  align-items: baseline;
+  gap: 16px;
+  padding: 13px 0;
+}
+
+.firstProof > div + div { border-top: 1px solid var(--q-line, var(--k-line)); }
+
+.firstProof span {
+  color: var(--k-text-2, var(--color-slate));
+  font-size: var(--text-caption, 0.8125rem);
+}
+
+.firstProof strong {
+  color: var(--color-midnight-ink);
+  font-size: var(--text-body-sm);
+  font-weight: 600;
+  line-height: 1.45;
+}
+
+@media (max-width: 420px) {
+  .firstProof > div { grid-template-columns: 1fr; gap: 3px; }
+}
+
 .title {
   margin: 0 !important;
   font-family: var(--font-display) !important;

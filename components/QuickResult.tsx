@@ -73,7 +73,7 @@ function Burst() {
  * remember (quoted from your notes), today's goal filling up, and a single next step. Detail is one tap away.
  */
 export function QuickResult({
-  outcome, topic, attempts, stats, comesBack, remember, rememberLabel = "Worth remembering", locator, goalDone, goal, routeLine, routeReason, nextName, details, onRetry, onContinue, onSource, path, habit, conceptId }: {
+  outcome, topic, attempts, stats, comesBack, remember, rememberLabel = "Worth remembering", locator, goalDone, goal, routeLine, routeReason, nextName, details, onRetry, onContinue, onSource, path, habit, conceptId, firstSession = false }: {
   outcome: RetrievalOutcome;
   topic: string;
   /** How many times this topic has been answered, counting this one. */
@@ -101,6 +101,8 @@ export function QuickResult({
   /** This topic, so its lines can be shown in their Leitner boxes after the answers are saved. */
   conceptId?: string;
   path?: { practised: number; total: number; recalled: number; /** This topic's place on the path, from 0. */ here?: number; /** Each topic, in order: practised or not. */ done?: boolean[] };
+  /** The first result proves the learning loop; it deliberately avoids a dashboard of metrics. */
+  firstSession?: boolean;
 }) {
   const reduce = useReducedMotion() === true;
   const w = uiWords();
@@ -129,19 +131,19 @@ export function QuickResult({
         onDone={() => { setMoment(false); router.push("/today"); }}
       />
     ) : null}
-    <div className={styles.card} inert={moment || undefined} aria-hidden={moment || undefined}>
+    <div className={`${styles.card}${firstSession ? ` ${styles.firstSession}` : ""}`} inert={moment || undefined} aria-hidden={moment || undefined}>
       <div className={styles.head}>
         <span className={styles.stamp}><MarkStamp outcome={outcome} />{outcome === "success" && !reduce ? <Burst /> : null}</span>
         <motion.h1 {...rise(0.1)} className={styles.title}>{verdict.title}</motion.h1>
       </div>
       {/* The sentence for screen readers; the eye gets the same facts as three tiles. */}
       <p className="sr-only">{topic} · {attempts === 1 ? "first try" : `try ${attempts}`}. {verdictReason(outcome, stats, comesBack)}</p>
-      <motion.ul {...rise(0.16)} className={styles.tiles} aria-hidden="true">
+      {!firstSession ? <motion.ul {...rise(0.16)} className={styles.tiles} aria-hidden="true">
         {stats && stats.total > 0 ? <li><Octicon name="check-circle" className={styles.tileIcon} /><b><CountUp value={stats.right} reduce={reduce} />/{stats.total}</b><span>{stats.total === 1 ? w.checkRight : w.checksRight}</span></li> : null}
         {stats?.coverage && stats.coverage.keys >= 3 ? <li><Octicon name="pencil" className={styles.tileIcon} /><b><CountUp value={stats.coverage.hits} reduce={reduce} />/{stats.coverage.keys}</b><span>{w.keyIdeas}</span></li> : null}
         {/* When it comes back is said once: in the lines' own box below, when there is one; a tile only without it. */}
         {conceptId ? null : <li><Octicon name="calendar" className={styles.tileIcon} /><b className={/^\d/.test(backShort(comesBack)) ? undefined : styles.tileWord}>{backShort(comesBack)}</b><span>{w.comesBack}</span></li>}
-      </motion.ul>
+      </motion.ul> : null}
 
 
       <motion.blockquote {...rise(0.42)} className={styles.remember}>
@@ -150,22 +152,35 @@ export function QuickResult({
         {onSource ? <button type="button" className={styles.sourceLink} onClick={onSource}>Show this exact line in your notes <ArrowOut /></button> : null}
       </motion.blockquote>
 
+      {firstSession ? (
+        <motion.div {...rise(0.52)} className={styles.firstProof} aria-label="What this answer changes">
+          <div>
+            <span>Checked against</span>
+            <strong>{/^Section\b/.test(locator) ? "your notes" : locator}</strong>
+          </div>
+          <div>
+            <span>What happens next</span>
+            <strong>{outcome === "success" ? comesBack ?? "This line returns when it needs another check." : "This topic returns before new material."}</strong>
+          </div>
+        </motion.div>
+      ) : null}
+
       {/* Correction only earns trust when the consequence is as visible as the source. */}
       {/* Even when the next topic does not move, explain what this answer earned. */}
-      {nextName && routeLine.trim() === `Next: ${nextName}.` && !routeReason ? null : (
+      {!firstSession && (nextName && routeLine.trim() === `Next: ${nextName}.` && !routeReason ? null : (
         <motion.aside {...rise(0.54)} className={styles.route} role="status" aria-label={routeChanged ? "Your plan changed" : "Next in your plan"}>
           <span>{routeChanged ? "Your plan changed" : "Next in your plan"}</span>
           <p>{routeLine}</p>
           {routeReason ? <p className={styles.routeReason}>{routeReason}</p> : null}
         </motion.aside>
-      )}
+      ))}
 
       {/* Today's count lives on the study plan; here it only shows the moment the goal is reached. */}
       {goalMet ? <motion.p {...rise(0.62)} className={styles.goal}><PackArt name="award" className={styles.icon} /> Today’s goal reached: {goal} topics.</motion.p> : null}
 
-      {conceptId ? <motion.div {...rise(0.46)}><TopicBoxes conceptId={conceptId} back={comesBack} /></motion.div> : null}
+      {conceptId && !firstSession ? <motion.div {...rise(0.46)}><TopicBoxes conceptId={conceptId} back={comesBack} /></motion.div> : null}
       {/* The course path in one line: a step for every topic, filled as each is practised. */}
-      {path && path.total > 1 ? (
+      {path && path.total > 1 && !firstSession ? (
         <motion.div {...rise(0.68)} className={styles.path} aria-label={`${path.practised} of ${path.total} topics practiced`}>
           <span className={styles.pathSteps} aria-hidden="true">
             {/* One step per topic, in the order of the notes; this topic's step is marked. Practised steps fill. */}
@@ -180,10 +195,10 @@ export function QuickResult({
         <button type="button" className={`k-btn ${styles.primary}`} onClick={onContinue}>{nextName ? w.continueTo(nextName) : w.finish} <ArrowRight /></button>
       </div>
 
-      <details className={styles.more}>
+      {!firstSession ? <details className={styles.more}>
         <summary>{w.changed}</summary>
         <div className={styles.moreBody}>{details}</div>
-      </details>
+      </details> : null}
     </div>
     </>
   );
