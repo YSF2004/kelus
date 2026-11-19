@@ -722,11 +722,20 @@ html body.is-course-studio .studio-section-head.kelus-space-top[data-section="ma
 .start-page .setup-first-upload .setup-upload-mark { grid-row: 1 / span 2; display: grid; place-items: center; width: 48px !important; height: 48px !important; margin: 0 !important; border-radius: 12px; background: var(--k-surface, #fff); transition: transform 200ms cubic-bezier(0.22, 1, 0.36, 1), background-color 200ms cubic-bezier(0.22, 1, 0.36, 1); }
 .start-page .setup-first-upload.is-dragging .setup-upload-mark { transform: translateY(-4px) scale(1.04); background: #fff; }
 .start-page .setup-upload-copy { display: grid; min-width: 0; gap: 3px; }
+.start-page .setup-import-receipt { display: grid; min-width: 0; gap: 3px; }
 .start-page .setup-upload-copy > strong { overflow: hidden; color: var(--k-ink) !important; font-family: var(--font-marketing-heading), Georgia, serif !important; font-size: 1.5rem !important; font-weight: 500 !important; letter-spacing: -0.02em; text-overflow: ellipsis; white-space: nowrap; }
+.start-page .setup-import-receipt > strong { overflow: hidden; color: var(--k-ink) !important; font-family: var(--font-marketing-heading), Georgia, serif !important; font-size: 1.5rem !important; font-weight: 500 !important; letter-spacing: -0.02em; text-overflow: ellipsis; white-space: nowrap; }
 .start-page .setup-upload-copy > span { color: var(--k-text-2, var(--color-slate)) !important; font-size: 0.9375rem !important; line-height: 1.45; }
+.start-page .setup-import-receipt > span { color: var(--k-text-2, var(--color-slate)) !important; font-size: 0.9375rem !important; line-height: 1.45; }
 .start-page .setup-upload-copy .setup-upload-state { color: var(--color-kelus) !important; font-size: 0.75rem !important; font-weight: 650; letter-spacing: 0.06em; text-transform: uppercase; }
-.start-page .setup-upload-copy .setup-upload-progress { display: block; width: min(100%, 14rem); height: 2px; margin-top: 7px; overflow: hidden; border-radius: 999px; background: color-mix(in srgb, var(--color-kelus) 18%, transparent); }
-.start-page .setup-upload-copy .setup-upload-progress::after { display: block; width: 62%; height: 100%; border-radius: inherit; background: var(--color-kelus); content: ""; }
+.start-page .setup-import-receipt .setup-upload-state { color: var(--color-kelus) !important; font-size: 0.75rem !important; font-weight: 650; letter-spacing: 0.06em; text-transform: uppercase; }
+.start-page .setup-upload-steps { display: flex; flex-wrap: wrap; gap: 5px 14px; margin: 8px 0 0; padding: 0; list-style: none; }
+.start-page .setup-upload-steps li { display: inline-flex; align-items: center; gap: 5px; color: var(--k-text-2, var(--color-slate)); font-size: 0.75rem; line-height: 1.35; }
+.start-page .setup-upload-steps li i { display: inline-grid; place-items: center; width: 13px; height: 13px; border: 1px solid color-mix(in srgb, var(--color-kelus) 36%, var(--k-line)); border-radius: 50%; color: var(--color-kelus); font-size: 0.625rem; font-style: normal; font-weight: 700; }
+.start-page .setup-upload-steps li[data-state="current"] { color: var(--k-ink); font-weight: 600; }
+.start-page .setup-upload-steps li[data-state="current"] i { border-color: var(--color-kelus); background: var(--color-kelus); box-shadow: inset 0 0 0 3px var(--k-surface); }
+.start-page .setup-upload-steps li[data-state="done"] { color: var(--color-kelus); }
+.start-page .setup-upload-steps li[data-state="done"] i { border-color: var(--color-kelus); background: var(--color-kelus); color: var(--k-surface); }
 .start-page .source-first-next { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 15px 2px 0; color: var(--k-text-2, var(--color-slate)); font-size: 0.8125rem; line-height: 1.45; }
 .start-page .source-first-next span[aria-hidden="true"] { color: var(--color-kelus); }
 .start-page .setup-file-help { margin: 18px 0 0 !important; }
@@ -736,6 +745,7 @@ html body.is-course-studio .studio-section-head.kelus-space-top[data-section="ma
   .start-page .source-onboarding-heading .empty-course-art { display: none; }
   .start-page .setup-first-upload { min-height: 136px !important; padding: 24px !important; }
   .start-page .setup-upload-copy > strong { overflow: visible; font-size: 1.25rem !important; text-overflow: clip; white-space: normal; }
+  .start-page .setup-import-receipt > strong { overflow: visible; font-size: 1.25rem !important; text-overflow: clip; white-space: normal; }
 }
 @media (prefers-reduced-motion: reduce) { .start-page .setup-first-upload, .start-page .setup-first-upload .setup-upload-mark { transition: none !important; } .start-page .setup-first-upload:is(:hover, :focus-within, .is-dragging), .start-page .setup-first-upload.is-dragging .setup-upload-mark { transform: none; } }
 /* ── Margin notes on the student's own page ────────────────────────────────────────────────────────────

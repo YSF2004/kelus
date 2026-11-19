@@ -1,6 +1,7 @@
 "use client";
 
 import { BrandIcon } from "@/components/BrandIcon";
+import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { useEffect, useRef, useState, type DragEvent } from "react";
 import { PackArt } from "@/components/PackArt";
 import Link from "next/link";
@@ -28,11 +29,40 @@ function formatSize(bytes: number) {
   return bytes < 1_000_000 ? `${Math.max(1, Math.round(bytes / 1_000))} KB` : `${(bytes / 1_000_000).toFixed(1)} MB`;
 }
 
+const importSteps = ["Reading your source", "Finding study topics", "Opening your first question"] as const;
+const ease = [0.22, 1, 0.36, 1] as const;
+
+/** A source receipt, not a generic spinner: the learner can see their own file and exactly what Kelus is doing with it. */
+function ImportReceipt({ name, detail, stage, reduce }: { name: string; detail: string; stage: string; reduce: boolean }) {
+  const activeStep = /finding topics/i.test(stage) ? 1 : 0;
+  return (
+    <motion.span
+      className="setup-import-receipt"
+      initial={reduce ? false : { opacity: 0, y: 5 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.24, ease }}
+    >
+      <span className="setup-upload-state">Kept on this device</span>
+      <strong title={name}>{name}</strong>
+      <span>{detail || "Preparing your source"}{stage ? ` · ${stage}` : ""}</span>
+      <ol className="setup-upload-steps" aria-label="Preparing your first question">
+        {importSteps.map((label, index) => {
+          const state = index < activeStep ? "done" : index === activeStep ? "current" : "next";
+          return <li key={label} data-state={state}>
+            <i aria-hidden="true">{state === "done" ? "✓" : ""}</i><span>{label}</span>
+          </li>;
+        })}
+      </ol>
+    </motion.span>
+  );
+}
+
 /**
  * The first screen, and the screen for a course with no notes: one job. Put your notes in; Kelus reads them and
  * opens your first question. No stepper, no exam form, no topic checklist.
  */
 export function DropNotes({ onFile, first = false, courseName }: { onFile: (file: File) => Promise<void>; first?: boolean; courseName?: string }) {
+  const reduce = useReducedMotion() === true;
   const [dragging, setDragging] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
@@ -155,12 +185,11 @@ export function DropNotes({ onFile, first = false, courseName }: { onFile: (file
             <span className="setup-upload-mark" aria-hidden="true"><PackArt name="folder" size={44} /></span>
             <span className="setup-upload-copy" role={busy ? "status" : undefined} aria-live={busy ? "polite" : undefined}>
               {busy ? <>
-                <span className="setup-upload-state">Reading your source</span>
-                <strong title={sourceName}>{sourceName}</strong>
-                <span>{sourceDetail}{sourceDetail ? " · " : ""}{stage}</span>
-                <span className="setup-upload-progress" aria-hidden="true" />
+                <AnimatePresence mode="wait" initial={false}>
+                  <ImportReceipt key={sourceName || stage} name={sourceName} detail={sourceDetail} stage={stage} reduce={reduce} />
+                </AnimatePresence>
               </> : <>
-                <strong suppressHydrationWarning>{dragging ? "Drop it to add it" : intakeVariant === "course_story" ? "Add a source" : "Choose a file"}</strong>
+                <strong suppressHydrationWarning>{dragging ? "Drop it to add it" : intakeVariant === "course_story" ? "Add your course file" : "Choose a course file"}</strong>
                 {/* Dragging only exists with a mouse or trackpad; a phone gets the file types instead. */}
                 <span suppressHydrationWarning>{dragging ? "Release to begin reading it." : intakeVariant === "course_story" ? <>PDF, slides, notes or a course export. Kelus finds topics, then asks your first question.</> : <><span className="drop-hint">or drop it here · </span>PDF, slides, plain text or a <span className="brand-inline"><BrandIcon brand="notion" size={14} />Notion</span> .zip</>}</span>
               </>}
