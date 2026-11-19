@@ -16,6 +16,8 @@ import { useSyncExternalStore } from "react";
 import { getKnownLines, getServerKnownLines, knownCount, subscribeKnownLines } from "@/lib/known-lines";
 import { checkpointKey, getCheckpoints, getServerCheckpoints, PASS_SHARE, passed, subscribeCheckpoints } from "@/lib/checkpoints";
 import { Tick } from "@/components/Marks";
+import { ExamBrief } from "@/components/ExamBrief";
+import type { CourseMaterial, LearningActivity } from "@/domain/types";
 
 /** "today", "yesterday", "3 days ago": when a checkpoint was last run. */
 function whenAgo(at: string, nowIso: string) {
@@ -54,7 +56,7 @@ function MasteryRing({ value }: { value: number | null }) {
  * Topics as a path in the order of your notes: each topic a step with how it stands, a checkpoint after every three,
  * and an exam check at the end. A direct action opens the same next study session as the Study plan.
  */
-export function TopicMapPanel({ onStart, startLabel, sampleCourse = false }: { onStart?: () => void; startLabel?: string; sampleCourse?: boolean } = {}) {
+export function TopicMapPanel({ onStart, startLabel, sampleCourse = false, pastPapers = [], activities = [] }: { onStart?: () => void; startLabel?: string; sampleCourse?: boolean; pastPapers?: CourseMaterial[]; activities?: LearningActivity[] } = {}) {
   const { state, removeTopic } = useLearner();
   const reduce = useReducedMotion() === true;
   const known = useSyncExternalStore(subscribeKnownLines, getKnownLines, getServerKnownLines);
@@ -152,6 +154,7 @@ export function TopicMapPanel({ onStart, startLabel, sampleCourse = false }: { o
 
   return (
     <div className="surface-map is-toc source-topic-map">
+      <ExamBrief papers={pastPapers} concepts={concepts} activities={activities} />
       <div className={styles.pathHead} role="group" aria-label={sampleCourse ? "Sample course progress" : "Where you are"}>
         <p className="sr-only">{practised} of {path.length} topics practiced{solid ? `, ${solid} solid` : ""}{recalled ? `, ${recalled} ${recalled === 1 ? "line" : "lines"} answered correctly` : ""}{passedCount ? `, ${passedCount} ${passedCount === 1 ? "checkpoint" : "checkpoints"} passed` : ""}.</p>
         <ul className={styles.stats} aria-hidden="true">

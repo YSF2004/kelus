@@ -18,6 +18,29 @@ export type PastPaperQuestionMap = PastPaperQuestion & {
   matches: PastPaperMatch[];
 };
 
+export type PastPaperExamBrief = {
+  promptCount: number;
+  linkedTopicCount: number;
+  unmatchedPromptCount: number;
+  /** A topic with no direct lexical/source-grounded link. It may still be examinable. */
+  unlinkedTopicCount: number;
+  topics: Array<{
+    conceptId: string;
+    conceptName: string;
+    mastery: number;
+    attempts: number;
+    promptCount: number;
+    sources: LearningSourceReference[];
+  }>;
+  priority: {
+    conceptId: string;
+    conceptName: string;
+    mastery: number;
+    attempts: number;
+    promptCount: number;
+  } | null;
+};
+
 const STOP_WORDS = new Set([
   "about", "after", "again", "against", "between", "could", "describe", "does", "each", "explain", "following", "from", "have", "into", "make", "most", "must", "other", "should", "that", "their", "there", "these", "they", "this", "what", "when", "which", "with", "would", "your",
 ]);
@@ -92,4 +115,58 @@ export function mapPastPaperQuestions(input: {
     }).filter((match) => match.score >= 2).sort((left, right) => right.score - left.score || left.mastery - right.mastery).slice(0, 2);
     return { ...question, matches };
   });
+}
+
+/**
+ * Turns the conservative question map into an actionable revision brief. "Unlinked" deliberately does not mean
+ * "will not be tested": the paper only gives us evidence of what it visibly asks about.
+ */
+export function summarizePastPaperCoverage(input: {
+  questionMaps: PastPaperQuestionMap[];
+  concepts: Concept[];
+}): PastPaperExamBrief {
+  const byId = new Map(input.concepts.map((concept) => [concept.id, concept]));
+  const covered = new Map<string, { promptCount: number; sources: LearningSourceReference[] }>();
+  let unmatchedPromptCount = 0;
+
+  for (const question of input.questionMaps) {
+    if (!question.matches.length) unmatchedPromptCount += 1;
+    for (const match of question.matches) {
+      const previous = covered.get(match.conceptId) ?? { promptCount: 0, sources: [] };
+      covered.set(match.conceptId, {
+        promptCount: previous.promptCount + 1,
+        sources: [...previous.sources, ...match.sources].filter((source, index, all) => all.findIndex((item) => item.materialId === source.materialId && item.locator === source.locator) === index),
+      });
+    }
+  }
+
+  const topics = [...covered.entries()].flatMap(([conceptId, evidence]) => {
+    const concept = byId.get(conceptId);
+    return concept ? [{
+      conceptId,
+      conceptName: concept.name,
+      mastery: concept.mastery,
+      attempts: concept.retrievalAttempts,
+      promptCount: evidence.promptCount,
+      sources: evidence.sources,
+    }] : [];
+  }).sort((left, right) => right.promptCount - left.promptCount || left.mastery - right.mastery || left.conceptName.localeCompare(right.conceptName));
+
+  // One honest place to start: stronger past-paper evidence first, then weaker demonstrated recall.
+  const priority = [...topics].sort((left, right) => left.mastery - right.mastery || left.attempts - right.attempts || right.promptCount - left.promptCount || left.conceptName.localeCompare(right.conceptName))[0] ?? null;
+
+  return {
+    promptCount: input.questionMaps.length,
+    linkedTopicCount: topics.length,
+    unmatchedPromptCount,
+    unlinkedTopicCount: input.concepts.filter((concept) => !covered.has(concept.id)).length,
+    topics,
+    priority: priority ? {
+      conceptId: priority.conceptId,
+      conceptName: priority.conceptName,
+      mastery: priority.mastery,
+      attempts: priority.attempts,
+      promptCount: priority.promptCount,
+    } : null,
+  };
 }
