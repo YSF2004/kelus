@@ -719,6 +719,7 @@ function SessionBody() {
               <QuickResult
                 outcome={lastOutcome}
                 conceptId={concept.id}
+                firstSession={firstStudySession && index === 0}
                 topic={concept.name}
                 attempts={checkCount}
                 stats={quickStats}
