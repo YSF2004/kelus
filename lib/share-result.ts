@@ -136,7 +136,7 @@ export async function drawResultCard(stats: ResultStats): Promise<Blob | null> {
   ctx.fillRect(150, 700, 780, 2);
   const figures: Array<[string, string]> = [
     [String(stats.missed), "back tomorrow"],
-    [`${stats.courseRecalled}/${stats.courseTotal}`, "in the course"],
+    [stats.courseRecalled ? `${stats.courseRecalled}/${stats.courseTotal}` : String(stats.courseTotal), stats.courseRecalled ? "recalled in course" : "lines in course"],
     [String(Math.max(1, stats.streak)), "day streak"],
   ];
   figures.forEach(([value, label], index) => {

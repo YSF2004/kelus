@@ -32,7 +32,9 @@ html body.is-course-studio .studio-rail {
   background: var(--q-rail) !important;
   box-shadow: none !important;
 }
-html body.is-course-studio .studio-brand-row { padding: 2px 4px 10px; }
+html body.is-course-studio .studio-brand-row { padding: 2px 4px 10px; justify-content: flex-start !important; gap: 6px !important; }
+html body.is-course-studio .studio-brand-row .studio-brand { flex: none !important; }
+html body.is-course-studio .studio-brand-row .studio-rail-toggle { margin-left: auto; }
 html body.is-course-studio .studio-search { min-height: 30px !important; margin: 0 0 2px !important; padding: 0 8px !important; border-radius: 6px !important; color: var(--q-text-2) !important; font-size: 0.875rem !important; font-weight: 500 !important; }
 html body.is-course-studio .studio-search kbd { border: 0 !important; padding: 0 !important; color: var(--q-text-3) !important; font-size: 0.6875rem !important; }
 html body.is-course-studio .studio-nav.revision-surface-modes { gap: 1px !important; margin-top: 2px !important; }
@@ -92,6 +94,13 @@ html body.is-course-studio [class*="InstallCard"] button.k-btn {
 }
 html body.is-course-studio [class*="ExamDateCard"] button:hover,
 html body.is-course-studio [class*="NudgeCard"] button:hover { background: var(--q-hover) !important; }
+/* Saving an exam date is the commitment on this card, so it remains visibly primary in both appearances. */
+html body.is-course-studio [class*="ExamDateCard"] [class*="actions"] > .k-btn:not(.k-btn--paper) {
+  background: var(--k-green) !important;
+  border-color: var(--k-green) !important;
+  color: #fff !important;
+}
+html body.is-course-studio [class*="ExamDateCard"] [class*="actions"] > .k-btn:not(.k-btn--paper):hover { background: #185638 !important; }
 html body.is-course-studio [class*="NudgeCard"] button {
   min-height: 44px !important;
   height: 44px !important;

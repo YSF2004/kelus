@@ -113,6 +113,7 @@ export function ResultShareCard({ stats, sessionNumber, full = false }: { stats:
 /** The card itself: one big number, three small figures, kelus.me. The same face on the Done screen and on /r. */
 export function ResultCardFace({ stats, kicker }: { stats: ResultStats; kicker?: string }) {
   const lead = leadStat(stats);
+  const hasCourseRecall = stats.courseRecalled > 0;
   return (
     <div className={styles.card} data-testid="result-share-card">
       <p className={styles.kicker}>{kicker ?? stats.course ?? "Today’s revision"}</p>
@@ -123,7 +124,7 @@ export function ResultCardFace({ stats, kicker }: { stats: ResultStats; kicker?:
       <p className={styles.what}>{lead.what}</p>
       <dl className={styles.figures}>
         <div><dt>back tomorrow</dt><dd>{stats.missed}</dd></div>
-        <div><dt>in the course</dt><dd>{stats.courseRecalled}<span>/{stats.courseTotal}</span></dd></div>
+        <div><dt>{hasCourseRecall ? "recalled in course" : "lines in course"}</dt><dd>{hasCourseRecall ? <>{stats.courseRecalled}<span>/{stats.courseTotal}</span></> : stats.courseTotal}</dd></div>
         <div><dt>day streak</dt><dd>{Math.max(1, stats.streak)}</dd></div>
       </dl>
       <p className={styles.foot}><span>Every question came from my own notes.</span><b>kelus.me</b></p>
