@@ -97,6 +97,9 @@ export function RevisionSurface({ topicId }: { /** A topic's own page, opened in
   const auth = useAuth();
   const [confirmReset, setConfirmReset] = useState(false);
   const selectedMaterialId = searchParams.get("source");
+  const requestedMaterialRole = searchParams.get("add") === "past_exam" ? "past_exam" : searchParams.get("add") === "notes" ? "notes" : undefined;
+  const requestedReturn = searchParams.get("returnTo");
+  const returnTo = requestedReturn && requestedReturn.startsWith("/") && !requestedReturn.startsWith("//") ? requestedReturn : undefined;
   const sourceBesidePlan = searchParams.get("notes") === "1";
   const [incomingSource, setIncomingSource] = useState<File | null>(null);
   const [sampleFile, setSampleFile] = useState<File | null>(null);
@@ -419,7 +422,7 @@ export function RevisionSurface({ topicId }: { /** A topic's own page, opened in
                 {sourceBesidePlan && hasReadableSource && selectedMaterial ? <CourseSourceReader id="today-source-reader" key={`${selectedMaterial.id}-${selectedMaterial.id === firstReference?.materialId ? firstSourcePage : 1}`} material={selectedMaterial} initialPage={selectedMaterial.id === firstReference?.materialId ? firstSourcePage : 1} /> : null}
               </div>
             ) : null}
-            {mode === "materials" ? <div className={`core-workspace-grid is-materials${hasReadableSource ? "" : " is-source-missing"}`}>{hasReadableSource ? <CourseSourceReader key={selectedMaterial.id} material={selectedMaterial} /> : null}<div className="core-workspace-action"><MaterialLibrary embedded incomingFile={incomingSource} onIncomingFileHandled={() => setIncomingSource(null)} interceptFile={isSampleCourse ? (file) => { setSampleFile(file); return true; } : undefined} sampleCourse={isSampleCourse} /></div></div> : null}
+            {mode === "materials" ? <div className={`core-workspace-grid is-materials${hasReadableSource ? "" : " is-source-missing"}`}>{hasReadableSource ? <CourseSourceReader key={selectedMaterial.id} material={selectedMaterial} /> : null}<div className="core-workspace-action"><MaterialLibrary embedded incomingFile={incomingSource} onIncomingFileHandled={() => setIncomingSource(null)} interceptFile={isSampleCourse ? (file) => { setSampleFile(file); return true; } : undefined} sampleCourse={isSampleCourse} initialRole={requestedMaterialRole} returnTo={returnTo} /></div></div> : null}
             {mode === "map" ? <TopicMapPanel sampleCourse={isSampleCourse} pastPapers={courseMaterials.filter((item) => item.storage === "local" && item.role === "past_exam")} activities={snapshot.learningActivities.filter((activity) => concepts.some((concept) => concept.id === activity.conceptId))} /> : null}
             {mode === "progress" ? <ProgressView concepts={concepts} activities={snapshot.learningActivities} events={snapshot.events} nowIso={nowIso} daysToExam={days} targetPercent={exam.targetPercent} examDatePending={examDatePending} sampleCourse={isSampleCourse} /> : null}
           </motion.div>}

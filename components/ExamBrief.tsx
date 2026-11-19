@@ -4,6 +4,7 @@ import Link from "next/link";
 import { motion, useReducedMotion } from "motion/react";
 import { useEffect, useMemo, useState } from "react";
 import { extractPastPaperQuestions, mapPastPaperQuestions, summarizePastPaperCoverage } from "@/domain/past-paper";
+import type { PastPaperExamBrief } from "@/domain/past-paper";
 import type { Concept, CourseMaterial, ExtractedMaterialPage, LearningActivity } from "@/domain/types";
 import { extractSourcePages } from "@/lib/source-extraction";
 import { readMaterialPdf } from "@/lib/material-sync";
@@ -15,13 +16,14 @@ type Props = {
   papers: CourseMaterial[];
   concepts: Concept[];
   activities: LearningActivity[];
+  onCoverageChange?: (topics: PastPaperExamBrief["topics"]) => void;
 };
 
 /**
  * The brief is a coverage view, not an exam prediction. It names only direct links that can be traced back to the
  * student's material and offers the weakest linked topic as a concrete next action.
  */
-export function ExamBrief({ papers, concepts, activities }: Props) {
+export function ExamBrief({ papers, concepts, activities, onCoverageChange }: Props) {
   const auth = useAuth();
   const reduceMotion = useReducedMotion() === true;
   const [pages, setPages] = useState<ExtractedMaterialPage[] | null>(null);
@@ -51,6 +53,10 @@ export function ExamBrief({ papers, concepts, activities }: Props) {
     const questions = extractPastPaperQuestions(pages);
     return summarizePastPaperCoverage({ questionMaps: mapPastPaperQuestions({ questions, concepts, activities }), concepts });
   }, [pages, concepts, activities]);
+
+  useEffect(() => {
+    onCoverageChange?.(brief?.topics ?? []);
+  }, [brief, onCoverageChange]);
 
   if (!papers.length) return null;
 

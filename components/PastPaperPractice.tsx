@@ -24,6 +24,7 @@ export function PastPaperPractice() {
   const reduce = useReducedMotion() === true;
   const materials = useSyncExternalStore(subscribeMaterials, getMaterialsSnapshot, getServerMaterialsSnapshot);
   const papers = useMemo(() => materials.filter((item) => item.storage === "local" && item.role === "past_exam"), [materials]);
+  const course = state.snapshot.courses[0];
   const [pages, setPages] = useState<ExtractedMaterialPage[] | null>(null);
   const [message, setMessage] = useState<string | null>(null);
   const [selectedId, setSelectedId] = useState<string | null>(null);
@@ -32,17 +33,27 @@ export function PastPaperPractice() {
   const paperKey = papers.map((paper) => paper.id).join(",");
 
   useEffect(() => {
+    document.body.classList.add("is-kelus-space", "is-booklet-page", "is-course-studio");
+    return () => document.body.classList.remove("is-kelus-space", "is-booklet-page", "is-course-studio");
+  }, []);
+
+  useEffect(() => {
     let cancelled = false;
     if (!papers.length) return;
     void (async () => {
       setMessage(null);
       try {
-        const parsed = await Promise.all(papers.map(async (paper) => {
+        const parsed = await Promise.allSettled(papers.map(async (paper) => {
           const file = await readMaterialPdf(paper.id, auth.user?.id);
           if (!file) throw new Error(`${paper.title} is no longer on this device. Add it again before practising it.`);
           return extractSourcePages(new File([file], paper.fileName ?? `${paper.title}.pdf`, { type: paper.mimeType ?? "application/pdf" }));
         }));
-        if (!cancelled) setPages(parsed.flatMap((result) => result.pages));
+        const readable = parsed.flatMap((result) => result.status === "fulfilled" ? result.value.pages : []);
+        const failed = parsed.filter((result) => result.status === "rejected");
+        if (!cancelled) {
+          setPages(readable);
+          setMessage(failed.length ? `${failed.length === 1 ? "One past paper could not be read" : `${failed.length} past papers could not be read`}. Add a readable copy to use every prompt.` : null);
+        }
       } catch (caught) {
         if (!cancelled) { setPages([]); setMessage(caught instanceof Error ? caught.message : "Kelus could not read this past paper."); }
       }
@@ -58,7 +69,7 @@ export function PastPaperPractice() {
   }).filter((item) => item.matches.length) : [], [availablePages, state.snapshot.concepts, state.snapshot.learningActivities]);
   const defaultQuestion = questionMaps.find((item) => item.matches.some((match) => match.conceptId === focus)) ?? questionMaps[0] ?? null;
   const question = questionMaps.find((item) => item.id === selectedId) ?? defaultQuestion;
-  const match = question?.matches[0] ?? null;
+  const match = question?.matches.find((item) => item.conceptId === focus) ?? question?.matches[0] ?? null;
   const evidence = useMemo(() => question && match ? evidenceForPastPaperQuestion({ question, match, activities: state.snapshot.learningActivities }) : null, [question, match, state.snapshot.learningActivities]);
   const answer = response.questionId === question?.id ? response.answer : "";
   const compared = response.questionId === question?.id && response.compared;
@@ -92,18 +103,29 @@ export function PastPaperPractice() {
   return (
     <AppShell>
       <article className={styles.page}>
-        <nav className={styles.crumbs} aria-label="Where you are"><Link href="/today?section=map"><ArrowLeft /> Topics</Link></nav>
+        <nav className={styles.crumbs} aria-label="Where you are"><Link href="/today?section=map"><ArrowLeft /> Topics</Link><span>Past paper</span></nav>
+        {course ? <nav className={styles.workspaceNav} aria-label={`${course.name} workspace`}>
+          <span>{course.name}</span>
+          <Link href="/today">Study plan</Link>
+          <Link href="/today?section=materials">Materials</Link>
+          <Link href="/today?section=map">Topics</Link>
+          <Link href="/today?section=progress">Progress</Link>
+          <strong aria-current="page">Past paper</strong>
+        </nav> : null}
         <header className={styles.header}>
-          <p>Past paper practice</p>
           <h1>Answer first. Then check the line that supports it.</h1>
           <span>This is a real prompt from your past paper. Kelus does not grade it or invent a mark scheme.</span>
         </header>
 
-        {message ? <p className={styles.message} role="alert">{message}</p> : availablePages === null ? <p className={styles.message} role="status">Preparing prompts from your past paper…</p> : !question ? (
+        {message ? <p className={styles.message} role="status">{message}</p> : null}
+        {availablePages === null ? <p className={styles.message} role="status">Preparing prompts from your past paper…</p> : !question ? (
           <section className={styles.empty}>
-            <h2>No linked prompt yet.</h2>
-            <p>Add the lecture or reading that supports this past paper, then Kelus can connect a prompt to an actual course line.</p>
-            <Link href="/today?section=materials" className="k-btn">Open Materials <ArrowRight /></Link>
+            <h2>{papers.length ? "No source-backed prompt yet." : "Add a past paper to practise from it."}</h2>
+            <p>{papers.length ? "Kelus found no prompt it can support with your confirmed topics. Add the lecture or reading for this exam, then return here to answer against the original line." : "Choose the exam paper you want to practise. Kelus will keep it beside your course material and only use prompts it can trace back to your notes."}</p>
+            <div className={styles.emptyActions}>
+              <Link href={`/today?section=materials&add=${papers.length ? "notes" : "past_exam"}&returnTo=${encodeURIComponent("/past-paper")}`} className="k-btn">{papers.length ? "Add supporting notes" : "Add a past paper"} <ArrowRight /></Link>
+              {papers.length ? <Link href="/today?section=map" className="text-btn">Check confirmed topics</Link> : null}
+            </div>
           </section>
         ) : (
           <section className={styles.workspace} aria-labelledby="past-paper-question">
