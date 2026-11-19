@@ -449,6 +449,39 @@ html body .pricing-page.is-monthly-pricing .pricing-offer.is-pass li:not(:first-
 }
 html body .pricing-page.is-monthly-pricing .pricing-offer.is-pass .founding-cta { padding-bottom: 4px; }
 
+/* ── Public conversion pass: one job per page ─────────────────────────────────────────────────────────
+   The homepage already demonstrates the answer check. Its next section proves source handling; the route owns the
+   full sequence; pricing makes the working free product the decision and lets the planned tier stay quiet. */
+html body .pricing-page.is-monthly-pricing .pricing-grid {
+  gap: 0 !important;
+  margin-top: clamp(36px, 5vw, 56px) !important;
+  border-top: 1px solid var(--q-line) !important;
+  border-bottom: 1px solid var(--q-line) !important;
+}
+html body .pricing-page.is-monthly-pricing .pricing-plan-shell > .pricing-offer {
+  min-height: 100% !important;
+  padding: clamp(26px, 3vw, 38px) !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+html body .pricing-page.is-monthly-pricing .pricing-plan-shell + .pricing-plan-shell > .pricing-offer {
+  border-left: 1px solid var(--q-line) !important;
+  background: color-mix(in srgb, var(--q-rail) 72%, transparent) !important;
+}
+html body .pricing-page.is-monthly-pricing .pricing-offer.is-free .pricing-price { color: var(--q-green) !important; }
+html body .pricing-page.is-monthly-pricing .pricing-offer.is-pass .pricing-price { color: var(--q-text-2) !important; }
+html body .pricing-page.is-monthly-pricing .pricing-offer.is-pass .pricing-offer-lede,
+html body .pricing-page.is-monthly-pricing .pricing-offer.is-pass li,
+html body .pricing-page.is-monthly-pricing .pricing-offer.is-pass .founding-cta-note { color: var(--q-text-2) !important; }
+@media (max-width: 760px) {
+  html body .pricing-page.is-monthly-pricing .pricing-plan-shell + .pricing-plan-shell > .pricing-offer {
+    border-top: 1px solid var(--q-line) !important;
+    border-left: 0 !important;
+  }
+}
+
 /* ── Browser surfaces carry the design too: selection, caret, focus, scrollbars ─────────────────────── */
 ::selection { background: rgba(31, 107, 69, 0.18); color: inherit; }
 html { caret-color: #1f6b45; scrollbar-color: #d4d3ce transparent; accent-color: #1f6b45; }

@@ -18,7 +18,7 @@ test("homepage opens on the Leitner Box hero followed by the illustrated revisio
   assert.match(heroStyles, /\.secondary:hover, \.secondary:focus-visible \{ background: #ececec !important; color: var\(--ink\) !important; \}/);
   assert.match(heroStyles, /\.primary:hover, \.primary:focus-visible \{ background: #237a4f !important; color: #fff !important; \}/);
   assert.match(hero, /Example course/); // the demonstration says it is an example
-  assert.match(hero, /Turn your notes into practice questions/);
+  assert.match(hero, /Catch your mistakes before the exam/);
   assert.match(hero, /answer: "concentrated"/);
   assert.doesNotMatch(hero, /more one/);
   assert.doesNotMatch(hero, /Markdown/);
@@ -32,8 +32,7 @@ test("homepage opens on the Leitner Box hero followed by the illustrated revisio
   assert.doesNotMatch(hero, /hero-window-controls/);
   assert.doesNotMatch(story, /HeroProductDemo/);
   assert.doesNotMatch(story, /BookletRevisionBoard|poster-sample|Interactive sample/);
-  assert.match(story, /RevisionLoopVisuals/);
-  assert.match(readFileSync("components/home/RevisionLoopVisuals.tsx", "utf8"), /more\{"\\u00a0"\}/);
+  assert.doesNotMatch(story, /RevisionLoopVisuals/);
   assert.doesNotMatch(story, /home-close|folio-close|Walk into the exam knowing/);
   assert.doesNotMatch(story, /Try sample \(~1 min\)/);
   assert.doesNotMatch(story, /Set my exam/);

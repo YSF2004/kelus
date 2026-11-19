@@ -147,9 +147,9 @@ export function HowItWorks() {
         <span className={`${styles.heroArt} k-rise`} style={rise(0.1, { duration: 0.6 })} aria-hidden="true">
           <PackArt name="reviewing" size={340} />
         </span>
-        <h1 id="how-title">Your lessons become <br />a better revision habit.</h1>
+        <h1 id="how-title">What happens after you add your notes.</h1>
         <div className={styles.heroBottom}>
-          <p>Bring your course. Recall what you know. Let each answer shape what you practice next.</p>
+          <p>Kelus finds the teaching lines, asks from them, and lets your answer decide what returns next.</p>
           <Link className={styles.primaryAction} href="/today">Set up my course<span className={styles.primaryArrow} aria-hidden="true">→</span></Link>
         </div>
       </section>

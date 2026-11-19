@@ -1,5 +1,4 @@
 import { RevisionReturn, StudyMoment } from "@/components/home/HomeVisualChapters";
-import { RevisionLoopVisuals } from "@/components/home/RevisionLoopVisuals";
 import { HomeFinal } from "@/components/home/HomeFinal";
 import { HomeBand } from "@/components/home/HomeBand";
 
@@ -7,7 +6,6 @@ import { HomeBand } from "@/components/home/HomeBand";
 export function HomeAfterHero() {
   return (
     <>
-      <RevisionLoopVisuals />
       <HomeBand />
       <StudyMoment />
       <RevisionReturn />

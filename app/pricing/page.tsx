@@ -37,9 +37,9 @@ export default function PricingPage() {
       <section className="legal-panel pricing-booklet">
         {/* From the Kelus illustration pack: monthly, cancel any time, no trial that runs out. */}
         <PackArt name="time-flies" className="pricing-hero-art k-rise" size={190} />
-        <h1>Start revising. Stay in control.</h1>
+        <h1>Study one course for free.</h1>
         <p className="legal-lede">
-          One real course, with up to 10 files, is free. Kelus Plus is planned at $4.99/month for larger study workspaces.
+          Add up to 10 course files, practise from the lines that taught you, and see what to revisit next. Kelus Plus is planned for multi-course study.
           {syncReady
             ? " Free sign-in can sync your revision progress; source-file sync is still being tested."
             : " Your progress stays on this device."}
@@ -55,7 +55,7 @@ export default function PricingPage() {
                 </div>
                 <p className="pricing-price">$0<span>/month</span></p>
               </div>
-              <p className="pricing-offer-lede">One active course and up to 10 course files—enough to study for one exam.</p>
+              <p className="pricing-offer-lede">One active course and up to 10 course files—a complete revision loop for one exam.</p>
               <ul>
                 <li>One active course, with up to 10 PDFs, slides or notes</li>
                 <li>Questions written from your own lines</li>
@@ -83,7 +83,7 @@ export default function PricingPage() {
                   $4.99<span>/month</span>
                 </p>
               </div>
-              <p className="pricing-offer-lede">Planned, not built yet. What we’re making for longer exam seasons:</p>
+              <p className="pricing-offer-lede">Planned, not built yet. For students juggling more than one course:</p>
               <ul>
                 <li>Everything in Free</li>
                 <li>More than one active course and more than 10 source files</li>
