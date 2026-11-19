@@ -24,14 +24,14 @@ export function KelusHero() {
     <section className={styles.hero} aria-labelledby="home-hero-title" data-hero="leitner">
       <div className={styles.copy}>
         <h1 id="home-hero-title" className={styles.headline}>
-          Turn your notes into practice questions.
+          Catch your mistakes before the exam.
         </h1>
         <p className={styles.lede}>
-          Drop in your notes. Turn them into questions and see what to practise next.
+          Drop in your notes. Kelus checks your answers against them and shows what to fix.
         </p>
         <div className={styles.actions}>
           <HeroActionLink href="/today" className={styles.primary}>Add your notes</HeroActionLink>
-          <HeroActionLink href="/route" className={styles.secondary}>How it works</HeroActionLink>
+          <HeroActionLink href="/route" className={styles.secondary}>See how it works</HeroActionLink>
         </div>
       </div>
 
