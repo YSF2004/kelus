@@ -80,11 +80,11 @@ function findMarks(items: Array<{ str: string; transform: number[]; width: numbe
 export function CourseSourceReader({ id, material, initialPage = 1, concealed = false, onShowSource, highlight = null }: Props) {
   const auth = useAuth();
   const canvas = useRef<HTMLCanvasElement>(null);
+  const textLayer = useRef<HTMLDivElement>(null);
   const viewport = useRef<HTMLDivElement>(null);
   const [page, setPage] = useState(initialPage);
   const [pages, setPages] = useState(0);
   const [status, setStatus] = useState<"loading" | "ready" | "missing" | "error">("loading");
-  const [accessibleText, setAccessibleText] = useState("");
   const [sections, setSections] = useState<ExtractedMaterialPage[]>([]);
   const [marks, setMarks] = useState<Mark[] | null>(null);
   const reduce = useReducedMotion() === true;
@@ -95,6 +95,8 @@ export function CourseSourceReader({ id, material, initialPage = 1, concealed = 
     if (!material || material.storage !== "local" || concealed) return;
     let cancelled = false;
     let renderTask: { cancel: () => void; promise: Promise<unknown> } | null = null;
+    let textLayerTask: { cancel: () => void; render: () => Promise<void> } | null = null;
+    let renderedTextLayer: HTMLDivElement | null = null;
     let loadingTask: { destroy: () => Promise<void> } | null = null;
     let observer: ResizeObserver | null = null;
 
@@ -124,11 +126,13 @@ export function CourseSourceReader({ id, material, initialPage = 1, concealed = 
         const pdfPage = await pdf.getPage(Math.min(Math.max(page, 1), pdf.numPages));
         if (cancelled) return;
         const textContent = await pdfPage.getTextContent();
-        if (!cancelled) setAccessibleText(textContent.items.flatMap((item) => "str" in item ? [item.str] : []).join(" "));
         async function draw() {
-          if (!canvas.current || !viewport.current || cancelled) return;
+          if (!canvas.current || !viewport.current || !textLayer.current || cancelled) return;
           renderTask?.cancel();
+          textLayerTask?.cancel();
           const element = canvas.current;
+          const textLayerElement = textLayer.current;
+          renderedTextLayer = textLayerElement;
           const context = element.getContext("2d");
           if (!context) return;
           const natural = pdfPage.getViewport({ scale: 1 });
@@ -139,8 +143,17 @@ export function CourseSourceReader({ id, material, initialPage = 1, concealed = 
           element.height = Math.floor(view.height * pixelRatio);
           element.style.width = `${view.width}px`;
           element.style.height = `${view.height}px`;
+          textLayerElement.replaceChildren();
+          textLayerTask = new pdfjs.TextLayer({
+            textContentSource: textContent,
+            container: textLayerElement,
+            viewport: view,
+          });
           renderTask = pdfPage.render({ canvas: element, canvasContext: context, viewport: view, transform: [pixelRatio, 0, 0, pixelRatio, 0, 0] });
           setMarks(highlight ? findMarks(textContent.items.flatMap((item) => ("str" in item ? [item as { str: string; transform: number[]; width: number; height: number }] : [])), highlight, view.transform, scale) : null);
+          void textLayerTask.render().catch((error: unknown) => {
+            if (!cancelled && !(error instanceof Error && error.name === "AbortException")) setStatus("error");
+          });
           try {
             await renderTask.promise;
             if (!cancelled) setStatus("ready");
@@ -162,6 +175,8 @@ export function CourseSourceReader({ id, material, initialPage = 1, concealed = 
       cancelled = true;
       observer?.disconnect();
       renderTask?.cancel();
+      textLayerTask?.cancel();
+      renderedTextLayer?.replaceChildren();
       if (loadingTask) void loadingTask.destroy();
     };
   }, [material, page, concealed, auth.user?.id, highlight]);
@@ -245,7 +260,8 @@ export function CourseSourceReader({ id, material, initialPage = 1, concealed = 
             ) : (
               <>
                 <div className="core-source-page">
-                  <canvas ref={canvas} role="img" aria-label={`Page ${displayPage} of ${material.title}`} hidden={status !== "ready"} />
+                  <canvas ref={canvas} aria-hidden="true" hidden={status !== "ready"} />
+                  <div ref={textLayer} className="core-source-text-layer" aria-label={`Selectable text from page ${displayPage} of ${material.title}`} />
                   {status === "ready" && marks?.length ? <PencilMarks marks={marks} reduce={reduce} /> : null}
                 </div>
                 {status === "ready" && highlight ? (
@@ -253,7 +269,6 @@ export function CourseSourceReader({ id, material, initialPage = 1, concealed = 
                     ? <p className="sr-only" role="status">The line is marked on page {displayPage}: {highlight}</p>
                     : <p className={notesStyles.notice} role="status">This line could not be found on page {displayPage}. It may sit on another page or be part of an image: “{highlight}”</p>
                 ) : null}
-                {status === "ready" && accessibleText ? <p className="sr-only">Page {displayPage} text: {accessibleText}</p> : null}
               </>
             )}
           </>

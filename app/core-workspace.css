@@ -134,8 +134,13 @@ body.is-course-studio .core-workspace-action .today-start { width: 100%; margin-
 .core-page-controls button:not(:disabled):hover { background: var(--core-selected-paper); }
 .core-page-controls button:not(:disabled):active { transform: scale(.97); }
 .core-source-stage { display: flex; align-items: flex-start; justify-content: center; flex: 1; min-height: 560px; max-height: calc(100dvh - 116px); overflow: auto; padding: 24px 16px 42px; }
+.core-source-page { position: relative; display: inline-block; flex: 0 0 auto; line-height: 0; }
 .core-source-stage canvas { display: block; max-width: 100%; height: auto !important; border: 1px solid var(--core-page-line); background: var(--color-pure-white); box-shadow: var(--core-page-shadow); }
 .core-source-stage canvas[hidden] { display: none; }
+.core-source-text-layer { position: absolute; inset: 0; z-index: 1; overflow: clip; color-scheme: only light; line-height: 1; letter-spacing: normal; word-spacing: normal; text-align: initial; text-size-adjust: none; transform-origin: 0 0; caret-color: CanvasText; }
+.core-source-text-layer :is(span, br) { position: absolute; color: transparent; white-space: pre; cursor: text; transform-origin: 0 0; user-select: text; }
+.core-source-text-layer ::selection { background: color-mix(in srgb, var(--color-kelus) 36%, transparent); }
+.core-source-marks { position: absolute; z-index: 2; inset: 0; pointer-events: none; }
 .core-source-loading { margin-top: 30vh; color: var(--color-slate); font-size: 0.875rem; }
 .core-source-state { display: flex; flex-direction: column; align-items: flex-start; justify-content: center; width: min(100%, 430px); min-height: 360px; padding: 35px; color: var(--ink); }
 .core-source-state > span { margin-bottom: 32px; color: var(--color-hero-orange); font-size: 2.25rem; }
