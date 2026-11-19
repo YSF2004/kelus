@@ -1,0 +1,107 @@
+"use client";
+
+import Link from "next/link";
+import { motion, useReducedMotion } from "motion/react";
+import { useEffect, useMemo, useState } from "react";
+import { extractPastPaperQuestions, mapPastPaperQuestions, summarizePastPaperCoverage } from "@/domain/past-paper";
+import type { Concept, CourseMaterial, ExtractedMaterialPage, LearningActivity } from "@/domain/types";
+import { extractSourcePages } from "@/lib/source-extraction";
+import { readMaterialPdf } from "@/lib/material-sync";
+import { useAuth } from "@/components/AuthProvider";
+import { ArrowRight } from "@/components/Marks";
+import styles from "./ExamBrief.module.css";
+
+type Props = {
+  papers: CourseMaterial[];
+  concepts: Concept[];
+  activities: LearningActivity[];
+};
+
+/**
+ * The brief is a coverage view, not an exam prediction. It names only direct links that can be traced back to the
+ * student's material and offers the weakest linked topic as a concrete next action.
+ */
+export function ExamBrief({ papers, concepts, activities }: Props) {
+  const auth = useAuth();
+  const reduceMotion = useReducedMotion() === true;
+  const [pages, setPages] = useState<ExtractedMaterialPage[] | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const paperKey = papers.map((paper) => paper.id).join(",");
+
+  useEffect(() => {
+    let cancelled = false;
+    if (!papers.length) return;
+    void (async () => {
+      try {
+        const parsed = await Promise.all(papers.map(async (paper) => {
+          const file = await readMaterialPdf(paper.id, auth.user?.id);
+          if (!file) throw new Error(`${paper.title} is no longer on this device. Add it again to build the exam brief.`);
+          return extractSourcePages(new File([file], paper.fileName ?? `${paper.title}.pdf`, { type: paper.mimeType ?? "application/pdf" }));
+        }));
+        if (!cancelled) setPages(parsed.flatMap((result) => result.pages));
+      } catch (caught) {
+        if (!cancelled) setError(caught instanceof Error ? caught.message : "Kelus could not read this past paper.");
+      }
+    })();
+    return () => { cancelled = true; };
+  }, [paperKey, papers, auth.user?.id]);
+
+  const brief = useMemo(() => {
+    if (!pages) return null;
+    const questions = extractPastPaperQuestions(pages);
+    return summarizePastPaperCoverage({ questionMaps: mapPastPaperQuestions({ questions, concepts, activities }), concepts });
+  }, [pages, concepts, activities]);
+
+  if (!papers.length) return null;
+
+  return (
+    <motion.section
+      className={styles.brief}
+      aria-labelledby="exam-brief-title"
+      initial={reduceMotion ? false : { opacity: 0, y: 10 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.28, ease: [0.22, 1, 0.36, 1] }}
+    >
+      <div className={styles.heading}>
+        <div>
+          <h2 id="exam-brief-title">What your past paper touches.</h2>
+        </div>
+        <Link href="/today?section=materials#past-paper-title" className={styles.mapLink}>Question map <ArrowRight /></Link>
+      </div>
+
+      {error ? <p className={styles.message} role="alert">{error}</p> : !brief ? <p className={styles.message} role="status">Reading your past paper against confirmed course topics…</p> : !brief.promptCount ? <p className={styles.message}>No clear question prompts were found. Add a text-based past paper to make this coverage view useful.</p> : (
+        <>
+          <p className={styles.lede}>
+            {brief.linkedTopicCount ? <>This paper directly links to <strong>{brief.linkedTopicCount} of {concepts.length} topics</strong> in your course.</> : "Kelus found prompts, but no confirmed topic links yet."}
+            {brief.unlinkedTopicCount ? <> {brief.unlinkedTopicCount} topic{brief.unlinkedTopicCount === 1 ? " has" : "s have"} no direct link here—this is not proof {brief.unlinkedTopicCount === 1 ? "it" : "they"} will not appear.</> : null}
+          </p>
+
+          {brief.priority ? <section className={styles.priority} aria-label="Best place to start from the past paper">
+            <div>
+              <span>Start with this</span>
+              <strong>{brief.priority.conceptName}</strong>
+              <p>Appears in {brief.priority.promptCount} past-paper prompt{brief.priority.promptCount === 1 ? "" : "s"} · {brief.priority.attempts ? `${Math.round(brief.priority.mastery * 100)}% evidence from ${brief.priority.attempts} ${brief.priority.attempts === 1 ? "try" : "tries"}` : "not practised yet"}</p>
+            </div>
+            <Link href={`/concept?id=${encodeURIComponent(brief.priority.conceptId)}`} className="k-btn">Study this topic <ArrowRight /></Link>
+          </section> : null}
+
+          <div className={styles.columns}>
+            <section aria-label="Topics linked to the past paper">
+              <h3>Direct links</h3>
+              <ul>
+                {brief.topics.slice(0, 4).map((topic) => <li key={topic.conceptId}>
+                  <Link href={`/concept?id=${encodeURIComponent(topic.conceptId)}`}>{topic.conceptName}</Link>
+                  <span>{topic.promptCount} prompt{topic.promptCount === 1 ? "" : "s"} · {topic.attempts ? `${Math.round(topic.mastery * 100)}% evidence` : "not practised"}</span>
+                </li>)}
+              </ul>
+            </section>
+            <section aria-label="Prompts still needing course evidence">
+              <h3>Needs a source match</h3>
+              <p>{brief.unmatchedPromptCount ? `${brief.unmatchedPromptCount} prompt${brief.unmatchedPromptCount === 1 ? " has" : "s have"} no confirmed support in your course yet. Add the lecture or reading before relying on an answer.` : "Every extracted prompt has a confirmed topic link."}</p>
+            </section>
+          </div>
+        </>
+      )}
+    </motion.section>
+  );
+}

@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { extractPastPaperQuestions, mapPastPaperQuestions } from "../domain/past-paper.ts";
+import { extractPastPaperQuestions, mapPastPaperQuestions, summarizePastPaperCoverage } from "../domain/past-paper.ts";
 
 const concepts = [
   { id: "osmosis", name: "Osmosis", mastery: 0.35 },
@@ -38,4 +38,20 @@ test("past-paper mode maps prompts to confirmed concepts and keeps their actual 
 test("past-paper mode does not invent a match when no confirmed course topic supports the prompt", () => {
   const questions = extractPastPaperQuestions([{ pageNumber: 3, text: "Question 4. Calculate the annual interest rate for the loan." }]);
   assert.deepEqual(mapPastPaperQuestions({ questions, concepts, activities })[0].matches, []);
+});
+
+test("exam brief prioritizes weak, directly linked coverage and labels the rest as unlinked rather than safe", () => {
+  const questionMaps = mapPastPaperQuestions({
+    questions: extractPastPaperQuestions([{ pageNumber: 2, text: "Question 1. Explain osmosis across a selectively permeable membrane.\n\nQuestion 2. Define the cell membrane." }]),
+    concepts: [...concepts, { id: "enzymes", name: "Enzymes", mastery: 0.2, retrievalAttempts: 0 }],
+    activities,
+  });
+  const brief = summarizePastPaperCoverage({
+    questionMaps,
+    concepts: concepts.map((concept, index) => ({ ...concept, retrievalAttempts: index ? 2 : 0 })).concat([{ id: "enzymes", name: "Enzymes", mastery: 0.2, retrievalAttempts: 0 }]),
+  });
+  assert.equal(brief.priority.conceptId, "osmosis");
+  assert.equal(brief.linkedTopicCount, 2);
+  assert.equal(brief.unlinkedTopicCount, 1);
+  assert.equal(brief.topics.find((topic) => topic.conceptId === "osmosis").promptCount, 2);
 });

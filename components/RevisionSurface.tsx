@@ -420,7 +420,7 @@ export function RevisionSurface({ topicId }: { /** A topic's own page, opened in
               </div>
             ) : null}
             {mode === "materials" ? <div className={`core-workspace-grid is-materials${hasReadableSource ? "" : " is-source-missing"}`}>{hasReadableSource ? <CourseSourceReader key={selectedMaterial.id} material={selectedMaterial} /> : null}<div className="core-workspace-action"><MaterialLibrary embedded incomingFile={incomingSource} onIncomingFileHandled={() => setIncomingSource(null)} interceptFile={isSampleCourse ? (file) => { setSampleFile(file); return true; } : undefined} sampleCourse={isSampleCourse} /></div></div> : null}
-            {mode === "map" ? <TopicMapPanel sampleCourse={isSampleCourse} /> : null}
+            {mode === "map" ? <TopicMapPanel sampleCourse={isSampleCourse} pastPapers={courseMaterials.filter((item) => item.storage === "local" && item.role === "past_exam")} activities={snapshot.learningActivities.filter((activity) => concepts.some((concept) => concept.id === activity.conceptId))} /> : null}
             {mode === "progress" ? <ProgressView concepts={concepts} activities={snapshot.learningActivities} events={snapshot.events} nowIso={nowIso} daysToExam={days} targetPercent={exam.targetPercent} examDatePending={examDatePending} sampleCourse={isSampleCourse} /> : null}
           </motion.div>}
         </main>
