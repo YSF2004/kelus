@@ -7,6 +7,8 @@ const DATABASE_NAME = "kelus-material-files-v1";
 const DATABASE_VERSION = 1;
 const FILE_STORE = "files";
 const MAX_PDF_BYTES = 20 * 1024 * 1024;
+/** Free is deliberately generous enough for a real module, but does not become unlimited file storage. */
+export const FREE_COURSE_SOURCE_LIMIT = 10;
 const SERVER_SNAPSHOT: CourseMaterial[] = [];
 const GUEST_OWNER = "guest";
 
@@ -204,6 +206,10 @@ export async function addSourceMaterial(input: { courseId: string; file: File; r
   if (!notes && !isPdfFile(input.file)) throw new Error("Choose a PDF, or notes as a .md or .txt file.");
   if (notes && input.file.size > MAX_NOTES_BYTES) throw new Error("Notes must be 2 MB or smaller.");
   if (!notes && input.file.size > MAX_PDF_BYTES) throw new Error("PDFs must be 20 MB or smaller.");
+  const existingSources = readMetadata().filter((item) => item.courseId === input.courseId && item.storage === "local" && !item.id.startsWith("material-demo-"));
+  if (existingSources.length >= FREE_COURSE_SOURCE_LIMIT) {
+    throw new Error(`Free includes up to ${FREE_COURSE_SOURCE_LIMIT} course files. Remove a file to add another, or join the Kelus Plus waitlist for larger courses.`);
+  }
   const timestamp = input.nowIso ?? new Date().toISOString();
   const record: CourseMaterial = {
     id: `material-${crypto.randomUUID()}`,
