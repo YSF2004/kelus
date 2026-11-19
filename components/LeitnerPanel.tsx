@@ -31,13 +31,15 @@ export function LeitnerPanel({ state }: { state: LeitnerState }) {
   if (!state.total) return null;
   const moved = state.lines.filter((line) => line.movedToday).length;
   const shown = open === null ? [] : state.byBox[open];
-  const due = state.byBox[0].length;
+  const newLines = state.byBox[0].filter((line) => line.state === "new").length;
+  const due = state.byBox[0].filter((line) => line.state === "missed").length;
+  const openingCourse = state.recalled === 0 && due === 0 && newLines > 0;
   return (
     <section className={styles.panel} data-open={timelineOpen || undefined} aria-labelledby="leitner-title">
       <header className={styles.head}>
         <div>
           <h2 id="leitner-title">When your notes return</h2>
-          <p>{due ? `${due} ${due === 1 ? "line is" : "lines are"} due today` : "Nothing is due today"} · {state.recalled} known</p>
+          <p>{openingCourse ? "Your first session introduces a few lines at a time" : due ? `${due} ${due === 1 ? "line to revisit" : "lines to revisit"} today` : "Nothing to revisit today"} · {state.recalled} known</p>
         </div>
         <button
           type="button"
@@ -67,8 +69,8 @@ export function LeitnerPanel({ state }: { state: LeitnerState }) {
             <ol className={styles.boxes}>
               {BOXES.map(({ box, every }, index) => {
                 const lines = state.byBox[index];
-                const current = index === 0 && lines.length > 0;
-                const label = index === 0 ? "Due today" : AFTER[index];
+                const current = index === 0 && due > 0;
+                const label = index === 0 ? openingCourse ? "New lines" : "To revisit today" : AFTER[index];
                 return (
                   <li
                     key={box}
@@ -87,10 +89,10 @@ export function LeitnerPanel({ state }: { state: LeitnerState }) {
                       onClick={() => setOpen(open === index ? null : index)}
                     >
                       <span className={styles.marker} aria-hidden="true">
-                        {lines.length ? lines.length : <span>—</span>}
+                        {index === 0 && openingCourse ? "New" : lines.length ? lines.length : <span>—</span>}
                       </span>
                       <span className={styles.name}><b>{index === 0 ? "Today" : AFTER[index]}</b></span>
-                      {lines.length ? <span className={styles.stageHint}>Open lines</span> : null}
+                      {lines.length ? <span className={styles.stageHint}>{index === 0 && openingCourse ? "Start here" : "Open lines"}</span> : null}
                     </button>
                   </li>
                 );
@@ -109,7 +111,7 @@ export function LeitnerPanel({ state }: { state: LeitnerState }) {
                     exit={reduce ? { opacity: 0 } : { opacity: 0, y: -4, transition: { duration: 0.14 } }}
                     transition={{ duration: 0.24, ease }}
                   >
-                    <p className={styles.drawerHead}><b>{open === 0 ? "Due today" : AFTER[open]}</b> · {shown.length} {shown.length === 1 ? "source line" : "source lines"}</p>
+                    <p className={styles.drawerHead}><b>{open === 0 ? openingCourse ? "New lines" : due ? "To revisit today" : "Today" : AFTER[open]}</b> · {shown.length} {shown.length === 1 ? "source line" : "source lines"}</p>
                     <ul className={styles.spread}>
                       {shown.slice(0, 8).map((line, at) => (
                         <motion.li
@@ -132,7 +134,7 @@ export function LeitnerPanel({ state }: { state: LeitnerState }) {
             </div>
 
             <footer className={styles.foot}>
-              <span>{moved ? `${moved} ${moved === 1 ? "line" : "lines"} moved to a longer gap today` : due ? `${due} ${due === 1 ? "line is" : "lines are"} due today` : "Nothing is due today"}</span>
+              <span>{moved ? `${moved} ${moved === 1 ? "line" : "lines"} moved to a longer gap today` : openingCourse ? `${newLines} new ${newLines === 1 ? "line is" : "lines are"} ready when you are` : due ? `${due} ${due === 1 ? "line to revisit" : "lines to revisit"} today` : "Nothing to revisit today"}</span>
               <span><b>{state.recalled}</b> of {state.total} source {state.total === 1 ? "line recalled" : "lines recalled"}</span>
             </footer>
             </motion.div>
