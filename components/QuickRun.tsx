@@ -134,7 +134,9 @@ export function QuickRun({ run: providedRun, persistenceKey, onPersistenceChange
   const touch = useSyncExternalStore(noSubscribe, touchNow, () => false);
   const soundOn = useSyncExternalStore(subscribeSounds, soundsOn, () => false);
   const w = uiWords();
-  const total = firstStudySession && !onChecksDone ? Math.min(2, run.checks.length) : run.checks.length;
+  // The first minute earns attention with one prompt, then an answer in the learner's own words. More checks can
+  // wait until the next topic; a long opening feels like setup rather than study.
+  const total = firstStudySession && !onChecksDone ? Math.min(1, run.checks.length) : run.checks.length;
   const [resume] = useState(() => {
     if (!persistenceKey || typeof window === "undefined") return { kind: "empty" as const };
     try { return readStudyDraft(window.localStorage, persistenceKey, run, total); }
@@ -440,7 +442,7 @@ export function QuickRun({ run: providedRun, persistenceKey, onPersistenceChange
           >
             {checkSource.kind === "source" ? (
               <div className={styles.sourceCue}>
-                <span>From your notes · {checkSource.reference.label}{checkSource.reference.locator ? ` · ${checkSource.reference.locator}` : ""}</span>
+                <span>{firstStudySession ? "First question from your notes" : "From your notes"} · {checkSource.reference.label}{checkSource.reference.locator ? ` · ${checkSource.reference.locator}` : ""}</span>
                 {onShowLine ? (
                   <button
                     type="button"

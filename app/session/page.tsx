@@ -317,8 +317,10 @@ function SessionBody() {
 
   function finishQuick(result: QuickRunResult) {
     play("done");
-    const outcome = quickOutcome({ ...result, readFirst: round === 0 });
-    const firstPassOnly = round === 0 && outcome === "partial" && quickOutcome(result) === "success";
+    // The first session opens with a question instead of a reading gate, but a single first pass still stays
+    // provisional until it has returned on another day.
+    const outcome = quickOutcome({ ...result, readFirst: firstStudySession });
+    const firstPassOnly = firstStudySession && outcome === "partial" && quickOutcome(result) === "success";
     const summary = `${quickSummary(result)}${firstPassOnly ? " Good first pass; Kelus will check it again later before calling it solid." : ""}`;
     setQuickStats({ right: result.right, total: result.total, unsure: result.unsure, self: result.self, coverage: result.coverage ?? null });
     setQuickMissed(result.missed);
@@ -855,9 +857,9 @@ function SessionBody() {
                   }
                 }}
                 onFinish={finishQuick}
-                // The first session teaches the source-to-question connection before recall.
-                // Later topics begin with a check and keep their source one tap away.
-                readFirst={firstStudySession && index === 0}
+                // The first minute begins with a source-labelled prompt, then asks for the idea in the learner's
+                // own words. Reading stays available from the source control; it is not a gate before the value.
+                readFirst={false}
                 firstStudySession={firstStudySession && index === 0}
                 known={knownAtOpen.set}
                 recalled={knownAtOpen.count}
