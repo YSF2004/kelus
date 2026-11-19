@@ -119,6 +119,17 @@ describe("material ingest state machine", () => {
     assert.equal(state.softNotice, "Encrypted copy will retry later.");
   });
 
+  it("returns to ready state when a past paper is saved without turning it into course concepts", () => {
+    const working = reduceIngest(INITIAL_INGEST_STATE, {
+      type: "WORK_STARTED",
+      step: "saving",
+      message: "Saving…",
+    });
+    const state = reduceIngest(working, { type: "PAST_PAPER_READY", message: "Past paper added." });
+    assert.deepEqual(state.phase, { status: "idle", dragging: false });
+    assert.equal(state.softNotice, "Past paper added.");
+  });
+
   it("preserves review selections when confirm fails", () => {
     let state = reduceIngest(INITIAL_INGEST_STATE, {
       type: "REVIEW_READY",

@@ -72,6 +72,8 @@ export type IngestEvent =
   | { type: "WORK_STEP"; step: WorkingStep; message: string }
   | { type: "WORK_PROGRESS"; message: string }
   | { type: "SOFT_NOTICE"; message: string }
+  /** Past papers are saved for coverage mapping; they intentionally do not become course concepts. */
+  | { type: "PAST_PAPER_READY"; message: string }
   | { type: "FAIL"; kind: ErrorKind; message: string }
   | { type: "REVIEW_READY"; analysis: AnalysisPayload }
   | { type: "CONFIRM"; conceptCount: number; firstName: string | null }
@@ -153,6 +155,9 @@ export function reduceIngest(state: IngestState, event: IngestEvent): IngestStat
 
     case "SOFT_NOTICE":
       return { ...state, softNotice: event.message };
+
+    case "PAST_PAPER_READY":
+      return { softNotice: event.message, phase: { status: "idle", dragging: false } };
 
     case "FAIL":
       return {
