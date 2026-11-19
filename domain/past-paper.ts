@@ -41,6 +41,15 @@ export type PastPaperExamBrief = {
   } | null;
 };
 
+/** A small, inspectable piece of course evidence for a past-paper prompt. It is deliberately not a mark scheme. */
+export type PastPaperEvidence = {
+  conceptId: string;
+  conceptName: string;
+  quote: string;
+  source: LearningSourceReference | null;
+  keyTerms: string[];
+};
+
 const STOP_WORDS = new Set([
   "about", "after", "again", "against", "between", "could", "describe", "does", "each", "explain", "following", "from", "have", "into", "make", "most", "must", "other", "should", "that", "their", "there", "these", "they", "this", "what", "when", "which", "with", "would", "your",
 ]);
@@ -62,6 +71,49 @@ function sourceText(activity: LearningActivity | undefined) {
     activity.teach?.pageText?.slice(0, 8_000) ?? "",
     ...(activity.teach?.facts ?? []),
   ].join(" ").toLocaleLowerCase();
+}
+
+function sentencesFrom(activity: LearningActivity) {
+  const page = activity.teach?.pageText ?? "";
+  return [
+    ...page.split(/(?<=[.!?])\s+/u),
+    ...(activity.teach?.facts ?? []),
+    activity.learn.explanation,
+    ...(activity.learn.keyPoints ?? []),
+  ].map(clean).filter((sentence) => sentence.length >= 18);
+}
+
+/**
+ * Returns the best available line from the student's own course material. The returned terms are only a prompt for
+ * self-checking; Kelus never calls this a score or decides whether an open answer is correct.
+ */
+export function evidenceForPastPaperQuestion(input: {
+  question: PastPaperQuestion;
+  match: PastPaperMatch;
+  activities: LearningActivity[];
+}): PastPaperEvidence | null {
+  const activity = input.activities.find((item) => item.conceptId === input.match.conceptId);
+  if (!activity) return null;
+  const questionTerms = new Set(tokens(input.question.text));
+  const quote = sentencesFrom(activity)
+    .map((sentence) => ({ sentence, overlap: tokens(sentence).filter((term) => questionTerms.has(term)).length }))
+    .sort((left, right) => right.overlap - left.overlap || left.sentence.length - right.sentence.length)[0]?.sentence;
+  if (!quote) return null;
+  const keyTerms = tokens(quote).filter((term) => term.length >= 4).slice(0, 5);
+  return {
+    conceptId: input.match.conceptId,
+    conceptName: input.match.conceptName,
+    quote: quote.length > 460 ? `${quote.slice(0, 457).trimEnd()}…` : quote,
+    source: input.match.sources[0] ?? activity.sourceReferences[0] ?? null,
+    keyTerms,
+  };
+}
+
+/** A factual word-overlap cue for reflection, never a correctness verdict or a grade. */
+export function comparePastPaperResponse(answer: string, evidence: PastPaperEvidence) {
+  const answerTerms = new Set(tokens(answer));
+  const mentioned = evidence.keyTerms.filter((term) => answerTerms.has(term));
+  return { mentioned, notMentioned: evidence.keyTerms.filter((term) => !answerTerms.has(term)) };
 }
 
 /**

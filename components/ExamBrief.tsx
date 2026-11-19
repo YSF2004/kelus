@@ -82,7 +82,10 @@ export function ExamBrief({ papers, concepts, activities }: Props) {
               <strong>{brief.priority.conceptName}</strong>
               <p>Appears in {brief.priority.promptCount} past-paper prompt{brief.priority.promptCount === 1 ? "" : "s"} · {brief.priority.attempts ? `${Math.round(brief.priority.mastery * 100)}% evidence from ${brief.priority.attempts} ${brief.priority.attempts === 1 ? "try" : "tries"}` : "not practised yet"}</p>
             </div>
-            <Link href={`/concept?id=${encodeURIComponent(brief.priority.conceptId)}`} className="k-btn">Study this topic <ArrowRight /></Link>
+            <div className={styles.priorityActions}>
+              <Link href={`/past-paper?topic=${encodeURIComponent(brief.priority.conceptId)}`} className="k-btn">Try a real prompt <ArrowRight /></Link>
+              <Link href={`/concept?id=${encodeURIComponent(brief.priority.conceptId)}`} className={styles.topicLink}>Study topic</Link>
+            </div>
           </section> : null}
 
           <div className={styles.columns}>
