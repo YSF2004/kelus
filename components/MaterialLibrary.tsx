@@ -28,6 +28,7 @@ function fileTypeLabel(fileName?: string | null, mimeType?: string | null) {
 }
 import { SourceArt } from "@/components/SourceArt";
 import { BrandIcon, brandForFile } from "@/components/BrandIcon";
+import { PastPaperPanel } from "@/components/PastPaperPanel";
 
 // AnimatePresence can defer mounting this heading until the previous phase exits.
 // Focus on attachment, when the target actually exists, rather than on phase change.
@@ -120,7 +121,7 @@ function MaterialRow({
   quiet = false,
 }: {
   item: CourseMaterial;
-  onAnalyze: (item: CourseMaterial) => void;
+  onAnalyze?: (item: CourseMaterial) => void;
   onRemoved: (item: CourseMaterial) => void;
   linkedTopics: number;
   topicNames?: string[];
@@ -212,8 +213,8 @@ function MaterialRow({
         {downloadError ? <small className="material-download-error" role="alert">{downloadError}</small> : null}
       </span>
       <span className="material-actions">
-        {item.storage === "local" ? (
-          <button type="button" onClick={() => onAnalyze(item)} disabled={busy || item.processingStatus === "processing"}>
+        {item.storage === "local" && item.role !== "past_exam" ? (
+          <button type="button" onClick={() => onAnalyze?.(item)} disabled={busy || item.processingStatus === "processing"}>
             {item.processingStatus === "processing"
               ? "Reading…"
               : item.processingStatus === "failed"
@@ -227,6 +228,7 @@ function MaterialRow({
                     : "Build concepts"}
           </button>
         ) : null}
+        {item.storage === "local" && item.role === "past_exam" ? <span className="material-past-paper-status">Mapped below</span> : null}
         {item.storage === "url" ? (
           item.sourceUrl ? (
             <a href={item.sourceUrl} target="_blank" rel="noreferrer">
@@ -554,7 +556,12 @@ export function MaterialLibrary({ embedded = false, incomingFile = null, onIncom
           });
         });
       }
-      await analyzePdf(material, file);
+      if (role === "past_exam") {
+        updateMaterialProcessingStatus(material.id, "ready");
+        dispatch({ type: "PAST_PAPER_READY", message: "Past paper added. Kelus is mapping its prompts to the course topics below." });
+      } else {
+        await analyzePdf(material, file);
+      }
     } catch (caught) {
       trackEvent({ name: "material_upload_failed", role, course_type: "real" });
       dispatch({
@@ -1022,7 +1029,7 @@ export function MaterialLibrary({ embedded = false, incomingFile = null, onIncom
           {embedded ? null : <span>This device</span>}
         </header>
         {courseMaterials.length ? (
-          <ul>{courseMaterials.map((item) => <MaterialRow key={item.id} item={item} userId={auth.user?.id} syncState={syncStates[item.id]} quiet={embedded} onAnalyze={(material) => void analyzePdf(material)} onRemoved={(material) => removeMaterialSource(material.id)} linkedTopics={state.snapshot.learningActivities.filter((activity) => activity.sourceReferences.some((reference) => reference.materialId === item.id)).length} {...sourceTopics(item.id)} />)}</ul>
+          <ul>{courseMaterials.map((item) => <MaterialRow key={item.id} item={item} userId={auth.user?.id} syncState={syncStates[item.id]} quiet={embedded} onAnalyze={item.role === "past_exam" ? undefined : (material) => void analyzePdf(material)} onRemoved={(material) => removeMaterialSource(material.id)} linkedTopics={state.snapshot.learningActivities.filter((activity) => activity.sourceReferences.some((reference) => reference.materialId === item.id)).length} {...sourceTopics(item.id)} />)}</ul>
         ) : concepts.length ? (
           <div className="material-shelf-empty">
             <p>Sample model is ready. Add your own syllabus to study from your files.</p>
@@ -1041,6 +1048,12 @@ export function MaterialLibrary({ embedded = false, incomingFile = null, onIncom
           </div>
         )}
       </section>
+
+      <PastPaperPanel
+        papers={courseMaterials.filter((item) => item.storage === "local" && item.role === "past_exam")}
+        concepts={concepts}
+        activities={state.snapshot.learningActivities.filter((activity) => concepts.some((concept) => concept.id === activity.conceptId))}
+      />
 
       {embedded ? (
         <p className="material-binder-note">Everything stays on this device unless you sign in to sync.</p>
