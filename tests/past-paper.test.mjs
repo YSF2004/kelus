@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { extractPastPaperQuestions, mapPastPaperQuestions, summarizePastPaperCoverage } from "../domain/past-paper.ts";
+import { comparePastPaperResponse, evidenceForPastPaperQuestion, extractPastPaperQuestions, mapPastPaperQuestions, summarizePastPaperCoverage } from "../domain/past-paper.ts";
 
 const concepts = [
   { id: "osmosis", name: "Osmosis", mastery: 0.35 },
@@ -33,6 +33,18 @@ test("past-paper mode maps prompts to confirmed concepts and keeps their actual 
   assert.equal(mapped[0].matches[0].conceptName, "Osmosis");
   assert.deepEqual(mapped[0].matches[0].sources, [{ materialId: "lecture-1", label: "Cell transport", locator: "Page 4" }]);
   assert.equal(mapped[0].matches[0].mastery, 0.35);
+});
+
+test("past-paper practice shows a supporting note line and reflection cues, never a grade", () => {
+  const question = extractPastPaperQuestions([{ pageNumber: 2, text: "Question 1. Explain why water moves by osmosis across a selectively permeable membrane." }])[0];
+  const match = mapPastPaperQuestions({ questions: [question], concepts, activities })[0].matches[0];
+  const evidence = evidenceForPastPaperQuestion({ question, match, activities });
+  assert.equal(evidence.source.locator, "Page 4");
+  assert.match(evidence.quote, /water/i);
+  const reflection = comparePastPaperResponse("Water moves across a selectively permeable membrane.", evidence);
+  assert.ok(reflection.mentioned.includes("water"));
+  assert.equal("score" in reflection, false);
+  assert.equal("correct" in reflection, false);
 });
 
 test("past-paper mode does not invent a match when no confirmed course topic supports the prompt", () => {
