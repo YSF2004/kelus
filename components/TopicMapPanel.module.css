@@ -158,6 +158,8 @@
 .state[data-level="needs-work"], .state[data-level="partly-there"] { color: var(--k-marigold-text); }
 .state[data-level="solid"] { color: var(--color-kelus, var(--k-green)); }
 .metaSoft { display: inline-flex; align-items: center; gap: 4px; margin-left: 8px; color: var(--k-text-3, var(--k-text-2)); font-size: 0.75rem; font-variant-numeric: tabular-nums; }
+.examEvidence { display: inline-flex; align-items: center; margin-left: 8px; color: var(--color-kelus, var(--k-green)); font-size: 0.75rem; font-weight: 600; }
+@media (max-width: 640px) { .examEvidence { display: block; margin: 3px 0 0; } }
 
 /* ── Editorial notebook ── the contents of the course: one centred column like the plan, topic names in the book
    serif, where you are said in words, the state of each in italic, no pills and no page marks. */

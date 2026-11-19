@@ -12,12 +12,13 @@ import { AnkiExport } from "@/components/AnkiExport";
 import { freshOpenSession, restAware, restingTopics, resumeConceptId } from "@/lib/today-focus";
 import { describeRouteChoice } from "@/lib/today-reason";
 import { percent } from "@/lib/format";
-import { useSyncExternalStore } from "react";
+import { useCallback, useState, useSyncExternalStore } from "react";
 import { getKnownLines, getServerKnownLines, knownCount, subscribeKnownLines } from "@/lib/known-lines";
 import { checkpointKey, getCheckpoints, getServerCheckpoints, PASS_SHARE, passed, subscribeCheckpoints } from "@/lib/checkpoints";
 import { Tick } from "@/components/Marks";
 import { ExamBrief } from "@/components/ExamBrief";
 import type { CourseMaterial, LearningActivity } from "@/domain/types";
+import type { PastPaperExamBrief } from "@/domain/past-paper";
 
 /** "today", "yesterday", "3 days ago": when a checkpoint was last run. */
 function whenAgo(at: string, nowIso: string) {
@@ -61,6 +62,15 @@ export function TopicMapPanel({ onStart, startLabel, sampleCourse = false, pastP
   const reduce = useReducedMotion() === true;
   const known = useSyncExternalStore(subscribeKnownLines, getKnownLines, getServerKnownLines);
   const results = useSyncExternalStore(subscribeCheckpoints, getCheckpoints, getServerCheckpoints);
+  const [examCoverage, setExamCoverage] = useState<Record<string, number>>({});
+  const receiveCoverage = useCallback((topics: PastPaperExamBrief["topics"]) => {
+    const next = Object.fromEntries(topics.map((topic) => [topic.conceptId, topic.promptCount]));
+    setExamCoverage((current) => {
+      const currentEntries = Object.entries(current);
+      const nextEntries = Object.entries(next);
+      return currentEntries.length === nextEntries.length && currentEntries.every(([id, count]) => next[id] === count) ? current : next;
+    });
+  }, []);
   const course = state.snapshot.courses[0];
   if (!course) return <p>No active course.</p>;
 
@@ -154,7 +164,7 @@ export function TopicMapPanel({ onStart, startLabel, sampleCourse = false, pastP
 
   return (
     <div className="surface-map is-toc source-topic-map">
-      <ExamBrief papers={pastPapers} concepts={concepts} activities={activities} />
+      <ExamBrief papers={pastPapers} concepts={concepts} activities={activities} onCoverageChange={receiveCoverage} />
       <div className={styles.pathHead} role="group" aria-label={sampleCourse ? "Sample course progress" : "Where you are"}>
         <p className="sr-only">{practised} of {path.length} topics practiced{solid ? `, ${solid} solid` : ""}{recalled ? `, ${recalled} ${recalled === 1 ? "line" : "lines"} answered correctly` : ""}{passedCount ? `, ${passedCount} ${passedCount === 1 ? "checkpoint" : "checkpoints"} passed` : ""}.</p>
         <ul className={styles.stats} aria-hidden="true">
@@ -214,6 +224,7 @@ export function TopicMapPanel({ onStart, startLabel, sampleCourse = false, pastP
                 <span className="index-toc-meta">
                   <span className={styles.state} data-level={isStart ? "next" : label.toLocaleLowerCase().replace(/\s+/g, "-")}>{isStart ? "Start here" : label}</span>
                   {mastery == null ? null : <span className={styles.metaSoft}>{checks < 3 ? `${checks} ${checks === 1 ? "try" : "tries"}` : percent(mastery)}</span>}
+                  {examCoverage[concept.id] ? <span className={styles.examEvidence}>In {examCoverage[concept.id]} past-paper prompt{examCoverage[concept.id] === 1 ? "" : "s"}</span> : null}
                   {source ? <span className={styles.source}><Octicon name="file" className={styles.icoSm} />{source}</span> : null}
                 </span>
                 {isStart && startReason ? <span className={styles.why}>{startReason}</span> : null}

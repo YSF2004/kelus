@@ -39,7 +39,7 @@ export function SiteHeader() {
   const checkingAccount = auth.configured && (!hydrated || auth.loading);
   // The revision sheet is a page of its own, like a session: its bar is the only header.
   const inSession = pathname.startsWith("/session") || pathname.startsWith("/sheet");
-  const inProduct = ["/today", "/materials", "/map", "/concept"].some((path) => pathname.startsWith(path));
+  const inProduct = ["/today", "/materials", "/map", "/concept", "/past-paper"].some((path) => pathname.startsWith(path));
   const onHome = pathname === "/";
   const onMarketing = onHome || pathname.startsWith("/route") || pathname.startsWith("/pricing");
   const accountMenu = useRef<HTMLDetailsElement>(null);

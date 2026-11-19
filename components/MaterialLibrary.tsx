@@ -278,7 +278,7 @@ function readableFileName(name: string) {
   return name.replace(/\.(pdf|md|markdown|txt|zip)$/i, "").replace(/[-_]+/g, " ").replace(/\s+/g, " ").trim() || name;
 }
 
-export function MaterialLibrary({ embedded = false, incomingFile = null, onIncomingFileHandled, interceptFile, quiet = false, onStartOver, sampleCourse = false }: { embedded?: boolean; incomingFile?: File | null; onIncomingFileHandled?: () => void; interceptFile?: (file: File) => boolean; quiet?: boolean; onStartOver?: () => void; sampleCourse?: boolean } = {}) {
+export function MaterialLibrary({ embedded = false, incomingFile = null, onIncomingFileHandled, interceptFile, quiet = false, onStartOver, sampleCourse = false, initialRole, returnTo }: { embedded?: boolean; incomingFile?: File | null; onIncomingFileHandled?: () => void; interceptFile?: (file: File) => boolean; quiet?: boolean; onStartOver?: () => void; sampleCourse?: boolean; initialRole?: MaterialRole; returnTo?: string } = {}) {
   const reduceMotion = useReducedMotion();
   const auth = useAuth();
   const router = useRouter();
@@ -287,7 +287,7 @@ export function MaterialLibrary({ embedded = false, incomingFile = null, onIncom
   const [title, setTitle] = useState("");
   const [url, setUrl] = useState("");
   const [linkError, setLinkError] = useState<string | null>(null);
-  const [role, setRole] = useState<MaterialRole>("notes");
+  const [role, setRole] = useState<MaterialRole>(() => initialRole ?? "notes");
   const [ingest, setIngest] = useState<IngestState>(INITIAL_INGEST_STATE);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   // The student chose to study a file that does not look like notes: respected, and not asked again for this file.
@@ -559,6 +559,7 @@ export function MaterialLibrary({ embedded = false, incomingFile = null, onIncom
       if (role === "past_exam") {
         updateMaterialProcessingStatus(material.id, "ready");
         dispatch({ type: "PAST_PAPER_READY", message: "Past paper added. Kelus is mapping its prompts to the course topics below." });
+        if (returnTo) router.replace(returnTo);
       } else {
         await analyzePdf(material, file);
       }
@@ -657,7 +658,7 @@ export function MaterialLibrary({ embedded = false, incomingFile = null, onIncom
         firstName: first?.name ?? selected[0]?.name ?? null,
       });
       // Continue the booklet: diagnosis is next — do not park on a ready interstitial.
-      router.replace("/today");
+      router.replace(returnTo ?? "/today");
       return true;
     } catch (caught) {
       dispatch({

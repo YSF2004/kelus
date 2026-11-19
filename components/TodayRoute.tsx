@@ -115,6 +115,9 @@ export function TodayRoute({
   const goalDoneCount = habit.topicsToday;
   const openedRef = useRef(false);
   const hasPriorEvidence = !isSampleCourse && events.some((event) => event.kind === "retrieval");
+  // Before the first answer, the plan should make one promise and invite one action—not ask a student to decode a
+  // schedule they have not experienced yet. Evidence earns the rest of the route.
+  const showPlanContext = isSampleCourse || hasPriorEvidence || Boolean(startLabel) || warmupFirst;
 
   useEffect(() => {
     if (isSampleCourse || openedRef.current) return;
@@ -345,17 +348,17 @@ export function TodayRoute({
           this column follows the card, in the same order. */}
       <div className={q.side} data-block="today-side">
       {/* Day two, shown on day one: what you missed today is what tomorrow opens with, so the plan says so now. */}
-      {tomorrowLine ? (
+      {showPlanContext && tomorrowLine ? (
         <motion.p className={q.tomorrow} data-block="today-tomorrow" {...settle(2)}>
           <Octicon name="calendar" className={q.ico} /><span><b>Tomorrow</b> {tomorrowLine.replace(/^Tomorrow: /, "")}</span>
         </motion.p>
-      ) : !habit.goalMet && habit.streak > 0 && !habit.studiedToday ? (
+      ) : showPlanContext && !habit.goalMet && habit.streak > 0 && !habit.studiedToday ? (
         <motion.p className={`${q.tomorrow} ${q.keep}`} role="status" {...settle(2)}>
           <Octicon name="flame" className={q.ico} /><span>One topic today keeps your {habit.streak}-day streak.</span>
         </motion.p>
       ) : null}
 
-      {nextStops.length ? (
+      {showPlanContext && nextStops.length ? (
         <motion.section className={q.then} data-block="today-next" aria-label="Up next" {...settle(3)}>
           <h2 className={q.thenTitle}>After this</h2>
           <ol>
@@ -383,11 +386,11 @@ export function TodayRoute({
 
       {/* Recall timing remains one tap away. It is useful evidence, but it should not compete with the source-led
           decision above it before a student has even started today's topic. */}
-      <LeitnerPanel state={boxes} />
+      {showPlanContext ? <LeitnerPanel state={boxes} /> : null}
 
       {/* One extra at a time, most useful first: the exam date gives the path its finish line, then the nudge that
           brings you back, then the home-screen app, then the calendar reminder. */}
-      {isSampleCourse ? null
+      {isSampleCourse || !showPlanContext ? null
         : examDatePending && onSetExamDate ? <ExamDateCard onSave={onSetExamDate} courseName={courseName} />
         : hasPriorEvidence && (nudgesOffAtOpen || !nudges.on) && nudgesSupported() ? <NudgeCard />
         : hasPriorEvidence && installable ? <InstallCard />
