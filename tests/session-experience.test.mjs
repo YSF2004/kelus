@@ -97,6 +97,16 @@ test("a warm-up can reopen the exact local source line it asks about", async () 
   assert.match(warmup, /Exact line from your notes/);
 });
 
+test("PDF sources are selectable documents, with the evidence mark layered above them", async () => {
+  const reader = await source("components/CourseSourceReader.tsx");
+  const styles = await source("app/core-workspace.css");
+  assert.match(reader, /new pdfjs\.TextLayer/);
+  assert.match(reader, /className="core-source-text-layer"/);
+  assert.match(reader, /canvas ref=\{canvas\} aria-hidden="true"/);
+  assert.match(styles, /\.core-source-text-layer \{[^}]*position: absolute[^}]*z-index: 1/s);
+  assert.match(styles, /\.core-source-marks \{[^}]*z-index: 2/s);
+});
+
 test("today leads with one topic and shows evidence and next stops as secondary", async () => {
   const today = await source("components/TodayRoute.tsx");
   const page = await source("app/today/page.tsx");
