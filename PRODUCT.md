@@ -37,7 +37,7 @@ next, with the reason stated in the student's own results. Local-first and free,
 - Reading and topic finding run in the browser; scans use on-device OCR. Files stay on the device unless the student
   chooses to sync. If a hosted question-writing model is available, text from studied topics can be sent one topic at
   a time to the model by default; students can turn this off in Course options.
-- Kelus Plus ($4.99/month) is planned, not built, with no launch date; Free is everything in Kelus today.
+- Free includes one active course with up to 10 uploaded source files; the full revision loop remains available within that course. Kelus Plus ($4.99/month) is planned, not built, with no launch date; it is intended for several active courses and larger source collections.
 - Results come from evidence (checks right, key ideas used); a self-rating can lower a result, never raise it.
 - Questions are worded in English even for French notes (a known limitation).
 - Analytics: GA4 with ads signals off; optional PostHog mirrors explicit product events when configured. Both

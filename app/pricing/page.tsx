@@ -13,12 +13,12 @@ import { PricingPlanMotion } from "@/components/PricingPlanMotion";
 import { Rise } from "@/components/PricingReveal";
 
 export const metadata: Metadata = {
-  title: "Kelus Pricing | Free Exam Revision & Planned Plus",
-  description: "Start revising your own course for free, with no account required. Kelus Plus is planned at $4.99 per month; availability is shown on this page.",
+  title: "Kelus Pricing | Free Course Revision & Planned Plus",
+  description: "Study one course with up to 10 files for free. Kelus Plus is planned at $4.99 per month for larger, ongoing study workspaces.",
   alternates: { canonical: "/pricing" },
   openGraph: {
-    title: "Kelus Pricing | Free Exam Revision & Planned Plus",
-    description: "Start revising your own course for free. See what is included and whether Kelus Plus is available.",
+    title: "Kelus Pricing | Free Course Revision & Planned Plus",
+    description: "Study one course with up to 10 files for free. See what is included and whether Kelus Plus is available.",
     url: "/pricing/",
     siteName: "Kelus",
     images: [{ url: "/og/kelus-social.png", width: 1200, height: 630, alt: "Kelus helps you revise from your course notes." }],
@@ -39,7 +39,7 @@ export default function PricingPage() {
         <PackArt name="time-flies" className="pricing-hero-art k-rise" size={190} />
         <h1>Start revising. Stay in control.</h1>
         <p className="legal-lede">
-          Revise your own course for free. Kelus Plus is planned at $4.99/month.
+          One real course, with up to 10 files, is free. Kelus Plus is planned at $4.99/month for larger study workspaces.
           {syncReady
             ? " Free sign-in can sync your revision progress; source-file sync is still being tested."
             : " Your progress stays on this device."}
@@ -55,9 +55,9 @@ export default function PricingPage() {
                 </div>
                 <p className="pricing-price">$0<span>/month</span></p>
               </div>
-              <p className="pricing-offer-lede">Everything in Kelus today, with no limits.</p>
+              <p className="pricing-offer-lede">One active course and up to 10 course files—enough to study for one exam.</p>
               <ul>
-                <li>Add your PDFs, slides or notes</li>
+                <li>One active course, with up to 10 PDFs, slides or notes</li>
                 <li>Questions written from your own lines</li>
                 <li>A plan that moves with your answers</li>
                 <li>Export every question to Anki</li>
@@ -83,9 +83,10 @@ export default function PricingPage() {
                   $4.99<span>/month</span>
                 </p>
               </div>
-              <p className="pricing-offer-lede">Planned, not built yet. What we’re making for it:</p>
+              <p className="pricing-offer-lede">Planned, not built yet. What we’re making for longer exam seasons:</p>
               <ul>
                 <li>Everything in Free</li>
+                <li>More than one active course and more than 10 source files</li>
                 <li>Clearer reading of scanned and handwritten pages</li>
                 <li>Several courses side by side for exam season</li>
                 <li>Email support from a person, within a day</li>
@@ -109,8 +110,8 @@ export default function PricingPage() {
         <section className="pricing-faq" aria-labelledby="pricing-faq-title">
           <h2 id="pricing-faq-title">Good to know</h2>
           <dl>
-            <div><dt>Is Free really free?</dt><dd>Yes. No card, no account, and no trial that runs out.</dd></div>
-            <div><dt>What changes when Plus opens?</dt><dd>Nothing for Free. You choose whether to switch, and we email the waitlist once.</dd></div>
+            <div><dt>Is Free really free?</dt><dd>Yes. One active course and up to 10 source files, with no card, account, or trial that runs out.</dd></div>
+            <div><dt>What changes when Plus opens?</dt><dd>Free stays the same. Plus will be the option for several active courses and larger source collections.</dd></div>
             <div><dt>Where is my work kept?</dt><dd>Your work starts on this device. Free sign-in can sync revision progress; keep a copy of your source files while file sync is being tested.</dd></div>
           </dl>
         </section>

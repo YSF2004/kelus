@@ -26,7 +26,7 @@ export function FoundingCta({ source = "pricing", form = true }: { source?: stri
           Get Kelus Plus · $4.99/month <span aria-hidden="true">→</span>
         </a>
         <p className="founding-cta-note">
-          Monthly subscription. Free revision stays available without Plus.
+          Monthly subscription. Free includes one active course and up to 10 source files.
           {syncReady ? " Free sign-in can sync revision progress; source-file sync is still being tested." : " Study stays on this device until account sync is enabled."}
         </p>
       </div>
@@ -49,8 +49,8 @@ export function FoundingCta({ source = "pricing", form = true }: { source?: stri
             </>
           )
           : waitlistReady
-            ? "Join the list for one launch update. Free revision stays available."
-            : "Ask us when Plus opens. Free revision stays available."}
+            ? "Join the list for one launch update. Free includes one active course and up to 10 source files."
+            : "Ask us when Plus opens. Free includes one active course and up to 10 source files."}
       </p>
       {!form ? null : waitlistReady ? <WaitlistForm source={source} compact /> : (
         <a className="text-btn" href="mailto:hello@kelus.me?subject=Kelus%20Plus%20subscription">
