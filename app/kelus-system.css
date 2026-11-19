@@ -83,13 +83,12 @@ body:not(:has(.home, .pricing-page)) :is(.k-btn, .cta, [class*="TodayQuiet"][cla
   border-radius: var(--sys-btn-radius) !important;
   box-shadow: none !important;
   filter: none !important;
-  transform: none !important;
-  transition: background-color 120ms linear, color 120ms linear, border-color 120ms linear !important;
+  transition: background-color 120ms linear, color 120ms linear, border-color 120ms linear, transform 100ms ease-out !important;
 }
 @media (hover: hover) and (pointer: fine) {
   body:not(:has(.home, .pricing-page)) :is(.k-btn, .cta, [class*="TodayQuiet"][class*="go"], [class*="primaryAction"]):hover:not(:disabled):not([aria-disabled="true"]) { border-radius: var(--sys-btn-radius) !important; }
 }
-body:not(:has(.home, .pricing-page)) :is(.k-btn, .cta, [class*="TodayQuiet"][class*="go"], [class*="primaryAction"]):active:not(:disabled) { transform: none !important; }
+body:not(:has(.home, .pricing-page)) :is(.k-btn, .cta, [class*="TodayQuiet"][class*="go"], [class*="primaryAction"]):active:not(:disabled) { transform: scale(0.97) !important; }
 body:not(:has(.home, .pricing-page)) :is(.k-btn, .cta, [class*="TodayQuiet"][class*="go"], [class*="primaryAction"]) > span[aria-hidden="true"]:last-child { transform: none !important; transition: none !important; }
 
 /* Secondary: the paper button reads as an outline of the primary, never a grey slab. */

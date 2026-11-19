@@ -28,8 +28,10 @@ export function AppTabBar<Id extends string>({ tabs, active, onSelect }: { tabs:
             key={tab.id}
             type="button"
             className={on ? `${styles.tab} ${styles.on}` : styles.tab}
+            data-tone={tab.tone ?? "green"}
             aria-current={on ? "page" : undefined}
             onClick={() => onSelect(tab.id)}
+            whileTap={reduce ? undefined : { scale: 0.97 }}
             transition={{ type: "spring", bounce: 0, duration: 0.25 }}
           >
             {on && !reduce ? <motion.span layoutId="app-tab-pill" className={styles.pill} transition={{ type: "spring", bounce: 0, duration: 0.35 }} /> : on ? <span className={styles.pill} /> : null}
