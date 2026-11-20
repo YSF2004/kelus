@@ -70,16 +70,17 @@ export function ExamBrief({ papers, concepts, activities, onCoverageChange }: Pr
     >
       <div className={styles.heading}>
         <div>
-          <h2 id="exam-brief-title">What your past paper touches.</h2>
+          <p className={styles.eyebrow}>Exam focus</p>
+          <h2 id="exam-brief-title">What this paper asks about.</h2>
         </div>
-        <Link href="/today?section=materials#past-paper-title" className={styles.mapLink}>Question map <ArrowRight /></Link>
+        <Link href="/today?section=materials#past-paper-title" className={styles.mapLink}>See every prompt <ArrowRight /></Link>
       </div>
 
-      {error ? <p className={styles.message} role="alert">{error}</p> : !brief ? <p className={styles.message} role="status">Reading your past paper against confirmed course topics…</p> : !brief.promptCount ? <p className={styles.message}>No clear question prompts were found. Add a text-based past paper to make this coverage view useful.</p> : (
+      {error ? <p className={styles.message} role="alert">{error}</p> : !brief ? <p className={styles.message} role="status">Reading the paper against your study topics…</p> : !brief.promptCount ? <p className={styles.message}>No clear question prompts were found. Add a text-based past paper to make this view useful.</p> : (
         <>
           <p className={styles.lede}>
-            {brief.linkedTopicCount ? <>This paper directly links to <strong>{brief.linkedTopicCount} of {concepts.length} topics</strong> in your course.</> : "Kelus found prompts, but no confirmed topic links yet."}
-            {brief.unlinkedTopicCount ? <> {brief.unlinkedTopicCount} topic{brief.unlinkedTopicCount === 1 ? " has" : "s have"} no direct link here—this is not proof {brief.unlinkedTopicCount === 1 ? "it" : "they"} will not appear.</> : null}
+            {brief.linkedTopicCount ? <>This paper directly connects to <strong>{brief.linkedTopicCount} of {concepts.length} study topics</strong>.</> : "Kelus found prompts, but no confirmed topic connections yet."}
+            {brief.unlinkedTopicCount ? <> {brief.unlinkedTopicCount} topic{brief.unlinkedTopicCount === 1 ? " has" : "s have"} no direct connection here—this does not mean {brief.unlinkedTopicCount === 1 ? "it" : "they"} will not appear.</> : null}
           </p>
 
           {brief.priority ? <section className={styles.priority} aria-label="Best place to start from the past paper">

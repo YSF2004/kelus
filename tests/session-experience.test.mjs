@@ -65,7 +65,7 @@ test("the session executes learn, retrieve, apply and evaluate before updating t
 
 test("materials support learning-purpose labels without claiming analysis", async () => {
   assert.deepEqual(MATERIAL_ROLES.map((item) => item.value), ["syllabus", "lecture_slides", "notes", "past_exam", "course_outline", "other"]);
-  assert.equal(materialRoleLabel("past_exam"), "Past exam");
+  assert.equal(materialRoleLabel("past_exam"), "Past paper");
   const library = await source("components/MaterialLibrary.tsx");
   assert.match(library, /htmlFor="material-role">Type</);
   assert.match(library, /review every\s+suggested topic/);
