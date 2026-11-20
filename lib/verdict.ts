@@ -38,11 +38,17 @@ export function planLine({ next, movedUp, orderChanged }: { next?: string; moved
   return `Next: ${next}.`;
 }
 
-/** When a topic is next due, in plain words: "Comes back tomorrow", "Comes back in 4 days", "Comes back next week". */
+/** When a topic is next due, in plain words. Short learning steps remain visible instead of being rounded into an unhelpful "later today". */
 export function comesBackLine(nextReviewAt: string | null | undefined, nowIso: string) {
   if (!nextReviewAt) return "Comes back in your next session";
-  const day = (iso: string) => Math.floor((Date.parse(iso) - new Date(iso).getTimezoneOffset() * 60_000) / 86_400_000);
-  const days = Math.max(0, day(nextReviewAt) - day(nowIso));
+  const minutes = Math.max(0, Math.round((Date.parse(nextReviewAt) - Date.parse(nowIso)) / 60_000));
+  if (minutes <= 0) return "Ready for another check";
+  if (minutes < 60) return `Comes back in ${minutes} ${minutes === 1 ? "minute" : "minutes"}`;
+  if (minutes < 24 * 60) {
+    const hours = Math.max(1, Math.round(minutes / 60));
+    return `Comes back in ${hours} ${hours === 1 ? "hour" : "hours"}`;
+  }
+  const days = Math.round(minutes / (24 * 60));
   if (days === 0) return "Comes back later today";
   if (days === 1) return "Comes back tomorrow";
   if (days < 7) return `Comes back in ${days} days`;

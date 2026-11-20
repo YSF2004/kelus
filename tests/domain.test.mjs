@@ -10,8 +10,8 @@ import { finishSession, loadAminaDemo, recordRetrieval, startSession } from "../
 
 const now = "2026-09-05T12:00:00.000Z";
 
-test("algorithm is explicitly an interpretable MVP heuristic", () => {
-  assert.equal(ALGORITHM_KIND, "kelus-mvp-heuristic-v1");
+test("review schedule is explicitly an evidence-based FSRS model", () => {
+  assert.equal(ALGORITHM_KIND, "kelus-evidence-mastery-fsrs-v5-schedule");
 });
 
 test("mastery rises after independent success and falls after failure", () => {
