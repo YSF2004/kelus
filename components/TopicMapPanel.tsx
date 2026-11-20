@@ -165,6 +165,10 @@ export function TopicMapPanel({ onStart, startLabel, sampleCourse = false, pastP
   return (
     <div className="surface-map is-toc source-topic-map">
       <ExamBrief papers={pastPapers} concepts={concepts} activities={activities} onCoverageChange={receiveCoverage} />
+      {!pastPapers.length ? <section className={styles.examInvite} aria-label="Add a past paper">
+        <div><strong>Have a past paper?</strong><span>Add it beside your notes to see which prompts your confirmed topics can support.</span></div>
+        <Link href="/today?section=materials&add=past_exam" className={styles.examInviteLink}>Add past paper <ArrowRight /></Link>
+      </section> : null}
       <div className={styles.pathHead} role="group" aria-label={sampleCourse ? "Sample course progress" : "Where you are"}>
         <p className="sr-only">{practised} of {path.length} topics practiced{solid ? `, ${solid} solid` : ""}{recalled ? `, ${recalled} ${recalled === 1 ? "line" : "lines"} answered correctly` : ""}{passedCount ? `, ${passedCount} ${passedCount === 1 ? "checkpoint" : "checkpoints"} passed` : ""}.</p>
         <ul className={styles.stats} aria-hidden="true">

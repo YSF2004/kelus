@@ -6,7 +6,7 @@ export const MATERIAL_ROLES: Array<{ value: MaterialRole; label: string }> = [
   { value: "syllabus", label: "Syllabus" },
   { value: "lecture_slides", label: "Lecture slides" },
   { value: "notes", label: "Notes" },
-  { value: "past_exam", label: "Past exam" },
+  { value: "past_exam", label: "Past paper" },
   { value: "course_outline", label: "Course outline" },
   { value: "other", label: "Other source" },
 ];

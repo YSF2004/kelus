@@ -341,6 +341,22 @@ export function MaterialLibrary({ embedded = false, incomingFile = null, onIncom
   const courseMaterials = materials.filter((item) => item.courseId === course?.id);
   const sourceFileCount = courseMaterials.filter((item) => item.storage === "local" && !item.id.startsWith("material-demo-")).length;
   const atFreeSourceLimit = sourceFileCount >= FREE_COURSE_SOURCE_LIMIT;
+  const isPastPaper = role === "past_exam";
+  const sourceRoleHint = isPastPaper
+    ? "Kelus finds the paper’s question prompts, then links them only to topics and lines already in your course. It never predicts a grade."
+    : "Digital PDFs with selectable text work fastest. You review every suggested topic before it changes your study plan.";
+  const dropTitle = busy
+    ? statusMessage ?? (isPastPaper ? "Reading your past paper…" : "Working on your PDF…")
+    : atFreeSourceLimit
+      ? "Your 10 free files are in this course"
+      : isPastPaper ? "Drop your past paper here" : "Drop a PDF here";
+  const dropHelp = busy && statusMessage
+    ? statusMessage
+    : atFreeSourceLimit
+      ? "Remove a source to add another, or see Kelus Plus for larger courses."
+      : isPastPaper
+        ? "or choose a file · Kelus will only use prompts it can trace back to your notes"
+        : "or choose a file · up to 20 MB · clear text works fastest";
   const concepts = state.snapshot.concepts.filter((item) => item.courseId === course?.id);
   const hasCoursePdf = courseMaterials.some((item) => item.storage === "local" && !item.id.startsWith("material-demo-"));
   const sourceFirst = embedded && !hasCoursePdf && !analysis && !readySummary;
@@ -780,8 +796,8 @@ export function MaterialLibrary({ embedded = false, incomingFile = null, onIncom
               onDrop={drop}
             >
               <input ref={fileRef} type="file" title="" accept={SOURCE_FILE_ACCEPT} onChange={(event) => void savePdf(event.target.files?.[0])} disabled={busy || atFreeSourceLimit} />
-              <strong>{busy ? (statusMessage ?? "Reading your file…") : atFreeSourceLimit ? "Your 10 free files are in this course" : "Choose a file"}</strong>
-              <span>{busy && statusMessage ? statusMessage : atFreeSourceLimit ? "Remove a source to add another, or see Kelus Plus for larger courses." : "or drop it here · PDF, slides, plain text or a Notion .zip"}</span>
+              <strong>{busy ? (statusMessage ?? (isPastPaper ? "Reading your past paper…" : "Reading your file…")) : atFreeSourceLimit ? "Your 10 free files are in this course" : isPastPaper ? "Choose a past paper" : "Choose a file"}</strong>
+              <span>{busy && statusMessage ? statusMessage : atFreeSourceLimit ? "Remove a source to add another, or see Kelus Plus for larger courses." : isPastPaper ? "or drop it here · Kelus will match prompts to your confirmed topics" : "or drop it here · PDF, slides, plain text or a Notion .zip"}</span>
             </label>
             <p className="material-ingest-hint">{atFreeSourceLimit ? <Link href="/pricing/">Free includes 10 source files per course. See what Plus will add →</Link> : `Its topics are added to your plan. ${FREE_COURSE_SOURCE_LIMIT - sourceFileCount} free ${FREE_COURSE_SOURCE_LIMIT - sourceFileCount === 1 ? "file" : "files"} left in this course. PDFs with selectable text are read fastest.`}</p>
             <div className="material-role-field">
@@ -789,6 +805,7 @@ export function MaterialLibrary({ embedded = false, incomingFile = null, onIncom
               <select id="material-role" value={role} onChange={(event) => setRole(event.target.value as MaterialRole)} disabled={busy}>
                 {MATERIAL_ROLES.map((item) => <option key={item.value} value={item.value}>{item.label}</option>)}
               </select>
+              {isPastPaper ? <p>Kelus compares this paper with the notes already in this course. It never creates a mark scheme.</p> : null}
             </div>
             {busy && workingStep ? (
               <div className="material-work-status" role="status" aria-live="polite">
@@ -845,9 +862,7 @@ export function MaterialLibrary({ embedded = false, incomingFile = null, onIncom
             <select id="material-role" value={role} onChange={(event) => setRole(event.target.value as MaterialRole)} disabled={busy}>
               {MATERIAL_ROLES.map((item) => <option key={item.value} value={item.value}>{item.label}</option>)}
             </select>
-            <p>
-              Digital PDFs with selectable text work fastest. You review every suggested topic before it changes your revision route.
-            </p>
+            <p>{sourceRoleHint}</p>
           </div>
         <label
           className={`material-drop${dragging ? " is-dragging" : ""}${busy ? " is-busy" : ""}`}
@@ -859,8 +874,8 @@ export function MaterialLibrary({ embedded = false, incomingFile = null, onIncom
         >
           <input ref={fileRef} type="file" title="" accept={SOURCE_FILE_ACCEPT} onChange={(event) => void savePdf(event.target.files?.[0])} disabled={busy || atFreeSourceLimit} />
           <svg viewBox="0 0 48 48" aria-hidden="true"><path d="M24 33V10m0 0-8 8m8-8 8 8M10 31v7h28v-7" /></svg>
-          <strong>{busy ? (statusMessage ?? "Working on your PDF…") : atFreeSourceLimit ? "Your 10 free files are in this course" : "Drop a PDF here"}</strong>
-          <span>{busy && statusMessage ? statusMessage : atFreeSourceLimit ? "Remove a source to add another, or see Kelus Plus for larger courses." : "or choose a file · up to 20 MB · clear text works fastest"}</span>
+          <strong>{dropTitle}</strong>
+          <span>{dropHelp}</span>
         </label>
         {atFreeSourceLimit ? <p className="material-ingest-hint"><Link href="/pricing/">Free includes 10 source files per course. See what Plus will add →</Link></p> : null}
         {busy && workingStep ? (

@@ -52,6 +52,12 @@
    Topics in the order of the notes, joined by one line. A step's ring fills as the topic does; a diamond is a
    checkpoint. Calm on purpose: the colour is the green of "done", nothing else. */
 .pathHead { display: grid; gap: 10px; max-width: 712px; padding: 16px 24px 8px; }
+.examInvite { display: flex; align-items: center; justify-content: space-between; gap: 18px; max-width: 712px; margin: 0 0 20px; padding: 15px 0; border-bottom: 1px solid var(--k-line, var(--color-frost)); }
+.examInvite > div { display: grid; gap: 3px; }
+.examInvite strong { color: var(--k-ink, var(--color-midnight-ink)); font-size: .9375rem; font-weight: 650; }
+.examInvite span { color: var(--k-text-2, var(--color-slate)); font-size: .875rem; line-height: 1.45; }
+.examInviteLink { display: inline-flex; align-items: center; gap: 6px; min-height: 40px; color: var(--color-kelus); font-size: .875rem; font-weight: 650; text-decoration: none; white-space: nowrap; }
+.examInviteLink:hover { text-decoration: underline; text-underline-offset: 4px; }
 .pathHead p { margin: 0; font-size: var(--text-body-sm); color: var(--color-slate); }
 .pathHead strong { color: var(--color-midnight-ink); font-weight: 600; }
 .pathBar { position: relative; display: block; height: 4px; border-radius: 2px; background: var(--color-frost); overflow: hidden; }
@@ -104,6 +110,7 @@
 .checkpointGo { min-height: 44px; }
 
 @media (max-width: 640px) {
+  .examInvite { align-items: start; flex-direction: column; gap: 10px; }
   .pathHead, .path { padding-inline: 16px; }
   /* Always there on a phone (no hover to reveal it), but quiet: the topic is what the row is about, and removing
      one can be undone. */

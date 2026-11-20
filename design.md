@@ -168,7 +168,7 @@ Marketing actions and tiles are gently square at rest (8px). Public buttons may 
 
 ### Navigation
 
-- **Header:** light paper, black K mark, compact Inter navigation, and 44px minimum touch targets.
+- **Header:** light paper, black K mark, compact Inter navigation, and 44×44px minimum touch targets.
 - **Product rail:** names the course context and keeps Study plan, Materials, and Topics as distinct jobs rather than visual duplicates.
 
 ### Source Evidence
