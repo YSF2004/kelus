@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { searchCourse } from "../lib/course-search.ts";
+import { searchCourse, searchCoursePages } from "../lib/course-search.ts";
 
 const concepts = [
   { id: "osmosis", name: "Osmosis" },
@@ -34,4 +34,17 @@ test("course search answers only from a matching confirmed course passage", () =
 
 test("course search does not invent a result for an unsupported question", () => {
   assert.deepEqual(searchCourse("What causes a volcanic eruption?", concepts, activities), []);
+});
+
+test("page search returns the original sentence and a precise source location", () => {
+  const results = searchCoursePages("why water moves in osmosis", [{
+    materialId: "cell-notes",
+    label: "Cell Biology lecture",
+    locatorLabel: "Page",
+    pages: [{ pageNumber: 4, text: "Osmosis moves water across a selectively permeable membrane toward a higher solute concentration. Cells use this movement to maintain balance." }],
+  }]);
+
+  assert.equal(results.length, 1);
+  assert.equal(results[0].answer, "Osmosis moves water across a selectively permeable membrane toward a higher solute concentration.");
+  assert.deepEqual(results[0].source, { materialId: "cell-notes", label: "Cell Biology lecture", locator: "Page 4" });
 });

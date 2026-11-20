@@ -113,6 +113,7 @@ export function RevisionSurface({ topicId }: { /** A topic's own page, opened in
   const [confirmSourceId, setConfirmSourceId] = useState<string | null>(null);
   const [removingSourceId, setRemovingSourceId] = useState<string | null>(null);
   const [sourceError, setSourceError] = useState<string | null>(null);
+  const [searchHighlight, setSearchHighlight] = useState<{ materialId: string; quote: string } | null>(null);
   const sourcePickerRef = useRef<HTMLInputElement>(null);
   // Shown only once the browser says which key it is; the server HTML has none, so nothing jumps.
   const searchKeys = useSyncExternalStore(noSubscribe, searchKeysNow, () => "");
@@ -220,8 +221,9 @@ export function RevisionSurface({ topicId }: { /** A topic's own page, opened in
     router.push(hrefForMode(next, selectedMaterialId, sourceBesidePlan), { scroll: false });
   }
 
-  function openSearchResult(source: LearningSourceReference) {
+  function openSearchResult(source: LearningSourceReference, quote: string) {
     const page = Number(source.locator?.match(/\d+/)?.[0] ?? 1);
+    setSearchHighlight({ materialId: source.materialId, quote });
     router.push(hrefForMode("materials", source.materialId, false, page), { scroll: false });
   }
 
@@ -431,7 +433,7 @@ export function RevisionSurface({ topicId }: { /** A topic's own page, opened in
                 {sourceBesidePlan && hasReadableSource && selectedMaterial ? <CourseSourceReader id="today-source-reader" key={`${selectedMaterial.id}-${selectedMaterial.id === firstReference?.materialId ? firstSourcePage : 1}`} material={selectedMaterial} initialPage={selectedMaterial.id === firstReference?.materialId ? firstSourcePage : 1} /> : null}
               </div>
             ) : null}
-            {mode === "materials" ? <div className={`core-workspace-grid is-materials${hasReadableSource ? "" : " is-source-missing"}`}>{hasReadableSource ? <CourseSourceReader key={`${selectedMaterial.id}-${requestedSourcePage}`} material={selectedMaterial} initialPage={requestedSourcePage} /> : null}<div className="core-workspace-action"><CourseSearch concepts={concepts} activities={snapshot.learningActivities.filter((activity) => concepts.some((concept) => concept.id === activity.conceptId))} onOpenSource={openSearchResult} /><MaterialLibrary embedded incomingFile={incomingSource} onIncomingFileHandled={() => setIncomingSource(null)} interceptFile={isSampleCourse ? (file) => { setSampleFile(file); return true; } : undefined} sampleCourse={isSampleCourse} initialRole={requestedMaterialRole} returnTo={returnTo} /></div></div> : null}
+            {mode === "materials" ? <div className={`core-workspace-grid is-materials${hasReadableSource ? "" : " is-source-missing"}`}>{hasReadableSource ? <CourseSourceReader key={`${selectedMaterial.id}-${requestedSourcePage}`} material={selectedMaterial} initialPage={requestedSourcePage} highlight={searchHighlight?.materialId === selectedMaterial.id ? searchHighlight.quote : null} /> : null}<div className="core-workspace-action"><CourseSearch concepts={concepts} activities={snapshot.learningActivities.filter((activity) => concepts.some((concept) => concept.id === activity.conceptId))} materials={courseMaterials} onOpenSource={openSearchResult} /><MaterialLibrary embedded incomingFile={incomingSource} onIncomingFileHandled={() => setIncomingSource(null)} interceptFile={isSampleCourse ? (file) => { setSampleFile(file); return true; } : undefined} sampleCourse={isSampleCourse} initialRole={requestedMaterialRole} returnTo={returnTo} /></div></div> : null}
             {mode === "map" ? <TopicMapPanel sampleCourse={isSampleCourse} pastPapers={courseMaterials.filter((item) => item.storage === "local" && item.role === "past_exam")} activities={snapshot.learningActivities.filter((activity) => concepts.some((concept) => concept.id === activity.conceptId))} /> : null}
             {mode === "progress" ? <ProgressView concepts={concepts} activities={snapshot.learningActivities} events={snapshot.events} nowIso={nowIso} daysToExam={days} targetPercent={exam.targetPercent} examDatePending={examDatePending} sampleCourse={isSampleCourse} /> : null}
           </motion.div>}
