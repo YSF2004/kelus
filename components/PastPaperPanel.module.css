@@ -21,6 +21,11 @@
 .match a { color: inherit; text-decoration-color: color-mix(in srgb, var(--color-kelus, #1f6b45) 45%, transparent); text-underline-offset: 3px; }
 .match small { flex: 0 0 auto; color: var(--color-kelus, #1f6b45); font-size: .75rem; font-weight: 700; }
 .source { color: var(--k-text-2, #59645d); font-size: .75rem; line-height: 1.35; }
+.reject { width: fit-content; margin: 4px 0 0; padding: 0; border: 0; background: transparent; color: var(--k-text-2, #59645d); font: inherit; font-size: .75rem; text-decoration: underline; text-decoration-color: color-mix(in srgb, currentColor 45%, transparent); text-underline-offset: 3px; cursor: pointer; }
+.reject:hover { color: var(--k-ink, #1c211d); }
+.reject:focus-visible { outline: 2px solid var(--color-kelus, #1f6b45); outline-offset: 3px; border-radius: 3px; }
+.correction { display: flex; align-items: baseline; gap: 8px; margin: 16px 0 0; color: var(--color-kelus, #1f6b45); font-size: .8125rem; font-weight: 600; }
+.correction button { padding: 0; border: 0; background: transparent; color: inherit; font: inherit; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
 .unlinked { margin: 0; color: var(--k-text-2, #59645d); font-size: .85rem; line-height: 1.45; }
 .notice { margin: 18px 0 0; color: var(--k-text-2, #59645d); font-size: .875rem; }
 .empty { margin: 18px 0 0; padding: 18px 0; border-top: 1px solid var(--k-line, #d9d6cf); color: var(--k-text-2, #59645d); }
