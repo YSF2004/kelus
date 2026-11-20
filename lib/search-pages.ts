@@ -12,4 +12,5 @@ export const SEARCH_PAGES = [
   { href: "/quizlet-alternative/", label: "A free Quizlet alternative", blurb: "Questions from your notes instead of borrowed sets." },
   { href: "/anki-alternative/", label: "An Anki alternative", blurb: "Spaced repetition without writing every card yourself." },
   { href: "/notebooklm-alternative/", label: "Kelus vs NotebookLM", blurb: "Revising your notes for an exam, not chatting with them." },
+  { href: "/nursing-notes-to-practice-questions/", label: "Nursing notes to practice questions", blurb: "A source-backed nursing-study pilot: use the notes and past papers your course gave you." },
 ] as const;

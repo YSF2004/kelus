@@ -22,6 +22,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: `${BASE_URL}/quiz-me-on-my-notes/`, changeFrequency: "monthly", priority: 0.8 },
     { url: `${BASE_URL}/notes-to-flashcards/`, changeFrequency: "monthly", priority: 0.8 },
     { url: `${BASE_URL}/anki-alternative/`, changeFrequency: "monthly", priority: 0.8 },
+    { url: `${BASE_URL}/nursing-notes-to-practice-questions/`, changeFrequency: "monthly", priority: 0.6 },
   ];
   return staticPages;
 }
