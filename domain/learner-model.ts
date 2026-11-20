@@ -16,6 +16,7 @@ import {
   STABILITY_MASTERY_WEIGHT,
 } from "./constants";
 import type { Concept, ConceptStatus, LearningEvent, RetrievalOutcome } from "./types";
+import { scheduleFromEvidence } from "./fsrs-scheduler";
 
 export function clamp01(value: number) {
   if (!Number.isFinite(value)) return 0;
@@ -129,13 +130,17 @@ export function recomputeConceptCache(
     }
   }
 
-  const retention = predictedRetention(mastery, successfulRetrievals, lastSuccessAt, nowIso);
+  // FSRS turns actual review outcomes into a next review moment and a current
+  // recall estimate. The prior compact formula remains as a safe fallback for
+  // malformed legacy event data, never as a second competing schedule.
+  const memory = scheduleFromEvidence(history, nowIso);
+  const retention = memory?.retrievability ?? predictedRetention(mastery, successfulRetrievals, lastSuccessAt, nowIso);
   return {
     mastery,
     confidence: retrievalOutcomes.length ? confidenceFromOutcomes(retrievalOutcomes) : selfRatingSeen ? 0.2 : 0,
     predictedRetention: retention,
     lastReviewedAt,
-    nextReviewAt: nextReviewAt(mastery, successfulRetrievals, lastSuccessAt, nowIso),
+    nextReviewAt: memory?.dueAt ?? nextReviewAt(mastery, successfulRetrievals, lastSuccessAt, nowIso),
     retrievalAttempts,
     successfulRetrievals,
     failedRetrievals,

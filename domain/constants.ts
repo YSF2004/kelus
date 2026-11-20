@@ -1,8 +1,8 @@
 /**
- * MVP heuristic constants for Kelus learner model.
- * Replaceable later. Not a published memory-science model.
+ * Evidence-to-mastery constants for Kelus learner model. Review timing is
+ * calculated separately by the FSRS scheduler from real answer history.
  */
-export const ALGORITHM_KIND = "kelus-mvp-heuristic-v1" as const;
+export const ALGORITHM_KIND = "kelus-evidence-mastery-fsrs-v5-schedule" as const;
 
 export const MASTERY_SUCCESS_GROWTH = 0.18;
 export const MASTERY_PARTIAL_FACTOR = 0.45;
