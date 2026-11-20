@@ -1,68 +1,196 @@
-# Kelus design system — exam booklet
+---
+name: Kelus
+description: Source-grounded exam revision in paper, ink, and one pass-mark green.
+colors:
+  kelus-green: "#1f6b45"
+  kelus-green-hover: "#185536"
+  booklet-ink: "#12160f"
+  muted-ink: "#4a5246"
+  paper: "#eef1ec"
+  surface: "#f7f8f5"
+  white: "#ffffff"
+  rule: "#d5d9d0"
+  source-orange: "#a5521f"
+  recall-purple: "#7859a0"
+  correction-coral: "oklch(0.7 0.15 30)"
+typography:
+  display:
+    fontFamily: "Literata, Georgia, serif"
+    fontSize: "clamp(3.5rem, 7vw, 5.75rem)"
+    fontWeight: 500
+    lineHeight: 1.08
+    letterSpacing: "-0.02em"
+  headline:
+    fontFamily: "Literata, Georgia, serif"
+    fontSize: "clamp(2rem, 4.3vw, 4.5rem)"
+    fontWeight: 500
+    lineHeight: 1.08
+    letterSpacing: "-0.035em"
+  body:
+    fontFamily: "Inter, Arial, sans-serif"
+    fontSize: "1rem"
+    fontWeight: 400
+    lineHeight: 1.55
+  label:
+    fontFamily: "Inter, Arial, sans-serif"
+    fontSize: "0.75rem"
+    fontWeight: 700
+    lineHeight: 1.2
+    letterSpacing: "0.08em"
+rounded:
+  marketing: "8px"
+  product: "12px"
+  card: "14px"
+spacing:
+  8: "8px"
+  16: "16px"
+  24: "24px"
+  32: "32px"
+  48: "48px"
+  64: "64px"
+components:
+  button-primary:
+    backgroundColor: "{colors.kelus-green}"
+    textColor: "{colors.white}"
+    rounded: "{rounded.marketing}"
+    height: "48px"
+    padding: "0 22px"
+  button-primary-hover:
+    backgroundColor: "{colors.kelus-green-hover}"
+    textColor: "{colors.white}"
+    rounded: "32px"
+  button-secondary:
+    backgroundColor: "#f5f5f5"
+    textColor: "{colors.booklet-ink}"
+    rounded: "{rounded.marketing}"
+    height: "48px"
+    padding: "0 22px"
+  product-card:
+    backgroundColor: "{colors.white}"
+    rounded: "{rounded.card}"
+    padding: "20px 22px"
+---
 
-Kelus is paper, ink, and one pass-mark green. Marketing and product share the same booklet language.
+# Design System: Kelus
 
-## Foundation
+## Overview
 
-- Canvas: white paper (`#fff`). In the product, split by hairline rules; no tinted or cream bands. The marketing pages use tiles instead (see Marketing tiles).
-- Ink: deep booklet ink (`#12160f`).
-- Accent: one Kelus green (`#1f6b45`) for actions, focus, and route signals. No indigo. No Notion blue.
-- The homepage and core product share a restrained learning vocabulary: muted orange identifies source material and application, muted purple identifies recall, and green identifies the route, feedback, and primary action. The "lines you can recall" count is ink with a green +1 (a right answer) or a coral −1 (a line lost), because it reports feedback, not a recall step. Use color for meaning, not decorative fill.
-- Secondary text: mute green-gray (`#4a5246` / `#5a6358`) for body support and captions — both ≥4.5:1 on paper.
-- Typography, everywhere (marketing and product): Literata (optical sizes) for headings, page titles and large figures; Inter for all text and UI (variable `--font-inter`; since 2026-10-20, replacing Atkinson Hyperlegible Next). Prices, results, percentages and every topic name use Literata.
-- Geometry: 8px corners for buttons, cards, inputs, line cards and tiles, everywhere; pills only for small status badges ("Passed", "Suggested") and topic chips. Avoid SaaS twin cards, blue glows, soft multi-shadow stacks, and ALL CAPS kickers.
-- Rhythm: 8px spacing base, hairline booklet rules (`#d5d9d0`), transform/opacity motion only.
-- Tokens live in `tokens.css`. Prefer those variables over hard-coded hex in product UI.
+**Creative North Star: "The Evidence Ledger"**
 
-## Interaction
+Kelus should feel like a precise study notebook that can answer for itself. It is editorial rather than decorative: calm paper, deep ink, visible source evidence, and a single green signal when the learner has a clear next move. Marketing makes the promise tangible with real product fragments; the product makes each decision traceable to a student’s own notes.
 
-### Marketing typography exception
+The system earns confidence through restraint. Structure comes from alignment, whitespace, and hairline rules—not a stack of containers. Color explains meaning: orange for a source, purple for recall, green for a route or an action. A student should never need to decode a new visual language between the public site and the study workspace.
 
-`/`, `/route/`, `/pricing/` and `/pdf-to-practice-questions/` use the same pair as the product. Major headings use
-`--font-marketing-heading` (Literata, optical sizing, tracking -0.02em); body, nav,
-buttons and footer use `--font-marketing-sans` (Inter). Both are
-self-hosted by next/font with swap.
+**Key Characteristics:**
 
-- Primary actions are Kelus green fills with white labels.
-- One button shape on every surface, the Link way (since 2026-10-30): a flat fill with 10px corners and no shadow at rest; under a pointer the corners round to a pill (32px, 200 ms ease-in-out) and the fill steps one shade darker (200 ms linear; green #1f6b45 → #185638, grey #f5f5f5 → #e5e5e5). A press answers at once with scale 0.97. No hover on touch screens; with reduced motion the shape does not animate. Public pages set it 48px tall; in the product it is compact on a mouse and 44px on touch. Defined once at the end of `app/quiet.css`.
-- Secondary actions are text buttons with instant press scale (`0.97`). On marketing pages a secondary action beside the primary one may be a soft button: 48px, 8px corners, `#f5f5f5` with a `#e5e5e5` hairline.
-- Links use Kelus green and a restrained directional arrow.
-- Touch targets: minimum 44×44px for header, nav, auth, and footer controls.
-- Motion: bounce `0`, ease `[0.22, 1, 0.36, 1]`, 80–400ms. Respect reduced-motion preferences.
+- Editorial type paired with fast, legible interface text.
+- Paper-and-ink surfaces with one deliberate green action per decision.
+- Real source evidence and product output instead of decorative mock-ups.
+- Motion that confirms a change, then gets out of the way.
 
-## Marketing tiles (since 2026-10-28)
+## Colors
 
-The homepage takes link.com's structure and keeps Kelus's face (Literata titles, Inter text, Kelus green).
+The palette is quiet by default; color carries study meaning or a decisive action.
 
-- Layout: every block is a tile inside a 64px page margin (16px on a phone), 16px apart (12px on a phone). The header is a tile too: solid white, `#e5e5e5` hairline, 8px corners, never translucent.
-- Tiles: white with a `#e5e5e5` hairline, or a soft grey stage (`#f4f4f4`) with no border. A product fragment sits on a grey stage as a white surface with no border and no shadow: two levels at most, never a card inside a card.
-- One dark band per page (`#0c2016`) for the main claim, with one bright-green phrase (`#5fd394`) and a bright-green action. It shows real product output, never decorative chips.
-- Tile titles: Literata, 26–28px, weight 500. Grey text under a title: one sentence, 17px.
-- Motion: a demonstration plays once in under 5 seconds when it comes into view and holds its finished state; nothing loops and there is no replay control (removed 2026-10-30 at the founder's request).
+### Primary
 
-## Product constraints
+- **Pass-Mark Green:** primary action, focus, route changes, and confirmed feedback. It should be the clearest color on a screen, not its background theme.
+- **Deep Green:** the hover state for a primary action, never an unrelated second accent.
 
-- First-run Materials/Map gates preview the feature; they do not dump students into blank dead-ends.
-- First use is source-first: add a real course PDF → set the exam → review proposed topics beside the PDF → short diagnosis → today's study plan. The original PDF remains the source of truth; bookmarks do not silently become concepts.
-- Pricing shows Free and Kelus Plus side by side on desktop, stacked on mobile. Free includes one active course with up to 10 source files. Plus is a planned $4.99 monthly subscription for several active courses and larger source collections; annual and per-exam plans are not offered.
-- After a course is ready, the course workspace uses the same light paper-and-ink system as the marketing site: a quiet compact rail, a single course context line, and Study plan / Materials / Topics. The study plan leads with one recommendation and its evidence; next topics remain secondary. First-run setup shares this shell. Focused sessions retain distraction-free reading, but must show the same course context, learning-step sequence, and source/recall/route colors rather than reverting to a separate faux notebook.
-- The topic map shows relationships when confirmed; the ranked list remains the selectable surface.
-- Homepage header does not duplicate the hero sample CTA.
+### Secondary
 
-## Words (since 2026-11-04)
+- **Source Orange:** identifies original course material and application moments. It is explanatory, never a primary button color.
+- **Recall Purple:** identifies recall states only. It does not replace green for actions or navigation.
+- **Correction Coral:** marks a specific mismatch or lost line, never generic danger.
 
-Every screen uses the same five words, and only these, for the same five things:
+### Neutral
 
-| Word | Means | Never |
-|---|---|---|
-| topic | a part of your notes you study | section (except the notes' own "Section 2"), idea, concept |
-| line | one sentence from your notes | fact, card, item |
-| session | one sitting, from Start to Done | block, run |
-| plan | what to study and when, to the exam | route |
-| warm-up | missed lines, first thing next time | review, retry |
+- **Booklet Ink:** titles, figures, and high-priority reading.
+- **Muted Ink:** body support, metadata, and captions while remaining readable on paper.
+- **Paper and Surface:** the page background and quiet wells. White is reserved for a true sheet, input, or source page.
+- **Rule:** the hairline that separates reading groups without creating a card wall.
 
-## Pieces (since 2026-11-04)
+**The One Signal Rule.** Use green for the current action or current route. If every surface becomes green, the learner loses the one thing to do next.
 
-`app/kelus-system.css` holds the few pieces product screens are built from: a card (one surface, one hairline,
-14px corner, no shadow), a quiet card (a well, no border, for secondary information), a label (small green caps)
-and a card title (sans, 17px, 600). New screens use them; older screens move onto them one at a time.
+## Typography
+
+**Display Font:** Literata, with Georgia as fallback.
+
+**Body Font:** Inter, with Arial and system sans fallbacks.
+
+**Character:** Literata gives lessons, topics, and large results the gravity of a study book. Inter keeps navigation, controls, instructions, and dense source details quick to scan.
+
+### Hierarchy
+
+- **Display:** used for public-page headlines and major learning moments; balanced, never uppercase.
+- **Headline:** used for page titles and section claims; concise and close-tracked.
+- **Title:** Inter at 17px/600 for controls and product-card headings.
+- **Body:** Inter at 16px with a 1.55 line-height; keep explanatory paragraphs readable rather than wide.
+- **Label:** Inter at 12px/700 with measured tracking; reserved for compact context above an action or source.
+
+**The Reading-First Rule.** Use the serif only when a student is reading a lesson, a topic, or a meaningful outcome. Keep operational UI in Inter.
+
+## Layout
+
+The base rhythm is 8px. Marketing pages use a 64px outer margin and 16px gaps on desktop, reducing to 16px and 12px on phones. Public tiles have an 8px corner and a single hairline; a product fragment may sit on a soft-grey stage, but never inside a second decorated card.
+
+Product screens are denser: lead with one decision, then place related information in rows separated by hairlines. A single raised card may identify the topic due now; all other information stays flat or uses a quiet well. Below 760px, marketing plans stack; below 640px, product cards reduce padding and primary session actions use the available thumb width.
+
+## Elevation & Depth
+
+Kelus is flat by default. Depth comes from paper contrast, a hairline, and spatial separation. Shadows are absent from ordinary cards and buttons. The sole product elevation is the current recommended topic, using a quiet shadow (`0 14px 36px -22px rgba(14, 21, 18, 0.32)`) to identify priority—not to make the interface feel glossy.
+
+**The Flat-By-Default Rule.** Never add a shadow merely to make a component look clickable. Use a fill, border, and interaction state instead.
+
+## Shapes
+
+Marketing actions and tiles are gently square at rest (8px). Public buttons may round to 32px under a fine pointer as a small acknowledgement of intent. Product controls remain stable at 12px, and product cards at 14px; their corners do not animate. Pills are limited to compact statuses and topic chips. Full-width panels, nested rounded cards, and arbitrary decorative circles are not part of the system.
+
+## Components
+
+### Buttons
+
+- **Primary:** green fill, white label, 48px high on public pages and critical product actions.
+- **Marketing state:** flat at rest; on a fine pointer, darkens and rounds from 8px to 32px over 200ms. Press scales to 0.97.
+- **Product state:** stable 12px corner; darkens or warms its border on hover, presses to 0.97, and shows a 2px green focus ring offset by 3px.
+- **Secondary:** paper fill and hairline border. Use it for an alternative path, not another competing conversion.
+
+### Cards / Containers
+
+- **Standard card:** one white sheet, one hairline, 14px corner, 20px × 22px padding, no shadow.
+- **Raised card:** reserved for the topic a student should do now.
+- **Quiet card:** a muted well without a border for secondary context such as tomorrow’s work.
+
+### Inputs / Uploads
+
+- **Fields:** paper or white, hairline-bordered, with a green 2px focus ring.
+- **Upload:** a large but calm source-first area with a dashed green-tinted boundary. It must say what will happen next and keep the selected filename visible through import.
+
+### Navigation
+
+- **Header:** light paper, black K mark, compact Inter navigation, and 44px minimum touch targets.
+- **Product rail:** names the course context and keeps Study plan, Materials, and Topics as distinct jobs rather than visual duplicates.
+
+### Source Evidence
+
+- **Source line:** orange marks the teaching line; the page or section locator stays visible.
+- **Recall comparison:** purple denotes recall context; green confirms a supported answer; coral names the exact wrong direction or missing detail.
+- **Plan row:** green explains what moved and why; it never promises a grade.
+
+## Do's and Don'ts
+
+### Do:
+
+- **Do** show the original line, page, or section beside an answer whenever Kelus makes a judgment.
+- **Do** let whitespace and hairlines create order before reaching for a container.
+- **Do** keep one primary action per decision and make its wording say what happens next.
+- **Do** make motion explain a result, finish within 80–400ms, and honor reduced-motion preferences.
+- **Do** use the Notion-style illustration pack only as a human counterweight to real product evidence.
+
+### Don't:
+
+- **Don't** use generic SaaS cards, blue glows, stock art, or generated illustrations.
+- **Don't** use a decorative color as a button fill or mix source, recall, and route colors without their study meaning.
+- **Don't** add a card inside a card, a shadow stack, or a second primary action merely to fill space.
+- **Don't** animate headings or body copy, loop demonstrations, or make product controls bounce.
+- **Don't** use the marketing serif for dense practice controls or call a topic a concept, section, or idea.
