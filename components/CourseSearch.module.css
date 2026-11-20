@@ -1,0 +1,21 @@
+.panel { padding: 0 0 22px; border-bottom: 1px solid var(--line); }
+.heading h2 { margin: 0; color: var(--ink); font-size: 1rem; letter-spacing: -.02em; }
+.heading p, .note, .empty { margin: 5px 0 0; color: var(--color-slate); font-size: .8125rem; line-height: 1.45; }
+.form { display: grid; grid-template-columns: minmax(0, 1fr) 40px; gap: 8px; margin-top: 14px; }
+.form input { min-width: 0; min-height: 42px; padding: 0 12px; border: 1px solid var(--line); border-radius: 8px; background: var(--core-rail-paper); color: var(--ink); font: inherit; font-size: .875rem; }
+.form input::placeholder { color: var(--color-slate); opacity: .82; }
+.form input:focus-visible { outline: 2px solid var(--color-kelus); outline-offset: 2px; background: var(--color-pure-white); }
+.form button { display: grid; width: 40px; height: 42px; place-items: center; border: 0; border-radius: 8px; background: var(--color-kelus); color: var(--color-pure-white); cursor: pointer; }
+.form button:hover:not(:disabled) { background: color-mix(in srgb, var(--color-kelus) 90%, #000); }
+.form button:active:not(:disabled) { transform: scale(.97); }
+.form button:disabled { opacity: .4; cursor: not-allowed; }
+.form button:focus-visible, .result button:focus-visible { outline: 2px solid var(--color-kelus); outline-offset: 2px; }
+.results { display: grid; gap: 0; margin-top: 14px; }
+.result { padding: 13px 0; border-top: 1px solid var(--line); }
+.result:first-child { border-top: 0; }
+.result strong { color: var(--ink); font-size: .875rem; }
+.result p { margin: 5px 0 8px; color: var(--color-slate); font-size: .8125rem; line-height: 1.48; }
+.result button { display: inline-flex; align-items: center; gap: 5px; min-height: 30px; padding: 0; border: 0; background: transparent; color: var(--color-kelus); font: inherit; font-size: .75rem; font-weight: 650; text-decoration: underline; text-decoration-color: color-mix(in srgb, currentColor 35%, transparent); text-underline-offset: 3px; cursor: pointer; }
+.result button:hover { color: var(--ink); }
+.result small { color: var(--color-slate); font-size: .75rem; line-height: 1.35; }
+@media (max-width: 650px) { .panel { padding-bottom: 18px; } }

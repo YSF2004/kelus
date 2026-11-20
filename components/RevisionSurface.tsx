@@ -8,6 +8,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { MaterialLibrary } from "@/components/MaterialLibrary";
+import { CourseSearch } from "@/components/CourseSearch";
 import { CourseSourceReader } from "@/components/CourseSourceReader";
 import { TodayRoute } from "@/components/TodayRoute";
 import { SampleReplaceConfirm } from "@/components/SampleReplaceConfirm";
@@ -39,6 +40,7 @@ import { freshOpenSession, restAware, resumeConceptId } from "@/lib/today-focus"
 import { generateRoute } from "@/domain/routing-engine";
 import { trackEvent } from "@/lib/analytics";
 import { getMaterialsSnapshot, getServerMaterialsSnapshot, removeMaterial, subscribeMaterials } from "@/lib/material-store";
+import type { LearningSourceReference } from "@/domain/types";
 import { removeRemoteMaterial } from "@/lib/material-sync";
 
 export type SurfaceMode = "today" | "materials" | "map" | "progress";
@@ -64,11 +66,12 @@ function modeFromSection(section: string | null): SurfaceMode {
   return "today";
 }
 
-function hrefForMode(mode: SurfaceMode, sourceId?: string | null, notesOpen = false) {
+function hrefForMode(mode: SurfaceMode, sourceId?: string | null, notesOpen = false, page?: number | null) {
   const params = new URLSearchParams();
   if (mode !== "today") params.set("section", mode);
   if (sourceId) params.set("source", sourceId);
   if (notesOpen) params.set("notes", "1");
+  if (page && page > 0) params.set("page", String(page));
   const query = params.toString();
   return query ? `/today?${query}` : "/today";
 }
@@ -97,6 +100,7 @@ export function RevisionSurface({ topicId }: { /** A topic's own page, opened in
   const auth = useAuth();
   const [confirmReset, setConfirmReset] = useState(false);
   const selectedMaterialId = searchParams.get("source");
+  const requestedSourcePage = Math.max(1, Number(searchParams.get("page")) || 1);
   const requestedMaterialRole = searchParams.get("add") === "past_exam" ? "past_exam" : searchParams.get("add") === "notes" ? "notes" : undefined;
   const requestedReturn = searchParams.get("returnTo");
   const returnTo = requestedReturn && requestedReturn.startsWith("/") && !requestedReturn.startsWith("//") ? requestedReturn : undefined;
@@ -214,6 +218,11 @@ export function RevisionSurface({ topicId }: { /** A topic's own page, opened in
     if (next === mode && !topicId) return;
     // A real step in history, so the browser's Back returns to the section you came from.
     router.push(hrefForMode(next, selectedMaterialId, sourceBesidePlan), { scroll: false });
+  }
+
+  function openSearchResult(source: LearningSourceReference) {
+    const page = Number(source.locator?.match(/\d+/)?.[0] ?? 1);
+    router.push(hrefForMode("materials", source.materialId, false, page), { scroll: false });
   }
 
   function begin() {
@@ -422,7 +431,7 @@ export function RevisionSurface({ topicId }: { /** A topic's own page, opened in
                 {sourceBesidePlan && hasReadableSource && selectedMaterial ? <CourseSourceReader id="today-source-reader" key={`${selectedMaterial.id}-${selectedMaterial.id === firstReference?.materialId ? firstSourcePage : 1}`} material={selectedMaterial} initialPage={selectedMaterial.id === firstReference?.materialId ? firstSourcePage : 1} /> : null}
               </div>
             ) : null}
-            {mode === "materials" ? <div className={`core-workspace-grid is-materials${hasReadableSource ? "" : " is-source-missing"}`}>{hasReadableSource ? <CourseSourceReader key={selectedMaterial.id} material={selectedMaterial} /> : null}<div className="core-workspace-action"><MaterialLibrary embedded incomingFile={incomingSource} onIncomingFileHandled={() => setIncomingSource(null)} interceptFile={isSampleCourse ? (file) => { setSampleFile(file); return true; } : undefined} sampleCourse={isSampleCourse} initialRole={requestedMaterialRole} returnTo={returnTo} /></div></div> : null}
+            {mode === "materials" ? <div className={`core-workspace-grid is-materials${hasReadableSource ? "" : " is-source-missing"}`}>{hasReadableSource ? <CourseSourceReader key={`${selectedMaterial.id}-${requestedSourcePage}`} material={selectedMaterial} initialPage={requestedSourcePage} /> : null}<div className="core-workspace-action"><CourseSearch concepts={concepts} activities={snapshot.learningActivities.filter((activity) => concepts.some((concept) => concept.id === activity.conceptId))} onOpenSource={openSearchResult} /><MaterialLibrary embedded incomingFile={incomingSource} onIncomingFileHandled={() => setIncomingSource(null)} interceptFile={isSampleCourse ? (file) => { setSampleFile(file); return true; } : undefined} sampleCourse={isSampleCourse} initialRole={requestedMaterialRole} returnTo={returnTo} /></div></div> : null}
             {mode === "map" ? <TopicMapPanel sampleCourse={isSampleCourse} pastPapers={courseMaterials.filter((item) => item.storage === "local" && item.role === "past_exam")} activities={snapshot.learningActivities.filter((activity) => concepts.some((concept) => concept.id === activity.conceptId))} /> : null}
             {mode === "progress" ? <ProgressView concepts={concepts} activities={snapshot.learningActivities} events={snapshot.events} nowIso={nowIso} daysToExam={days} targetPercent={exam.targetPercent} examDatePending={examDatePending} sampleCourse={isSampleCourse} /> : null}
           </motion.div>}
