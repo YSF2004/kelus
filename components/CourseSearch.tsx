@@ -3,7 +3,7 @@
 import { motion, useReducedMotion } from "motion/react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Octicon } from "@/components/Octicon";
-import { searchCourse, searchCoursePages, type CourseSearchDocument } from "@/lib/course-search";
+import { searchCourse, searchCoursePagesIndexed, type CourseSearchDocument, type CourseSearchResult } from "@/lib/course-search";
 import type { Concept, CourseMaterial, LearningActivity, LearningSourceReference } from "@/domain/types";
 import { useAuth } from "@/components/AuthProvider";
 import { readMaterialPdf } from "@/lib/material-sync";
@@ -15,7 +15,7 @@ export function CourseSearch({ concepts, activities, materials, onOpenSource }: 
   const auth = useAuth();
   const [query, setQuery] = useState("");
   const [submitted, setSubmitted] = useState(false);
-  const [pageResults, setPageResults] = useState<ReturnType<typeof searchCoursePages>>([]);
+  const [pageResults, setPageResults] = useState<CourseSearchResult[]>([]);
   const [reading, setReading] = useState(false);
   const [readError, setReadError] = useState(false);
   const pageCache = useRef<CourseSearchDocument[] | null>(null);
@@ -52,7 +52,7 @@ export function CourseSearch({ concepts, activities, materials, onOpenSource }: 
         pageCache.current = extracted.flatMap((result) => result.status === "fulfilled" && result.value ? [result.value] : []);
         if (readable.length > 0 && pageCache.current.length === 0) throw new Error("No saved sources could be read");
       }
-      setPageResults(searchCoursePages(nextQuery, pageCache.current));
+      setPageResults(await searchCoursePagesIndexed(nextQuery, pageCache.current));
     } catch {
       setPageResults([]);
       setReadError(true);

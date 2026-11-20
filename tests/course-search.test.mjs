@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { searchCourse, searchCoursePages } from "../lib/course-search.ts";
+import { searchCourse, searchCoursePages, searchCoursePagesIndexed } from "../lib/course-search.ts";
 
 const concepts = [
   { id: "osmosis", name: "Osmosis" },
@@ -46,5 +46,18 @@ test("page search returns the original sentence and a precise source location", 
 
   assert.equal(results.length, 1);
   assert.equal(results[0].answer, "Osmosis moves water across a selectively permeable membrane toward a higher solute concentration.");
+  assert.deepEqual(results[0].source, { materialId: "cell-notes", label: "Cell Biology lecture", locator: "Page 4" });
+});
+
+test("indexed page search tolerates a small typo without leaving the course material", async () => {
+  const results = await searchCoursePagesIndexed("osmosiss membrane", [{
+    materialId: "cell-notes",
+    label: "Cell Biology lecture",
+    locatorLabel: "Page",
+    pages: [{ pageNumber: 4, text: "Osmosis moves water across a selectively permeable membrane toward a higher solute concentration." }],
+  }]);
+
+  assert.equal(results.length, 1);
+  assert.equal(results[0].quote, "Osmosis moves water across a selectively permeable membrane toward a higher solute concentration.");
   assert.deepEqual(results[0].source, { materialId: "cell-notes", label: "Cell Biology lecture", locator: "Page 4" });
 });
