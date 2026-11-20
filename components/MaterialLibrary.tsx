@@ -57,6 +57,7 @@ import {
   isBusy,
   isDragging,
   isOcrRunning,
+  pastPaperSummary as ingestPastPaperSummary,
   readySummary as ingestReadySummary,
   reduceIngest,
   reviewAnalysis,
@@ -317,6 +318,7 @@ export function MaterialLibrary({ embedded = false, incomingFile = null, onIncom
   const dragging = isDragging(phase);
   const analysis = reviewAnalysis(phase);
   const readySummary = ingestReadySummary(phase);
+  const pastPaperSummary = ingestPastPaperSummary(phase);
   const statusMessage = ingestStatusMessage(phase);
   const hardError = ingestErrorMessage(phase);
   const softNotice = ingest.softNotice;
@@ -948,6 +950,27 @@ export function MaterialLibrary({ embedded = false, incomingFile = null, onIncom
               <div className="material-ready-secondary">
                 <Link href="/today?section=map">Review the index</Link>
                 <button type="button" onClick={() => dispatch({ type: "ADD_ANOTHER" })}>Add another source</button>
+              </div>
+            </div>
+          </motion.section>
+        ) : null}
+        {pastPaperSummary ? (
+          <motion.section
+            key="past-paper-ready"
+            className="material-ready material-past-paper-ready"
+            aria-labelledby="past-paper-ready-title"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: reduceMotion ? kelusDuration.micro : kelusDuration.normal, ease: kelusEase }}
+          >
+            <h2 id="past-paper-ready-title" tabIndex={-1} ref={focusPhaseHeading}>Past paper added.</h2>
+            <p>{pastPaperSummary} Start with an unsupported prompt to see exactly which course material is still missing.</p>
+            <div className="material-ready-actions">
+              <a className="cta" href="#past-paper-title">Review mapped prompts <ArrowRight /></a>
+              <div className="material-ready-secondary">
+                <Link href="/today?section=materials&add=notes">Add supporting notes</Link>
+                <button type="button" onClick={() => dispatch({ type: "ADD_ANOTHER" })}>Add another past paper</button>
               </div>
             </div>
           </motion.section>

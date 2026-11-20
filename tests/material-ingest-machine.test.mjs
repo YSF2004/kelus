@@ -6,6 +6,7 @@ import {
   isBusy,
   isDragging,
   isOcrRunning,
+  pastPaperSummary,
   readySummary,
   reduceIngest,
   reviewAnalysis,
@@ -119,15 +120,16 @@ describe("material ingest state machine", () => {
     assert.equal(state.softNotice, "Encrypted copy will retry later.");
   });
 
-  it("returns to ready state when a past paper is saved without turning it into course concepts", () => {
+  it("holds a past-paper receipt without turning it into course concepts", () => {
     const working = reduceIngest(INITIAL_INGEST_STATE, {
       type: "WORK_STARTED",
       step: "saving",
       message: "Saving…",
     });
     const state = reduceIngest(working, { type: "PAST_PAPER_READY", message: "Past paper added." });
-    assert.deepEqual(state.phase, { status: "idle", dragging: false });
-    assert.equal(state.softNotice, "Past paper added.");
+    assert.deepEqual(state.phase, { status: "past-paper-ready", message: "Past paper added." });
+    assert.equal(pastPaperSummary(state.phase), "Past paper added.");
+    assert.equal(showIngestForm(state.phase), false);
   });
 
   it("preserves review selections when confirm fails", () => {
@@ -143,7 +145,7 @@ describe("material ingest state machine", () => {
     assert.equal(state.softNotice, "Each confirmed concept needs a distinct name.");
   });
 
-  it("returns to idle from confirmed and failed", () => {
+  it("returns to idle from confirmed, failed, and past-paper ready", () => {
     let confirmed = reduceIngest(
       reduceIngest(INITIAL_INGEST_STATE, { type: "REVIEW_READY", analysis: sampleAnalysis }),
       { type: "CONFIRM", conceptCount: 1, firstName: "Osmosis" },
@@ -157,5 +159,9 @@ describe("material ingest state machine", () => {
     });
     failed = reduceIngest(failed, { type: "ADD_ANOTHER" });
     assert.equal(failed.phase.status, "idle");
+
+    let pastPaper = reduceIngest(INITIAL_INGEST_STATE, { type: "PAST_PAPER_READY", message: "Mapped." });
+    pastPaper = reduceIngest(pastPaper, { type: "ADD_ANOTHER" });
+    assert.equal(pastPaper.phase.status, "idle");
   });
 });
