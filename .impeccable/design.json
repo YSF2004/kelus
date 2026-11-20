@@ -1,0 +1,126 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-11-20T00:26:55Z",
+  "title": "Design System: Kelus",
+  "extensions": {
+    "colorMeta": {
+      "kelus-green": {
+        "role": "primary",
+        "displayName": "Pass-Mark Green",
+        "canonical": "#1f6b45",
+        "tonalRamp": ["oklch(18% 0.045 155)", "oklch(28% 0.07 155)", "#185536", "#1f6b45", "oklch(54% 0.10 155)", "oklch(68% 0.10 155)", "oklch(82% 0.06 155)", "oklch(94% 0.02 155)"]
+      },
+      "booklet-ink": {
+        "role": "neutral",
+        "displayName": "Booklet Ink",
+        "canonical": "#12160f",
+        "tonalRamp": ["#12160f", "oklch(25% 0.015 125)", "oklch(38% 0.015 125)", "#4a5246", "#5a6358", "oklch(70% 0.012 125)", "#d5d9d0", "#f7f8f5"]
+      },
+      "paper": {
+        "role": "neutral",
+        "displayName": "Study Paper",
+        "canonical": "#eef1ec",
+        "tonalRamp": ["oklch(28% 0.012 125)", "#4a5246", "#5a6358", "#d5d9d0", "#e2e6df", "#eef1ec", "#f7f8f5", "#ffffff"]
+      },
+      "source-orange": {
+        "role": "secondary",
+        "displayName": "Source Orange",
+        "canonical": "#a5521f",
+        "tonalRamp": ["oklch(28% 0.08 45)", "oklch(38% 0.10 45)", "#a5521f", "oklch(60% 0.13 45)", "oklch(72% 0.10 45)", "#fcebdc", "oklch(92% 0.035 45)", "oklch(97% 0.01 45)"]
+      },
+      "recall-purple": {
+        "role": "tertiary",
+        "displayName": "Recall Purple",
+        "canonical": "#7859a0",
+        "tonalRamp": ["oklch(28% 0.07 305)", "oklch(38% 0.09 305)", "#7859a0", "oklch(60% 0.11 305)", "oklch(72% 0.08 305)", "#f2edf8", "oklch(93% 0.02 305)", "oklch(98% 0.005 305)"]
+      }
+    },
+    "typographyMeta": {
+      "display": { "displayName": "Editorial Display", "purpose": "Marketing headlines, lesson titles, topic names, and meaningful figures." },
+      "headline": { "displayName": "Booklet Headline", "purpose": "Section-level study claims and page titles." },
+      "body": { "displayName": "Operational Body", "purpose": "Instructions, captions, navigation, and study interface copy." },
+      "label": { "displayName": "Evidence Label", "purpose": "Compact source, status, and contextual labels." }
+    },
+    "shadows": [
+      { "name": "current-topic", "value": "0 14px 36px -22px rgba(14, 21, 18, 0.32)", "purpose": "The one raised card that identifies what a student should do now." }
+    ],
+    "motion": [
+      { "name": "standard", "value": "cubic-bezier(0.22, 1, 0.36, 1)", "purpose": "Purposeful state and entrance movement without bounce." },
+      { "name": "press", "value": "scale(0.97)", "purpose": "Immediate confirmation for actionable controls." }
+    ],
+    "breakpoints": [
+      { "name": "marketing-stack", "value": "760px" },
+      { "name": "product-compact", "value": "640px" },
+      { "name": "phone-session", "value": "560px" }
+    ]
+  },
+  "components": [
+    {
+      "name": "Marketing primary button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "The one decisive public-page action.",
+      "html": "<button class=\"ds-btn-primary\">Add your notes</button>",
+      "css": ".ds-btn-primary { min-height:48px; padding:0 22px; border:1px solid #1f6b45; border-radius:8px; background:#1f6b45; color:#fff; font:600 16px Inter,Arial,sans-serif; cursor:pointer; transition:background-color 200ms linear,border-radius 200ms cubic-bezier(.22,1,.36,1),transform 120ms cubic-bezier(.22,1,.36,1); } .ds-btn-primary:hover { background:#185536; border-radius:32px; } .ds-btn-primary:focus-visible { outline:2px solid #1f6b45; outline-offset:3px; } .ds-btn-primary:active { transform:scale(.97); }"
+    },
+    {
+      "name": "Marketing secondary button",
+      "kind": "button",
+      "refersTo": "button-secondary",
+      "description": "A calm alternative path beside the primary conversion.",
+      "html": "<button class=\"ds-btn-secondary\">See how it works</button>",
+      "css": ".ds-btn-secondary { min-height:48px; padding:0 22px; border:1px solid #e5e5e5; border-radius:8px; background:#f5f5f5; color:#12160f; font:600 16px Inter,Arial,sans-serif; cursor:pointer; transition:background-color 200ms linear,border-radius 200ms cubic-bezier(.22,1,.36,1),transform 120ms cubic-bezier(.22,1,.36,1); } .ds-btn-secondary:hover { background:#e5e5e5; border-radius:32px; } .ds-btn-secondary:focus-visible { outline:2px solid #1f6b45; outline-offset:3px; } .ds-btn-secondary:active { transform:scale(.97); }"
+    },
+    {
+      "name": "Product card",
+      "kind": "card",
+      "refersTo": "product-card",
+      "description": "A single paper sheet for a discrete study decision.",
+      "html": "<section class=\"ds-card\"><p class=\"ds-label\">FROM YOUR NOTES</p><strong>Diffusion</strong><span>Ready to practise</span></section>",
+      "css": ".ds-card { display:grid; gap:8px; padding:20px 22px; border:1px solid #d5d9d0; border-radius:14px; background:#fff; color:#12160f; font:400 15px/1.45 Inter,Arial,sans-serif; } .ds-card strong { font:500 22px/1.15 Literata,Georgia,serif; } .ds-card span { color:#4a5246; } .ds-label { margin:0; color:#1f6b45; font:700 12px/1.2 Inter,Arial,sans-serif; letter-spacing:.08em; }"
+    },
+    {
+      "name": "Source-first upload",
+      "kind": "custom",
+      "description": "The first action makes a course source feel safe, specific, and actionable.",
+      "html": "<button class=\"ds-upload\"><span class=\"ds-upload-icon\">↑</span><strong>Add your course file</strong><small>PDF, slides, or notes — kept on this device</small></button>",
+      "css": ".ds-upload { display:grid; grid-template-columns:auto 1fr; gap:3px 16px; align-items:center; width:100%; min-height:152px; padding:30px 32px; border:1.5px dashed color-mix(in srgb,#1f6b45 55%,#d5d9d0); border-radius:16px; background:color-mix(in srgb,#e8f1eb 42%,#fff); color:#12160f; text-align:left; cursor:pointer; transition:transform 200ms cubic-bezier(.22,1,.36,1),border-color 200ms cubic-bezier(.22,1,.36,1),background-color 200ms cubic-bezier(.22,1,.36,1); } .ds-upload:hover,.ds-upload:focus-visible { transform:translateY(-2px); border-color:#1f6b45; background:color-mix(in srgb,#e8f1eb 72%,#fff); } .ds-upload:focus-visible { outline:2px solid #1f6b45; outline-offset:3px; } .ds-upload-icon { grid-row:span 2; color:#1f6b45; font:500 28px/1 Georgia,serif; } .ds-upload strong { font:500 24px/1.15 Literata,Georgia,serif; } .ds-upload small { color:#4a5246; font:400 15px/1.45 Inter,Arial,sans-serif; }"
+    },
+    {
+      "name": "Evidence label",
+      "kind": "chip",
+      "description": "A compact label that makes source provenance or state easy to scan.",
+      "html": "<span class=\"ds-evidence\">FROM YOUR NOTES</span>",
+      "css": ".ds-evidence { display:inline-block; color:#1f6b45; font:700 12px/1.2 Inter,Arial,sans-serif; letter-spacing:.08em; }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Evidence Ledger",
+    "overview": "Kelus should feel like a precise study notebook that can answer for itself. It is editorial rather than decorative: calm paper, deep ink, visible source evidence, and a single green signal when the learner has a clear next move. Marketing makes the promise tangible with real product fragments; the product makes each decision traceable to a student’s own notes.",
+    "keyCharacteristics": [
+      "Editorial type paired with fast, legible interface text.",
+      "Paper-and-ink surfaces with one deliberate green action per decision.",
+      "Real source evidence and product output instead of decorative mock-ups.",
+      "Motion that confirms a change, then gets out of the way."
+    ],
+    "rules": [
+      { "name": "The One Signal Rule", "body": "Use green for the current action or current route. If every surface becomes green, the learner loses the one thing to do next.", "section": "colors" },
+      { "name": "The Reading-First Rule", "body": "Use the serif only when a student is reading a lesson, a topic, or a meaningful outcome. Keep operational UI in Inter.", "section": "typography" },
+      { "name": "The Flat-By-Default Rule", "body": "Never add a shadow merely to make a component look clickable. Use a fill, border, and interaction state instead.", "section": "elevation" }
+    ],
+    "dos": [
+      "Do show the original line, page, or section beside an answer whenever Kelus makes a judgment.",
+      "Do let whitespace and hairlines create order before reaching for a container.",
+      "Do keep one primary action per decision and make its wording say what happens next.",
+      "Do make motion explain a result, finish within 80–400ms, and honor reduced-motion preferences.",
+      "Do use the Notion-style illustration pack only as a human counterweight to real product evidence."
+    ],
+    "donts": [
+      "Don't use generic SaaS cards, blue glows, stock art, or generated illustrations.",
+      "Don't use a decorative color as a button fill or mix source, recall, and route colors without their study meaning.",
+      "Don't add a card inside a card, a shadow stack, or a second primary action merely to fill space.",
+      "Don't animate headings or body copy, loop demonstrations, or make product controls bounce.",
+      "Don't use the marketing serif for dense practice controls or call a topic a concept, section, or idea."
+    ]
+  }
+}
