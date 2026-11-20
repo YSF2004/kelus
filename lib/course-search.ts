@@ -1,12 +1,14 @@
-import type { Concept, LearningActivity, LearningSourceReference } from "@/domain/types";
+import type { Concept, ExtractedMaterialPage, LearningActivity, LearningSourceReference } from "@/domain/types";
 
 export type CourseSearchResult = {
   conceptId: string;
   conceptName: string;
   answer: string;
   source: LearningSourceReference | null;
+  quote: string;
 };
 type RankedCourseSearchResult = CourseSearchResult & { score: number };
+export type CourseSearchDocument = { materialId: string; label: string; locatorLabel: "Page" | "Section"; pages: ExtractedMaterialPage[] };
 
 const IGNORED = new Set(["a", "an", "and", "are", "at", "by", "do", "does", "for", "from", "how", "in", "is", "it", "of", "on", "or", "the", "to", "what", "when", "where", "which", "why", "with"]);
 
@@ -35,10 +37,30 @@ export function searchCourse(query: string, concepts: Concept[], activities: Lea
         if (topic.includes(word)) score += 8;
         if (evidence.includes(word)) score += 2;
       }
-      return score ? { conceptId: concept.id, conceptName: concept.name, answer, source, score } : null;
+      return score ? { conceptId: concept.id, conceptName: concept.name, answer, source, quote: answer, score } : null;
     })
     .filter((result): result is RankedCourseSearchResult => result !== null)
     .sort((left, right) => right.score - left.score || left.conceptName.localeCompare(right.conceptName))
     .slice(0, 3)
     .map(({ score: _score, ...result }) => result);
+}
+
+function sentences(text: string) {
+  return text.replace(/\s+/g, " ").split(/(?<=[.!?])\s+/).map((sentence) => sentence.trim()).filter((sentence) => sentence.length > 28);
+}
+
+/** Searches the pages themselves after import. It returns a verbatim passage, never a generated summary. */
+export function searchCoursePages(query: string, documents: CourseSearchDocument[]): CourseSearchResult[] {
+  const queryWords = words(query);
+  if (!queryWords.length) return [];
+  const matches: Array<CourseSearchResult & { score: number }> = [];
+  for (const document of documents) {
+    for (const page of document.pages) {
+      const best = sentences(page.text).map((sentence) => ({ sentence, score: queryWords.reduce((total, word) => total + (sentence.toLocaleLowerCase().includes(word) ? 1 : 0), 0) })).sort((left, right) => right.score - left.score)[0];
+      if (!best?.score) continue;
+      const locator = `${document.locatorLabel} ${page.pageNumber}`;
+      matches.push({ conceptId: `source-${document.materialId}-${page.pageNumber}`, conceptName: document.label, answer: best.sentence, quote: best.sentence, source: { materialId: document.materialId, label: document.label, locator }, score: best.score });
+    }
+  }
+  return matches.sort((left, right) => right.score - left.score || left.conceptName.localeCompare(right.conceptName)).slice(0, 3).map(({ score: _score, ...result }) => result);
 }
