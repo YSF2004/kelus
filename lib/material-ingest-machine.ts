@@ -53,7 +53,8 @@ export type IngestPhase =
   | { status: "working"; step: WorkingStep; message: string }
   | { status: "failed"; kind: ErrorKind; message: string }
   | { status: "review"; analysis: AnalysisPayload }
-  | { status: "confirmed"; conceptCount: number; firstName: string | null };
+  | { status: "confirmed"; conceptCount: number; firstName: string | null }
+  | { status: "past-paper-ready"; message: string };
 
 export type IngestState = {
   phase: IngestPhase;
@@ -157,7 +158,7 @@ export function reduceIngest(state: IngestState, event: IngestEvent): IngestStat
       return { ...state, softNotice: event.message };
 
     case "PAST_PAPER_READY":
-      return { softNotice: event.message, phase: { status: "idle", dragging: false } };
+      return { softNotice: null, phase: { status: "past-paper-ready", message: event.message } };
 
     case "FAIL":
       return {
@@ -194,7 +195,7 @@ export function reduceIngest(state: IngestState, event: IngestEvent): IngestStat
       return { softNotice: null, phase: { status: "idle", dragging: false } };
 
     case "ADD_ANOTHER":
-      if (phase.status !== "confirmed" && phase.status !== "failed") return state;
+      if (phase.status !== "confirmed" && phase.status !== "failed" && phase.status !== "past-paper-ready") return state;
       return { softNotice: null, phase: { status: "idle", dragging: false } };
 
     default:
@@ -244,6 +245,11 @@ export function readySummary(
     : null;
 }
 
+/** A paper is ready to inspect, but never becomes a set of course topics. */
+export function pastPaperSummary(phase: IngestPhase): string | null {
+  return phase.status === "past-paper-ready" ? phase.message : null;
+}
+
 export function canStartUpload(phase: IngestPhase): boolean {
   return phase.status === "idle" || phase.status === "failed";
 }
@@ -251,6 +257,7 @@ export function canStartUpload(phase: IngestPhase): boolean {
 export function focusTargetId(phase: IngestPhase): string | null {
   if (phase.status === "review") return "concept-confirmation-title";
   if (phase.status === "confirmed") return "material-ready-title";
+  if (phase.status === "past-paper-ready") return "past-paper-ready-title";
   return null;
 }
 
@@ -292,5 +299,11 @@ export const INGEST_PHASE_UI: Record<IngestPhase["status"], PhaseUiSpec> = {
     error: "None.",
     feedback: "Navigate to /today diagnosis immediately; ready UI is non-blocking if still mounted.",
     animation: "Navigation replaces the ready presence for first-run.",
+  },
+  "past-paper-ready": {
+    loading: "None — the paper is saved and ready to map against confirmed topics.",
+    error: "The downstream map owns its read error and recovery.",
+    feedback: "Focus moves to the past-paper summary and its inspection action.",
+    animation: "Brief opacity transition unless reduced motion is requested.",
   },
 };

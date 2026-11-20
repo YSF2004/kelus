@@ -206,7 +206,7 @@ export function DropNotes({ onFile, first = false, courseName }: { onFile: (file
             <button type="button" onClick={() => fileInput.current?.click()}>Choose another file</button>
             <p>You can also paste the relevant section above. Any text you entered stays here.</p>
           </div> : null}
-          <p className="setup-file-help">PDFs up to 20 MB; scans included. For Notion, export your notes and choose the .zip.</p>
+          <p className="setup-file-help">PDFs up to 20 MB. Printed scans can be read; blurred or handwritten pages may need pasted text. For Notion, export your notes and choose the .zip.</p>
           <p className="setup-privacy-note">Your notes stay on this device. Kelus uses them as reference for your questions—not as instructions. You can sign in later to sync.</p>
         </section>
       </div>
