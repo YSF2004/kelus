@@ -903,95 +903,6 @@ html body .pricing-page .pricing-hero-art.k-rise { --rise-delay: 0.2s; }
   html body.is-course-studio.is-kelus-space div.today-source-access.today-source-access { min-height: 0 !important; padding: 0 !important; margin-bottom: 0 !important; }
 }
 
-/* ── Homepage scroll motion ─────────────────────────────────────────────────────────────────────────────────────
-   Tied to scroll position, not to time: each tile lifts into place as it comes up the screen, the product piece
-   inside it travels a little further than its tile (a quiet depth), the dark band's files slide in one after
-   another, and the hero's demo settles back as you scroll past it. CSS scroll timelines only: no JavaScript on
-   scroll, nothing loops, and without support or with reduced motion the page is simply as it was. */
-@supports (animation-timeline: view()) {
-  @media (prefers-reduced-motion: no-preference) {
-    .home :is([class*="FollowThrough"][class*="step"], [class*="HomeVisualChapters"][class*="studySection"], [class*="HomeVisualChapters"][class*="returnSection"], [class*="HomeBand"][class*="band"], [class*="HomeFinal"][class*="final"]) {
-      animation: kelusTileUp linear both;
-      animation-timeline: view();
-      animation-range: entry 0% cover 28%;
-    }
-    .home [class*="FollowThrough"][class*="shot"] > * {
-      animation: kelusDepth linear both;
-      animation-timeline: view();
-      animation-range: entry 0% cover 42%;
-    }
-    .home [class*="HomeVisualChapters"] img {
-      animation: kelusDepth linear both;
-      animation-timeline: view();
-      animation-range: entry 0% cover 45%;
-    }
-    /* Keep the student's illustration centered in its paper while the section itself rises into view. */
-    .home [class*="HomeVisualChapters"][class*="studySection"] img { animation: none; }
-    /* The band's files arrive in order: each row's own range starts a little later down the screen. The row's
-       contents move, not the row, so the dark list stays solid behind them. */
-    .home [class*="HomeBand"][class*="files"] > li > * {
-      animation: kelusFileIn linear both;
-      animation-timeline: view();
-      animation-range: entry 10% cover 30%;
-    }
-    .home [class*="HomeBand"][class*="files"] > li:nth-child(2) > * { animation-range: entry 25% cover 34%; }
-    .home [class*="HomeBand"][class*="files"] > li:nth-child(3) > * { animation-range: entry 40% cover 38%; }
-    .home [class*="HomeBand"][class*="files"] > li:nth-child(4) > * { animation-range: entry 55% cover 42%; }
-    /* Scrolling past the hero, its demo settles back rather than simply sliding away. */
-    .home [data-hero] [class*="LeitnerHero"][class*="set"] {
-      animation: kelusSettleBack linear both;
-      animation-timeline: view();
-      animation-range: exit 10% exit 90%;
-    }
-  }
-}
-@keyframes kelusTileUp { from { opacity: 0.001; translate: 0 56px; scale: 0.965; } to { opacity: 1; translate: 0 0; scale: 1; } }
-@keyframes kelusDepth { from { translate: 0 44px; } to { translate: 0 0; } }
-@keyframes kelusFileIn { from { opacity: 0.001; translate: 32px 0; } to { opacity: 1; translate: 0 0; } }
-@keyframes kelusSettleBack { from { scale: 1; } to { scale: 0.94; } }
-
-/* ── Scroll motion beyond the homepage, on the same rules ───────────────────────────────────────────────────────
-   Marketing pages: tiles lift in and product pieces travel a little further than their tile. Sections that
-   already reveal with JavaScript (pricing's waitlist and FAQ, How it works' chapters) get only the travel, never a
-   second fade. The study app is used every day, so it gets less: list rows rise a few pixels as they scroll into
-   view, nothing else. All of it follows the scroll position, loops nothing, and is off with reduced motion. */
-@supports (animation-timeline: view()) {
-  @media (prefers-reduced-motion: no-preference) {
-    /* Search pages: steps, the dark band and the questions tile lift in; the example's cards add depth. */
-    [data-marketing] :is([class*="SearchLanding"][class*="step"], [class*="SearchLanding"][class*="why"], [class*="SearchLanding"][class*="faq"]) {
-      animation: kelusTileUp linear both;
-      animation-timeline: view();
-      animation-range: entry 0% cover 28%;
-    }
-    [data-marketing] [class*="SearchLanding"][class*="stage"] > :is(ol, div, p) {
-      animation: kelusDepth linear both;
-      animation-timeline: view();
-      animation-range: entry 0% cover 40%;
-    }
-    /* How it works: each chapter's product picture travels in beside its words. */
-    [data-marketing] [class*="HowItWorks"][class*="visualWrap"] {
-      animation: kelusLift linear both;
-      animation-timeline: view();
-      animation-range: entry 0% cover 35%;
-    }
-    /* Pricing: the waitlist and Good to know settle in as they arrive. */
-    .pricing-page :is(.pricing-notify, .pricing-faq) {
-      animation: kelusLift linear both;
-      animation-timeline: view();
-      animation-range: entry 0% cover 25%;
-    }
-    /* The course index may settle as it arrives. The study plan itself stays fully present: a route must never
-       look empty while a browser is calculating a scroll timeline. */
-    :is(body.is-course-studio) .index-toc > li {
-      animation: kelusRowIn linear both;
-      animation-timeline: view();
-      animation-range: entry 0% entry 90%;
-    }
-  }
-}
-@keyframes kelusLift { from { translate: 0 48px; scale: 0.97; } to { translate: 0 0; scale: 1; } }
-@keyframes kelusRowIn { from { opacity: 0.001; translate: 0 14px; } to { opacity: 1; translate: 0 0; } }
-
 /* Materials on a phone: the source's drawing is 36px now, so its column is too (it was 56, which pushed the name a
    third of the way across), and the shelf sits closer to the reader above it. */
 @media (max-width: 650px) {
@@ -1075,19 +986,17 @@ html body.is-booklet-system .pricing-page.is-monthly-pricing .pricing-plan-name 
 html body.is-booklet-system .pricing-page.is-monthly-pricing .pricing-availability { margin: 0 !important; line-height: 1 !important; }
 html body .pricing-page.is-monthly-pricing .is-pass .pricing-availability { display: inline-flex; align-items: center; height: 26px; padding: 0 10px; border-radius: 999px; background: color-mix(in srgb, var(--q-ink) 6%, transparent); color: var(--q-text-2) !important; font-size: 12.5px !important; font-weight: 500; }
 
-/* ── Buttons, the Link way ─────────────────────────────────────────────────────────────────────────────
-   One shape everywhere: 10px corners at rest that round into a pill under the pointer (200 ms, ease-in-out; 32px, just
-   past half the height, as Link does, so the rounding is seen across the whole move, not in its first frame) while the
-   fill steps one shade darker (200 ms, linear). No lift, no shadow, no glow. A press still answers at once with a small
-   squeeze, so a tap is felt. Hover only where there is a pointer, so a tapped button never stays a pill on a phone. */
+/* ── Buttons: stable shape, clear state ─────────────────────────────────────────────────────────────────
+   A button keeps its 10px corner in every state. Hover changes only its colour; press acknowledges the tap with a
+   brief squeeze. A changing silhouette made ordinary actions look decorative and was especially distracting at
+   the course-setup handoff. */
 html body :is(.k-btn, .cta, [class*="LeitnerHero"][class*="primary"], [class*="LeitnerHero"][class*="secondary"], [class*="HomeBand"][class*="action"], [class*="HomeFinal"][class*="action"], [class*="TodayQuiet"][class*="go"], [class*="primaryAction"], [class*="SearchLanding"][class*="primary"], [class*="SearchLanding"][class*="secondary"]) {
   border-radius: 10px !important;
   box-shadow: none !important;
   filter: none !important;
-  transition: border-radius 200ms ease-in-out, background-color 200ms linear, color 200ms linear, transform 100ms ease-out !important;
+  transition: background-color 200ms linear, color 200ms linear, transform 100ms ease-out !important;
 }
 @media (hover: hover) and (pointer: fine) {
-  html body :is(.k-btn, .cta, [class*="LeitnerHero"][class*="primary"], [class*="LeitnerHero"][class*="secondary"], [class*="HomeBand"][class*="action"], [class*="HomeFinal"][class*="action"], [class*="TodayQuiet"][class*="go"], [class*="primaryAction"], [class*="SearchLanding"][class*="primary"], [class*="SearchLanding"][class*="secondary"]):hover:not(:disabled):not([aria-disabled="true"]) { border-radius: 32px !important; }
   html body :is(.k-btn:not(.k-btn--paper):not(.k-btn--marigold), .cta, [class*="LeitnerHero"][class*="primary"], [class*="HomeFinal"][class*="action"], [class*="TodayQuiet"][class*="go"], [class*="primaryAction"], [class*="SearchLanding"][class*="primary"], [class*="SearchLanding"][class*="secondary"]):hover:not(:disabled) { background-color: #185638 !important; }
   html body :is(.k-btn--paper, [class*="LeitnerHero"][class*="secondary"], [class*="SearchLanding"][class*="secondary"]):hover:not(:disabled) { background-color: #e5e5e5 !important; }
   html body [class*="HomeBand"][class*="action"]:hover { background-color: #4cc585 !important; }
