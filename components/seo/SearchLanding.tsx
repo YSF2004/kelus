@@ -23,6 +23,8 @@ export type SearchLandingProps = {
   credit: string;
   /** Stable, non-personal identifier used only to measure this page's handoff to the product. */
   landing: string;
+  /** Optional pilot group: a non-identifying label attached to this browser's later study events. */
+  pilot?: string;
   /** "X alternative" pages: Kelus beside the other app, row by row, then when the other app is the better choice. */
   compare?: { title: string; other: string; asOf: string; rows: ReadonlyArray<readonly [string, string, string]>; fair: string };
 };
@@ -31,7 +33,7 @@ export type SearchLandingProps = {
  * A search landing page in the homepage's tile system: the promise and one action, a real example on a grey stage,
  * three steps, one claim on the dark band, and the questions people search next (also as FAQPage data).
  */
-export function SearchLanding({ title, lede, action, note, example, exampleLabel, steps, why, faq, credit, landing, compare }: SearchLandingProps) {
+export function SearchLanding({ title, lede, action, note, example, exampleLabel, steps, why, faq, credit, landing, pilot, compare }: SearchLandingProps) {
   const data = {
     "@context": "https://schema.org",
     "@type": "FAQPage",
@@ -47,7 +49,7 @@ export function SearchLanding({ title, lede, action, note, example, exampleLabel
               <h1 id="search-title">{title[0]} <span>{title[1]}</span></h1>
               <p className={styles.lede}>{lede}</p>
               <div className={styles.actions}>
-                <SearchStartLink action={action} landing={landing} placement="hero" className={styles.primary} />
+                <SearchStartLink action={action} landing={landing} pilot={pilot} placement="hero" className={styles.primary} />
                 <Link href="/route" className={styles.secondary}>How it works</Link>
               </div>
               <p className={styles.free}>{note}</p>
@@ -92,7 +94,7 @@ export function SearchLanding({ title, lede, action, note, example, exampleLabel
                 <div key={q}><dt>{q}</dt><dd>{a}</dd></div>
               ))}
             </dl>
-            <SearchStartLink action={action} landing={landing} placement="faq" className={styles.primary} />
+            <SearchStartLink action={action} landing={landing} pilot={pilot} placement="faq" className={styles.primary} />
             <p className={styles.credit}>{credit}</p>
           </section>
 
