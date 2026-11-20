@@ -1,9 +1,9 @@
 "use client";
 
-import { AnimatePresence, motion, useReducedMotion } from "motion/react";
+import { motion, useReducedMotion } from "motion/react";
 import { usePathname, useRouter } from "next/navigation";
-import { useEffect, useId, useMemo, useRef, useState } from "react";
-import { createPortal } from "react-dom";
+import { useEffect, useId, useMemo, useState } from "react";
+import { Dialog, Modal, ModalOverlay } from "react-aria-components";
 import { useLearner } from "@/components/LearnerProvider";
 import { rankItems, type SearchItem as Item } from "@/lib/search-rank";
 import styles from "./CommandPalette.module.css";
@@ -40,17 +40,13 @@ export function CommandPalette() {
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
   const [active, setActive] = useState(0);
-  const input = useRef<HTMLInputElement>(null);
-  const returnFocus = useRef<HTMLElement | null>(null);
   const listId = useId();
   const enabled = PRODUCT_PATHS.some((path) => pathname.startsWith(path));
 
   useEffect(() => {
     if (!enabled) return;
-    const show = () => { returnFocus.current = document.activeElement as HTMLElement | null; setQuery(""); setActive(0); setOpen(true); };
+    const show = () => { setQuery(""); setActive(0); setOpen(true); };
     const onKey = (event: KeyboardEvent) => {
-      // Escape closes it wherever focus is, even in the instant before the field has taken it.
-      if (event.key === "Escape" && open) { event.preventDefault(); setOpen(false); return; }
       if (event.key.toLowerCase() === "k" && (event.metaKey || event.ctrlKey) && !event.altKey && !event.shiftKey) {
         event.preventDefault();
         if (open) setOpen(false); else show();
@@ -60,11 +56,6 @@ export function CommandPalette() {
     window.addEventListener(OPEN_SEARCH_EVENT, show);
     return () => { window.removeEventListener("keydown", onKey); window.removeEventListener(OPEN_SEARCH_EVENT, show); };
   }, [enabled, open]);
-
-  useEffect(() => {
-    if (open) requestAnimationFrame(() => input.current?.focus());
-    else returnFocus.current?.focus?.({ preventScroll: true });
-  }, [open]);
 
   const items = useMemo(() => {
     const course = state.snapshot.courses[0];
@@ -94,26 +85,14 @@ export function CommandPalette() {
     document.getElementById(`${listId}-${current}`)?.scrollIntoView({ block: "nearest" });
   }, [current, listId]);
 
-  if (!enabled || typeof document === "undefined") return null;
+  if (!enabled) return null;
 
   let lastGroup = "";
-  return createPortal(
-    <AnimatePresence>
-      {open ? (
-        <motion.div
-          key="search"
-          className={styles.scrim}
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0, transition: { duration: 0.08 } }}
-          transition={{ duration: 0.1 }}
-          onPointerDown={(event) => { if (event.target === event.currentTarget) setOpen(false); }}
-        >
+  return (
+    <ModalOverlay isOpen={open} isDismissable onOpenChange={setOpen} className={styles.scrim}>
+      <Modal className={styles.box}>
+        <Dialog aria-label="Search your course" className={styles.dialog}>
           <motion.div
-            className={styles.box}
-            role="dialog"
-            aria-modal="true"
-            aria-label="Search your course"
             initial={reduce ? false : { opacity: 0, scale: 0.98, y: -4 }}
             animate={{ opacity: 1, scale: 1, y: 0 }}
             transition={{ duration: 0.14, ease: [0.22, 1, 0.36, 1] }}
@@ -121,7 +100,6 @@ export function CommandPalette() {
             <div className={styles.field}>
               <svg viewBox="0 0 20 20" width="18" height="18" aria-hidden="true"><circle cx="8.5" cy="8.5" r="5.5" fill="none" stroke="currentColor" strokeWidth="1.6" /><path d="M13 13l4 4" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" /></svg>
               <input
-                ref={input}
                 id="kelus-search-input"
                 autoFocus
                 value={query}
@@ -162,9 +140,8 @@ export function CommandPalette() {
               }) : <li className={styles.empty} role="presentation">No topic or section called “{query.trim()}”.</li>}
             </ul>
           </motion.div>
-        </motion.div>
-      ) : null}
-    </AnimatePresence>,
-    document.body,
+        </Dialog>
+      </Modal>
+    </ModalOverlay>
   );
 }
