@@ -114,6 +114,7 @@ body.is-course-studio .material-binder-stack.is-source-first .material-drop.is-q
 body.is-course-studio .material-binder-stack.is-source-first .material-drop.is-quiet:hover,
 body.is-course-studio .material-binder-stack.is-source-first .material-drop.is-quiet:focus-within { border-color: var(--color-kelus); background: var(--core-selected-paper); }
 body.is-course-studio .material-binder-stack.is-source-first .material-drop.is-quiet strong { font-family: var(--font-sans); font-size: 1rem; font-weight: 600; letter-spacing: -.02em; }
+body.is-course-studio .material-binder-stack.is-source-first .material-local-proof { margin: 10px 0 0; color: var(--color-slate); font-size: .75rem; line-height: 1.45; }
 
 
 

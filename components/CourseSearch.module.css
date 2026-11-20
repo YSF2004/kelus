@@ -1,5 +1,7 @@
 .panel { padding: 0 0 22px; border-bottom: 1px solid var(--line); }
+.titleRow { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
 .heading h2 { margin: 0; color: var(--ink); font-size: 1rem; letter-spacing: -.02em; }
+.titleRow span { flex: 0 0 auto; color: var(--color-kelus); font-size: .6875rem; font-weight: 650; letter-spacing: .01em; }
 .heading p, .note, .empty { margin: 5px 0 0; color: var(--color-slate); font-size: .8125rem; line-height: 1.45; }
 .form { display: grid; grid-template-columns: minmax(0, 1fr) 40px; gap: 8px; margin-top: 14px; }
 .form input { min-width: 0; min-height: 42px; padding: 0 12px; border: 1px solid var(--line); border-radius: 8px; background: var(--core-rail-paper); color: var(--ink); font: inherit; font-size: .875rem; }
@@ -10,7 +12,14 @@
 .form button:active:not(:disabled) { transform: scale(.97); }
 .form button:disabled { opacity: .4; cursor: not-allowed; }
 .form button:focus-visible, .result button:focus-visible { outline: 2px solid var(--color-kelus); outline-offset: 2px; }
+.suggestions { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-top: 10px; color: var(--color-slate); font-size: .75rem; }
+.suggestions > span { margin-right: 2px; }
+.suggestions button { min-height: 28px; padding: 0 8px; border: 1px solid var(--line); border-radius: 7px; background: transparent; color: var(--ink); font: inherit; font-size: .75rem; cursor: pointer; }
+.suggestions button:hover { border-color: color-mix(in srgb, var(--color-kelus) 46%, var(--line)); color: var(--color-kelus); }
+.suggestions button:active { transform: scale(.97); }
+.suggestions button:focus-visible { outline: 2px solid var(--color-kelus); outline-offset: 2px; }
 .results { display: grid; gap: 0; margin-top: 14px; }
+.status { margin: 0 0 5px; color: var(--color-slate); font-size: .75rem; line-height: 1.4; }
 .result { padding: 13px 0; border-top: 1px solid var(--line); }
 .result:first-child { border-top: 0; }
 .result strong { color: var(--ink); font-size: .875rem; }
@@ -18,4 +27,4 @@
 .result button { display: inline-flex; align-items: center; gap: 5px; min-height: 30px; padding: 0; border: 0; background: transparent; color: var(--color-kelus); font: inherit; font-size: .75rem; font-weight: 650; text-decoration: underline; text-decoration-color: color-mix(in srgb, currentColor 35%, transparent); text-underline-offset: 3px; cursor: pointer; }
 .result button:hover { color: var(--ink); }
 .result small { color: var(--color-slate); font-size: .75rem; line-height: 1.35; }
-@media (max-width: 650px) { .panel { padding-bottom: 18px; } }
+@media (max-width: 650px) { .panel { padding-bottom: 18px; } .suggestions { gap: 5px; } }
