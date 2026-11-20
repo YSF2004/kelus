@@ -1,3 +1,4 @@
+import { create, insertMultiple, search } from "@orama/orama";
 import type { Concept, ExtractedMaterialPage, LearningActivity, LearningSourceReference } from "@/domain/types";
 
 export type CourseSearchResult = {
@@ -47,6 +48,66 @@ export function searchCourse(query: string, concepts: Concept[], activities: Lea
 
 function sentences(text: string) {
   return text.replace(/\s+/g, " ").split(/(?<=[.!?])\s+/).map((sentence) => sentence.trim()).filter((sentence) => sentence.length > 28);
+}
+
+type IndexedPassage = {
+  id: string;
+  materialId: string;
+  label: string;
+  locator: string;
+  quote: string;
+};
+
+/**
+ * Searches only locally extracted course passages. Orama ranks the original wording
+ * and tolerates small spelling mistakes; it never creates or sends an answer.
+ */
+export async function searchCoursePagesIndexed(query: string, documents: CourseSearchDocument[]): Promise<CourseSearchResult[]> {
+  if (!words(query).length) return [];
+
+  const passages: IndexedPassage[] = documents.flatMap((document) => document.pages.flatMap((page) => {
+    const locator = `${document.locatorLabel} ${page.pageNumber}`;
+    return sentences(page.text).map((quote, index) => ({
+      id: `${document.materialId}-${page.pageNumber}-${index}`,
+      materialId: document.materialId,
+      label: document.label,
+      locator,
+      quote,
+    }));
+  }));
+
+  if (!passages.length) return [];
+
+  const index = create({
+    schema: {
+      id: "string",
+      materialId: "string",
+      label: "string",
+      locator: "string",
+      quote: "string",
+    },
+  });
+  await insertMultiple(index, passages);
+  const result = await search(index, {
+    term: query.trim(),
+    properties: ["quote", "label"],
+    tolerance: 1,
+    limit: 8,
+  });
+  const openedPages = new Set<string>();
+
+  return result.hits.flatMap(({ document }) => {
+    const pageKey = `${document.materialId}-${document.locator}`;
+    if (openedPages.has(pageKey)) return [];
+    openedPages.add(pageKey);
+    return [{
+      conceptId: `source-${document.id}`,
+      conceptName: document.label,
+      answer: document.quote,
+      quote: document.quote,
+      source: { materialId: document.materialId, label: document.label, locator: document.locator },
+    }];
+  }).slice(0, 3);
 }
 
 /** Searches the pages themselves after import. It returns a verbatim passage, never a generated summary. */
