@@ -751,6 +751,8 @@ html body.is-course-studio .studio-section-head.kelus-space-top[data-section="ma
 .start-page .setup-first-upload::before { display: none; }
 .start-page .setup-first-upload:is(:hover, :focus-within, .is-dragging) { transform: translateY(-2px); border-color: var(--color-kelus) !important; background: color-mix(in srgb, var(--k-green-wash, #e6f1ea) 72%, var(--k-surface)) !important; box-shadow: none !important; }
 .start-page .setup-first-upload.is-dragging { border-style: solid !important; background: color-mix(in srgb, var(--k-green-wash, #e6f1ea) 88%, var(--k-surface)) !important; }
+.start-page .setup-first-upload.is-rejecting { border-color: var(--color-hero-orange, #c85a17) !important; background: color-mix(in srgb, var(--color-hero-orange-wash, #fff0e6) 72%, var(--k-surface)) !important; }
+.start-page .setup-first-upload.is-rejecting .setup-upload-mark { color: var(--color-hero-orange, #c85a17); }
 .start-page .setup-first-upload[aria-busy="true"] { border-style: solid !important; border-color: color-mix(in srgb, var(--color-kelus) 68%, var(--k-line)) !important; background: color-mix(in srgb, var(--k-green-wash, #e6f1ea) 68%, var(--k-surface)) !important; }
 .start-page .setup-first-upload .setup-upload-mark { grid-row: 1 / span 2; display: grid; place-items: center; width: 48px !important; height: 48px !important; margin: 0 !important; border-radius: 12px; background: var(--k-surface, #fff); transition: transform 200ms cubic-bezier(0.22, 1, 0.36, 1), background-color 200ms cubic-bezier(0.22, 1, 0.36, 1); }
 .start-page .setup-first-upload.is-dragging .setup-upload-mark { transform: translateY(-4px) scale(1.04); background: #fff; }

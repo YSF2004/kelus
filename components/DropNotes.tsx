@@ -2,13 +2,14 @@
 
 import { BrandIcon } from "@/components/BrandIcon";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
-import { useEffect, useRef, useState, type DragEvent } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { useDropzone, type DropEvent, type FileRejection } from "react-dropzone";
 import { PackArt } from "@/components/PackArt";
 import Link from "next/link";
 import { PasteNotes } from "@/components/PasteNotes";
 import { PhotoNotes } from "@/components/PhotoNotes";
 import { MAX_NOTES_BYTES } from "@/domain/markdown-pages";
-import { SOURCE_FILE_ACCEPT, isNotesFile, isSlidesFile, isSourceFile, isZipFile } from "@/domain/materials";
+import { isNotesFile, isSlidesFile, isSourceFile, isZipFile } from "@/domain/materials";
 import { folderToNotesFile, zipToNotesFile, slidesToNotesFile } from "@/lib/zip-notes";
 import { takePendingSetupFile } from "@/lib/pending-setup-file";
 import { photosToPdfFile } from "@/lib/photo-notes";
@@ -31,6 +32,23 @@ function formatSize(bytes: number) {
 
 const importSteps = ["Reading your source", "Finding study topics", "Opening your first question"] as const;
 const ease = [0.22, 1, 0.36, 1] as const;
+const SOURCE_ACCEPT = {
+  "application/pdf": [".pdf"],
+  "text/markdown": [".md", ".markdown"],
+  "text/plain": [".txt"],
+  "application/zip": [".zip"],
+  "application/vnd.openxmlformats-officedocument.presentationml.presentation": [".pptx"],
+  "image/*": [".jpg", ".jpeg", ".png", ".heic", ".heif", ".webp"],
+} as const;
+const MAX_SOURCE_BYTES = 20 * 1024 * 1024;
+
+function describeRejectedFile(rejection: FileRejection) {
+  const name = rejection.file.name || "That file";
+  const code = rejection.errors[0]?.code;
+  if (code === "file-too-large") return `${name} is over the 20 MB limit. Choose a smaller export or split it first.`;
+  if (code === "file-invalid-type") return `${name} is not a PDF, slide deck, notes file, export or photo of notes.`;
+  return `${name} couldn’t be added. Choose a PDF, slides, notes, export or photo of notes.`;
+}
 
 /** A source receipt, not a generic spinner: the learner can see their own file and exactly what Kelus is doing with it. */
 function ImportReceipt({ name, detail, stage, reduce }: { name: string; detail: string; stage: string; reduce: boolean }) {
@@ -63,7 +81,6 @@ function ImportReceipt({ name, detail, stage, reduce }: { name: string; detail: 
  */
 export function DropNotes({ onFile, first = false, courseName }: { onFile: (file: File) => Promise<void>; first?: boolean; courseName?: string }) {
   const reduce = useReducedMotion() === true;
-  const [dragging, setDragging] = useState(false);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const [sourceName, setSourceName] = useState("");
@@ -74,7 +91,6 @@ export function DropNotes({ onFile, first = false, courseName }: { onFile: (file
   // hydrates without changing the action or the surrounding layout.
   const [intakeVariant] = useState<SourceIntakeVariant>(() => first && typeof window !== "undefined" ? getSourceIntakeVariant() : "reference");
   const importing = useRef(false);
-  const fileInput = useRef<HTMLInputElement>(null);
 
   async function importSource(name: string, prepare: () => Promise<File>, preparation: string, kind?: string) {
     if (importing.current) return;
@@ -86,7 +102,7 @@ export function DropNotes({ onFile, first = false, courseName }: { onFile: (file
     try {
       const file = await prepare();
       if (isNotesFile(file) && file.size > MAX_NOTES_BYTES) throw new Error("These notes are over 2 MB. Choose a smaller file or split them.");
-      if (!isNotesFile(file) && file.size > 20 * 1024 * 1024) throw new Error("This PDF is over 20 MB. Choose a smaller export or split it first.");
+      if (!isNotesFile(file) && file.size > MAX_SOURCE_BYTES) throw new Error("This file is over 20 MB. Choose a smaller export or split it first.");
       // The upload target becomes the source itself as soon as we have a real file, rather than a generic loader.
       setSourceName(file.name || name);
       setSourceDetail(`${kind ?? sourceType(file)} · ${formatSize(file.size)}`);
@@ -102,7 +118,6 @@ export function DropNotes({ onFile, first = false, courseName }: { onFile: (file
   }
 
   async function take(picked: File | undefined) {
-    setDragging(false);
     if (!picked || importing.current) return;
     // A photo of a page dropped here goes the way "Take photos of your notes" goes, rather than being refused.
     if (isPhoto(picked)) return takePhotos([picked]);
@@ -116,7 +131,6 @@ export function DropNotes({ onFile, first = false, courseName }: { onFile: (file
   }
 
   async function takePhotos(photos: File[]) {
-    setDragging(false);
     if (!photos.length) return;
     await importSource(photos.length === 1 ? photos[0].name : `${photos.length} photos`,
       () => photosToPdfFile(photos), "Preparing your photos…", "Photos");
@@ -137,25 +151,31 @@ export function DropNotes({ onFile, first = false, courseName }: { onFile: (file
     trackEvent({ name: "source_intake_viewed", variant: intakeVariant });
   }, [first, intakeVariant]);
 
-  function drop(event: DragEvent<HTMLLabelElement>) {
-    event.preventDefault();
+  const handleDrop = useCallback((accepted: File[], rejected: FileRejection[], event: DropEvent) => {
+    if (rejected.length) setError(describeRejectedFile(rejected[0]));
+    if (!accepted.length || importing.current) return;
     // A whole folder (an Obsidian vault from Finder or Files) is read note by note into one notes file.
-    const entry = event.dataTransfer.items?.[0]?.webkitGetAsEntry?.();
+    const dataTransfer = (event as unknown as { dataTransfer?: DataTransfer }).dataTransfer ?? null;
+    const entry = dataTransfer?.items?.[0]?.webkitGetAsEntry?.();
     if (entry?.isDirectory) {
-      setDragging(false);
       void importSource(entry.name, () => folderToNotesFile(entry as FileSystemDirectoryEntry), "Opening your notes folder…", "Notes folder");
       return;
     }
     // Several photos of pages dropped together become one set of notes, in the order they were dropped.
-    const files = [...event.dataTransfer.files];
-    if (files.length > 1 && files.every(isPhoto)) { void takePhotos(files); return; }
-    void take(files[0]);
-  }
+    if (accepted.length > 1 && accepted.every(isPhoto)) { void takePhotos(accepted); return; }
+    void take(accepted[0]);
+  // Existing file intake remains the single validator; Dropzone only owns the reliable browser interaction.
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
-  function leaveDropTarget(event: DragEvent<HTMLLabelElement>) {
-    // Child elements fire dragleave too. Only end the visual state when the file really leaves the whole target.
-    if (!event.currentTarget.contains(event.relatedTarget as Node | null)) setDragging(false);
-  }
+  const { getInputProps, getRootProps, isDragActive, isDragReject, open } = useDropzone({
+    accept: SOURCE_ACCEPT,
+    disabled: busy,
+    maxSize: MAX_SOURCE_BYTES,
+    multiple: true,
+    onDrop: handleDrop,
+    validator: (file) => isPhoto(file) || isSourceFile(file) ? null : { code: "file-invalid-type", message: "Choose a supported study source." },
+  });
 
   return (
     <main id="main" className="destination-page is-booklet-product is-marked-setup is-material-first start-page">
@@ -173,15 +193,14 @@ export function DropNotes({ onFile, first = false, courseName }: { onFile: (file
             {/* From the founder's Notion-style illustration pack: a learner with their material. */}
             <PackArt name="taking-note" className="empty-course-art" size={156} />
           </div>
-          <label
-            className={`setup-first-upload${dragging ? " is-dragging" : ""}`}
-            aria-busy={busy || undefined}
-            onDragEnter={() => setDragging(true)}
-            onDragLeave={leaveDropTarget}
-            onDragOver={(event) => event.preventDefault()}
-            onDrop={drop}
+          <div
+            {...getRootProps({
+              className: `setup-first-upload${isDragActive ? " is-dragging" : ""}${isDragReject ? " is-rejecting" : ""}`,
+              "aria-busy": busy || undefined,
+              "aria-label": "Choose a PDF, notes, slides, export or photo of notes",
+            })}
           >
-            <input ref={fileInput} type="file" aria-label="Choose a PDF or notes" accept={SOURCE_FILE_ACCEPT} disabled={busy} onChange={(event) => { void take(event.target.files?.[0]); event.target.value = ""; }} />
+            <input {...getInputProps({ "aria-label": "Choose a PDF or notes" })} />
             <span className="setup-upload-mark" aria-hidden="true"><PackArt name="folder" size={44} /></span>
             <span className="setup-upload-copy" role={busy ? "status" : undefined} aria-live={busy ? "polite" : undefined}>
               {busy ? <>
@@ -189,12 +208,12 @@ export function DropNotes({ onFile, first = false, courseName }: { onFile: (file
                   <ImportReceipt key={sourceName || stage} name={sourceName} detail={sourceDetail} stage={stage} reduce={reduce} />
                 </AnimatePresence>
               </> : <>
-                <strong suppressHydrationWarning>{dragging ? "Drop it to add it" : intakeVariant === "course_story" ? "Add your course file" : "Choose a course file"}</strong>
+                <strong suppressHydrationWarning>{isDragReject ? "That file will not work here" : isDragActive ? "Drop it to add it" : intakeVariant === "course_story" ? "Add your course file" : "Choose a course file"}</strong>
                 {/* Dragging only exists with a mouse or trackpad; a phone gets the file types instead. */}
-                <span suppressHydrationWarning>{dragging ? "Release to begin reading it." : intakeVariant === "course_story" ? <>PDF, slides, notes or a course export. Kelus finds topics, then asks your first question.</> : <><span className="drop-hint">or drop it here · </span>PDF, slides, plain text or a <span className="brand-inline"><BrandIcon brand="notion" size={14} />Notion</span> .zip</>}</span>
+                <span suppressHydrationWarning>{isDragReject ? "Use a PDF, slide deck, notes file, Notion export or photo of your notes." : isDragActive ? "Release to begin reading it." : intakeVariant === "course_story" ? <>PDF, slides, notes or a course export. Kelus finds topics, then asks your first question.</> : <><span className="drop-hint">or drop it here · </span>PDF, slides, plain text, a <span className="brand-inline"><BrandIcon brand="notion" size={14} />Notion</span> .zip or a photo</>}</span>
               </>}
             </span>
-          </label>
+          </div>
           {!busy ? <div className="source-first-next" aria-label="What happens after you add a source">
             <span>Kelus reads the source</span><span aria-hidden="true">→</span><span>You check the topics</span><span aria-hidden="true">→</span><span>Your first recall question</span>
           </div> : null}
@@ -203,7 +222,7 @@ export function DropNotes({ onFile, first = false, courseName }: { onFile: (file
           {first && !busy ? <Link className={styles.example} href="/today?sample=1">Try a short example first <span aria-hidden="true">→</span></Link> : null}
           {error ? <div className={styles.recovery}>
             <div role="alert"><strong>Couldn’t use {sourceName || "that source"}.</strong><p>{error}</p></div>
-            <button type="button" onClick={() => fileInput.current?.click()}>Choose another file</button>
+            <button type="button" onClick={open}>Choose another file</button>
             <p>You can also paste the relevant section above. Any text you entered stays here.</p>
           </div> : null}
           <p className="setup-file-help">PDFs up to 20 MB. Printed scans can be read; blurred or handwritten pages may need pasted text. For Notion, export your notes and choose the .zip.</p>
