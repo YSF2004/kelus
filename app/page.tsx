@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
-import { KelusHero } from "@/components/hero/KelusHero";
-import { HomeAfterHero } from "@/components/home/HomeAfterHero";
+import { TileHome } from "@/components/home/TileHome";
+import { StudyMoment, RevisionReturn } from "@/components/home/HomeVisualChapters";
+import { HomeFinal } from "@/components/home/HomeFinal";
 import { LateralPage } from "@/components/PageTransition";
 import { SiteFooter } from "@/components/SiteFooter";
 
@@ -43,8 +44,10 @@ export default function Home() {
       <div className="home is-leitner-home" data-marketing="editorial">
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(structuredData) }} />
         <main id="main">
-          <KelusHero />
-          <HomeAfterHero />
+          <TileHome />
+          <StudyMoment />
+          <RevisionReturn />
+          <HomeFinal />
         </main>
         <SiteFooter />
       </div>
