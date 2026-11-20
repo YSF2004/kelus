@@ -58,7 +58,7 @@ components:
   button-primary-hover:
     backgroundColor: "{colors.kelus-green-hover}"
     textColor: "{colors.white}"
-    rounded: "32px"
+    rounded: "{rounded.marketing}"
   button-secondary:
     backgroundColor: "#f5f5f5"
     textColor: "{colors.booklet-ink}"
@@ -144,14 +144,14 @@ Kelus is flat by default. Depth comes from paper contrast, a hairline, and spati
 
 ## Shapes
 
-Marketing actions and tiles are gently square at rest (8px). Public buttons may round to 32px under a fine pointer as a small acknowledgement of intent. Product controls remain stable at 12px, and product cards at 14px; their corners do not animate. Pills are limited to compact statuses and topic chips. Full-width panels, nested rounded cards, and arbitrary decorative circles are not part of the system.
+Marketing actions and tiles are gently square at rest and on hover (8px). Product controls remain stable at 12px, and product cards at 14px; their corners do not animate. Pills are limited to compact statuses and topic chips. Full-width panels, nested rounded cards, and arbitrary decorative circles are not part of the system.
 
 ## Components
 
 ### Buttons
 
 - **Primary:** green fill, white label, 48px high on public pages and critical product actions.
-- **Marketing state:** flat at rest; on a fine pointer, darkens and rounds from 8px to 32px over 200ms. Press scales to 0.97.
+- **Marketing state:** flat at rest and on hover; a fine pointer darkens the fill only. Press scales to 0.97.
 - **Product state:** stable 12px corner; darkens or warms its border on hover, presses to 0.97, and shows a 2px green focus ring offset by 3px.
 - **Secondary:** paper fill and hairline border. Use it for an alternative path, not another competing conversion.
 
