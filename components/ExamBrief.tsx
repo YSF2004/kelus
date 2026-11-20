@@ -10,6 +10,7 @@ import { extractSourcePages } from "@/lib/source-extraction";
 import { readMaterialPdf } from "@/lib/material-sync";
 import { useAuth } from "@/components/AuthProvider";
 import { ArrowRight } from "@/components/Marks";
+import { examGapShareText } from "@/lib/exam-gap-share";
 import styles from "./ExamBrief.module.css";
 
 type Props = {
@@ -28,6 +29,7 @@ export function ExamBrief({ papers, concepts, activities, onCoverageChange }: Pr
   const reduceMotion = useReducedMotion() === true;
   const [pages, setPages] = useState<ExtractedMaterialPage[] | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [shareStatus, setShareStatus] = useState<string | null>(null);
   const paperKey = papers.map((paper) => paper.id).join(",");
 
   useEffect(() => {
@@ -60,6 +62,27 @@ export function ExamBrief({ papers, concepts, activities, onCoverageChange }: Pr
 
   if (!papers.length) return null;
 
+  async function shareExamFocus() {
+    if (!brief) return;
+    const text = examGapShareText(brief);
+    const url = window.location.origin.includes("localhost") ? window.location.origin : "https://kelus.me";
+    if (typeof navigator.share === "function" && window.matchMedia("(pointer: coarse)").matches) {
+      try {
+        await navigator.share({ title: "Kelus exam focus", text, url });
+        setShareStatus("Summary shared. Your notes and past paper stayed private.");
+      } catch {
+        // Closing the share sheet does not need an error message.
+      }
+      return;
+    }
+    try {
+      await navigator.clipboard.writeText(`${text} ${url}`);
+      setShareStatus("Summary copied. Your notes and past paper stayed private.");
+    } catch {
+      setShareStatus(`Copy this summary: ${text}`);
+    }
+  }
+
   return (
     <motion.section
       className={styles.brief}
@@ -73,7 +96,10 @@ export function ExamBrief({ papers, concepts, activities, onCoverageChange }: Pr
           <p className={styles.eyebrow}>Exam focus</p>
           <h2 id="exam-brief-title">What this paper asks about.</h2>
         </div>
-        <Link href="/today?section=materials#past-paper-title" className={styles.mapLink}>See every prompt <ArrowRight /></Link>
+        <div className={styles.headingActions}>
+          {brief?.promptCount ? <button type="button" className={styles.shareSummary} onClick={() => void shareExamFocus()}>Share summary</button> : null}
+          <Link href="/today?section=materials#past-paper-title" className={styles.mapLink}>See every prompt <ArrowRight /></Link>
+        </div>
       </div>
 
       {error ? <p className={styles.message} role="alert">{error}</p> : !brief ? <p className={styles.message} role="status">Reading the paper against your study topics…</p> : !brief.promptCount ? <p className={styles.message}>No clear question prompts were found. Add a text-based past paper to make this view useful.</p> : (
@@ -82,6 +108,7 @@ export function ExamBrief({ papers, concepts, activities, onCoverageChange }: Pr
             {brief.linkedTopicCount ? <>This paper directly connects to <strong>{brief.linkedTopicCount} of {concepts.length} study topics</strong>.</> : "Kelus found prompts, but no confirmed topic connections yet."}
             {brief.unlinkedTopicCount ? <> {brief.unlinkedTopicCount} topic{brief.unlinkedTopicCount === 1 ? " has" : "s have"} no direct connection here—this does not mean {brief.unlinkedTopicCount === 1 ? "it" : "they"} will not appear.</> : null}
           </p>
+          {shareStatus ? <p className={styles.shareStatus} role="status">{shareStatus}</p> : null}
 
           {brief.priority ? <section className={styles.priority} aria-label="Best place to start from the past paper">
             <div>
