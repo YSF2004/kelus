@@ -14,6 +14,7 @@ import { extractSourcePages } from "@/lib/source-extraction";
 import { readMaterialPdf } from "@/lib/material-sync";
 import { getMaterialsSnapshot, getServerMaterialsSnapshot, subscribeMaterials } from "@/lib/material-store";
 import { trackEvent } from "@/lib/analytics";
+import { readPastPaperCorrections, withoutRejectedPastPaperMatches, type PastPaperMatchCorrection } from "@/lib/past-paper-corrections";
 import styles from "./PastPaperPractice.module.css";
 
 export function PastPaperPractice() {
@@ -31,6 +32,8 @@ export function PastPaperPractice() {
   const [response, setResponse] = useState({ questionId: "", answer: "", compared: false });
   const focus = search.get("topic");
   const paperKey = papers.map((paper) => paper.id).join(",");
+  const courseId = course?.id ?? "guest";
+  const [corrections] = useState<PastPaperMatchCorrection[]>(() => readPastPaperCorrections(courseId));
 
   useEffect(() => {
     document.body.classList.add("is-kelus-space", "is-booklet-page", "is-course-studio");
@@ -62,11 +65,11 @@ export function PastPaperPractice() {
   }, [paperKey, papers, auth.user?.id]);
 
   const availablePages = useMemo(() => papers.length ? pages : [], [papers.length, pages]);
-  const questionMaps = useMemo(() => availablePages ? mapPastPaperQuestions({
+  const questionMaps = useMemo(() => availablePages ? withoutRejectedPastPaperMatches(mapPastPaperQuestions({
     questions: extractPastPaperQuestions(availablePages),
     concepts: state.snapshot.concepts,
     activities: state.snapshot.learningActivities,
-  }).filter((item) => item.matches.length) : [], [availablePages, state.snapshot.concepts, state.snapshot.learningActivities]);
+  }), corrections).filter((item) => item.matches.length) : [], [availablePages, state.snapshot.concepts, state.snapshot.learningActivities, corrections]);
   const defaultQuestion = questionMaps.find((item) => item.matches.some((match) => match.conceptId === focus)) ?? questionMaps[0] ?? null;
   const question = questionMaps.find((item) => item.id === selectedId) ?? defaultQuestion;
   const match = question?.matches.find((item) => item.conceptId === focus) ?? question?.matches[0] ?? null;
@@ -81,8 +84,9 @@ export function PastPaperPractice() {
 
   function nextPrompt() {
     if (!questionMaps.length || !question) return;
-    const current = questionMaps.findIndex((item) => item.id === question.id);
-    const next = questionMaps[(current + 1) % questionMaps.length].id;
+    const next = questionMaps
+      .filter((item) => item.id !== question.id)
+      .sort((left, right) => (left.matches[0]?.mastery ?? 1) - (right.matches[0]?.mastery ?? 1) || left.text.localeCompare(right.text))[0]?.id ?? question.id;
     setSelectedId(next);
     setResponse({ questionId: next, answer: "", compared: false });
   }
@@ -138,7 +142,7 @@ export function PastPaperPractice() {
             </label>
             <div className={styles.actions}>
               <button type="button" className="k-btn" onClick={() => { setResponse({ questionId: question.id, answer, compared: true }); trackEvent({ name: "past_paper_response_compared", wrote_answer: answer.trim().length > 0 }); }}>Compare to my notes <ArrowRight /></button>
-              <button type="button" className="text-btn" onClick={nextPrompt}>Try another prompt</button>
+              <button type="button" className="text-btn" onClick={nextPrompt}>Choose another prompt</button>
             </div>
 
             <AnimatePresence initial={false}>
@@ -146,7 +150,7 @@ export function PastPaperPractice() {
                 <div className={styles.evidenceHeading}><span>From your notes</span><strong>{evidence.source?.label ?? evidence.conceptName}{evidence.source?.locator ? ` · ${evidence.source.locator}` : ""}</strong></div>
                 <blockquote>{evidence.quote}</blockquote>
                 {answer.trim() ? <p className={styles.coverage}>{comparison?.mentioned.length ? <>Your answer names <strong>{comparison.mentioned.join(", ")}</strong> from this source line.</> : "Your answer uses different words from this source line. Read the line, then decide what you want to add."}{comparison?.notMentioned.length ? <> You may want to check <strong>{comparison.notMentioned.join(", ")}</strong>.</> : null}</p> : <p className={styles.coverage}>Read this line, then decide whether you could explain it in your own words. Kelus does not treat an empty answer as a wrong one.</p>}
-                <div className={styles.evidenceActions}><button type="button" className="k-btn" onClick={studyTopic}>Revise {match?.conceptName} <ArrowRight /></button><Link href={`/concept?id=${encodeURIComponent(match!.conceptId)}`} className="text-btn">Open topic</Link></div>
+                <div className={styles.evidenceActions}><button type="button" className="k-btn" onClick={nextPrompt}>Next source-backed prompt <ArrowRight /></button><button type="button" className="text-btn" onClick={studyTopic}>Revise {match?.conceptName}</button><Link href={`/concept?id=${encodeURIComponent(match!.conceptId)}`} className="text-btn">Open topic</Link></div>
               </motion.section> : null}
             </AnimatePresence>
           </section>
