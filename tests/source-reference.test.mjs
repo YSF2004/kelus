@@ -39,6 +39,8 @@ test("study feedback offers a verified file choice or an honest missing-source r
   const session = await readFile(new URL("app/session/page.tsx", root), "utf8");
   assert.match(quickRun, /This saved question isn’t linked to one file/);
   assert.match(quickRun, /no course file is linked to verify it/);
+  assert.match(quickRun, /Challenge this check/);
+  assert.match(quickRun, /What changes next/);
   assert.match(quickRun, /label=\{w\.seeOnPage\}/);
   assert.match(session, /sourceReferences=\{activity\.sourceReferences\}/);
   assert.match(session, /onShowLine=\{\(quote, reference\) =>/);
