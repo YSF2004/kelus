@@ -5,6 +5,7 @@ import { toneOf } from "@/lib/topic-tone";
 import { uiWords } from "@/lib/ui-words";
 import { ArrowOut, ArrowRight } from "@/components/Marks";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
+import { Drawer } from "vaul";
 import { kelusDuration, kelusEase } from "@/components/motion";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
@@ -58,6 +59,15 @@ type SourcePanelState = {
   reason?: "missing" | "read_failed" | "built_in";
 };
 
+const subscribeToPhoneViewport = (listener: () => void) => {
+  const query = window.matchMedia("(max-width: 650px) and (pointer: coarse)");
+  query.addEventListener("change", listener);
+  return () => query.removeEventListener("change", listener);
+};
+
+const isPhoneViewport = () => window.matchMedia("(max-width: 650px) and (pointer: coarse)").matches;
+const isServerViewport = () => false;
+
 const PHASE_LABEL: Record<"learn" | "retrieve" | "apply" | "evaluate", string> = {
   learn: "Read",
   retrieve: "Retrieve",
@@ -97,6 +107,10 @@ function SessionBody() {
   const sessionId = search.get("id");
   const { state, submit, abandon, removeTopic, renameTopic } = useLearner();
   const auth = useAuth();
+  // The course page stays beside a question on larger screens. On a phone it is
+  // a deliberate, dismissible peek — opening it must not make the learner lose
+  // their place in the answer.
+  const phoneSourceSheet = useSyncExternalStore(subscribeToPhoneViewport, isPhoneViewport, isServerViewport);
   const materials = useSyncExternalStore(subscribeMaterials, getMaterialsSnapshot, getServerMaterialsSnapshot);
   const session = state.snapshot.sessions.find((item) => item.id === sessionId);
   const firstStudySession = !state.snapshot.sessions.some((item) => item.status === "complete" && !SAMPLE_COURSE_IDS.has(item.courseId));
@@ -621,10 +635,45 @@ function SessionBody() {
           </>
         );
       })()}
-      {hasReadableSource ? <div className="session-workspace-source" aria-label="Your notes">
+      {hasReadableSource && !phoneSourceSheet ? <div className="session-workspace-source" aria-label="Your notes">
         {quickMode ? <button type="button" className="session-notes-close" onClick={() => setNotesOpen(false)} aria-label="Close your notes">Close notes <ArrowRight /></button> : null}
         <CourseSourceReader key={`${currentMaterial.id}-${sourcePage}-${sourceJump}`} material={currentMaterial} initialPage={sourcePage} concealed={recallWithoutLooking} onShowSource={() => setSourceRevealed(true)} highlight={markedLine} />
       </div> : null}
+      {hasReadableSource && phoneSourceSheet ? (
+        <Drawer.Root
+          open={notesOpen}
+          onOpenChange={(open) => {
+            setNotesOpen(open);
+            if (open) setSourceRevealed(true);
+          }}
+          shouldScaleBackground={false}
+        >
+          <Drawer.Portal>
+            <Drawer.Overlay className="session-evidence-sheet-scrim" />
+            <Drawer.Content className="session-evidence-sheet" aria-label="Your notes">
+              <div className="session-evidence-sheet-handle" aria-hidden="true" />
+              <header className="session-evidence-sheet-head">
+                <div>
+                  <span>Evidence from your notes</span>
+                  <strong>{currentMaterial.title}</strong>
+                  {currentSource?.locator ? <small>{currentSource.locator}</small> : null}
+                </div>
+                <Drawer.Close type="button" className="session-evidence-sheet-close">Done</Drawer.Close>
+              </header>
+              <div className="session-evidence-sheet-reader">
+                <CourseSourceReader
+                  key={`${currentMaterial.id}-${sourcePage}-${sourceJump}`}
+                  material={currentMaterial}
+                  initialPage={sourcePage}
+                  concealed={false}
+                  onShowSource={() => setSourceRevealed(true)}
+                  highlight={markedLine}
+                />
+              </div>
+            </Drawer.Content>
+          </Drawer.Portal>
+        </Drawer.Root>
+      ) : null}
       <div className="study-loop-track">
         {quickMode ? null : (
           <LoopSteps
