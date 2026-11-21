@@ -29,6 +29,8 @@ export type QuickRunResult = { right: number; total: number; unsure: number; sel
 const noSubscribe = () => () => {};
 const modKeyNow = () => (/Mac|iPhone|iPad/.test(navigator.platform) ? "⌘" : "Ctrl ");
 const touchNow = () => window.matchMedia("(pointer: coarse)").matches;
+const isInteractiveShortcutTarget = (target: EventTarget | null) =>
+  target instanceof HTMLElement && Boolean(target.closest("input, textarea, select, button, a, [contenteditable='true']"));
 
 function EvidenceSourceAction({ resolution, quote, onShowLine, testId, label }: {
   resolution: EvidenceSourceResolution;
@@ -189,10 +191,20 @@ export function QuickRun({ run: providedRun, persistenceKey, onPersistenceChange
       explained, compared, elapsedMs: Math.max(0, Math.round(performance.now() - started.current)),
       responseTracked: firstResponseTracked.current,
     };
-    let saved = false;
-    try { saved = saveStudyDraft(window.localStorage, persistenceKey, run, total, snapshot); } catch { /* Storage access itself may be denied. */ }
-    setSaveFailed(!saved);
-    onPersistenceChange?.(saved);
+    const save = () => {
+      let saved = false;
+      try { saved = saveStudyDraft(window.localStorage, persistenceKey, run, total, snapshot); } catch { /* Storage access itself may be denied. */ }
+      setSaveFailed(!saved);
+      onPersistenceChange?.(saved);
+    };
+    // Typing should never serialize the whole run on every keystroke. A short quiet window keeps the draft safe
+    // without making the answer field compete with localStorage on lower-powered phones.
+    const timer = window.setTimeout(save, typed || explained ? 180 : 0);
+    window.addEventListener("pagehide", save, { once: true });
+    return () => {
+      window.clearTimeout(timer);
+      window.removeEventListener("pagehide", save);
+    };
   }, [persistenceKey, run, total, reading, step, picked, typed, tapped, answered, knownNow, missed, unsure, right, explained, compared, onPersistenceChange]);
 
   function clearDraft() {
@@ -344,6 +356,7 @@ export function QuickRun({ run: providedRun, persistenceKey, onPersistenceChange
     if (!item || item.kind !== "choice" || answered || reading >= 0) return;
     const onKey = (event: KeyboardEvent) => {
       if (event.metaKey || event.ctrlKey || event.altKey) return;
+      if (isInteractiveShortcutTarget(event.target)) return;
       const index = Number(event.key) - 1;
       if (Number.isInteger(index) && index >= 0 && index < (item.choices?.length ?? 0)) { event.preventDefault(); answer(index); }
     };

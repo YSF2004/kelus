@@ -887,6 +887,12 @@
 .hideLine:focus-visible { outline: 2px solid var(--color-kelus); outline-offset: -2px; }
 @media (hover: none) { .hideLine { opacity: 0.6; } }
 
+@media (pointer: coarse) {
+  .sourceCue button { min-height: 44px; padding-block: 6px; }
+  .readLines li { padding-right: 48px; }
+  .hideLine { top: 0; right: 0; width: 44px; height: 44px; }
+}
+
 /* The caption beside the progress bar sits in the header's flow as if unwrapped. While a question's answer is the
    topic's name, the name steps out and only "Topic 2 of 4" stays. */
 .context { display: contents; }
