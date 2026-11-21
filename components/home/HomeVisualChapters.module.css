@@ -9,7 +9,6 @@
 .studySection {
   background: #fff;
   color: var(--ink);
-  border-top: 1px solid #e3e8e5;
 }
 
 .studyInner,
@@ -89,7 +88,6 @@
 
 .returnSection {
   background: #f4f0f7;
-  border-top: 1px solid #e4dfea;
 }
 .returnInner { grid-template-columns: minmax(0, .9fr) minmax(0, 1.1fr); }
 .returnCopy { padding: clamp(4rem, 8vw, 8rem) clamp(1.5rem, 6vw, 7rem); }
