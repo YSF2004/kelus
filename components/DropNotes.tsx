@@ -219,7 +219,7 @@ export function DropNotes({ onFile, first = false, courseName }: { onFile: (file
           </div> : null}
           <PhotoNotes onFile={(file) => void take(file)} disabled={busy} />
           <PasteNotes onFile={(file) => void take(file)} disabled={busy} />
-          {first && !busy ? <Link className={styles.example} href="/today?sample=1">Try a short example first <span aria-hidden="true">→</span></Link> : null}
+          {first && !busy ? <Link className={styles.example} href="/today?sample=1">See a 1-minute example first <span aria-hidden="true">→</span></Link> : null}
           {error ? <div className={styles.recovery}>
             <div role="alert"><strong>Couldn’t use {sourceName || "that source"}.</strong><p>{error}</p></div>
             <button type="button" onClick={open}>Choose another file</button>

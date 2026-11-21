@@ -241,7 +241,10 @@ export function TodayRoute({
   // A return begins with a warm-up. Name that first action honestly instead of promising to open the topic directly.
   // The page already names the topic. The action adds the small, finite commitment instead of
   // repeating it, so a student knows what happens after one click.
-  const defaultStartActionLabel = startLabel ?? "Start this topic";
+  // The main action should name the finite next task, not make the student infer it from the topic title.
+  const defaultStartActionLabel = startLabel ?? (firstChecks
+    ? `Start ${firstChecks} quick ${firstChecks === 1 ? "check" : "checks"}`
+    : "Start your explanation");
   const startActionLabel = warmupFirst && !startLabel ? "Start warm-up" : defaultStartActionLabel;
   // One line of the student's own notes on the card, as the homepage shows it: the page, then the words.
   const noteLine = firstActivity?.teach?.facts?.find((fact) => fact.length >= 30 && fact.length <= 220) ?? null;
