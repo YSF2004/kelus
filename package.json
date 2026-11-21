@@ -2,6 +2,15 @@
   "name": "kelus",
   "version": "0.1.0",
   "private": true,
+  "license": "AGPL-3.0-or-later",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/YSF2004/kelus.git"
+  },
+  "bugs": {
+    "url": "https://github.com/YSF2004/kelus/issues"
+  },
+  "homepage": "https://kelus.me",
   "type": "module",
   "engines": {
     "node": "22.x"
