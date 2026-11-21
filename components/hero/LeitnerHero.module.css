@@ -67,9 +67,9 @@
 @keyframes kelusHeroMark { 0%, 6% { background-size: 0% 100%; } 16%, 100% { background-size: 100% 100%; } }
 @keyframes kelusHeroMark2 { 0%, 22% { background-size: 0% 100%; } 32%, 100% { background-size: 100% 100%; } }
 @keyframes kelusHeroMark3 { 0%, 38% { background-size: 0% 100%; } 48%, 100% { background-size: 100% 100%; } }
-@keyframes kelusHeroCard { 0%, 12% { opacity: 0; transform: translateY(6px); filter: blur(4px); } 20%, 100% { opacity: 1; transform: none; filter: none; } }
-@keyframes kelusHeroCard2 { 0%, 28% { opacity: 0; transform: translateY(6px); filter: blur(4px); } 36%, 100% { opacity: 1; transform: none; filter: none; } }
-@keyframes kelusHeroCard3 { 0%, 44% { opacity: 0; transform: translateY(6px); filter: blur(4px); } 52%, 100% { opacity: 1; transform: none; filter: none; } }
+@keyframes kelusHeroCard { 0%, 12% { opacity: 0; transform: translateY(6px); } 20%, 100% { opacity: 1; transform: none; } }
+@keyframes kelusHeroCard2 { 0%, 28% { opacity: 0; transform: translateY(6px); } 36%, 100% { opacity: 1; transform: none; } }
+@keyframes kelusHeroCard3 { 0%, 44% { opacity: 0; transform: translateY(6px); } 52%, 100% { opacity: 1; transform: none; } }
 @keyframes kelusHeroFill { 0%, 60% { clip-path: inset(0 100% 0 0); } 74%, 100% { clip-path: inset(0 0 0 0); } }
 @keyframes kelusHeroBlank { 0% { border-bottom-color: var(--strong); } 74% { border-bottom-color: var(--green); } }
 @keyframes kelusHeroChecked { 0%, 78% { opacity: 0; transform: translateY(3px); } 88%, 100% { opacity: 1; transform: none; } }

@@ -89,9 +89,10 @@ export function RevisionLoopVisuals() {
 
 function sceneMotion(reduced: boolean) {
   return {
-    initial: reduced ? false : { opacity: 0, y: 10, filter: "blur(4px)" },
-    animate: { opacity: 1, y: 0, filter: "blur(0px)" },
-    exit: reduced ? { opacity: 0 } : { opacity: 0, y: -6, filter: "blur(3px)" },
+    // Opacity and transform stay on the compositor. Blur forced a repaint of the whole study surface on every handoff.
+    initial: reduced ? false : { opacity: 0, y: 10 },
+    animate: { opacity: 1, y: 0 },
+    exit: reduced ? { opacity: 0 } : { opacity: 0, y: -6 },
     transition: { duration: reduced ? 0.15 : 0.34, ease: [0.22, 1, 0.36, 1] as const },
   };
 }
