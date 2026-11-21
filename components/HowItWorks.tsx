@@ -110,10 +110,10 @@ function KeepVisual({ hidden }: VisualProps) {
 }
 
 const stages = [
-  { number: "01", cue: "Source", icon: "folder", title: "Start with what you were taught.", body: "Add a lecture PDF, slides, notes or a Notion export. Kelus finds the topics and links each one back to its page. Rename or remove any topic, any time.", Visual: SourceVisual, tone: "source" },
-  { number: "02", cue: "Recall", icon: "clipboard-check", title: "Show what you can recall.", body: "Each topic is up to three quick checks written from your own lines, then one explanation in your own words. Kelus lays it beside the page and shows what you left out, or said the wrong way round.", Visual: RecallVisual, tone: "recall" },
-  { number: "03", cue: "Route", icon: "diagram-project", title: "See the plan respond.", body: "A weak answer brings a topic forward; a stronger one gives it room. The next session starts from what actually happened, not a fixed schedule.", Visual: RerouteVisual, tone: "route" },
-  { number: "04", cue: "Keep", icon: "award", title: "Keep what you learned.", body: "Each session ends on what you practiced and what comes back. The lines you missed open tomorrow as a one-minute warm-up, and every question can go to Anki.", Visual: KeepVisual, tone: "route" },
+  { number: "01", cue: "Source", icon: "folder", title: "Start with what you were taught.", body: "Add a lecture PDF, slides, notes or a Notion export. Kelus finds the topics and links each one back to its page. Rename or remove anything before you begin.", Visual: SourceVisual, tone: "source" },
+  { number: "02", cue: "Recall", icon: "clipboard-check", title: "Try the idea from memory.", body: "Each topic is up to three quick checks written from your own lines, then one explanation in your own words. The source remains one tap away when you need to check it.", Visual: RecallVisual, tone: "recall" },
+  { number: "03", cue: "Plan", icon: "diagram-project", title: "See exactly what changes.", body: "A weak answer brings a topic forward; a stronger one gives it room. The next session starts from what actually happened, and Kelus says why it changed.", Visual: RerouteVisual, tone: "route" },
+  { number: "04", cue: "Return", icon: "award", title: "Come back to what was uncertain.", body: "Each session ends with the lines you practiced and the ones that need another pass. Tomorrow begins with a one-minute warm-up, not a blank plan.", Visual: KeepVisual, tone: "route" },
 ] as const;
 
 function Chapter({ stage }: { stage: (typeof stages)[number] }) {
@@ -147,9 +147,9 @@ export function HowItWorks() {
         <span className={`${styles.heroArt} k-rise`} style={rise(0.1, { duration: 0.6 })} aria-hidden="true">
           <PackArt name="reviewing" size={340} />
         </span>
-        <h1 id="how-title">What happens after you add your notes.</h1>
+        <h1 id="how-title">See your notes become a study plan that can explain itself.</h1>
         <div className={styles.heroBottom}>
-          <p>Kelus finds the teaching lines, asks from them, and lets your answer decide what returns next.</p>
+          <p>One course moves through the whole experience: source page, answer, evidence, then the next thing to practice.</p>
           <Link className={styles.primaryAction} href="/today">Set up my course<span className={styles.primaryArrow} aria-hidden="true">→</span></Link>
         </div>
       </section>

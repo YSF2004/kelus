@@ -1,34 +1,40 @@
-/* The dark band, after link.com's: one claim in white with one bright phrase, and the proof beside it, which here is
-   what Kelus really found in four course files. */
+/* A single dark product proof, not a feature grid. The page keeps following the same course that started in the hero. */
 .band {
   --deep: #0c2016; --bright: #5fd394;
-  display: grid; grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr); align-items: center; gap: 48px;
-  margin: 16px 64px 0; padding: 56px; border-radius: 8px; background: var(--deep); color: #fff;
+  display: grid; grid-template-columns: minmax(0, .8fr) minmax(0, 1.2fr); align-items: center; gap: clamp(44px, 7vw, 108px);
+  margin: 16px 64px 0; padding: clamp(40px, 6vw, 84px); border-radius: 8px; background: var(--deep); color: #fff;
 }
-.claim h2 { max-width: 9em; margin: 0; font-family: var(--font-source-serif), Georgia, serif !important; font-size: clamp(38px, 4.2vw, 60px) !important; font-weight: 500 !important; line-height: 1.02 !important; letter-spacing: -0.03em !important; color: #fff !important; text-wrap: balance; }
+.claim h2 { max-width: 9.6em; margin: 0; font-family: var(--font-source-serif), Georgia, serif !important; font-size: clamp(38px, 4.2vw, 60px) !important; font-weight: 500 !important; line-height: 1.04 !important; letter-spacing: -0.03em !important; color: #fff !important; text-wrap: balance; }
 .claim h2 span { font-family: inherit !important; color: var(--bright); }
-.claim p { max-width: 30em; margin: 20px 0 0; font-size: 17px; line-height: 1.45; color: rgba(255, 255, 255, 0.78) !important; }
-.action { display: inline-flex; align-items: center; height: 48px; margin-top: 28px; padding: 0 22px; border-radius: 8px; background: var(--bright); color: var(--deep); font-size: 16px; font-weight: 600; text-decoration: none; outline: 2px solid transparent; outline-offset: 0; transition: background-color 160ms, transform 120ms cubic-bezier(0.22, 1, 0.36, 1), outline-color 160ms, outline-offset 160ms cubic-bezier(0.22, 1, 0.36, 1); }
+.claim p { max-width: 31em; margin: 20px 0 0; font-size: 17px; line-height: 1.55; color: rgba(255, 255, 255, 0.78) !important; }
+.action { display: inline-flex; align-items: center; gap: 9px; height: 48px; margin-top: 28px; padding: 0 22px; border-radius: 8px; background: var(--bright); color: var(--deep); font-size: 16px; font-weight: 650; text-decoration: none; outline: 2px solid transparent; outline-offset: 0; transition: background-color 160ms, border-radius 200ms ease-in-out, transform 120ms cubic-bezier(0.22, 1, 0.36, 1), outline-color 160ms, outline-offset 160ms cubic-bezier(0.22, 1, 0.36, 1); }
 .action:hover { background: #79dca7; }
 .action:active { transform: scale(0.97); }
 .action:focus-visible { outline-color: var(--bright); outline-offset: 3px; }
-@media (prefers-reduced-motion: reduce) { .action { transition: none; } }
 
-.files { display: grid; gap: 1px; margin: 0; padding: 0; overflow: clip; border-radius: 8px; background: rgba(255, 255, 255, 0.1); list-style: none; }
-.files li { display: grid; grid-template-columns: minmax(0, 14rem) minmax(0, 1fr); align-items: center; gap: 20px; padding: 16px 18px; background: #102a1d; }
-.file { display: flex; align-items: center; gap: 12px; min-width: 0; }
-.file i { display: grid; flex: none; place-items: center; width: 36px; height: 36px; border-radius: 8px; background: #c4492e; color: #fff; font-size: 10.5px; font-style: normal; font-weight: 700; letter-spacing: 0.02em; }
-.file span { min-width: 0; font-size: 13px; color: rgba(255, 255, 255, 0.72); }
-.file small { display: block; margin-bottom: 1px; font-size: 11.5px; font-weight: 600; letter-spacing: 0.01em; color: var(--bright); }
-.file b { display: block; color: #fff; font-family: var(--font-source-serif), Georgia, serif !important; font-size: 16px; font-weight: 500; }
-.topics { display: flex; flex-wrap: wrap; gap: 6px; }
-.topics em { padding: 4px 10px; border-radius: 999px; background: rgba(95, 211, 148, 0.14); color: #c9f1da; font-size: 13px; font-style: normal; white-space: nowrap; }
-.topics .more { background: none; color: rgba(255, 255, 255, 0.72); }
-.none { font-size: 13.5px; line-height: 1.45; color: rgba(255, 255, 255, 0.78); }
-.credit { max-width: 34em; margin: 28px 0 0 !important; font-size: 12px !important; line-height: 1.5 !important; color: rgba(255, 255, 255, 0.62) !important; }
+.session { overflow: hidden; border: 1px solid rgba(255,255,255,.18); border-radius: 12px; background: #fff; color: #172019; box-shadow: 0 20px 48px -30px rgba(0,0,0,.75); }
+.session header, .session footer { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 17px 20px; background: #f5f7f5; font-size: 13px; }
+.session header strong { font-weight: 650; }
+.session header span, .session footer small { color: #5a6358; }
+.sessionBody { display: grid; grid-template-columns: minmax(0,1fr) minmax(0,1fr); }
+.evidence, .verdict { min-height: 204px; padding: 26px 24px; }
+.evidence { background: #fbfaf6; border-right: 1px solid #e0e4df; }
+.evidence span, .verdict > span { display: block; color: #5a6358; font-size: 12px; font-weight: 600; }
+.evidence p { margin: 15px 0 0; font-family: var(--font-source-serif), Georgia, serif; font-size: clamp(18px, 2vw, 25px); line-height: 1.26; letter-spacing: -.025em; }
+.verdict p { margin: 14px 0 12px; font-size: 15px; line-height: 1.45; color: #454d47; }
+.verdict strong { display: block; color: #a5521f; font-size: 17px; }
+.verdict small { display: block; margin-top: 8px; color: #5a6358; font-size: 13px; line-height: 1.45; }
+.session footer { justify-content: flex-start; flex-wrap: wrap; gap: 8px; border-top: 1px solid #e0e4df; }
+.session footer b { color: #1f6b45; font-size: 14px; }
+.dot { width: 9px; height: 9px; border-radius: 50%; background: #1f6b45; }
+@media (hover: hover) { .action:hover { border-radius: 24px; } }
+@media (prefers-reduced-motion: reduce) { .action { transition: none; } }
 @media (max-width: 960px) {
   .band { grid-template-columns: minmax(0, 1fr); gap: 32px; margin: 12px 16px 0; padding: 32px 20px; }
-  .files li { grid-template-columns: minmax(0, 1fr); gap: 10px; }
-  /* A phone shows each file's first three topics; the rest are one tap away in Kelus. */
-  .topics em:nth-child(n + 4):not(.more) { display: none; }
+}
+@media (max-width: 600px) {
+  .sessionBody { grid-template-columns: 1fr; }
+  .evidence { border-right: 0; border-bottom: 1px solid #e0e4df; }
+  .evidence, .verdict { min-height: 0; padding: 20px; }
+  .session header, .session footer { align-items: flex-start; flex-direction: column; gap: 5px; }
 }

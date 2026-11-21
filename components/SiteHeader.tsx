@@ -120,6 +120,9 @@ export function SiteHeader() {
           </details>
         ) : (
           <div className="site-header-cluster">
+            {onMarketing ? (
+              <Link href="/today" className="site-header-cta">Start revising</Link>
+            ) : null}
             {auth.configured ? (
               <button type="button" className="site-auth-button" onClick={auth.openDialog} aria-haspopup="dialog" aria-expanded={auth.dialogOpen}>
                 <svg viewBox="0 0 24 24" aria-hidden="true">
