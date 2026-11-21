@@ -1,40 +1,151 @@
+"use client";
+
+import { useRef, useSyncExternalStore } from "react";
+import { motion, useInView, useReducedMotion } from "motion/react";
+import { Tick } from "@/components/Marks";
 import styles from "./FollowThrough.module.css";
 
-/** A quiet, truthful view of a single source-backed correction. */
+const ease = [0.22, 1, 0.36, 1] as const;
+const subscribeToHydration = () => () => {};
+const getHydratedSnapshot = () => true;
+const getServerHydrationSnapshot = () => false;
+
+/**
+ * The homepage middle: one real line from a student's notes, followed through the four things Kelus does with it,
+ * as four tiles in a 2-by-2 grid (a title, one grey line, and the fragment on a grey stage).
+ * Each step is drawn in the product's own type and colours, not an illustration of it, and the steps happen in order
+ * as the section comes into view: the line is marked, the blank fills, the opposite word is caught, the plan moves.
+ */
 export function RevisionLoopVisuals() {
+  const root = useRef<HTMLDivElement>(null);
+  const inView = useInView(root, { once: true, amount: 0.35 });
+  const prefersReducedMotion = useReducedMotion() === true;
+  const hydrated = useSyncExternalStore(subscribeToHydration, getHydratedSnapshot, getServerHydrationSnapshot);
+  const reduce = hydrated && prefersReducedMotion;
+  const on = hydrated && (prefersReducedMotion || inView);
+  // Step n starts when the one before has had its moment: about a third of a second apart.
+  const at = (step: number, extra = 0) => (reduce ? 0 : 0.15 + step * 0.32 + extra);
+  const appear = () => ({
+    initial: { opacity: 0, y: 10 },
+    animate: on ? { opacity: 1, y: 0 } : undefined,
+    // The grid arrives as one; the order belongs to each tile's own motion (at(step, …) below), not to the tiles.
+    transition: { duration: reduce ? 0 : 0.5, delay: at(0), ease },
+  });
+
   return (
     <section className={styles.section} aria-labelledby="revision-loop-title">
       <div className={styles.intro}>
-        <h2 id="revision-loop-title">A wrong answer becomes a clear next step.</h2>
-        <p>Kelus keeps the source beside your answer, shows the exact idea that needs work, then explains what changes in your plan.</p>
+        <h2 id="revision-loop-title">One line from your notes, followed all the way.</h2>
+        <p>This is the whole method. Kelus does it for every topic, each time you open it.</p>
       </div>
 
-      <div className={styles.demo} aria-label="A source-backed Kelus correction">
-        <div className={styles.demoTop}>
-          <strong>Cell Biology</strong>
-          <span>One source-backed correction</span>
-        </div>
+      <div ref={root} className={styles.track}>
+        <motion.article {...appear()} className={styles.step} data-revision-step="01">
+          <h3><span>1</span> Your notes</h3>
+          <p className={styles.body}>Kelus reads your PDF or notes and marks the lines worth knowing.</p>
+          {/* The fragment on a grey stage, as a product moment. */}
+          <div className={styles.shot}><div className={styles.sheet}>
+            <p className={styles.page}>
+              Osmosis is the movement of water across a{" "}
+              {/* A marker stroke drawn along the words, wrapping with them like a real highlighter. */}
+              <motion.mark
+                className={styles.mark}
+                initial={{ backgroundSize: "0% 100%" }}
+                animate={on ? { backgroundSize: "100% 100%" } : undefined}
+                transition={{ duration: reduce ? 0 : 0.7, delay: at(0, 0.35), ease }}
+              >
+                partially permeable membrane
+              </motion.mark>{" "}
+              from a dilute solution to a more concentrated one.
+            </p>
+            <p className={styles.where}>Biology, page 2</p>
+          </div></div>
+        </motion.article>
 
-        <div className={styles.workspace}>
-          <aside className={styles.source} aria-label="Original note excerpt">
-            <p className={styles.sourceLabel}>Cell Transport.pdf · page 2</p>
-            <h3>7.2 Osmosis</h3>
-            <p>Osmosis is the net movement of water molecules from a dilute solution to a more <mark>concentrated solution</mark> through a partially permeable membrane.</p>
-          </aside>
+        <motion.article {...appear()} className={styles.step} data-revision-step="02">
+          <h3><span>2</span> A question from that line</h3>
+          <p className={styles.body}>Each question is written from one of those lines, and points back to it.</p>
+          {/* The fragment on a grey stage, as a product moment. */}
+          <div className={styles.shot}><div className={styles.sheet}>
+            {/* The answer is typed into the blank of the sentence itself, as on a worksheet: no box in a box. */}
+            <p className={styles.ask}>
+              Water moves from a dilute solution to a more{"\u00a0"}
+              <span className={styles.blank}>
+                <motion.span
+                  initial={{ clipPath: "inset(0 100% 0 0)" }}
+                  animate={on ? { clipPath: "inset(0 0% 0 0)" } : undefined}
+                  transition={{ duration: reduce ? 0 : 0.55, delay: at(1, 0.35), ease: "linear" }}
+                >
+                  concentrated
+                </motion.span>
+              </span>{"\u00a0"}
+              one.
+            </p>
+            <motion.p
+              className={styles.right}
+              initial={{ opacity: 0, y: 4 }}
+              animate={on ? { opacity: 1, y: 0 } : undefined}
+              transition={{ duration: reduce ? 0 : 0.3, delay: at(1, 0.95), ease }}
+            >
+              <Tick size={14} /> Right: that’s the line on page 2.
+            </motion.p>
+          </div></div>
+        </motion.article>
 
-          <div className={styles.session}>
-            <div className={styles.moment}>
-              <p className={styles.status}>What Kelus noticed</p>
-              <h3>Your direction was right. The destination was not.</h3>
-              <p className={styles.answer}>You wrote: “From a dilute solution to the weaker side.”</p>
-              <p className={styles.correction}>Your notes say <strong>more concentrated</strong>. Kelus brings osmosis back tomorrow so you can fix that distinction while it is still useful.</p>
-              <div className={styles.nextItem}>
-                <div><strong>Osmosis</strong><span>Revisit the concentration difference · about 3 min</span></div>
-                <b>Tomorrow</b>
-              </div>
-            </div>
-          </div>
-        </div>
+        <motion.article {...appear()} className={styles.step} data-revision-step="03">
+          <h3><span>3</span> Your words, checked</h3>
+          <p className={styles.body}>Explain it your way. Kelus lays your words beside the page and catches what’s off.</p>
+          {/* The fragment on a grey stage, as a product moment. */}
+          <div className={styles.shot}><div className={styles.sheet}>
+            <p className={styles.said}>
+              “Water goes through the membrane to the{" "}
+              <span className={styles.flipWrap}>
+                weaker
+                <svg aria-hidden="true" viewBox="0 0 60 6" preserveAspectRatio="none" className={styles.wave}>
+                  <motion.path
+                    d="M0 3 Q 5 0 10 3 T 20 3 T 30 3 T 40 3 T 50 3 T 60 3"
+                    initial={{ pathLength: 0 }}
+                    animate={on ? { pathLength: 1 } : undefined}
+                    transition={{ duration: reduce ? 0 : 0.5, delay: at(2, 0.35), ease }}
+                  />
+                </svg>
+              </span>{" "}
+              side.”
+            </p>
+            <p className={styles.note}>Check the direction: you wrote <b>weaker</b> where your notes say <b>more concentrated</b>.</p>
+          </div></div>
+        </motion.article>
+
+        <motion.article {...appear()} className={styles.step} data-revision-step="04">
+          <h3><span>4</span> Your plan moves</h3>
+          <p className={styles.body}>A miss comes back tomorrow. A right answer waits longer before it returns.</p>
+          {/* The fragment on a grey stage, as a product moment. */}
+          <div className={styles.shot}><div className={styles.sheet}>
+            <ol className={styles.plan} aria-label="Your plan after this answer">
+              <motion.li
+                className={styles.moved}
+                initial={{ y: 34 }}
+                animate={on ? { y: 0 } : undefined}
+                transition={{ type: "spring", bounce: 0, duration: reduce ? 0 : 0.6, delay: at(3, 0.35) }}
+              >
+                <strong>Osmosis</strong>
+                <span>Back to Box 1, tomorrow</span>
+              </motion.li>
+              <motion.li
+                initial={{ y: -34 }}
+                animate={on ? { y: 0 } : undefined}
+                transition={{ type: "spring", bounce: 0, duration: reduce ? 0 : 0.6, delay: at(3, 0.35) }}
+              >
+                <strong>Diffusion</strong>
+                <span>Box 3, in 4 days</span>
+              </motion.li>
+              <li>
+                <strong>Enzymes</strong>
+                <span>Box 4, next week</span>
+              </li>
+            </ol>
+          </div></div>
+        </motion.article>
       </div>
     </section>
   );
