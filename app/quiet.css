@@ -1031,8 +1031,13 @@ html body :is(.k-btn, .cta, [class*="LeitnerHero"][class*="primary"], [class*="L
 }
 html body :is(.k-btn, .cta, [class*="LeitnerHero"][class*="primary"], [class*="LeitnerHero"][class*="secondary"], [class*="HomeBand"][class*="action"], [class*="HomeFinal"][class*="action"], [class*="TodayQuiet"][class*="go"], [class*="primaryAction"], [class*="SearchLanding"][class*="primary"], [class*="SearchLanding"][class*="secondary"]):active:not(:disabled) { transform: scale(0.97) !important; }
 html body :is(.k-btn, .cta, [class*="LeitnerHero"][class*="primary"], [class*="LeitnerHero"][class*="secondary"], [class*="HomeBand"][class*="action"], [class*="HomeFinal"][class*="action"], [class*="TodayQuiet"][class*="go"], [class*="primaryAction"], [class*="SearchLanding"][class*="primary"], [class*="SearchLanding"][class*="secondary"]):focus-visible { outline: 2px solid var(--color-kelus, #1f6b45) !important; outline-offset: 2px !important; }
+html body :is(.cta, [class*="primaryAction"]) :is(.arrow, .primaryArrow) { display: inline-block; transition: transform 160ms cubic-bezier(0.22, 1, 0.36, 1); }
+@media (hover: hover) and (pointer: fine) {
+  html body :is(.cta, [class*="primaryAction"]):hover :is(.arrow, .primaryArrow) { transform: translateX(3px); }
+}
 @media (prefers-reduced-motion: reduce) {
   html body :is(.k-btn, .cta, [class*="LeitnerHero"][class*="primary"], [class*="LeitnerHero"][class*="secondary"], [class*="HomeBand"][class*="action"], [class*="HomeFinal"][class*="action"], [class*="TodayQuiet"][class*="go"], [class*="primaryAction"], [class*="SearchLanding"][class*="primary"], [class*="SearchLanding"][class*="secondary"]) { transition: background-color 120ms linear, color 120ms linear !important; }
+  html body :is(.cta, [class*="primaryAction"]) :is(.arrow, .primaryArrow) { transition: none; }
 }
 :root[data-theme="dark"] body :is(.k-btn--paper, [class*="LeitnerHero"][class*="secondary"]):hover:not(:disabled) { background-color: #2a2f2c !important; }
 /* Older hover and press rules gave the green button a glow; the Link way has none in any state. */
