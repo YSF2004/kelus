@@ -5,7 +5,6 @@ import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useDropzone, type DropEvent, type FileRejection } from "react-dropzone";
 import { PackArt } from "@/components/PackArt";
-import Link from "next/link";
 import { PasteNotes } from "@/components/PasteNotes";
 import { PhotoNotes } from "@/components/PhotoNotes";
 import { MAX_NOTES_BYTES } from "@/domain/markdown-pages";
@@ -219,7 +218,6 @@ export function DropNotes({ onFile, first = false, courseName }: { onFile: (file
           </div> : null}
           <PhotoNotes onFile={(file) => void take(file)} disabled={busy} />
           <PasteNotes onFile={(file) => void take(file)} disabled={busy} />
-          {first && !busy ? <Link className={styles.example} href="/today?sample=1">See a 1-minute example first <span aria-hidden="true">→</span></Link> : null}
           {error ? <div className={styles.recovery}>
             <div role="alert"><strong>Couldn’t use {sourceName || "that source"}.</strong><p>{error}</p></div>
             <button type="button" onClick={open}>Choose another file</button>
