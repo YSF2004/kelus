@@ -2,48 +2,33 @@ import Link from "next/link";
 import styles from "./HomeBand.module.css";
 
 /**
- * Real, openly licensed course files and what Kelus's reader finds in them as they are (checked 2026-10-28 with the
- * reader in domain/material-intelligence.ts; the regression cases are in tests/course-pdfs.test.mjs). The French
- * sheet is Kelus's own test file and says so. A file with no real topics is shown too: Kelus says so, it does not guess.
+ * The same course carries the entire homepage. It is deliberately an observable product state rather than a list of
+ * disconnected features: source evidence, an answer and the reason the next session changes all remain together.
  */
-const FILES = [
-  { source: "MIT OpenCourseWare", course: "HST.410J, Lecture 5", kind: "Lecture slides, 4 pages", topics: ["Random Walk Model", "Fick's First Law", "Importance of Scale"] },
-  { source: "LibreTexts", course: "BIOL 101 Laboratory Manual", kind: "Lab manual, 123 pages", topics: ["Microscopes", "Carbohydrates", "Proteins", "Diffusion and Osmosis", "Mitosis and Meiosis I"], more: true },
-  { source: "MIT OpenCourseWare", course: "HST.410J, Lecture 3", kind: "Slides, images removed", none: "Mostly images: Kelus says it found no topics, rather than guessing." },
-  { source: "Kelus test file", course: "La photosynthèse", kind: "Fiche de révision, in French", topics: ["Définition", "Où a-t-elle lieu ?", "Facteurs limitants"], more: true },
-] as const;
-
-/** The one big claim, on dark: any course a student was given becomes topics, shown with what Kelus really found. */
 export function HomeBand() {
   return (
     <section className={styles.band} aria-labelledby="home-band-title">
       <div className={styles.claim}>
-        <h2 id="home-band-title">Bring <span>any course</span>. Kelus finds its topics.</h2>
-        <p>Real course files, read as they are: an MIT lecture, a 123-page lab manual from LibreTexts, and a French revision sheet. These are the topics Kelus found.</p>
-        <Link href="/today" className={styles.action}>Add your notes</Link>
-        <p className={styles.credit}>
-          MIT OpenCourseWare HST.410J, CC BY-NC-SA 4.0. LibreTexts BIOL 101: General Biology I Laboratory Manual by
-          Brad Basehore, Michelle A. Bucks and Christine M. Mummert, CC BY 4.0. Kelus is not affiliated with either.
-        </p>
+        <h2 id="home-band-title">Your answer changes <span>what happens next.</span></h2>
+        <p>A session does not end with a score. Kelus keeps the original line beside your answer, then moves the topic only when your answer gives it a reason to.</p>
+        <Link href="/today" className={styles.action}>Try it with your notes <span aria-hidden="true">→</span></Link>
       </div>
-      <ul className={styles.files} aria-label="Topics Kelus finds in four course files">
-        {FILES.map((file) => (
-          <li key={file.course}>
-            <span className={styles.file}>
-              <i aria-hidden="true">PDF</i>
-              <span><small>{file.source}</small><b>{file.course}</b>{file.kind}</span>
-            </span>
-            {"none" in file ? (
-              <span className={styles.none}>{file.none}</span>
-            ) : (
-              <span className={styles.topics}>
-                {file.topics.map((topic) => <em key={topic}>{topic}</em>)}
-                {"more" in file ? <em className={styles.more}>and more</em> : null}
-              </span>
-            )}
-          </li>
-        ))}
-      </ul>
+      <div className={styles.session} aria-label="Example study result from a Cell Transport course">
+        <header><strong>Cell Transport</strong><span>One answer, checked</span></header>
+        <div className={styles.sessionBody}>
+          <div className={styles.evidence}>
+            <span>From page 2</span>
+            <p>Water moves from a dilute solution to a more concentrated solution through a partially permeable membrane.</p>
+          </div>
+          <div className={styles.verdict}>
+            <span>Your answer</span>
+            <p>“Water moves into the cell.”</p>
+            <strong>Nearly there</strong>
+            <small>The direction is right. The concentration difference is still missing.</small>
+          </div>
+        </div>
+        <footer><span className={styles.dot} aria-hidden="true" /><b>Osmosis moves to tomorrow’s warm-up</b><small>because that missing idea changes the explanation.</small></footer>
+      </div>
     </section>
   );
 }
