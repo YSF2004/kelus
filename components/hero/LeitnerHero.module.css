@@ -23,7 +23,7 @@
 .free { margin: 14px 0 0; font-size: 14px; color: var(--t3); }
 .copy { grid-area: copy; padding: 0; }
 .works { grid-area: works; align-self: end; padding: 0; }
-.set { grid-area: set; display: grid; place-items: center; align-content: center; gap: 12px; min-height: 520px; padding: clamp(22px, 4vw, 48px); background: #edf2ee; }
+.set { grid-area: set; display: grid; place-items: center; align-content: center; gap: 12px; min-height: 520px; padding: clamp(22px, 4vw, 48px); border: 1px solid #e4e7e4; border-radius: 12px; background: #f2f4f2; }
 .panel { width: min(640px, 100%); }
 
 /* No frame around the demonstration: the page and the questions sit on the hero itself, one level deep. */
@@ -35,29 +35,50 @@
 /* The page on the left, the questions it gives on the right. One 9-second loop: lines are marked one by one, each
    question arrives just after its line, then the first is answered and checked. */
 .stage { display: grid; grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr); gap: 12px; margin-top: 14px; }
-.sheet { position: relative; padding: 22px; background: #fff; color: var(--t2); font-size: 12px; line-height: 1.6; }
+.sheet { position: relative; padding: 22px; border-radius: 10px; background: #fff; color: var(--t2); font-size: 12px; line-height: 1.6; box-shadow: 0 16px 34px -26px rgba(14,21,18,.36); }
 .sheet .chapter { margin: 0 0 8px; font-family: var(--font-source-serif), Georgia, serif !important; font-size: 19px; font-weight: 500; letter-spacing: -0.01em; color: var(--ink); }
 .sheet .section { margin: 12px 0 4px; font-size: 12.5px; font-weight: 600; color: var(--ink); }
 .sheet p { margin: 0; }
 .sheet .chapter { margin-bottom: 8px; }
 .sheet .section { margin: 12px 0 4px; }
-.mark { position: relative; padding: 1px 0; color: var(--ink); background: rgba(243, 210, 122, 0.65); -webkit-box-decoration-break: clone; box-decoration-break: clone; }
+.mark { position: relative; padding: 1px 0; color: var(--ink); background: linear-gradient(rgba(243, 210, 122, 0.65), rgba(243, 210, 122, 0.65)) no-repeat 0 0 / 0% 100%; -webkit-box-decoration-break: clone; box-decoration-break: clone; animation: kelusHeroMark 4.8s cubic-bezier(0.22, 1, 0.36, 1) 1 both; }
+.mark[data-n="2"] { animation-name: kelusHeroMark2; }
+.mark[data-n="3"] { animation-name: kelusHeroMark3; }
 .mark::before { content: attr(data-n); color: var(--ink) !important; display: inline-grid; place-items: center; width: 15px; height: 15px; margin-right: 4px; border-radius: 50%; box-shadow: inset 0 0 0 1px currentColor; color: var(--t2); font-size: 9.5px; font-weight: 700; vertical-align: 1px; }
 
 .side { display: flex; flex-direction: column; gap: 12px; }
-.cards { display: grid; align-content: start; gap: 18px; margin: 0; padding: 18px; list-style: none; background: #fff; }
-.card { padding: 0; }
+.cards { display: grid; align-content: start; gap: 10px; margin: 0; padding: 0; list-style: none; }
+.card { padding: 13px 14px; border-radius: 10px; background: #fff; box-shadow: 0 1px 2px rgba(14,21,18,.05), 0 10px 24px -20px rgba(14,21,18,.3); animation: kelusHeroCard 4.8s cubic-bezier(0.22, 1, 0.36, 1) 1 both; }
+.card[data-n="2"] { animation-name: kelusHeroCard2; }
+.card[data-n="3"] { animation-name: kelusHeroCard3; }
 .card small { display: flex; align-items: center; gap: 6px; font-size: 11.5px; color: var(--t3); }
 .card small i { display: inline-grid; place-items: center; width: 15px; height: 15px; border-radius: 50%; box-shadow: inset 0 0 0 1px currentColor; color: var(--t2); font-size: 9.5px; font-weight: 700; font-style: normal; }
 .card p { margin: 6px 0 0; font-size: 14px; font-weight: 600; letter-spacing: -0.01em; line-height: 1.4; color: var(--ink); }
 .blank { display: inline-block; min-width: 4.6em; margin: 0 2px; border-bottom: 2px solid var(--strong); line-height: 1.2; vertical-align: baseline; }
-.fill { color: var(--green); display: inline-block; }
-.card[data-n="1"] .blank { border-bottom-color: var(--green); }
-.checked { display: block; margin-top: 8px; font-size: 12.5px; color: var(--green); }
+.fill { color: var(--green); animation: kelusHeroFill 4.8s 1 both steps(6, end); clip-path: inset(0 100% 0 0); display: inline-block; }
+.card[data-n="1"] .blank { animation: kelusHeroBlank 4.8s 1 both step-end; }
+.checked { display: block; margin-top: 8px; font-size: 12.5px; color: var(--green); animation: kelusHeroChecked 4.8s cubic-bezier(0.22, 1, 0.36, 1) 1 both; }
 .checked b { font-weight: 600; }
-.next { margin: auto 0 0; padding: 12px 2px 0; font-size: 12.5px; line-height: 1.5; color: var(--t2); }
+.next { margin: auto 0 0; padding: 12px 2px 0; border-top: 1px solid var(--line); font-size: 12.5px; line-height: 1.5; color: var(--t2); animation: kelusHeroChecked 4.8s cubic-bezier(0.22, 1, 0.36, 1) 1 both; }
 .panelFoot { margin-top: 14px; font-size: 13px; color: var(--t2); }
 
+/* One pass in under five seconds (WCAG 2.2.2 needs no pause control below that), ending on the checked answer and
+   holding there. */
+@keyframes kelusHeroMark { 0%, 6% { background-size: 0% 100%; } 16%, 100% { background-size: 100% 100%; } }
+@keyframes kelusHeroMark2 { 0%, 22% { background-size: 0% 100%; } 32%, 100% { background-size: 100% 100%; } }
+@keyframes kelusHeroMark3 { 0%, 38% { background-size: 0% 100%; } 48%, 100% { background-size: 100% 100%; } }
+@keyframes kelusHeroCard { 0%, 12% { opacity: 0; transform: translateY(6px); filter: blur(4px); } 20%, 100% { opacity: 1; transform: none; filter: none; } }
+@keyframes kelusHeroCard2 { 0%, 28% { opacity: 0; transform: translateY(6px); filter: blur(4px); } 36%, 100% { opacity: 1; transform: none; filter: none; } }
+@keyframes kelusHeroCard3 { 0%, 44% { opacity: 0; transform: translateY(6px); filter: blur(4px); } 52%, 100% { opacity: 1; transform: none; filter: none; } }
+@keyframes kelusHeroFill { 0%, 60% { clip-path: inset(0 100% 0 0); } 74%, 100% { clip-path: inset(0 0 0 0); } }
+@keyframes kelusHeroBlank { 0% { border-bottom-color: var(--strong); } 74% { border-bottom-color: var(--green); } }
+@keyframes kelusHeroChecked { 0%, 78% { opacity: 0; transform: translateY(3px); } 88%, 100% { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) {
+  .mark, .card, .fill, .checked, .next, .card[data-n="1"] .blank { animation: none; }
+  .mark { background-size: 100% 100%; }
+  .fill { clip-path: none; }
+  .card[data-n="1"] .blank { border-bottom-color: var(--green); }
+}
 @media (max-width: 960px) {
   .hero { grid-template-columns: minmax(0, 1fr); grid-template-areas: "copy" "set" "works"; grid-template-rows: none; row-gap: 28px; min-height: 0; padding: 54px 16px 48px; }
   .copy, .works { padding-right: 0; }
@@ -75,6 +96,9 @@
 /* The marketing sheets set every [data-marketing] h1 in the book serif; the hero is the product's own face. */
 
 
+/* The pass waits, paused on its first frame, until the demonstration is half in view (HeroReplay). */
+.waiting :is(.mark, .card, .fill, .checked, .next, .blank) { animation-play-state: paused; }
+.panel { transition: opacity 150ms cubic-bezier(0.22, 1, 0.36, 1), transform 150ms cubic-bezier(0.22, 1, 0.36, 1); }
 
 /* A keyboard focus ring settles into place rather than snapping on. */
 .primary, .secondary { outline: 2px solid transparent; outline-offset: 0; transition: background-color 160ms, transform 120ms cubic-bezier(0.22, 1, 0.36, 1), outline-color 160ms, outline-offset 160ms cubic-bezier(0.22, 1, 0.36, 1); }
