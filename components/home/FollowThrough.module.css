@@ -1,226 +1,68 @@
-/* The homepage middle: one line, four steps, drawn in the product's own type and colours. */
 .section {
-  --ink: #191a18;
-  --text-2: #6b6f68;
-  --text-3: #70746c;
-  --line: #e6e5e1;
+  --ink: #101813;
+  --muted: #5d6861;
+  --line: #dce3de;
+  --paper: #ffffff;
+  --stage: #edf2ee;
   --green: #1f6b45;
-  --marigold: #f3d27a;
-  --red: #b42318;
-  --tile-line: #e5e5e5;
-  background: #fff;
+  --gold: #f0cf70;
+  padding: clamp(5rem, 10vw, 9rem) 64px 0;
   color: var(--ink);
-  /* The same 64px page margin and 16px gaps as the hero's tiles. */
-  padding: clamp(3.5rem, 7vw, 5.5rem) 64px 0;
 }
 
-.intro {
-  max-width: 40rem;
-  margin-bottom: clamp(2.5rem, 4.5vw, 3.5rem);
-}
+.intro { max-width: 47rem; margin: 0 auto clamp(2.5rem, 5vw, 4.5rem); text-align: center; }
+.intro h2 { margin: 0; font-family: var(--font-marketing-heading), Georgia, serif; font-size: clamp(2.7rem, 5vw, 5.4rem); font-weight: 500; letter-spacing: -0.045em; line-height: .98; text-wrap: balance; }
+.intro p { max-width: 40rem; margin: 1.35rem auto 0; color: var(--muted); font-size: clamp(1rem, 1.45vw, 1.2rem); line-height: 1.55; text-wrap: pretty; }
 
-.intro h2 {
-  margin: 0 0 0.75rem;
-  font-size: clamp(2rem, 3.6vw, 3.1rem);
-  font-weight: 480;
-  letter-spacing: -0.04em;
-  line-height: 1.08;
-}
+.demo { max-width: 76rem; margin: 0 auto; overflow: hidden; border-radius: 16px; background: var(--stage); box-shadow: 0 28px 70px -54px rgba(20, 43, 29, .5); }
+.demoTop { display: flex; align-items: center; justify-content: space-between; gap: 1.5rem; min-height: 4.75rem; padding: 0 1.5rem; border-bottom: 1px solid var(--line); background: rgba(255,255,255,.7); }
+.demoTop > div { display: grid; gap: .15rem; }
+.demoTop strong { font-size: .95rem; letter-spacing: -.01em; }
+.demoTop span { color: var(--muted); font-size: .8rem; }
+.progress { display: flex; gap: .45rem; margin: 0; padding: 0; list-style: none; }
+.progress li { width: 2rem; height: .32rem; border-radius: 99px; background: #cbd5ce; transition: background-color .24s cubic-bezier(.22,1,.36,1), transform .24s cubic-bezier(.22,1,.36,1); }
+.progress li[data-active="true"] { background: var(--green); transform: scaleX(1.03); }
 
-.intro p {
-  margin: 0;
-  text-wrap: pretty;
-  color: var(--text-2);
-  font-size: clamp(1rem, 1.3vw, 1.125rem);
-  line-height: 1.55;
-}
+.workspace { display: grid; grid-template-columns: minmax(0, .94fr) minmax(0, 1.06fr); min-height: 29rem; }
+.source { display: grid; align-content: center; padding: clamp(2rem, 5vw, 5.25rem); border-right: 1px solid var(--line); background: var(--paper); }
+.sourceLabel, .status { margin: 0 0 .85rem; color: var(--green); font-size: .74rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; }
+.source h3 { margin: 0 0 1.5rem; font-family: var(--font-marketing-heading), Georgia, serif; font-size: clamp(1.85rem, 3vw, 2.8rem); font-weight: 500; letter-spacing: -.035em; }
+.source > p:not(.sourceLabel):not(.page) { max-width: 31ch; margin: 0; color: #38443d; font-family: var(--font-marketing-heading), Georgia, serif; font-size: clamp(1.1rem, 1.7vw, 1.4rem); line-height: 1.46; }
+.source mark { padding: 0 .08em; background: linear-gradient(transparent 50%, color-mix(in srgb, var(--gold) 78%, transparent) 50%); color: inherit; }
+.page { margin: 1.7rem 0 0; color: var(--muted); font-size: .8rem; }
 
-/* Four tiles, two by two: each a numbered title and one grey line, with its fragment on a grey stage below. */
-.track {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 16px;
-}
+.session { display: grid; min-width: 0; padding: clamp(2rem, 5vw, 5.25rem); }
+.moment { display: grid; align-content: center; max-width: 31rem; }
+.moment h3 { max-width: 16ch; margin: 0; font-family: var(--font-marketing-heading), Georgia, serif; font-size: clamp(2rem, 3.5vw, 3.25rem); font-weight: 500; letter-spacing: -.04em; line-height: 1.04; }
+.quiet { max-width: 32rem; margin: 1.35rem 0 0; color: var(--muted); font-size: .95rem; line-height: 1.5; }
+.topicList { display: grid; gap: .65rem; margin: 1.75rem 0 0; padding: 0; list-style: none; color: #344039; font-size: 1rem; }
+.topicList li { display: flex; align-items: center; gap: .65rem; }
+.topicList svg { color: var(--green); }
+.answer { margin: 1.7rem 0 0; padding: 1rem 0; border-bottom: 1px solid #b9c6be; color: #33443a; font-family: var(--font-marketing-heading), Georgia, serif; font-size: clamp(1.1rem, 1.7vw, 1.4rem); line-height: 1.45; }
+.correction { max-width: 31rem; margin: 1.55rem 0 0; color: #39463e; font-size: 1rem; line-height: 1.55; }
+.correction strong { color: var(--green); }
+.evidence { justify-self: start; margin-top: 1.6rem; padding: .6rem 0; border: 0; border-bottom: 1px solid currentColor; background: transparent; color: var(--green); font: 650 .9rem/1.2 var(--font-marketing-sans, Inter, sans-serif); cursor: pointer; }
+.evidence span { margin-left: .35rem; }
+.evidence:focus-visible { outline: 2px solid var(--green); outline-offset: 4px; }
+.nextItem { display: flex; align-items: flex-start; justify-content: space-between; gap: 1rem; margin-top: 1.7rem; padding: 1.1rem 0; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); }
+.nextItem div { display: grid; gap: .25rem; }
+.nextItem strong { font-family: var(--font-marketing-heading), Georgia, serif; font-size: 1.25rem; font-weight: 500; }
+.nextItem span { color: var(--muted); font-size: .82rem; }
+.nextItem > b { padding-top: .2rem; color: var(--green); font-size: .82rem; }
 
-.step {
-  display: grid;
-  grid-template-rows: auto auto 1fr;
-  margin: 0;
-  padding: 24px;
-  border-radius: 8px;
-  background: #f4f4f4;
-}
+.promises { max-width: 76rem; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 2rem; margin: 0 auto; padding: 2rem 1.5rem 0; }
+.promises p { margin: 0; color: var(--muted); font-size: .93rem; line-height: 1.5; }
+.promises strong { display: block; margin-bottom: .28rem; color: var(--ink); font-size: .98rem; }
 
-.step h3 {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  margin: 0;
-  color: var(--ink);
-  font-family: var(--font-source-serif), Georgia, serif !important;
-  font-size: 26px !important;
-  font-weight: 500;
-  letter-spacing: -0.02em;
-  line-height: 1.1;
-}
-
-.step h3 span {
-  display: inline-grid;
-  flex: none;
-  place-items: center;
-  width: 28px;
-  height: 28px;
-  border: 1px solid #d4d4d4;
-  border-radius: 50%;
-  background: #fff;
-  color: var(--text-2);
-  font-family: var(--font-inter), Inter, sans-serif;
-  font-size: 13px;
-  font-weight: 600;
-  letter-spacing: 0;
-}
-
-.body {
-  max-width: 30em;
-  margin: 8px 0 0;
-  color: var(--text-2);
-  font-size: 17px;
-  line-height: 1.35;
-}
-
-.shot {
-  display: grid;
-  place-items: center;
-  min-height: 240px;
-  margin-top: 20px;
-  padding: 16px 0 8px;
-}
-
-.sheet {
-  display: grid;
-  align-content: start;
-  gap: 12px;
-  width: min(420px, 100%);
-  padding: 18px 18px 16px;
-  border-radius: 8px;
-  background: #fff;
-}
-
-.sheet p { margin: 0; }
-
-/* 1 · the line, as it sits on the page */
-.page {
-  font-size: 0.9375rem;
-  line-height: 1.6;
-}
-
-.mark {
-  padding: 0 2px;
-  border-radius: 3px;
-  color: var(--ink);
-  background-color: transparent;
-  background-image: linear-gradient(rgba(243, 210, 122, 0.6), rgba(243, 210, 122, 0.6));
-  background-repeat: no-repeat;
-  background-position: 0 60%;
-  background-size: 100% 100%;
-  -webkit-box-decoration-break: clone;
-  box-decoration-break: clone;
-}
-
-
-.where {
-  color: var(--text-3);
-  font-size: 0.75rem;
-}
-
-/* 2 · the question, and the word going in */
-.ask {
-  font-size: 0.9375rem;
-  font-weight: 600;
-  line-height: 1.45;
-}
-
-.blank {
-  display: inline-block;
-  min-width: 7.5em;
-  border-bottom: 2px solid var(--green);
-  color: var(--green);
-  line-height: 1.25;
-}
-
-.right {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  color: var(--green);
-  font-size: 0.8125rem;
-  font-weight: 600;
-}
-
-/* 3 · the student's words, with the opposite caught */
-.said {
-  font-size: 0.9375rem;
-  line-height: 1.6;
-}
-
-.flipWrap {
-  position: relative;
-  display: inline-block;
-}
-
-.wave {
-  position: absolute;
-  left: 0;
-  right: 0;
-  bottom: -3px;
-  width: 100%;
-  height: 6px;
-  overflow: visible;
-}
-
-.wave path {
-  fill: none;
-  stroke: var(--red);
-  stroke-width: 1.4;
-  vector-effect: non-scaling-stroke;
-}
-
-.note {
-  color: var(--text-2);
-  font-size: 0.8125rem;
-  line-height: 1.5;
-}
-
-.note b { color: var(--ink); font-weight: 600; }
-
-/* 4 · the plan, reordered by that answer */
-.plan {
-  display: grid;
-  margin: 0;
-  padding: 0;
-  list-style: none;
-}
-
-.plan li {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: 10px;
-  padding: 9px 0;
-  border-bottom: 1px solid var(--line);
-  font-size: 0.875rem;
-}
-
-.plan li:last-child { border-bottom: 0; }
-.plan strong { font-weight: 600; }
-.plan span { color: var(--text-3); font-size: 0.8125rem; white-space: nowrap; }
-.moved span { color: var(--green); font-weight: 600; }
-
-/* Phone: one column of tiles. */
 @media (max-width: 760px) {
-  .section { padding: 3rem 16px 0; }
-  .track { grid-template-columns: minmax(0, 1fr); gap: 12px; }
-  .step h3 { font-size: 24px !important; }
-  .step { padding: 20px 16px; }
-  .shot { min-height: 0; padding: 12px 0 4px; }
+  .section { padding: 4.5rem 16px 0; }
+  .intro { margin-bottom: 2.5rem; text-align: left; }
+  .workspace { grid-template-columns: 1fr; min-height: 0; }
+  .source { min-height: 19rem; padding: 2.4rem 1.5rem; border-right: 0; border-bottom: 1px solid var(--line); }
+  .session { min-height: 22rem; padding: 2.4rem 1.5rem; }
+  .demoTop { padding: 0 1rem; }
+  .demoTop span { display: none; }
+  .promises { grid-template-columns: 1fr; gap: 1.25rem; padding: 1.5rem .2rem 0; }
 }
+
+@media (prefers-reduced-motion: reduce) { .progress li { transition: none; } }
