@@ -73,7 +73,7 @@
 .principle .eyebrow { margin-bottom: 24px; }
 .principle h2 { margin: 0; font-size: clamp(34px, 3.8vw, 56px); font-weight: 500; letter-spacing: -.05em; line-height: 1.1; }
 .principleAside { min-width: 0; }
-.principleArt { display: grid; place-items: center; height: clamp(190px, 23vw, 285px); margin-bottom: 24px; background: var(--orange-wash); border: 1px solid var(--rule); border-radius: 20px; overflow: clip; }
+.principleArt { display: grid; place-items: center; height: clamp(190px, 23vw, 285px); margin-bottom: 24px; background: transparent; overflow: clip; }
 .principleArt svg { width: min(100%, 320px); }
 .principleAside p { max-width: 38ch; margin: 0 0 5px; color: var(--mute); font-size: 16px; line-height: 1.6; }
 .questions { padding: clamp(72px, 9vw, 126px) 0; }

@@ -7,9 +7,8 @@
 .returnSection { margin: 0; }
 
 .studySection {
-  background: #fff;
+  background: transparent;
   color: var(--ink);
-  border-top: 1px solid #e3e8e5;
 }
 
 .studyInner,
@@ -30,7 +29,7 @@
   place-items: center;
   min-height: clamp(30rem, 42vw, 42rem);
   padding: clamp(2rem, 4vw, 4rem);
-  background: #edf1ed;
+  background: transparent;
   overflow: hidden;
 }
 .studyArt img {
@@ -88,8 +87,7 @@
 .textLink:focus-visible { outline: 2px solid var(--color-kelus); outline-offset: 4px; }
 
 .returnSection {
-  background: #f4f0f7;
-  border-top: 1px solid #e4dfea;
+  background: transparent;
 }
 .returnInner { grid-template-columns: minmax(0, .9fr) minmax(0, 1.1fr); }
 .returnCopy { padding: clamp(4rem, 8vw, 8rem) clamp(1.5rem, 6vw, 7rem); }
