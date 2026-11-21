@@ -625,8 +625,12 @@ export function QuickRun({ run: providedRun, persistenceKey, onPersistenceChange
                     </div>
                   </li>
                 </ol>
-                {/* When this line comes back, in words. Not for a shrug: nothing was tried. */}
-                {answered.unsure ? null : <LineMove quote={item.sourceQuote} right={answered.right} recall={item.kind === "cloze" && !answered.picked} nowIso={new Date().toISOString()} />}
+                {/* Evidence only earns trust when its consequence is as clear as the correction. This is Kelus's
+                    signature loop: source, answer, then the next useful thing to practise. */}
+                <div className={styles.nextStep} aria-label="What changes next">
+                  <span>What changes next</span>
+                  <LineMove quote={item.sourceQuote} right={answered.right} uncertain={answered.unsure} recall={item.kind === "cloze" && !answered.picked} nowIso={new Date().toISOString()} />
+                </div>
                 {/* Accepted on purpose, and said so: the student sees the notes' own word, not a silent pass. */}
                 {answered.right && item.kind === "cloze" && answered.how && answered.how !== "exact" ? <p className={styles.accepted}>{acceptedNote(answered.how, item.modelAnswer)}</p> : null}
                 {answered.firstEver ? <p className={styles.firstNote}><PackArt name="ranking" className={styles.firstArt} size={64} /><span>A short review is planned in a few days to help this idea stay familiar.</span></p> : null}
@@ -646,9 +650,10 @@ export function QuickRun({ run: providedRun, persistenceKey, onPersistenceChange
                   <ListenButton key={`listen-q-${step}`} text={item.sourceQuote} className={styles.listen} label={w.listen} stopLabel={w.stop} />
                   {!unsupportedExplanation ? <div className={styles.flag}>
                     {flag === null ? (
-                      <button type="button" className={styles.flagLink} onClick={() => setFlag("choosing")}>{w.flag}</button>
+                      <button type="button" className={styles.flagLink} onClick={() => setFlag("choosing")}>Challenge this check</button>
                     ) : flag === "choosing" ? (
-                      <div className={styles.flagReasons} role="group" aria-label="What is wrong with this question?">
+                      <div className={styles.flagReasons} role="group" aria-label="What should Kelus correct about this check?">
+                        <p>What should Kelus correct?</p>
                         {FLAG_REASONS.filter((reason) => reason.value !== "unsupported_explanation").map((reason) => (
                           <button key={reason.value} type="button" className={styles.flagReason} onClick={() => recordFlag(reason.value)}>{reason.label}</button>
                         ))}
@@ -656,7 +661,7 @@ export function QuickRun({ run: providedRun, persistenceKey, onPersistenceChange
                       </div>
                     ) : (
                       <p className={styles.flagDone} role="status">
-                        Flagged. Kelus won’t ask it again.{" "}
+                        This check won’t appear again on this device.{" "}
                         {flag.sent === "yes" ? "Sent to the Kelus team, thank you." : flag.sent === "sending" ? "Sending…" : (
                           <button type="button" className={styles.flagLink} onClick={() => sendFlag(flag.reason)}>
                             {flag.sent === "failed" ? "Couldn’t send. Try again" : "Send it to the Kelus team"}

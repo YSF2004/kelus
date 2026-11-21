@@ -598,6 +598,23 @@
   margin-top: 4px;
 }
 
+/* The answer's consequence belongs in the same reading flow as its source—not in another dashboard card. */
+.nextStep {
+  display: grid;
+  gap: 2px;
+  margin: 2px 0 0;
+  padding-top: 10px;
+  border-top: 1px solid color-mix(in srgb, var(--k-ink) 9%, transparent);
+}
+
+.nextStep > span {
+  color: var(--color-slate);
+  font-size: var(--text-caption, 0.8125rem);
+  font-weight: 600;
+}
+
+.nextStep :global(.move) { margin: 0; }
+
 .compare {
   display: grid;
   gap: 14px;
@@ -862,6 +879,7 @@
 .flagLink:hover { color: var(--color-midnight-ink); }
 .flagLink:focus-visible, .flagReason:focus-visible { outline: 2px solid var(--color-kelus); outline-offset: 2px; }
 .flagReasons { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.flagReasons p { flex-basis: 100%; margin: 0; color: var(--color-midnight-ink); font-weight: 600; }
 .flagReason { min-height: 44px; padding: 0 14px; border: 1px solid var(--color-frost); border-radius: 8px; background: var(--k-surface); color: var(--color-midnight-ink); font: inherit; cursor: pointer; }
 .flagReason:hover { border-color: var(--color-midnight-ink); }
 .flagDone { margin: 0; display: flex; flex-wrap: wrap; align-items: center; gap: 4px 8px; }

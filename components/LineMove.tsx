@@ -14,13 +14,15 @@ const AGAIN = ["tomorrow", "in 2 days", "in 4 days", "in 9 days", "in a month"];
  * be saved. The numbered boxes are not drawn: a row of 1–5 made the verdict read like a flashcard deck, and the
  * student cares about when, not which box. A right pick from choices does not move, because choosing is not recalling.
  */
-export function LineMove({ quote, right, recall = true, nowIso }: { quote: string; right: boolean; /** False for a pick from choices: right, but not a recall, so the line does not move. */ recall?: boolean; nowIso: string }) {
+export function LineMove({ quote, right, recall = true, uncertain = false, nowIso }: { quote: string; right: boolean; /** False for a pick from choices: right, but not a recall, so the line does not move. */ recall?: boolean; /** An honest "not sure" returns the line without calling it wrong. */ uncertain?: boolean; nowIso: string }) {
   const known = useSyncExternalStore(subscribeKnownLines, getKnownLines, getServerKnownLines);
   const previous = known.find((line) => line.quote.trim().toLocaleLowerCase() === quote.trim().toLocaleLowerCase());
   const from = previous ? box(previous.streak ?? 1) : 1;
   const to = right ? (recall ? box(nextStreak(previous, nowIso)) : from) : 1;
   const words = !right
-    ? "Missed, so it comes back first in your next warm-up."
+    ? uncertain
+      ? "Marked unsure, so Kelus brings this line into your next warm-up."
+      : "Missed, so Kelus brings this line into your next warm-up."
     : !recall
       ? "Right. Choosing it doesn’t move it on: recall it in your own words to do that."
       : to > from
