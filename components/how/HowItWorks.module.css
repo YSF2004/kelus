@@ -26,7 +26,7 @@
 .hero h1 { max-width: 12ch; min-width: 0; margin: 0; font-size: clamp(46px, 5.7vw, 78px); font-weight: 500; letter-spacing: -0.04em; line-height: 1.03; overflow-wrap: anywhere; }
 .heroBottom { display: flex; justify-content: flex-start; align-items: center; gap: 24px; max-width: 760px; margin-top: 34px; }
 .heroBottom p { max-width: 37ch; margin: 0; color: var(--mute); font-size: clamp(17px, 1.8vw, 20px); line-height: 1.52; }
-.primaryAction { display: inline-flex; min-height: 48px; align-items: center; justify-content: center; gap: 10px; padding: 0 20px; border: 1px solid var(--green); border-radius: 8px; box-shadow: 0 1px 2px rgba(25, 26, 24, 0.12); background: var(--green); color: var(--color-pure-white); font-size: 15px; font-weight: 600; text-decoration: none; white-space: nowrap; transition: background-color 180ms var(--ease-standard), transform 150ms var(--ease-standard); }
+.primaryAction { display: inline-flex; min-height: 48px; align-items: center; justify-content: center; gap: 10px; padding: 0 20px; border: 0; border-radius: 10px; box-shadow: none; background: var(--green); color: var(--color-pure-white); font-size: 15px; font-weight: 600; text-decoration: none; white-space: nowrap; transition: background-color 180ms var(--ease-standard), border-radius 200ms var(--ease-standard), transform 150ms var(--ease-standard); }
 .primaryArrow { display: inline-block; font-size: 20px; font-weight: 400; line-height: 1; transition: transform 180ms var(--ease-standard); }
 @media (hover: hover) {
   .primaryAction:hover { background: var(--color-kelus-hover); color: var(--color-pure-white); }
@@ -34,10 +34,9 @@
 }
 .primaryAction:active { transform: scale(.97); transition-duration: var(--dur-instant); }
 .primaryAction:focus-visible { outline: 3px solid var(--green); outline-offset: 4px; }
-.story { background: #f1f3f0; border-block: 1px solid #e0e4df; }
+.story { background: transparent; }
 .story ol { margin: 0; padding: 0; list-style: none; }
-.chapter { display: grid; grid-template-columns: minmax(250px, .76fr) minmax(0, 1.24fr); gap: clamp(40px, 9vw, 142px); align-items: center; min-height: 600px; padding: clamp(56px, 8vw, 112px) 0; border-bottom: 1px solid #dce1dc; }
-.chapter:last-child { border-bottom: 0; }
+.chapter { display: grid; grid-template-columns: minmax(250px, .76fr) minmax(0, 1.24fr); gap: clamp(40px, 9vw, 142px); align-items: center; min-height: 600px; padding: clamp(56px, 8vw, 112px) 0; }
 .chapter:nth-child(even) { grid-template-columns: minmax(0, 1.24fr) minmax(250px, .76fr); }
 .chapter:nth-child(even) .visualWrap { grid-column: 1; grid-row: 1; }
 .chapter:nth-child(even) .chapterText { grid-column: 2; grid-row: 1; }
@@ -54,13 +53,10 @@
 .visualWrap { min-width: 0; }
 .visual { min-width: 0; margin: 0; }
 .art { display: grid; place-items: center; min-height: 0; padding: clamp(28px, 4vw, 44px) 0; overflow: clip; }
-/* One quiet panel behind every step: the product inside it carries the colour. */
-/* The product sits on the page itself: no second card around it. */
+/* The product sits directly on the page. The sheet is the boundary; a tinted stage around it is not. */
 .sourceVisual .art,
 .recallVisual .art,
-.rerouteVisual .art { min-height: 360px; padding: clamp(28px, 4vw, 52px); justify-items: start; border-radius: 12px; background: #e8ece7; }
-.recallVisual .art { background: #eee9f4; }
-.rerouteVisual .art { background: #e3eee7; }
+.rerouteVisual .art { min-height: 360px; padding: clamp(28px, 4vw, 52px); justify-items: start; background: transparent; }
 .art svg { display: block; width: min(100%, 570px); height: auto; }
 .visualCaption { display: grid; grid-template-columns: 130px minmax(0, 1fr); column-gap: 16px; padding: 18px 2px; border-bottom: 0; }
 .visualCaption span { grid-row: span 2; font-size: 13px; font-weight: 600; }
