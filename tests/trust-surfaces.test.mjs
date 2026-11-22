@@ -212,7 +212,7 @@ test("primary CTA language and readiness stay consistent", async () => {
 });
 
 test("the Plus prompt points to the waitlist after the public pricing page is removed", async () => {
-  const [footer, sitemap, home, soft, analytics, header, complete, auth, envExample, founding] = await Promise.all([
+  const [footer, sitemap, home, soft, analytics, header, complete, auth, envExample, founding, redirects] = await Promise.all([
     source("components/SiteFooter.tsx"),
     source("app/sitemap.ts"),
     source("components/home/HomeAfterHero.tsx"),
@@ -223,9 +223,12 @@ test("the Plus prompt points to the waitlist after the public pricing page is re
     source("components/SignInDialog.tsx"),
     source(".env.example"),
     source("components/FoundingCta.tsx"),
+    source("public/_redirects"),
   ]);
   assert.doesNotMatch(footer, /\/pricing/);
   assert.doesNotMatch(sitemap, /\/pricing\//);
+  assert.match(redirects, /^\/pricing\s+\/waitlist\/\s+301$/m);
+  assert.match(redirects, /^\/pricing\/\s+\/waitlist\/\s+301$/m);
   assert.match(await source("app/page.tsx"), /<\/main>\s*<SiteFooter/);
   assert.doesNotMatch(header, /\/pricing/);
   assert.match(soft, /soft_paywall_shown/);
