@@ -188,10 +188,9 @@ test("signed-in header stays focused on the core product", async () => {
   assert.doesNotMatch(header, /auth\.user[\s\S]*link\.href === "\/pricing"/);
 });
 
-test("pricing free CTA keeps readable contrast against legal link styles", async () => {
+test("the route shell stays compact without a full-screen transition wrapper", async () => {
   const css = await source("app/globals.css");
   assert.match(css, /legal-panel a:not\(\.cta\)/);
-  assert.match(css, /pricing-plan \.cta[\s\S]*color: var\(--color-pure-white\)/);
   assert.match(css, /route-transition[\s\S]*min-height: 0/);
   assert.doesNotMatch(css, /\.route-transition \{ min-height: 100dvh; \}/);
 });

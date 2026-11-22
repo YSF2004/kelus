@@ -33,7 +33,7 @@ export default function Home() {
         applicationCategory: "EducationalApplication",
         operatingSystem: "Web",
         isAccessibleForFree: true,
-        offers: { "@type": "Offer", price: "0", priceCurrency: "USD", url: "https://kelus.me/pricing/" },
+        offers: { "@type": "Offer", price: "0", priceCurrency: "USD", url: "https://kelus.me/today/" },
       },
     ],
   };

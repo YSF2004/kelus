@@ -85,15 +85,14 @@ test("public metadata indexes only public pages and app state cannot inherit the
 });
 
 test("search and share metadata describes the real revision flow", async () => {
-  const [layout, home, route, pricing, how, image] = await Promise.all([
+  const [layout, home, route, how, image] = await Promise.all([
     source("app/layout.tsx"),
     source("app/page.tsx"),
     source("app/route/page.tsx"),
-    source("app/pricing/page.tsx"),
     source("components/HowItWorks.tsx"),
     readFile(new URL("public/og/kelus-social.png", root)),
   ]);
-  for (const page of [home, route, pricing]) {
+  for (const page of [home, route]) {
     assert.match(page, /og\/kelus-social\.png/);
     assert.match(page, /alternates:\s*\{ canonical:/);
   }
@@ -104,7 +103,6 @@ test("search and share metadata describes the real revision flow", async () => {
   assert.doesNotMatch(home, /aggregateRating|reviewCount/);
   assert.match(route, /lecture PDF, syllabus, or notes/);
   assert.match(how, /Will Kelus predict my exam grade\?/);
-  assert.match(pricing, /planned at \$4\.99 per month/);
   assert.equal(image.subarray(1, 4).toString(), "PNG");
 });
 
@@ -205,7 +203,7 @@ test("primary CTA language and readiness stay consistent", async () => {
   assert.doesNotMatch(surface, /Est\. readiness/);
   assert.match(await source("components/MasteryEvidence.tsx"), /not a predicted grade|not a grade prediction/);
   assert.match(await source("components/TodayRoute.tsx"), /data-block="today-lead"/);
-  // The product's buttons stay still; press motion is kept for the homepage and pricing.
+  // The product's buttons stay still; press motion is kept for the public marketing pages.
   assert.doesNotMatch(await source("components/TodayRoute.tsx"), /whileTap/);
   assert.match(await source("components/TodayRoute.tsx"), /today-decision/);
   assert.match(await source("components/TodayRoute.tsx"), /today-next/);
@@ -213,9 +211,8 @@ test("primary CTA language and readiness stay consistent", async () => {
   assert.doesNotMatch(await source("components/DropNotes.tsx"), /Try sample|setup-sample-cta/);
 });
 
-test("pricing conversion loop is linked from product surfaces", async () => {
-  const [pricing, footer, sitemap, home, soft, analytics, header, complete, auth, envExample, founding] = await Promise.all([
-    source("app/pricing/page.tsx"),
+test("the Plus prompt points to the waitlist after the public pricing page is removed", async () => {
+  const [footer, sitemap, home, soft, analytics, header, complete, auth, envExample, founding] = await Promise.all([
     source("components/SiteFooter.tsx"),
     source("app/sitemap.ts"),
     source("components/home/HomeAfterHero.tsx"),
@@ -227,27 +224,16 @@ test("pricing conversion loop is linked from product surfaces", async () => {
     source(".env.example"),
     source("components/FoundingCta.tsx"),
   ]);
-  assert.match(pricing, /Kelus Plus/);
-  assert.match(pricing, /\$4\.99/);
-  assert.match(pricing, /\/month/);
-  assert.match(pricing, /FoundingCta|WaitlistForm/);
-  assert.match(pricing, /Optional free sign-in to sync revision progress/);
-  // Plus says it is planned, and names concrete things rather than "deeper feedback".
-  assert.match(pricing, /Planned, not built yet/);
-  assert.doesNotMatch(pricing, /Your courses on every device, kept in sync/);
-  assert.doesNotMatch(pricing, /<li>.*source files.*across devices/);
-  assert.doesNotMatch(pricing, /richer answer feedback|Priority access/);
-  assert.doesNotMatch(pricing, /Cross-device course and learning-state sync/);
-  assert.match(footer, /\/pricing/);
-  assert.match(sitemap, /\/pricing\//);
+  assert.doesNotMatch(footer, /\/pricing/);
+  assert.doesNotMatch(sitemap, /\/pricing\//);
   assert.match(await source("app/page.tsx"), /<\/main>\s*<SiteFooter/);
-  assert.match(header, /\/pricing/);
+  assert.doesNotMatch(header, /\/pricing/);
   assert.match(soft, /soft_paywall_shown/);
+  assert.match(soft, /href="\/waitlist\/"/);
   assert.match(soft, /\$4\.99\/month/i);
   assert.match(soft, /Sign in/);
   assert.doesNotMatch(soft, /planned \$9/);
   assert.doesNotMatch(soft, /unlocks more materials/i);
-  assert.match(analytics, /pricing_viewed/);
   assert.match(analytics, /soft_paywall_shown/);
   assert.match(complete, /SoftUpgradePrompt/);
   assert.match(complete, /WaitlistForm/);

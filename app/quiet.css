@@ -874,7 +874,6 @@ body.is-booklet-system .site-header.is-marketing .site-header-cta:focus-visible 
 @media (max-width: 420px) {
   /* Keep the actual name visible. The marketing path matters more than a second low-priority nav link on a phone. */
   body.is-booklet-system .site-header.is-marketing .site-wordmark { display: inline !important; }
-  body.is-booklet-system .site-header.is-marketing .site-nav a[href="/pricing"] { display: none; }
   body.is-booklet-system .site-header.is-marketing .site-header-cta { padding-inline: 9px; font-size: 12px; }
 }
 
