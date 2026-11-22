@@ -58,6 +58,14 @@ test("lateral navigation does not leave the previous page visible under the upda
   assert.match(css, /::view-transition-new\(\.fade-in\)\s*\{\s*animation:\s*none/);
 });
 
+test("the theme settle is never applied to ordinary route navigation", async () => {
+  const [theme, quiet] = await Promise.all([source("lib/theme.ts"), source("app/quiet.css")]);
+  assert.match(theme, /dataset\.themeTransition\s*=\s*"true"/);
+  assert.match(theme, /transition\.finished\.finally/);
+  assert.match(quiet, /:root\[data-theme-transition="true"\]::view-transition-new\(root\)/);
+  assert.doesNotMatch(quiet, /\n::view-transition-new\(root\)\s*\{\s*animation:\s*kelus-theme-settle/);
+});
+
 test("one persistent header owns navigation for every page", async () => {
   const header = await source("components/SiteHeader.tsx");
   const shell = await source("components/AppShell.tsx");

@@ -45,10 +45,16 @@ export function setTheme(choice: ThemeChoice) {
   // Tell listeners once the new paper is on, so a toggle's own mark flips with the page.
   const done = () => window.dispatchEvent(new Event(EVENT));
   const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-  const doc = document as Document & { startViewTransition?: (update: () => void) => { ready: Promise<void> } };
+  const doc = document as Document & {
+    startViewTransition?: (update: () => void) => { ready: Promise<void>; finished: Promise<void> };
+  };
   if (reduce) { apply(next); done(); return; }
   if (!doc.startViewTransition) { apply(next); done(); return; }
-  doc.startViewTransition(() => { apply(next); done(); });
+  // The route shell also uses View Transitions. Mark only this transition so its
+  // gentle theme crossfade cannot add a fade to ordinary page navigation.
+  document.documentElement.dataset.themeTransition = "true";
+  const transition = doc.startViewTransition(() => { apply(next); done(); });
+  void transition.finished.finally(() => { delete document.documentElement.dataset.themeTransition; });
 }
 
 /** On Auto, follow the device when it changes (evening, a shortcut), without a reload. */
