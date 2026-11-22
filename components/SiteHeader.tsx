@@ -85,6 +85,7 @@ export function SiteHeader() {
             <a href={GITHUB_URL} target="_blank" rel="noreferrer" className="site-open-source-link">
               <Octicon name="github" size={16} />
               Open source
+              <span aria-hidden="true">↗</span>
             </a>
           </nav>
         )}
