@@ -2823,6 +2823,18 @@ h3,
   color: var(--color-indigo-ink);
 }
 
+/* An outward path, not another product destination. It stays in the public header only. */
+.site-nav .site-open-source-link {
+  color: var(--color-kelus);
+}
+
+.site-nav .site-open-source-link span {
+  margin-left: 3px;
+  transition: transform var(--dur-product-micro) var(--ease-enter);
+}
+
+.site-nav .site-open-source-link:hover span { transform: translate(2px, -2px); }
+
 .site-nav a.is-active { font-weight: 400; }
 .site-nav a:hover::after,
 .site-nav a.is-active::after {
@@ -4757,6 +4769,14 @@ h3,
   font-size: 13px;
   line-height: 1.45;
 }
+
+.site-footer-note a {
+  color: inherit;
+  text-decoration-color: color-mix(in srgb, currentColor 38%, transparent);
+  text-underline-offset: 3px;
+}
+
+.site-footer-note a:hover { color: var(--color-midnight-ink); }
 
 @media (max-width: 720px) {
   

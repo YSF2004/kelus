@@ -1,0 +1,25 @@
+name: Improvement idea
+description: Suggest a student or contributor-facing improvement.
+title: "idea: "
+labels: [idea]
+body:
+  - type: textarea
+    id: student_problem
+    attributes:
+      label: What student problem would this solve?
+      description: Focus on the moment in the learning flow, not a technical solution.
+    validations:
+      required: true
+  - type: textarea
+    id: proposal
+    attributes:
+      label: Your idea
+    validations:
+      required: true
+  - type: checkboxes
+    id: source_truth
+    attributes:
+      label: Source-backed learning
+      options:
+        - label: This proposal does not require Kelus to invent an answer or claim an unsupported result.
+          required: true

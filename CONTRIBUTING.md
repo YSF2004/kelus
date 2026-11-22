@@ -28,3 +28,7 @@ cannot prove. The student's original material is the source of truth.
 
 By contributing, you agree that your contributions are licensed under the
 [GNU AGPL-3.0-or-later](LICENSE).
+
+## Community
+
+Please follow the [Code of Conduct](CODE_OF_CONDUCT.md). A good issue explains the student problem and uses only synthetic or openly licensed material.

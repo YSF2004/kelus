@@ -12,6 +12,8 @@ const links = [
   { href: "/terms", label: "Terms" },
 ] as const;
 
+const GITHUB_URL = "https://github.com/YSF2004/kelus";
+
 export function SiteFooter({ compact = false }: { compact?: boolean }) {
   return (
     <footer className={compact ? "site-footer is-compact" : "site-footer"}>
@@ -26,6 +28,7 @@ export function SiteFooter({ compact = false }: { compact?: boolean }) {
               {link.label}
             </Link>
           ))}
+          <a href={GITHUB_URL} target="_blank" rel="noreferrer">Open source <span aria-hidden="true">↗</span></a>
         </nav>
       </div>
       {/* The search pages, linked from every page that has the full footer, so each one is a click from anywhere. */}
@@ -34,7 +37,7 @@ export function SiteFooter({ compact = false }: { compact?: boolean }) {
           {SEARCH_PAGES.map((page) => <Link key={page.href} href={page.href}>{page.label}</Link>)}
         </nav>
       )}
-      <p className="site-footer-note">© {new Date().getFullYear()} Kelus</p>
+      <p className="site-footer-note">© {new Date().getFullYear()} Kelus · <a href={GITHUB_URL} target="_blank" rel="noreferrer">AGPL-3.0 open source</a></p>
     </footer>
   );
 }
