@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useAuth } from "@/components/AuthProvider";
 import { KelusLogoMark } from "@/components/KelusLogoMark";
+import { Octicon } from "@/components/Octicon";
 import { useEffect, useRef, useSyncExternalStore } from "react";
 
 const links: Array<{
@@ -19,7 +20,6 @@ const links: Array<{
   { href: "/today?section=map", label: "Topics", matches: ["/map", "/concept", "/concepts"], always: true },
   { href: "/today?section=progress", label: "Progress", matches: [], always: true },
   { href: "/route", label: "How it works", matches: ["/route"], always: true },
-  { href: "/pricing", label: "Pricing", matches: ["/pricing", "/waitlist"], always: true },
 ];
 
 const PRODUCT_HREFS = new Set(["/today", "/today?section=materials", "/today?section=map", "/today?section=progress"]);
@@ -42,7 +42,7 @@ export function SiteHeader() {
   const inSession = pathname.startsWith("/session") || pathname.startsWith("/sheet");
   const inProduct = ["/today", "/materials", "/map", "/concept", "/past-paper"].some((path) => pathname.startsWith(path));
   const onHome = pathname === "/";
-  const onMarketing = onHome || pathname.startsWith("/route") || pathname.startsWith("/pricing");
+  const onMarketing = onHome || pathname.startsWith("/route") || pathname.startsWith("/waitlist");
   const accountMenu = useRef<HTMLDetailsElement>(null);
   useEffect(() => {
     const close = (event: PointerEvent) => {
@@ -83,7 +83,8 @@ export function SiteHeader() {
               );
             })}
             <a href={GITHUB_URL} target="_blank" rel="noreferrer" className="site-open-source-link">
-              Open source <span aria-hidden="true">↗</span>
+              <Octicon name="github" size={16} />
+              Open source
             </a>
           </nav>
         )}

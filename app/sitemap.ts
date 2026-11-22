@@ -12,7 +12,6 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: `${BASE_URL}/terms/`, changeFrequency: "yearly", priority: 0.3 },
     { url: `${BASE_URL}/waitlist/`, changeFrequency: "monthly", priority: 0.5 },
     { url: `${BASE_URL}/questions/`, changeFrequency: "monthly", priority: 0.5 },
-    { url: `${BASE_URL}/pricing/`, changeFrequency: "monthly", priority: 0.6 },
     { url: `${BASE_URL}/pdf-to-flashcards/`, changeFrequency: "monthly", priority: 0.8 },
     { url: `${BASE_URL}/pdf-to-anki/`, changeFrequency: "monthly", priority: 0.8 },
     { url: `${BASE_URL}/lecture-slides-to-flashcards/`, changeFrequency: "monthly", priority: 0.8 },

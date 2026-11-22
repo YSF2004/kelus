@@ -76,8 +76,8 @@ export function SoftUpgradePrompt({ moment }: SoftUpgradePromptProps) {
             Get Kelus Plus · $4.99/month
           </a>
         ) : (
-          <Link href="/pricing/" className="text-btn">
-            Kelus Plus coming soon
+          <Link href="/waitlist/" className="text-btn">
+            Join the Plus waitlist
           </Link>
         )}
         <button type="button" className="ghost" onClick={dismiss}>

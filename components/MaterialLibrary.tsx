@@ -802,7 +802,7 @@ export function MaterialLibrary({ embedded = false, incomingFile = null, onIncom
               <span>{busy && statusMessage ? statusMessage : atFreeSourceLimit ? "Remove a source to add another, or see Kelus Plus for larger courses." : isPastPaper ? "or drop it here · Kelus will match prompts to your confirmed topics" : "or drop it here · PDF, slides, plain text or a Notion .zip"}</span>
             </label>
             {!busy && !atFreeSourceLimit ? <p className="material-local-proof">Read on this device. Every question stays linked to the original page.</p> : null}
-            <p className="material-ingest-hint">{atFreeSourceLimit ? <Link href="/pricing/">Free includes 10 source files per course. See what Plus will add →</Link> : `Its topics are added to your plan. ${FREE_COURSE_SOURCE_LIMIT - sourceFileCount} free ${FREE_COURSE_SOURCE_LIMIT - sourceFileCount === 1 ? "file" : "files"} left in this course. PDFs with selectable text are read fastest.`}</p>
+            <p className="material-ingest-hint">{atFreeSourceLimit ? <Link href="/waitlist/">Free includes 10 source files per course. Join the Plus waitlist →</Link> : `Its topics are added to your plan. ${FREE_COURSE_SOURCE_LIMIT - sourceFileCount} free ${FREE_COURSE_SOURCE_LIMIT - sourceFileCount === 1 ? "file" : "files"} left in this course. PDFs with selectable text are read fastest.`}</p>
             <div className="material-role-field">
               <label htmlFor="material-role">Type</label>
               <select id="material-role" value={role} onChange={(event) => setRole(event.target.value as MaterialRole)} disabled={busy}>
@@ -881,7 +881,7 @@ export function MaterialLibrary({ embedded = false, incomingFile = null, onIncom
           <span>{dropHelp}</span>
         </label>
         {!busy && !atFreeSourceLimit ? <p className="material-local-proof">Read on this device. Every question stays linked to the original page.</p> : null}
-        {atFreeSourceLimit ? <p className="material-ingest-hint"><Link href="/pricing/">Free includes 10 source files per course. See what Plus will add →</Link></p> : null}
+        {atFreeSourceLimit ? <p className="material-ingest-hint"><Link href="/waitlist/">Free includes 10 source files per course. Join the Plus waitlist →</Link></p> : null}
         {busy && workingStep ? (
           <div className="material-work-status" role="status" aria-live="polite">
             <ol className="material-work-steps" aria-label="PDF processing steps">
