@@ -28,7 +28,7 @@ export function SiteFooter({ compact = false }: { compact?: boolean }) {
               {link.label}
             </Link>
           ))}
-          <a href={GITHUB_URL} target="_blank" rel="noreferrer"><Octicon name="github" size={16} /> Open source</a>
+          <a href={GITHUB_URL} target="_blank" rel="noreferrer"><Octicon name="github" size={16} /> Open source <span aria-hidden="true">↗</span></a>
         </nav>
       </div>
       {/* The search pages, linked from every page that has the full footer, so each one is a click from anywhere. */}
