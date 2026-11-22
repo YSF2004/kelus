@@ -224,7 +224,7 @@ export function DropNotes({ onFile, first = false, courseName }: { onFile: (file
             <p>You can also paste the relevant section above. Any text you entered stays here.</p>
           </div> : null}
           <p className="setup-file-help">PDFs up to 20 MB. Printed scans can be read; blurred or handwritten pages may need pasted text. For Notion, export your notes and choose the .zip.</p>
-          <p className="setup-privacy-note">Your notes stay on this device. Kelus uses them as reference for your questions—not as instructions. You can sign in later to sync.</p>
+          <p className="setup-privacy-note">Your notes stay on this device. Kelus uses them as reference for your questions—not as instructions. You can sign in later to sync. <a href="https://github.com/YSF2004/kelus" target="_blank" rel="noreferrer">Read the code</a>.</p>
         </section>
       </div>
     </main>

@@ -23,6 +23,7 @@ const links: Array<{
 ];
 
 const PRODUCT_HREFS = new Set(["/today", "/today?section=materials", "/today?section=map", "/today?section=progress"]);
+const GITHUB_URL = "https://github.com/YSF2004/kelus";
 
 const noop = () => () => {};
 
@@ -81,6 +82,9 @@ export function SiteHeader() {
                 </Link>
               );
             })}
+            <a href={GITHUB_URL} target="_blank" rel="noreferrer" className="site-open-source-link">
+              Open source <span aria-hidden="true">↗</span>
+            </a>
           </nav>
         )}
 
