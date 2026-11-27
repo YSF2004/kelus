@@ -1,18 +1,24 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
+import { usePathname } from "next/navigation";
 import {
   analyticsOptedOut,
   connectPostHog,
   disconnectPostHog,
+  kelusPageCategory,
   POSTHOG_API_HOST,
   POSTHOG_PROJECT_KEY,
+  trackPostHogPageViewed,
 } from "@/lib/analytics";
 
 let postHogModule: Promise<typeof import("posthog-js")> | null = null;
 let initializedKey: string | null = null;
 
 export function PostHogAnalytics() {
+  const pathname = usePathname();
+  const lastTrackedPath = useRef<string | null>(null);
+
   useEffect(() => {
     if (!POSTHOG_PROJECT_KEY || analyticsOptedOut()) return;
 
@@ -63,6 +69,17 @@ export function PostHogAnalytics() {
       disconnectPostHog();
     };
   }, []);
+
+  useEffect(() => {
+    if (!POSTHOG_PROJECT_KEY || analyticsOptedOut()) return;
+
+    // Deduplicate React re-renders, while still recording real navigation. The
+    // raw path never leaves the browser; only its fixed category is captured.
+    const path = pathname.replace(/\/+$/, "") || "/";
+    if (lastTrackedPath.current === path) return;
+    lastTrackedPath.current = path;
+    trackPostHogPageViewed(kelusPageCategory(path));
+  }, [pathname]);
 
   return null;
 }

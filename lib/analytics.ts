@@ -4,7 +4,45 @@ export const POSTHOG_PROJECT_KEY =
   process.env.NEXT_PUBLIC_POSTHOG_KEY?.trim() || "";
 export const POSTHOG_API_HOST = "https://us.i.posthog.com";
 
+/**
+ * Deliberately coarse page labels for PostHog. These are product areas, never
+ * routes, filenames, titles, search terms, or other student-provided data.
+ */
+export type KelusPageCategory =
+  | "marketing_home"
+  | "how_it_works"
+  | "search_landing"
+  | "source_intake"
+  | "study_plan"
+  | "study_session"
+  | "past_paper"
+  | "questions"
+  | "legal"
+  | "other";
+
+export function kelusPageCategory(pathname: string): KelusPageCategory {
+  const path = pathname.replace(/\/+$/, "") || "/";
+  if (path === "/") return "marketing_home";
+  if (path === "/route") return "how_it_works";
+  if (path === "/today") return "study_plan";
+  if (path === "/session" || path.startsWith("/session/")) return "study_session";
+  if (path === "/past-paper" || path.startsWith("/past-paper/")) return "past_paper";
+  if (path === "/questions" || path.startsWith("/questions/")) return "questions";
+  if (path === "/privacy" || path === "/terms") return "legal";
+  if (
+    path === "/start" ||
+    path === "/materials" ||
+    path === "/topics" ||
+    path === "/course"
+  ) return "source_intake";
+  if (
+    /\/(pdf-to-|notes-to-|lecture-slides-to-|quiz-me-on-|anki-alternative|quizlet-alternative|turn-notes-into-|make-practice-test-from-|powerpoint-to-)/.test(path)
+  ) return "search_landing";
+  return "other";
+}
+
 export type KelusAnalyticsEvent =
+  | { name: "page_viewed"; page: KelusPageCategory }
   | { name: "source_intake_viewed"; variant: "reference" | "course_story" }
   | { name: "setup_started" }
   | { name: "setup_completed"; available_minutes: number }
@@ -132,6 +170,18 @@ export function connectPostHog(
 
 export function disconnectPostHog() {
   postHogCapture = null;
+}
+
+/**
+ * Records navigation as a safe product-area label. This deliberately bypasses
+ * GA: GA retains its existing full page-view implementation, while PostHog
+ * receives no URL, query string, referrer, course title, or note content.
+ */
+export function trackPostHogPageViewed(page: KelusPageCategory) {
+  if (typeof window === "undefined" || !POSTHOG_PROJECT_KEY || analyticsOptedOut()) return;
+  const event: KelusAnalyticsEvent = { name: "page_viewed", page };
+  if (postHogCapture) sendToPostHog(event);
+  else if (pendingPostHogEvents.length < 100) pendingPostHogEvents.push(event);
 }
 
 function flushPendingEvents() {
