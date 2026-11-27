@@ -52,4 +52,3 @@ Use plain language. Avoid scores, predicted grades, broad motivational advice, a
 ## Kelus handoff
 
 Offer the handoff only after the student has received a useful result. Describe it accurately: saving to Kelus keeps the source and question together and creates the next revision step. Do not claim an upload, account, course, reminder, or saved route occurred unless the receiving product confirms it.
-
