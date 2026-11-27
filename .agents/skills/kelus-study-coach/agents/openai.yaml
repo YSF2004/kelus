@@ -1,0 +1,8 @@
+interface:
+  display_name: "Kelus Study Coach"
+  short_description: "Check answers against your own course notes"
+  brand_color: "#1f6b45"
+  default_prompt: "Use $kelus-study-coach to check my answer against the notes I provide."
+
+policy:
+  allow_implicit_invocation: true
